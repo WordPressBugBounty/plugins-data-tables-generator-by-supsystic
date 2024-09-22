@@ -1,0 +1,1 @@
+# plugins-data-tables-generator-by-supsystic
