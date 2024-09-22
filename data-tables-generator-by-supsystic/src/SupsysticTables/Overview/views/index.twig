@@ -1,0 +1,259 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+    <div class="supsystic-overview">
+        <div class="full-page">
+          <div class="plugin-title"><img src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/plugin-icon.png">Data Tables by Supsystic</div>
+          <div class="plugin-description">Creating tables and charts on a WordPress website has never been easier thanks to this powerful data table maker plugin. With just a few clicks, WordPress users can have their data table online quickly and displayed exactly the way they want it.  And the best part? Data Tables Generator is lightweight and fast.</div>
+        </div>
+        <div class="supsystic-overview-flex">
+        <div class="half-page half-page-left">
+            <div class="border-wrapper">
+              <ul>
+                <li class="overview-section-btn" data-section="faq"><i class="fa fa-info-circle"></i> FAQ and Documentation</li>
+                <li class="overview-section-btn" data-section="video"><i class="fa fa-play"></i> Video tutorial</li>
+                <li class="overview-section-btn" data-section="settings"><i class="fa fa-cog"></i> Server Settings</li>
+                <li class="overview-section-btn" data-section="support"><i class="fa fa-life-ring"></i> Support</li>
+                <li class="overview-section-btn" data-section="promo_video"><i class="fa fa-star"></i> Our promo video</li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/plugins/data-tables-generator-plugin/?utm_source=plugin&utm_campaign=tables"> Plugin page on supsystic.com <sup><i class="fa fa-external-link"></i></sup></a></li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/plugins/data-tables-generator-plugin/?utm_source=plugin&utm_campaign=tables"> Compare FREE and PRO features <sup><i class="fa fa-external-link"></i></sup></a></li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/all-plugins/?utm_source=plugin&utm_campaign=tables"> Check other supsystic FREE plugins <sup><i class="fa fa-external-link"></i></sup></a></li>
+              </ul>
+            </div>
+
+            <div class="border-wrapper">
+            <div class="overview-contact-form overview-section" data-section="support">
+                <h3><i class="fa fa-life-ring"></i> Support</h3>
+                <div class="contact-info-section">
+                  <p><i class="fa fa-clock-o" aria-hidden="true"></i> Our official support hours are 09:00 -18:00 GMT+02:00, Monday to Friday – excluding bank holidays and other official holidays.</p>
+                  <p>The timescales listed below refer to these working hours.</p><br>
+                  <p><em>Support requests are prioritized based on the type of license:</em></p>
+                  <ul>
+                    <li><p><em>Pro Support</em> is reserved for customers with an active Pro license. We respond to new priority support requests within 12 hours.</p></li>
+                    <li><p><em>Standard Support</em> is provided to customers with an active Free license. We respond to standard support requests within 24h-48h.</p></li>
+                  </ul><br>
+                  <p><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> While we don’t guarantee that we will resolve the request in this time period, we will acknowledge it and communicate with the customer as appropriate to help resolve the issue.</p>
+                </div>
+                {% import '@core/form.twig' as form %}
+
+                {{ form.open('post', environment.generateUrl('overview', 'sendMail'), { 'id': 'form-settings', 'style': 'max-width: 100%;', '_wpnonce': _wpnonce }) }}
+
+                <table class="contact-form-table" style="width: 100%;">
+                    <thead>
+                    {{ form.row(translate('Name') ~ ' *',
+                        form.text('name', SG_USER_NAME, { 'required': '' })) }}
+
+                    {{ form.row(translate('Email') ~ ' *',
+                        form.text('email', contactForm.email, { 'required': '' })) }}
+
+                    {{ form.row(translate('Website') ~ ' *',
+                        form.text('website', contactForm.website, { 'required': '' })) }}
+
+                    {{ form.row(translate('Subject') ~ ' *',
+                        form.text('subject', '', { 'required': '' })) }}
+                    <tr>
+                        <th scope="row">
+                            <label for="select-question">{{ translate('Topic') }}</label>
+                        </th>
+                        <td>
+                            <select id="select-question" name="question">
+                                <option value="plugin_options">
+                                    {{ translate('Plugin options') }}
+                                </option>
+                                <option value="bug">
+                                    {{ translate('Report a bug') }}
+                                </option>
+                                <option value="functionallity">
+                                    {{ translate('Require a new functionallity') }}
+                                </option>
+                                <option value="security_issue">
+                                    {{ translate('Report about security issue (XSS/SQLi and others)') }}
+                                </option>
+                                <option value="other">
+                                    {{ translate('Other') }}
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="vertical-align: top;">
+                            <label for="mail-text">{{ translate('Message') ~ ' *' }}</label>
+                        </th>
+                        <td>
+                            <textarea id="mail-text" name="message" cols="50" rows="3" placeholder="{{ translate('Hello Supsystic Team!') }}" required=""></textarea>
+                        </td>
+                    </tr>
+
+                    </thead>
+                </table>
+                <button id="send-mail" type="submit" class="button button-primary button-hero">
+                    <i class="fa fa-check-square" aria-hidden="true"></i>
+                    Send email
+                </button>
+                <div class="required-notification" style="color: red; float: left;" hidden>Fields with * are required to fill</div>
+                {{ form.close() }}
+                <div class="clear"></div>
+            </div>
+
+            <div id="contact-form-dialog" hidden>
+                <div class="on-error" style="display:none">
+                    <p>{{ translate('Some errors occurred while sending mail please send your message trough this contact form:') }}</p>
+                    <p><a href="https://supsystic.com/plugins/data-tables-generator-plugin/#contact" target="_blank">https://supsystic.com/plugins/data-tables-generator-plugin/#contact</a></p>
+                </div>
+                <div class="message"></div>
+            </div>
+
+            <div data-section="faq" class="faq-list overview-section">
+                  <h3>FAQ and Documentation</h3>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      Data Tables Plugin Installation
+                      <div class="description" hidden>
+                          One more advantage of Data Tables WordPress Plugin is an easy installation. To install it, you should make three following steps:
+                          1. Download Data Tables Generator by Supsystic plugin.<br/>
+                          2. Upload to your WordPress plugins directory. <br/>
+                          3. Activate and enjoy.
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to use Data Tables Generator plugin?
+                      <div class="description" hidden>
+                          <strong>Step 1: Creating Responsive Data Table</strong><br/>
+                          1. On the left navigation menu click “Add new table”.
+                          <br/>
+                          2. Enter the title of table, set the number of Rows and Columns.
+                          <br/>
+                          3. Click “OK”. <br/>
+                          <strong>Step 2: Adding data to the Tables by Supsystic</strong>
+                          <br/>
+                          More detail information you can find here –
+                          <a href="http://supsystic.com/how-to-create-data-tables-in-wordpress/">How to Create Data Tables in WordPress</a>
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to make table responsive?
+                      <div class="description" hidden>
+                          Data Tables Generator by Supsystic automatically creates responsive tables. So you don’t need to activate for this any options, it will be responsive by default. <br>Besides on Settings tab you can find “Responsive mode” option with which you are able to choose different responsive modes for your table (Standard Responsive mode, Automatic column hiding, Horizontal scroll or simply disable it).
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to search by the table?
+                      <div class="description" hidden>
+                          1. In the Settings of a table go to “Features” section.
+                          <br/>
+                          2. Find “Searching” option and activate it. <br/>
+                          3. Over the table will appear the search field.
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to sort the table?
+                      <div class="description" hidden>
+                          With Data Tables by Supsystic you can alter the ordering characteristics of the table. Using ordering (sorting) option, you can set the table to display the data in exactly the order that you want.
+                          <br/>
+                          1. In the Settings of a table go to “Features” section.
+                          <br/>
+                          2. Find “Ordering” option and activate it.
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to use formulas in the table?
+                      <div class="description" hidden>
+                          1. In the Settings of a table go to “Features” section.Go to Editor of Data Table.
+                          <br/>
+                          2. Select a cell and start typing. In a cell, type an equal sign “=” to start the formula.
+              						<br/>
+              						3. Fill in the rest of the formula.
+              						<br/>
+                          4. Save the changes of table.
+              						<br/>
+                          5. Check the result of formula in the table on your site.
+              						<br/>
+              						<br/>
+              						Learn more about how to do this <a href="//supsystic.com/how-to-use-tables/" target="_blank">here</a>.
+                      </div>
+                  </div>
+                  <div class="faq-title">
+                      <i class="fa fa-info-circle"></i>
+                      How to format content of the table?
+                      <div class="description" hidden>
+                          In order to format content of the table – click “Editor” button. Here you can:
+                          <br/>
+                           - insert row and column to the table <br/>
+                           - set the font of text – bold and italic <br/>
+                           - choose text and background color <br/>
+                           - specify horizontal and vertical alignment <br/>
+                           Besides, by clicking the right button of the mouse (choose the certain cell, column or row and click the right button of mouse) you have such abilities –
+                          <br/>
+                           - cancel or restore your actions <br/>
+                           - insert row or column where you want <br/>
+                           - remove row or column <br/>
+                           - enable “Read only” mode for any cells, rows and columns and even for the whole table
+                          <br/>
+                           - set the alignment of text <br/>
+                           - Also you have the ability to change the column / row width – use your mouse, move the cursor on right side of the column boundary / (bottom side of the row boundary) you want until it becomes a resize cursor, and then drag the boundary.
+                      </div>
+                  </div>
+                  <div style="clear: both;"></div>
+                  <a href="https://supsystic.com/docs/data-tables/#faq?utm_source=plugin&utm_medium=faq&utm_campaign=tables" class="button button-primary button-hero">
+                      <i class="fa fa-info-circle"></i>
+                      Check all FAQs
+                  </a>
+                  <div style="clear: both;"></div>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="video" class="video overview-section">
+                <h3><i class="fa fa-play"></i> Video tutorial</h3>
+                <iframe type="text/html"
+                        width="100%"
+                        height="350px"
+                        src="https://www.youtube.com/embed/Fa3EI7-oBfc"
+                        frameborder="0">
+                </iframe>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="promo_video" class="video overview-section">
+                <h3><i class="fa fa-star"></i> Our promo video</h3>
+                <iframe type="text/html"
+                        width="100%"
+                        height="350px"
+                        src="http://www.youtube.com/embed/dKd_9g6JzfU"
+                        frameborder="0">
+                </iframe>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="settings" class="server-settings overview-section">
+                <h3><i class="fa fa-cog"></i> Server settings</h3>
+                <ul class="settings-list">
+                    {% for title, element in serverSettings %}
+                        <li class="settings-line" style="float: none;">
+                            <div class="settings-title">{{ title|trim }}:</div>
+                            <span>{{ element.value|trim }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="clear"></div>
+            </div>
+            </div>
+
+        </div>
+
+        <div class="half-page half-page-right">
+         {% if environment.isPro() == false %}
+            <a href="https://supsystic.com/?mod=user&action=addToCart&pid=23243&addQty=1&goto=checkout&lang=en" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-trial.png"></a>
+            {% endif %}
+            <a href="https://supsystic.com/pricing/?utm_source=plugin&utm_campaign=tables" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-01.png"></a>
+            <a href="https://supsystic.com/plugins/plugins-bundle/?utm_source=plugin&utm_campaign=tables" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-02.png"></a>
+            <a href="https://supsystic.com/all-plugins/?utm_source=plugin&utm_campaign=tables" target="_blank"><img style="margin-top:20px;"  class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-03.png"></a>
+            <div class="clear"></div>
+        </div>
+        </div>
+    </div>
+{% endblock %}

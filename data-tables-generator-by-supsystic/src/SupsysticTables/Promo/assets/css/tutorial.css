@@ -1,0 +1,15 @@
+.wp-pointer-buttons{
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -ms-flex-align: center;
+    align-items: center;
+}
+.wp-pointer-buttons.reversed{
+    -ms-flex-direction:row-reverse;
+    flex-direction:row-reverse;
+}
+.wp-pointer-buttons a{
+    float: none;
+}

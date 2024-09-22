@@ -1,0 +1,9 @@
+{% macro attr(text, placement = 'top', html = false) %}
+        data-toggle="tooltip" data-placement="{{ placement }}" data-html="{{ html }}" title="{{ text | escape }}"
+{% endmacro %}
+
+{% macro icon(text, placement = 'top', html = false, attr = '') %}
+    {% import _self as tooltip %}
+        <i class="fa fa-info-circle supsystic-tooltip tooltipstered" {{ attr | raw }} {{ tooltip.attr(text, placement, html) }}></i>
+        <!-- /.fa fa-question supsystic-tooltip tooltipstered -->
+{% endmacro %}
