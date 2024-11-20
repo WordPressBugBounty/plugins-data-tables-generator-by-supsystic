@@ -48,23 +48,25 @@ class SupsysticTables_Promo_Module extends SupsysticTables_Core_BaseModule
 	}
 
 	public function enqueueTutorialAssets()
-	{
-		$modulePath = untrailingslashit(plugin_dir_url(__FILE__));
-		wp_enqueue_script(
-				'supsystic-tables-step-tutorial',
-				$modulePath . '/assets/js/tutorial.js',
-				array('wp-pointer')
+	{	
+		if (current_user_can('manage_options')) {
+			$modulePath = untrailingslashit(plugin_dir_url(__FILE__));
+			wp_enqueue_script(
+					'supsystic-tables-step-tutorial',
+					$modulePath . '/assets/js/tutorial.js',
+					array('wp-pointer')
+				);
+			wp_enqueue_style('wp-pointer');
+			wp_enqueue_style('supsystic-tables-pointers', $modulePath . '/assets/css/tutorial.css');
+
+			$data = array(
+				'next'  => $this->translate('Next'),
+				'close' => $this->translate('Close Tutorial'),
+				'pointersData'	=> $this->pointers(),
 			);
-		wp_enqueue_style('wp-pointer');
-        wp_enqueue_style('supsystic-tables-pointers', $modulePath . '/assets/css/tutorial.css');
 
-		$data = array(
-			'next'  => $this->translate('Next'),
-			'close' => $this->translate('Close Tutorial'),
-			'pointersData'	=> $this->pointers(),
-		);
-
-		wp_localize_script('supsystic-tables-step-tutorial', 'DataTablesPromoPointers', $data);
+			wp_localize_script('supsystic-tables-step-tutorial', 'DataTablesPromoPointers', $data);
+		}
 	}
 
 	public function pointers()

@@ -4,8 +4,8 @@ Author URI: https://supsystic.com/
 Plugin URI: https://supsystic.com/plugins/data-tables-generator-plugin/
 Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: data table, spreadsheet, table builder, charts, graphs, wordpress table plugin, excel, line chart, pie chart, visualise data
-Tested up to: 6.5
-Stable tag: 1.10.36
+Tested up to: 6.7
+Stable tag: 1.10.37
 
 Create data tables with charts and graphs.  Custom design, navigation, searching and ordering functions. Export to PDF, CSV, Print. Excel spreadsheet. WooCommerce Integration.
 
@@ -216,7 +216,16 @@ It's perfect for product [Price List](http://woo.supsystic.com/price-list "Price
 
 Create custom order forms which increase your conversion rate!
 
+= How can I report security bugs? =
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. 
+The Patchstack team help validate, triage and handle any security vulnerabilities. 
+[Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
+
 == Changelog ==
+1.10.37 / 20.11.2024 =
+ * Fixed security bug in promo module
+
+
 1.10.36 / 13.06.2024 =
  * Update overview-trial button
 
