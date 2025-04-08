@@ -48,6 +48,20 @@
     height: auto;
 }
 
+.ui-widget-content input[type="checkbox"] {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.ui-jqgrid-sortable {
+    pointer-events: none;
+    cursor: default;
+}
+
+.ui-jqgrid-sortable span.s-ico {
+    display:none !important;
+}
+
 .ui-dialog {
     box-shadow: 1px 1px 10px #ccc;
     -webkit-box-shadow: 1px 1px 10px #ccc;

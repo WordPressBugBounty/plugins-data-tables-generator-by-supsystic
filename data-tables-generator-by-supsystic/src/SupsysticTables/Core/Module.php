@@ -461,7 +461,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
         return $homepage . '?' . http_build_query($parameters);
     }
     public function getCdnUrl() {
-		return (is_ssl() ? 'https' : 'http').'://supsystic-42d7.kxcdn.com/';
+		return '';
 	}
 
 	public function addPregReplaceFilter($input, $regexp, $replace)

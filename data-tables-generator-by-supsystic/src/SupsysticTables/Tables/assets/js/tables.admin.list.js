@@ -5,6 +5,13 @@ if(!jQuery.fn.jqGrid) {
 }
 var tblId = 'ddtTableTbl';
 
+jQuery('body').on('click','#cb_ddtTableTbl', function() {
+	setTimeout(() => {
+		jQuery('#export-group').removeAttr('disabled');
+		jQuery('#ddtTableRemoveGroupBtn').removeAttr('disabled');
+	}, 300);
+});
+
 jQuery('#'+ tblId).jqGrid({
 // 	url: dttTblDataUrl
 // ,
@@ -27,10 +34,10 @@ jQuery('#'+ tblId).jqGrid({
 ,	shrinkToFit: true
 ,	colNames:['ID', 'Title', 'Shortcode', 'Phpcode']
 ,	colModel:[
-		{name: 'id', index: 'id', searchoptions: {sopt: ['eq']}, width: '50', align: 'center'}
-	,	{name: 'title', index: 'title', searchoptions: {sopt: ['eq']}, align: 'center'}
-	,	{name: 'shortcode', index: 'shortcode', searchoptions: {sopt: ['eq']}, align: 'center'}
-	,	{name: 'phpcode', index: 'phpcode', searchoptions: {sopt: ['eq']}, align: 'center'}
+		{name: 'id', index: 'id', sortable: false, searchoptions: {sopt: ['eq']}, width: '50', align: 'center'}
+	,	{name: 'title', index: 'title', sortable: false, searchoptions: {sopt: ['eq']}, align: 'center'}
+	,	{name: 'shortcode', index: 'shortcode', sortable: false, searchoptions: {sopt: ['eq']}, align: 'center'}
+	,	{name: 'phpcode', index: 'phpcode', sortable: false, searchoptions: {sopt: ['eq']}, align: 'center'}
 	]
 ,	postData: {
 		search: {
@@ -41,6 +48,7 @@ jQuery('#'+ tblId).jqGrid({
 ,	rowList:[10, 20, 30, 1000]
 ,	pager: '#'+ tblId+ 'Nav'
 ,	sortname: 'id'
+, sortable: false
 ,	viewrecords: true
 ,	sortorder: 'desc'
 ,	jsonReader: { repeatitems : false, id: '0' }
@@ -76,8 +84,6 @@ jQuery('#'+ tblId).jqGrid({
 		jQuery('#ddtTableRemoveGroupBtn').attr('disabled', 'disabled');
 		jQuery('#cb_'+ tblId).prop('indeterminate', false);
 		jQuery('#cb_'+ tblId).removeAttr('checked');
-		// Custom checkbox manipulation
-		ddtInitCustomCheckRadio('#'+ jQuery(this).attr('id') );
 		ddtCheckUpdate('#cb_'+ jQuery(this).attr('id'));
 	}
 ,	loadComplete: function() {
@@ -136,7 +142,7 @@ jQuery('#ddtTableRemoveGroupBtn').click(function(){
 		popupLabel = jQuery(labelCellData).text();
 	}
 	var confirmMsg = listIds.length > 1
-		? 'Are you sur want to remove '+ listIds.length+ ' Tables?'
+		? 'Are you sure want to remove '+ listIds.length+ ' Tables?'
 		: 'Are you sure want to remove "'+ popupLabel+ '" Table?'
 	if(confirm(confirmMsg)) {
 		jQuery.post(ajaxurl,
@@ -158,36 +164,6 @@ jQuery('#ddtTableRemoveGroupBtn').click(function(){
 	}
 	return false;
 });
-ddtInitCustomCheckRadio('#'+ tblId+ '_cb');
-
-function ddtInitCustomCheckRadio(selector) {
-	if(!jQuery.fn.iCheck) return;
-	if(!selector)
-		selector = document;
-	jQuery(selector).find('input').iCheck('destroy').iCheck({
-		checkboxClass: 'icheckbox_minimal'
-		,	radioClass: 'iradio_minimal'
-	}).on('ifChanged', function(e){
-		// for checkboxHiddenVal type, see class htmlddt
-		jQuery(this).trigger('change');
-		if(jQuery(this).hasClass('cbox')) {
-			var parentRow = jQuery(this).parents('.jqgrow:first');
-			if(parentRow && parentRow.size()) {
-				jQuery(this).parents('td:first').trigger('click');
-			} else {
-				var checkId = jQuery(this).attr('id');
-				if(checkId && checkId != '' && strpos(checkId, 'cb_') === 0) {
-					var parentTblId = str_replace(checkId, 'cb_', '');
-					if(parentTblId && parentTblId != '' && jQuery('#'+ parentTblId).size()) {
-						jQuery('#'+ parentTblId).find('input[type=checkbox]').iCheck('update');
-					}
-				}
-			}
-		}
-	}).on('ifClicked', function(e){
-		jQuery(this).trigger('click');
-	});
-}
 function ddtCheckUpdate(checkbox) {
 	if(!jQuery.fn.iCheck) return;
 	jQuery(checkbox).iCheck('update');
