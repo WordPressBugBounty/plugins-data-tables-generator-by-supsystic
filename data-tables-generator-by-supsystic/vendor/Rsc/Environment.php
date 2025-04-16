@@ -186,7 +186,6 @@ class RscDtgs_Environment
             );
         }
 
-        //$this->getLang()->loadTextDomain();
 			add_action('init', function() {
 				$this->getLang()->loadTextDomain();
 			});

@@ -73,7 +73,10 @@ class RscDtgs_Lang
      */
     public function translate($msgid)
     {
-        return __($msgid, $this->domain);
+        if (did_action('init')) {    
+            return __($msgid, $this->domain);
+        }
+        return $msgid;
     }
 
     /**
