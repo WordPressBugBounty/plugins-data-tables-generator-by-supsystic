@@ -4,7 +4,7 @@
  * Plugin Name: Data Tables Generator by Supsystic
  * Plugin URI: http://supsystic.com
  * Description: Create and manage beautiful data tables with custom design. No HTML knowledge is required
- * Version: 1.10.41
+ * Version: 1.10.43
  * Author: supsystic.com
  * Author URI: http://supsystic.com
  * Text Domain: supsystic_tables

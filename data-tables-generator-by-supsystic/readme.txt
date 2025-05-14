@@ -5,8 +5,8 @@ Plugin URI: https://supsystic.com/plugins/data-tables-generator-plugin/
 Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: data table, spreadsheet, table builder, charts, wordpress table plugin
 License: GNU General Public License v2.0 or later
-Tested up to: 6.7
-Stable tag: 1.10.41
+Tested up to: 6.8
+Stable tag: 1.10.43
 
 Create data tables with charts and graphs.  Custom design, navigation, searching and ordering functions. Export to PDF, CSV, Print. Excel spreadsheet. WooCommerce Integration.
 
@@ -223,6 +223,12 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 [Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
 
 == Changelog ==
+1.10.43 /  14.05.2025 =
+ * Minor fixes
+
+1.10.42/  06.05.2025 =
+ * Minor fixes
+
 1.10.41/  16.04.2025 =
  * Add fix for init textdomain
 
