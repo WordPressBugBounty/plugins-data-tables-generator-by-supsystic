@@ -6,7 +6,7 @@ Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: data table, spreadsheet, table builder, charts, wordpress table plugin
 License: GNU General Public License v2.0 or later
 Tested up to: 6.8
-Stable tag: 1.10.43
+Stable tag: 1.10.44
 
 Create data tables with charts and graphs.  Custom design, navigation, searching and ordering functions. Export to PDF, CSV, Print. Excel spreadsheet. WooCommerce Integration.
 
@@ -157,7 +157,7 @@ Learn more about how to use [formulas in tables](https://supsystic.com/documenta
 
 = Which properties and columns can I display in the WooCommerce Product table? =
 Your [WooCommerce Product table](https://supsystic.com/plugins/woocommerce-product-table "WooCommerce product table") can include any of the following columns: Product attributes, Categories, SKU, Add to cart button, Summary, Date, Price, Product Thumbnail, Reviews.
-You can display each type as a separate column in the product table. To take full advantage of the WooCommerce Product Table have a look at the [examples with different features](http://woo.supsystic.com "Product Table plugin demo site" and get more information in our tutorial [How to Start using WooCommerce Product Table](https://supsystic.com/documentation/getting-started-woocommerce-product "Getting Started").
+You can display each type as a separate column in the product table. To take full advantage of the WooCommerce Product Table have a look at the [examples with different features](http://woo.supsystic.com "Product Table plugin demo" and get more information in our tutorial [How to Start using WooCommerce Product Table](https://supsystic.com/documentation/getting-started-woocommerce-product "Getting Started").
 
 = Where to find additional information? =
 Plugin has comprehensive [documentation](https://supsystic.com/docs/data-tables?utm_source=wordpress&utm_medium=documentation&utm_campaign=datatables "Data Tables documentation")
@@ -223,6 +223,9 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 [Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
 
 == Changelog ==
+1.10.44 /  11.06.2025 =
+ * Minor fixes
+
 1.10.43 /  14.05.2025 =
  * Minor fixes
 

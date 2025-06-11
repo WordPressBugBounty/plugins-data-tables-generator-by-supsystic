@@ -254,6 +254,11 @@ class RscDtgs_Environment
         return $this->config->get('is_pro', false);
     }
 
+    public function isWoo()
+    {
+        return class_exists( 'WooCommerce' );
+    }
+
 	public function isWooPro()
 	{
 		return $this->config->get('is_woo_pro', false);
