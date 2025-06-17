@@ -6,7 +6,7 @@ Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: data table, spreadsheet, table builder, charts, wordpress table plugin
 License: GNU General Public License v2.0 or later
 Tested up to: 6.8
-Stable tag: 1.10.44
+Stable tag: 1.10.45
 
 Create data tables with charts and graphs.  Custom design, navigation, searching and ordering functions. Export to PDF, CSV, Print. Excel spreadsheet. WooCommerce Integration.
 
@@ -218,12 +218,15 @@ It's perfect for product [Price List](http://woo.supsystic.com/price-list "Price
 Create custom order forms which increase your conversion rate!
 
 = How can I report security bugs? =
-You can report security bugs through the Patchstack Vulnerability Disclosure Program. 
-The Patchstack team help validate, triage and handle any security vulnerabilities. 
+You can report security bugs through the Patchstack Vulnerability Disclosure Program.
+The Patchstack team help validate, triage and handle any security vulnerabilities.
 [Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
 
 == Changelog ==
-1.10.44 /  11.06.2025 =
+1.10.45 / 17.06.2025 =
+ * Minor fixes and overview update
+
+1.10.44 / 11.06.2025 =
  * Minor fixes
 
 1.10.43 /  14.05.2025 =
@@ -237,7 +240,7 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 
 1.10.40 / 08.04.2025 =
  * Fixes for UI/UX
- 
+
 1.10.39 / 05.04.2025 =
  * Fixed fatal error Installation
 
@@ -260,7 +263,7 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 
 1.10.33 / 31.01.2024 =
  * Add expertise level for AC form
- 
+
 1.10.32 / 31.01.2024 =
  * Security fix
  * custom text for prev,next btn
@@ -282,7 +285,7 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
  * Minor fixes
 
 1.10.26 / 17.03.2023 =
- * Securityfix for nonces. 
+ * Securityfix for nonces.
  * Changed overview ads
  * Fix free migration
 1.10.25 / 08.11.2022 =
@@ -304,7 +307,7 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
  * BEFORE update please deactivate PRO version. Only after that update Free version.
  * REQUIRED PRO version min 1.7.13
 
- 
+
 1.10.21 /30.08.2022 =
  * BEFORE update please deactivate PRO version. Only after that update Free version.
  * REQUIRED PRO version min 1.7.13
@@ -336,7 +339,7 @@ WP fixes
  * Migrating to mPDF from dompdf, for export PDF feature.
  * Remove temp fonts from mpdf
  * Set mPDF to download PDF file instead of opening in a window.
- 
+
 1.10.13 / 06.12.2021 =
  * Fix for RuleJS
  * Fix in license.mod
