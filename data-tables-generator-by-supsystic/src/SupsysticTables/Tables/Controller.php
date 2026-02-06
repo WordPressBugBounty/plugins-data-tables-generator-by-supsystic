@@ -554,9 +554,26 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
 
     public function cleanCache($id)
     {
-        $cachePath = $this->getConfig()->get('plugin_cache_tables') . DIRECTORY_SEPARATOR . $id;
-        if (file_exists($cachePath)) {
-            unlink($cachePath);
+        $cacheDir = $this->getConfig()->get('plugin_cache_tables');
+        if (empty($cacheDir)) {
+            return;
+        }
+        // Only allow numeric table IDs to prevent path traversal
+        $id = is_string($id) ? trim($id) : $id;
+        if (!is_int($id)) {
+            if (!is_string($id) || $id === '' || !ctype_digit($id)) {
+                return;
+            }
+            $id = (int)$id;
+        }
+        $fileName = (string)$id;
+        $target = $cacheDir . DIRECTORY_SEPARATOR . $fileName;
+        // Final safety: ensure no directory separators sneaked in and path stays within cache dir
+        if ($fileName !== basename($fileName)) {
+            return;
+        }
+        if (file_exists($target) && is_file($target)) {
+            @unlink($target);
         }
     }
 
