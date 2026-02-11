@@ -52,7 +52,7 @@ Create tables manually or [import data](https://supsystic.com/importing-data-int
 Ideal if your data already lives outside WordPress.
 
 = 🔄 Work With Dynamic Data =
-Data Tables Generator supports tables connected to [external data sources](https://supsystic.com/documentation/dynamic-data-tables/). 
+Data Tables Generator supports tables connected to [external data sources](https://supsystic.com/docs/data-tables/). 
 When your source data changes — such as a spreadsheet or database — tables can be updated without rebuilding them from scratch. This makes it suitable for data that evolves over time, not just static content.
 **For example**:
  If you manage a product list, pricing table, availability sheet, or catalogue in a spreadsheet, you can connect it to a table on your site.
