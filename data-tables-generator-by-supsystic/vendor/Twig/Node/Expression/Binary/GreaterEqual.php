@@ -10,8 +10,8 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Binary_GreaterEqual extends Twig_SupTwgDtgs_Node_Expression_Binary
 {
-    public function operator(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        return $compiler->raw('>=');
-    }
+  public function operator(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    return $compiler->raw('>=');
+  }
 }

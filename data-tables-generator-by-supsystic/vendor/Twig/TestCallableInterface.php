@@ -18,5 +18,5 @@
  */
 interface Twig_SupTwgDtgs_TestCallableInterface
 {
-    public function getCallable();
+  public function getCallable();
 }

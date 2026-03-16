@@ -26,24 +26,24 @@
  */
 class Twig_SupTwgDtgs_TokenParser_Spaceless extends Twig_SupTwgDtgs_TokenParser
 {
-    public function parse(Twig_SupTwgDtgs_Token $token)
-    {
-        $lineno = $token->getLine();
+  public function parse(Twig_SupTwgDtgs_Token $token)
+  {
+    $lineno = $token->getLine();
 
-        $this->parser->getStream()->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse(array($this, 'decideSpacelessEnd'), true);
-        $this->parser->getStream()->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
+    $this->parser->getStream()->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
+    $body = $this->parser->subparse([$this, 'decideSpacelessEnd'], true);
+    $this->parser->getStream()->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
 
-        return new Twig_SupTwgDtgs_Node_Spaceless($body, $lineno, $this->getTag());
-    }
+    return new Twig_SupTwgDtgs_Node_Spaceless($body, $lineno, $this->getTag());
+  }
 
-    public function decideSpacelessEnd(Twig_SupTwgDtgs_Token $token)
-    {
-        return $token->test('endspaceless');
-    }
+  public function decideSpacelessEnd(Twig_SupTwgDtgs_Token $token)
+  {
+    return $token->test('endspaceless');
+  }
 
-    public function getTag()
-    {
-        return 'spaceless';
-    }
+  public function getTag()
+  {
+    return 'spaceless';
+  }
 }

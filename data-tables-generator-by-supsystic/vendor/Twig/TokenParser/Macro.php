@@ -22,37 +22,37 @@
  */
 class Twig_SupTwgDtgs_TokenParser_Macro extends Twig_SupTwgDtgs_TokenParser
 {
-    public function parse(Twig_SupTwgDtgs_Token $token)
-    {
-        $lineno = $token->getLine();
-        $stream = $this->parser->getStream();
-        $name = $stream->expect(Twig_SupTwgDtgs_Token::NAME_TYPE)->getValue();
+  public function parse(Twig_SupTwgDtgs_Token $token)
+  {
+    $lineno = $token->getLine();
+    $stream = $this->parser->getStream();
+    $name = $stream->expect(Twig_SupTwgDtgs_Token::NAME_TYPE)->getValue();
 
-        $arguments = $this->parser->getExpressionParser()->parseArguments(true, true);
+    $arguments = $this->parser->getExpressionParser()->parseArguments(true, true);
 
-        $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
-        $this->parser->pushLocalScope();
-        $body = $this->parser->subparse(array($this, 'decideBlockEnd'), true);
-        if ($token = $stream->nextIf(Twig_SupTwgDtgs_Token::NAME_TYPE)) {
-            $value = $token->getValue();
+    $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
+    $this->parser->pushLocalScope();
+    $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+    if ($token = $stream->nextIf(Twig_SupTwgDtgs_Token::NAME_TYPE)) {
+      $value = $token->getValue();
 
-            if ($value != $name) {
-                throw new Twig_SupTwgDtgs_Error_Syntax(sprintf('Expected endmacro for macro "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
-            }
-        }
-        $this->parser->popLocalScope();
-        $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
-
-        $this->parser->setMacro($name, new Twig_SupTwgDtgs_Node_Macro($name, new Twig_SupTwgDtgs_Node_Body(array($body)), $arguments, $lineno, $this->getTag()));
+      if ($value != $name) {
+        throw new Twig_SupTwgDtgs_Error_Syntax(sprintf('Expected endmacro for macro "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
+      }
     }
+    $this->parser->popLocalScope();
+    $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
 
-    public function decideBlockEnd(Twig_SupTwgDtgs_Token $token)
-    {
-        return $token->test('endmacro');
-    }
+    $this->parser->setMacro($name, new Twig_SupTwgDtgs_Node_Macro($name, new Twig_SupTwgDtgs_Node_Body([$body]), $arguments, $lineno, $this->getTag()));
+  }
 
-    public function getTag()
-    {
-        return 'macro';
-    }
+  public function decideBlockEnd(Twig_SupTwgDtgs_Token $token)
+  {
+    return $token->test('endmacro');
+  }
+
+  public function getTag()
+  {
+    return 'macro';
+  }
 }

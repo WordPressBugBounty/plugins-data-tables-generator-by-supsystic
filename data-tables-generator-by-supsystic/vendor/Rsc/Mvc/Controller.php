@@ -3,124 +3,117 @@
 #[AllowDynamicProperties]
 class RscDtgs_Mvc_Controller
 {
+  /**
+   * @var RscDtgs_Environment
+   */
+  private $environment;
 
-    /**
-     * @var RscDtgs_Environment
-     */
-    private $environment;
+  /**
+   * @var RscDtgs_Http_Request
+   */
+  private $request;
 
-    /**
-     * @var RscDtgs_Http_Request
-     */
-    private $request;
+  /**
+   * Constructor
+   * @param RscDtgs_Environment $environment
+   * @param RscDtgs_Http_Request $request
+   */
+  public function __construct(RscDtgs_Environment $environment, RscDtgs_Http_Request $request)
+  {
+    $this->environment = $environment;
+    $this->request = $request;
+    $this->models = [];
+  }
 
-    /**
-     * Constructor
-     * @param RscDtgs_Environment $environment
-     * @param RscDtgs_Http_Request $request
-     */
-    public function __construct(
-        RscDtgs_Environment $environment,
-        RscDtgs_Http_Request $request
-    ) {
-        $this->environment = $environment;
-        $this->request = $request;
-        $this->models = array();
+  /**
+   * @param string $method The name of the method
+   * @param array $arguments An array of arguments
+   * @return mixed
+   * @throws BadMethodCallException If specified method does not exists
+   */
+  public function __call($method, $arguments)
+  {
+    if (!method_exists($this->environment, $method)) {
+      throw new BadMethodCallException(sprintf('Unexpected method: %s', $method));
     }
 
-    /**
-     * @param string $method The name of the method
-     * @param array $arguments An array of arguments
-     * @return mixed
-     * @throws BadMethodCallException If specified method does not exists
-     */
-    public function __call($method, $arguments)
-    {
-        if (!method_exists($this->environment, $method)) {
-            throw new BadMethodCallException(
-                sprintf('Unexpected method: %s', $method)
-            );
-        }
+    return call_user_func_array([$this->environment, $method], $arguments);
+  }
 
-        return call_user_func_array(
-            array($this->environment, $method),
-            $arguments
-        );
+  /**
+   * Creates new response
+   * @param string $template The name of the template
+   * @param array $data An associative array of the data
+   * @return RscDtgs_Http_Response
+   */
+  public function response($template, array $data = [])
+  {
+    if ($template != RscDtgs_Http_Response::AJAX) {
+      try {
+        $twig = $this->environment->getTwig();
+        $content = $twig->render($template, $data);
+      } catch (Exception $e) {
+        wp_die($e->getMessage());
+      }
+    } else {
+      wp_send_json($data);
     }
 
-    /**
-     * Creates new response
-     * @param string $template The name of the template
-     * @param array $data An associative array of the data
-     * @return RscDtgs_Http_Response
-     */
-    public function response($template, array $data = array())
-    {
-        if ($template != RscDtgs_Http_Response::AJAX) {
-            try {
-                $twig = $this->environment->getTwig();
-                $content = $twig->render($template, $data);
-            } catch (Exception $e) {
-                wp_die ($e->getMessage());
-            }
-        } else {
-            wp_send_json($data);
-        }
+    return RscDtgs_Http_Response::create()->setContent($content);
+  }
 
-        return RscDtgs_Http_Response::create()->setContent($content);
+  /**
+   * Generates the URL the to specified path
+   * @param string $module The name of the module
+   * @param string $action The name of the action
+   * @param array $parameters An assoc array of parameters
+   * @return string|void
+   */
+  public function generateUrl($module, $action = 'index', array $parameters = [])
+  {
+    $parameters = !empty($parameters) ? '&' . http_build_query($parameters) : null;
+    $slug = $this->getEnvironment()->getMenu()->getMenuSlug();
+
+    return admin_url('admin.php?page=' . $slug . '&module=' . $module . '&action=' . $action . $parameters);
+  }
+
+  /**
+   * Makes redirects to the specified URL
+   * @param string $url
+   * @return \RscDtgs_Http_Response
+   */
+  public function redirect($url)
+  {
+    if (!headers_sent()) {
+      header(sprintf('Location: %s', $url));
+      exit();
     }
 
-    /**
-     * Generates the URL the to specified path
-     * @param string $module The name of the module
-     * @param string $action The name of the action
-     * @param array $parameters An assoc array of parameters
-     * @return string|void
-     */
-    public function generateUrl($module, $action = 'index', array $parameters = array())
-    {
-        $parameters = (!empty($parameters) ? '&' . http_build_query($parameters) : null);
-        $slug = $this->getEnvironment()->getMenu()->getMenuSlug();
+    $content = "<script type=\"text/javascript\">document.location.href = '$url'</script>";
 
-        return admin_url('admin.php?page=' . $slug . '&module=' . $module . '&action=' . $action . $parameters);
-    }
+    return RscDtgs_Http_Response::create()->setContent($content);
+  }
 
-    /**
-     * Makes redirects to the specified URL
-     * @param string $url
-     * @return \RscDtgs_Http_Response
-     */
-    public function redirect($url)
-    {
-        if (!headers_sent()) {
-            header(sprintf('Location: %s', $url));
-            exit;
-        }
+  /**
+   * Returns an instance of the environment
+   * @return \RscDtgs_Environment
+   */
+  public function getEnvironment()
+  {
+    return $this->environment;
+  }
 
-        $content = "<script type=\"text/javascript\">document.location.href = '$url'</script>";
+  /**
+   * Returns an instance of the current request
+   * @return \RscDtgs_Http_Request
+   */
+  public function getRequest()
+  {
+    return $this->request;
+  }
 
-        return RscDtgs_Http_Response::create()->setContent($content);
-    }
-
-    /**
-     * Returns an instance of the environment
-     * @return \RscDtgs_Environment
-     */
-    public function getEnvironment()
-    {
-        return $this->environment;
-    }
-
-    /**
-     * Returns an instance of the current request
-     * @return \RscDtgs_Http_Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    public function requireNonces() {
-        return array();
-}
+  public function requireNonces()
+  {
+    return [];
+  }
 }

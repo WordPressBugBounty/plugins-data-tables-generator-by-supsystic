@@ -18,12 +18,12 @@
  */
 interface Twig_SupTwgDtgs_ParserInterface
 {
-    /**
-     * Converts a token stream to a node tree.
-     *
-     * @return Twig_SupTwgDtgs_Node_Module
-     *
-     * @throws Twig_SupTwgDtgs_Error_Syntax When the token stream is syntactically or semantically wrong
-     */
-    public function parse(Twig_SupTwgDtgs_TokenStream $stream);
+  /**
+   * Converts a token stream to a node tree.
+   *
+   * @return Twig_SupTwgDtgs_Node_Module
+   *
+   * @throws Twig_SupTwgDtgs_Error_Syntax When the token stream is syntactically or semantically wrong
+   */
+  public function parse(Twig_SupTwgDtgs_TokenStream $stream);
 }

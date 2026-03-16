@@ -1,9 +1,3 @@
 <?php
 
-
-class RscDtgs_Profiler
-{
-
-
-
-} 
+class RscDtgs_Profiler {}

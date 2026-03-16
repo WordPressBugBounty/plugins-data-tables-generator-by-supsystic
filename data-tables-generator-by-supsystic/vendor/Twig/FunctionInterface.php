@@ -21,20 +21,20 @@
  */
 interface Twig_SupTwgDtgs_FunctionInterface
 {
-    /**
-     * Compiles a function.
-     *
-     * @return string The PHP code for the function
-     */
-    public function compile();
+  /**
+   * Compiles a function.
+   *
+   * @return string The PHP code for the function
+   */
+  public function compile();
 
-    public function needsEnvironment();
+  public function needsEnvironment();
 
-    public function needsContext();
+  public function needsContext();
 
-    public function getSafe(Twig_SupTwgDtgs_Node $filterArgs);
+  public function getSafe(Twig_SupTwgDtgs_Node $filterArgs);
 
-    public function setArguments($arguments);
+  public function setArguments($arguments);
 
-    public function getArguments();
+  public function getArguments();
 }

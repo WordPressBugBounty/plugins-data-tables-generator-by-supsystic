@@ -17,18 +17,13 @@
  */
 class Twig_SupTwgDtgs_Node_Print extends Twig_SupTwgDtgs_Node implements Twig_SupTwgDtgs_NodeOutputInterface
 {
-    public function __construct(Twig_SupTwgDtgs_Node_Expression $expr, $lineno, $tag = null)
-    {
-        parent::__construct(array('expr' => $expr), array(), $lineno, $tag);
-    }
+  public function __construct(Twig_SupTwgDtgs_Node_Expression $expr, $lineno, $tag = null)
+  {
+    parent::__construct(['expr' => $expr], [], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write('echo ')
-            ->subcompile($this->getNode('expr'))
-            ->raw(";\n")
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write('echo ')->subcompile($this->getNode('expr'))->raw(";\n");
+  }
 }

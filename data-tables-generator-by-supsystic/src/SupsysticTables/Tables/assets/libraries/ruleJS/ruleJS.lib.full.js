@@ -10,21 +10,19 @@ _u = typeof _ == 'function' && _.noConflict();
  * Available under MIT license <http://lodash.com/license>
  */
 
-
-;(function() {
-
+(function () {
   /** Used as a safe reference for `undefined` in pre ES5 environments */
   var undefined;
 
   /** Used to pool arrays and objects used internally */
   var arrayPool = [],
-      objectPool = [];
+    objectPool = [];
 
   /** Used to generate unique IDs */
   var idCounter = 0;
 
   /** Used to prefix keys to avoid issues with `__proto__` and properties on `Object.prototype` */
-  var keyPrefix = +new Date + '';
+  var keyPrefix = +new Date() + '';
 
   /** Used as the size when optimizations are enabled for large arrays */
   var largeArraySize = 75;
@@ -33,21 +31,18 @@ _u = typeof _ == 'function' && _.noConflict();
   var maxPoolSize = 40;
 
   /** Used to detect and test whitespace */
-  var whitespace = (
+  var whitespace =
     // whitespace
     ' \t\x0B\f\xA0\ufeff' +
-
     // line terminators
     '\n\r\u2028\u2029' +
-
     // unicode category "Zs" space separators
-    '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000'
-  );
+    '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000';
 
   /** Used to match empty string literals in compiled template source */
   var reEmptyStringLeading = /\b__p \+= '';/g,
-      reEmptyStringMiddle = /\b(__p \+=) '' \+/g,
-      reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
+    reEmptyStringMiddle = /\b(__p \+=) '' \+/g,
+    reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
 
   /**
    * Used to match ES6 template delimiters
@@ -77,57 +72,50 @@ _u = typeof _ == 'function' && _.noConflict();
   var reUnescapedString = /['\n\r\t\u2028\u2029\\]/g;
 
   /** Used to assign default `context` object properties */
-  var contextProps = [
-    'Array', 'Boolean', 'Date', 'Function', 'Math', 'Number', 'Object',
-    'RegExp', 'String', '_', 'attachEvent', 'clearTimeout', 'isFinite', 'isNaN',
-    'parseInt', 'setTimeout'
-  ];
+  var contextProps = ['Array', 'Boolean', 'Date', 'Function', 'Math', 'Number', 'Object', 'RegExp', 'String', '_', 'attachEvent', 'clearTimeout', 'isFinite', 'isNaN', 'parseInt', 'setTimeout'];
 
   /** Used to make template sourceURLs easier to identify */
   var templateCounter = 0;
 
   /** `Object#toString` result shortcuts */
   var argsClass = '[object Arguments]',
-      arrayClass = '[object Array]',
-      boolClass = '[object Boolean]',
-      dateClass = '[object Date]',
-      funcClass = '[object Function]',
-      numberClass = '[object Number]',
-      objectClass = '[object Object]',
-      regexpClass = '[object RegExp]',
-      stringClass = '[object String]';
+    arrayClass = '[object Array]',
+    boolClass = '[object Boolean]',
+    dateClass = '[object Date]',
+    funcClass = '[object Function]',
+    numberClass = '[object Number]',
+    objectClass = '[object Object]',
+    regexpClass = '[object RegExp]',
+    stringClass = '[object String]';
 
   /** Used to identify object classifications that `_.clone` supports */
   var cloneableClasses = {};
   cloneableClasses[funcClass] = false;
-  cloneableClasses[argsClass] = cloneableClasses[arrayClass] =
-  cloneableClasses[boolClass] = cloneableClasses[dateClass] =
-  cloneableClasses[numberClass] = cloneableClasses[objectClass] =
-  cloneableClasses[regexpClass] = cloneableClasses[stringClass] = true;
+  cloneableClasses[argsClass] = cloneableClasses[arrayClass] = cloneableClasses[boolClass] = cloneableClasses[dateClass] = cloneableClasses[numberClass] = cloneableClasses[objectClass] = cloneableClasses[regexpClass] = cloneableClasses[stringClass] = true;
 
   /** Used as an internal `_.debounce` options object */
   var debounceOptions = {
-    'leading': false,
-    'maxWait': 0,
-    'trailing': false
+    leading: false,
+    maxWait: 0,
+    trailing: false,
   };
 
   /** Used as the property descriptor for `__bindData__` */
   var descriptor = {
-    'configurable': false,
-    'enumerable': false,
-    'value': null,
-    'writable': false
+    configurable: false,
+    enumerable: false,
+    value: null,
+    writable: false,
   };
 
   /** Used to determine if values are of the language type Object */
   var objectTypes = {
-    'boolean': false,
-    'function': true,
-    'object': true,
-    'number': false,
-    'string': false,
-    'undefined': false
+    boolean: false,
+    function: true,
+    object: true,
+    number: false,
+    string: false,
+    undefined: false,
   };
 
   /** Used to escape characters for inclusion in compiled string literals */
@@ -138,7 +126,7 @@ _u = typeof _ == 'function' && _.noConflict();
     '\r': 'r',
     '\t': 't',
     '\u2028': 'u2028',
-    '\u2029': 'u2029'
+    '\u2029': 'u2029',
   };
 
   /** Used as a reference to the global object */
@@ -173,7 +161,7 @@ _u = typeof _ == 'function' && _.noConflict();
    */
   function baseIndexOf(array, value, fromIndex) {
     var index = (fromIndex || 0) - 1,
-        length = array ? array.length : 0;
+      length = array ? array.length : 0;
 
     while (++index < length) {
       if (array[index] === value) {
@@ -205,9 +193,7 @@ _u = typeof _ == 'function' && _.noConflict();
     var key = type == 'number' ? value : keyPrefix + value;
     cache = (cache = cache[type]) && cache[key];
 
-    return type == 'object'
-      ? (cache && baseIndexOf(cache, value) > -1 ? 0 : -1)
-      : (cache ? 0 : -1);
+    return type == 'object' ? (cache && baseIndexOf(cache, value) > -1 ? 0 : -1) : cache ? 0 : -1;
   }
 
   /**
@@ -218,7 +204,7 @@ _u = typeof _ == 'function' && _.noConflict();
    */
   function cachePush(value) {
     var cache = this.cache,
-        type = typeof value;
+      type = typeof value;
 
     if (type == 'boolean' || value == null) {
       cache[value] = true;
@@ -227,7 +213,7 @@ _u = typeof _ == 'function' && _.noConflict();
         type = 'object';
       }
       var key = type == 'number' ? value : keyPrefix + value,
-          typeCache = cache[type] || (cache[type] = {});
+        typeCache = cache[type] || (cache[type] = {});
 
       if (type == 'object') {
         (typeCache[key] || (typeCache[key] = [])).push(value);
@@ -260,13 +246,13 @@ _u = typeof _ == 'function' && _.noConflict();
    */
   function compareAscending(a, b) {
     var ac = a.criteria,
-        bc = b.criteria,
-        index = -1,
-        length = ac.length;
+      bc = b.criteria,
+      index = -1,
+      length = ac.length;
 
     while (++index < length) {
       var value = ac[index],
-          other = bc[index];
+        other = bc[index];
 
       if (value !== other) {
         if (value > other || typeof value == 'undefined') {
@@ -295,13 +281,12 @@ _u = typeof _ == 'function' && _.noConflict();
    */
   function createCache(array) {
     var index = -1,
-        length = array.length,
-        first = array[0],
-        mid = array[(length / 2) | 0],
-        last = array[length - 1];
+      length = array.length,
+      first = array[0],
+      mid = array[(length / 2) | 0],
+      last = array[length - 1];
 
-    if (first && typeof first == 'object' &&
-        mid && typeof mid == 'object' && last && typeof last == 'object') {
+    if (first && typeof first == 'object' && mid && typeof mid == 'object' && last && typeof last == 'object') {
       return false;
     }
     var cache = getObject();
@@ -347,21 +332,23 @@ _u = typeof _ == 'function' && _.noConflict();
    * @returns {Object} The object from the pool.
    */
   function getObject() {
-    return objectPool.pop() || {
-      'array': null,
-      'cache': null,
-      'criteria': null,
-      'false': false,
-      'index': 0,
-      'null': false,
-      'number': null,
-      'object': null,
-      'push': null,
-      'string': null,
-      'true': false,
-      'undefined': false,
-      'value': null
-    };
+    return (
+      objectPool.pop() || {
+        array: null,
+        cache: null,
+        criteria: null,
+        false: false,
+        index: 0,
+        null: false,
+        number: null,
+        object: null,
+        push: null,
+        string: null,
+        true: false,
+        undefined: false,
+        value: null,
+      }
+    );
   }
 
   /**
@@ -413,8 +400,8 @@ _u = typeof _ == 'function' && _.noConflict();
       end = array ? array.length : 0;
     }
     var index = -1,
-        length = end - start || 0,
-        result = Array(length < 0 ? 0 : length);
+      length = end - start || 0,
+      result = Array(length < 0 ? 0 : length);
 
     while (++index < length) {
       result[index] = array[start + index];
@@ -442,15 +429,15 @@ _u = typeof _ == 'function' && _.noConflict();
 
     /** Native constructor references */
     var Array = context.Array,
-        Boolean = context.Boolean,
-        Date = context.Date,
-        Function = context.Function,
-        Math = context.Math,
-        Number = context.Number,
-        Object = context.Object,
-        RegExp = context.RegExp,
-        String = context.String,
-        TypeError = context.TypeError;
+      Boolean = context.Boolean,
+      Date = context.Date,
+      Function = context.Function,
+      Math = context.Math,
+      Number = context.Number,
+      Object = context.Object,
+      RegExp = context.RegExp,
+      String = context.String,
+      TypeError = context.TypeError;
 
     /**
      * Used for `Array` method references.
@@ -470,45 +457,47 @@ _u = typeof _ == 'function' && _.noConflict();
     var toString = objectProto.toString;
 
     /** Used to detect if a method is native */
-    var reNative = RegExp('^' +
-      String(toString)
-        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/toString| for [^\]]+/g, '.*?') + '$'
+    var reNative = RegExp(
+      '^' +
+        String(toString)
+          .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          .replace(/toString| for [^\]]+/g, '.*?') +
+        '$'
     );
 
     /** Native method shortcuts */
     var ceil = Math.ceil,
-        clearTimeout = context.clearTimeout,
-        floor = Math.floor,
-        fnToString = Function.prototype.toString,
-        getPrototypeOf = isNative(getPrototypeOf = Object.getPrototypeOf) && getPrototypeOf,
-        hasOwnProperty = objectProto.hasOwnProperty,
-        push = arrayRef.push,
-        setTimeout = context.setTimeout,
-        splice = arrayRef.splice,
-        unshift = arrayRef.unshift;
+      clearTimeout = context.clearTimeout,
+      floor = Math.floor,
+      fnToString = Function.prototype.toString,
+      getPrototypeOf = isNative((getPrototypeOf = Object.getPrototypeOf)) && getPrototypeOf,
+      hasOwnProperty = objectProto.hasOwnProperty,
+      push = arrayRef.push,
+      setTimeout = context.setTimeout,
+      splice = arrayRef.splice,
+      unshift = arrayRef.unshift;
 
     /** Used to set meta data on functions */
-    var defineProperty = (function() {
+    var defineProperty = (function () {
       // IE 8 only accepts DOM elements
       try {
         var o = {},
-            func = isNative(func = Object.defineProperty) && func,
-            result = func(o, o, o) && func;
-      } catch(e) { }
+          func = isNative((func = Object.defineProperty)) && func,
+          result = func(o, o, o) && func;
+      } catch (e) {}
       return result;
-    }());
+    })();
 
     /* Native method shortcuts for methods with the same name as other `lodash` methods */
-    var nativeCreate = isNative(nativeCreate = Object.create) && nativeCreate,
-        nativeIsArray = isNative(nativeIsArray = Array.isArray) && nativeIsArray,
-        nativeIsFinite = context.isFinite,
-        nativeIsNaN = context.isNaN,
-        nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys,
-        nativeMax = Math.max,
-        nativeMin = Math.min,
-        nativeParseInt = context.parseInt,
-        nativeRandom = Math.random;
+    var nativeCreate = isNative((nativeCreate = Object.create)) && nativeCreate,
+      nativeIsArray = isNative((nativeIsArray = Array.isArray)) && nativeIsArray,
+      nativeIsFinite = context.isFinite,
+      nativeIsNaN = context.isNaN,
+      nativeKeys = isNative((nativeKeys = Object.keys)) && nativeKeys,
+      nativeMax = Math.max,
+      nativeMin = Math.min,
+      nativeParseInt = context.parseInt,
+      nativeRandom = Math.random;
 
     /** Used to lookup a built-in constructor by [[Class]] */
     var ctorByClass = {};
@@ -590,9 +579,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function lodash(value) {
       // don't wrap if already wrapped, even if wrapped by a different `lodash` constructor
-      return (value && typeof value == 'object' && !isArray(value) && hasOwnProperty.call(value, '__wrapped__'))
-       ? value
-       : new lodashWrapper(value);
+      return value && typeof value == 'object' && !isArray(value) && hasOwnProperty.call(value, '__wrapped__') ? value : new lodashWrapper(value);
     }
 
     /**
@@ -617,7 +604,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * @memberOf _
      * @type Object
      */
-    var support = lodash.support = {};
+    var support = (lodash.support = {});
 
     /**
      * Detect if functions can be decompiled by `Function#toString`
@@ -646,14 +633,13 @@ _u = typeof _ == 'function' && _.noConflict();
      * @type Object
      */
     lodash.templateSettings = {
-
       /**
        * Used to detect `data` property values to be HTML-escaped.
        *
        * @memberOf _.templateSettings
        * @type RegExp
        */
-      'escape': /<%-([\s\S]+?)%>/g,
+      escape: /<%-([\s\S]+?)%>/g,
 
       /**
        * Used to detect code to be evaluated.
@@ -661,7 +647,7 @@ _u = typeof _ == 'function' && _.noConflict();
        * @memberOf _.templateSettings
        * @type RegExp
        */
-      'evaluate': /<%([\s\S]+?)%>/g,
+      evaluate: /<%([\s\S]+?)%>/g,
 
       /**
        * Used to detect `data` property values to inject.
@@ -669,7 +655,7 @@ _u = typeof _ == 'function' && _.noConflict();
        * @memberOf _.templateSettings
        * @type RegExp
        */
-      'interpolate': reInterpolate,
+      interpolate: reInterpolate,
 
       /**
        * Used to reference the data object in the template text.
@@ -677,7 +663,7 @@ _u = typeof _ == 'function' && _.noConflict();
        * @memberOf _.templateSettings
        * @type string
        */
-      'variable': '',
+      variable: '',
 
       /**
        * Used to import variables into the compiled template.
@@ -685,16 +671,15 @@ _u = typeof _ == 'function' && _.noConflict();
        * @memberOf _.templateSettings
        * @type Object
        */
-      'imports': {
-
+      imports: {
         /**
          * A reference to the `lodash` function.
          *
          * @memberOf _.templateSettings.imports
          * @type Function
          */
-        '_': lodash
-      }
+        _: lodash,
+      },
     };
 
     /*--------------------------------------------------------------------------*/
@@ -709,8 +694,8 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function baseBind(bindData) {
       var func = bindData[0],
-          partialArgs = bindData[2],
-          thisArg = bindData[4];
+        partialArgs = bindData[2],
+        thisArg = bindData[4];
 
       function bound() {
         // `Function#bind` spec
@@ -727,7 +712,7 @@ _u = typeof _ == 'function' && _.noConflict();
         if (this instanceof bound) {
           // ensure `new bound` is an instance of `func`
           var thisBinding = baseCreate(func.prototype),
-              result = func.apply(thisBinding, args || arguments);
+            result = func.apply(thisBinding, args || arguments);
           return isObject(result) ? result : thisBinding;
         }
         return func.apply(thisArg, args || arguments);
@@ -794,8 +779,7 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
         result = isArr ? ctor(value.length) : {};
-      }
-      else {
+      } else {
         result = isArr ? slice(value) : assign({}, value);
       }
       // add array properties assigned by `RegExp#exec`
@@ -817,7 +801,7 @@ _u = typeof _ == 'function' && _.noConflict();
       stackB.push(result);
 
       // recursively populate clone (susceptible to call stack limits)
-      (isArr ? forEach : forOwn)(value, function(objValue, key) {
+      (isArr ? forEach : forOwn)(value, function (objValue, key) {
         result[key] = baseClone(objValue, isDeep, callback, stackA, stackB);
       });
 
@@ -841,17 +825,17 @@ _u = typeof _ == 'function' && _.noConflict();
     }
     // fallback for browsers without `Object.create`
     if (!nativeCreate) {
-      baseCreate = (function() {
+      baseCreate = (function () {
         function Object() {}
-        return function(prototype) {
+        return function (prototype) {
           if (isObject(prototype)) {
             Object.prototype = prototype;
-            var result = new Object;
+            var result = new Object();
             Object.prototype = null;
           }
           return result || context.Object();
         };
-      }());
+      })();
     }
 
     /**
@@ -895,18 +879,22 @@ _u = typeof _ == 'function' && _.noConflict();
         return func;
       }
       switch (argCount) {
-        case 1: return function(value) {
-          return func.call(thisArg, value);
-        };
-        case 2: return function(a, b) {
-          return func.call(thisArg, a, b);
-        };
-        case 3: return function(value, index, collection) {
-          return func.call(thisArg, value, index, collection);
-        };
-        case 4: return function(accumulator, value, index, collection) {
-          return func.call(thisArg, accumulator, value, index, collection);
-        };
+        case 1:
+          return function (value) {
+            return func.call(thisArg, value);
+          };
+        case 2:
+          return function (a, b) {
+            return func.call(thisArg, a, b);
+          };
+        case 3:
+          return function (value, index, collection) {
+            return func.call(thisArg, value, index, collection);
+          };
+        case 4:
+          return function (accumulator, value, index, collection) {
+            return func.call(thisArg, accumulator, value, index, collection);
+          };
       }
       return bind(func, thisArg);
     }
@@ -921,17 +909,17 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function baseCreateWrapper(bindData) {
       var func = bindData[0],
-          bitmask = bindData[1],
-          partialArgs = bindData[2],
-          partialRightArgs = bindData[3],
-          thisArg = bindData[4],
-          arity = bindData[5];
+        bitmask = bindData[1],
+        partialArgs = bindData[2],
+        partialRightArgs = bindData[3],
+        thisArg = bindData[4],
+        arity = bindData[5];
 
       var isBind = bitmask & 1,
-          isBindKey = bitmask & 2,
-          isCurry = bitmask & 4,
-          isCurryBound = bitmask & 8,
-          key = func;
+        isBindKey = bitmask & 2,
+        isCurry = bitmask & 4,
+        isCurryBound = bitmask & 8,
+        key = func;
 
       function bound() {
         var thisBinding = isBind ? thisArg : this;
@@ -946,7 +934,7 @@ _u = typeof _ == 'function' && _.noConflict();
           }
           if (isCurry && args.length < arity) {
             bitmask |= 16 & ~32;
-            return baseCreateWrapper([func, (isCurryBound ? bitmask : bitmask & ~3), args, null, thisArg, arity]);
+            return baseCreateWrapper([func, isCurryBound ? bitmask : bitmask & ~3, args, null, thisArg, arity]);
           }
         }
         args || (args = arguments);
@@ -975,10 +963,10 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function baseDifference(array, values) {
       var index = -1,
-          indexOf = getIndexOf(),
-          length = array ? array.length : 0,
-          isLarge = length >= largeArraySize && indexOf === baseIndexOf,
-          result = [];
+        indexOf = getIndexOf(),
+        length = array ? array.length : 0,
+        isLarge = length >= largeArraySize && indexOf === baseIndexOf,
+        result = [];
 
       if (isLarge) {
         var cache = createCache(values);
@@ -1014,21 +1002,20 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function baseFlatten(array, isShallow, isStrict, fromIndex) {
       var index = (fromIndex || 0) - 1,
-          length = array ? array.length : 0,
-          result = [];
+        length = array ? array.length : 0,
+        result = [];
 
       while (++index < length) {
         var value = array[index];
 
-        if (value && typeof value == 'object' && typeof value.length == 'number'
-            && (isArray(value) || isArguments(value))) {
+        if (value && typeof value == 'object' && typeof value.length == 'number' && (isArray(value) || isArguments(value))) {
           // recursively flatten arrays (susceptible to call stack limits)
           if (!isShallow) {
             value = baseFlatten(value, isShallow, isStrict);
           }
           var valIndex = -1,
-              valLength = value.length,
-              resIndex = result.length;
+            valLength = value.length,
+            resIndex = result.length;
 
           result.length += valLength;
           while (++valIndex < valLength) {
@@ -1065,15 +1052,13 @@ _u = typeof _ == 'function' && _.noConflict();
       // exit early for identical values
       if (a === b) {
         // treat `+0` vs. `-0` as not equal
-        return a !== 0 || (1 / a == 1 / b);
+        return a !== 0 || 1 / a == 1 / b;
       }
       var type = typeof a,
-          otherType = typeof b;
+        otherType = typeof b;
 
       // exit early for unlike primitive values
-      if (a === a &&
-          !(a && objectTypes[type]) &&
-          !(b && objectTypes[otherType])) {
+      if (a === a && !(a && objectTypes[type]) && !(b && objectTypes[otherType])) {
         return false;
       }
       // exit early for `null` and `undefined` avoiding ES3's Function#call behavior
@@ -1083,7 +1068,7 @@ _u = typeof _ == 'function' && _.noConflict();
       }
       // compare [[Class]] names
       var className = toString.call(a),
-          otherClass = toString.call(b);
+        otherClass = toString.call(b);
 
       if (className == argsClass) {
         className = objectClass;
@@ -1103,10 +1088,12 @@ _u = typeof _ == 'function' && _.noConflict();
 
         case numberClass:
           // treat `NaN` vs. `NaN` as equal
-          return (a != +a)
+          return a != +a
             ? b != +b
-            // but treat `+0` vs. `-0` as not equal
-            : (a == 0 ? (1 / a == 1 / b) : a == +b);
+            : // but treat `+0` vs. `-0` as not equal
+              a == 0
+              ? 1 / a == 1 / b
+              : a == +b;
 
         case regexpClass:
         case stringClass:
@@ -1118,7 +1105,7 @@ _u = typeof _ == 'function' && _.noConflict();
       if (!isArr) {
         // unwrap any `lodash` wrapped values
         var aWrapped = hasOwnProperty.call(a, '__wrapped__'),
-            bWrapped = hasOwnProperty.call(b, '__wrapped__');
+          bWrapped = hasOwnProperty.call(b, '__wrapped__');
 
         if (aWrapped || bWrapped) {
           return baseIsEqual(aWrapped ? a.__wrapped__ : a, bWrapped ? b.__wrapped__ : b, callback, isWhere, stackA, stackB);
@@ -1129,13 +1116,10 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         // in older versions of Opera, `arguments` objects have `Array` constructors
         var ctorA = a.constructor,
-            ctorB = b.constructor;
+          ctorB = b.constructor;
 
         // non `Object` object instances with different constructors are not equal
-        if (ctorA != ctorB &&
-              !(isFunction(ctorA) && ctorA instanceof ctorA && isFunction(ctorB) && ctorB instanceof ctorB) &&
-              ('constructor' in a && 'constructor' in b)
-            ) {
+        if (ctorA != ctorB && !(isFunction(ctorA) && ctorA instanceof ctorA && isFunction(ctorB) && ctorB instanceof ctorB) && 'constructor' in a && 'constructor' in b) {
           return false;
         }
       }
@@ -1170,7 +1154,7 @@ _u = typeof _ == 'function' && _.noConflict();
           // deep compare the contents, ignoring non-numeric properties
           while (size--) {
             var index = length,
-                value = b[size];
+              value = b[size];
 
             if (isWhere) {
               while (index--) {
@@ -1183,11 +1167,10 @@ _u = typeof _ == 'function' && _.noConflict();
             }
           }
         }
-      }
-      else {
+      } else {
         // deep compare objects using `forIn`, instead of `forOwn`, to avoid `Object.keys`
         // which, in this case, is more costly
-        forIn(b, function(value, key, b) {
+        forIn(b, function (value, key, b) {
           if (hasOwnProperty.call(b, key)) {
             // count the number of properties.
             size++;
@@ -1198,7 +1181,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
         if (result && !isWhere) {
           // ensure both objects have the same number of properties
-          forIn(a, function(value, key, a) {
+          forIn(a, function (value, key, a) {
             if (hasOwnProperty.call(a, key)) {
               // `size` will be `-1` if `a` has more properties than `b`
               return (result = --size > -1);
@@ -1228,11 +1211,11 @@ _u = typeof _ == 'function' && _.noConflict();
      * @param {Array} [stackB=[]] Associates values with source counterparts.
      */
     function baseMerge(object, source, callback, stackA, stackB) {
-      (isArray(source) ? forEach : forOwn)(source, function(source, key) {
+      (isArray(source) ? forEach : forOwn)(source, function (source, key) {
         var found,
-            isArr,
-            result = source,
-            value = object[key];
+          isArr,
+          result = source,
+          value = object[key];
 
         if (source && ((isArr = isArray(source)) || isPlainObject(source))) {
           // avoid merging previously merged cyclic sources
@@ -1252,9 +1235,7 @@ _u = typeof _ == 'function' && _.noConflict();
               }
             }
             if (!isShallow) {
-              value = isArr
-                ? (isArray(value) ? value : [])
-                : (isPlainObject(value) ? value : {});
+              value = isArr ? (isArray(value) ? value : []) : isPlainObject(value) ? value : {};
             }
             // add `source` and associated `value` to the stack of traversed objects
             stackA.push(source);
@@ -1265,8 +1246,7 @@ _u = typeof _ == 'function' && _.noConflict();
               baseMerge(value, source, callback, stackA, stackB);
             }
           }
-        }
-        else {
+        } else {
           if (callback) {
             result = callback(value, source);
             if (typeof result == 'undefined') {
@@ -1306,12 +1286,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function baseUniq(array, isSorted, callback) {
       var index = -1,
-          indexOf = getIndexOf(),
-          length = array ? array.length : 0,
-          result = [];
+        indexOf = getIndexOf(),
+        length = array ? array.length : 0,
+        result = [];
 
       var isLarge = !isSorted && length >= largeArraySize && indexOf === baseIndexOf,
-          seen = (callback || isLarge) ? getArray() : result;
+        seen = callback || isLarge ? getArray() : result;
 
       if (isLarge) {
         var cache = createCache(seen);
@@ -1320,12 +1300,9 @@ _u = typeof _ == 'function' && _.noConflict();
       }
       while (++index < length) {
         var value = array[index],
-            computed = callback ? callback(value, index, array) : value;
+          computed = callback ? callback(value, index, array) : value;
 
-        if (isSorted
-              ? !index || seen[seen.length - 1] !== computed
-              : indexOf(seen, computed) < 0
-            ) {
+        if (isSorted ? !index || seen[seen.length - 1] !== computed : indexOf(seen, computed) < 0) {
           if (callback || isLarge) {
             seen.push(computed);
           }
@@ -1352,12 +1329,12 @@ _u = typeof _ == 'function' && _.noConflict();
      * @returns {Function} Returns the new aggregator function.
      */
     function createAggregator(setter) {
-      return function(collection, callback, thisArg) {
+      return function (collection, callback, thisArg) {
         var result = {};
         callback = lodash.createCallback(callback, thisArg, 3);
 
         var index = -1,
-            length = collection ? collection.length : 0;
+          length = collection ? collection.length : 0;
 
         if (typeof length == 'number') {
           while (++index < length) {
@@ -1365,7 +1342,7 @@ _u = typeof _ == 'function' && _.noConflict();
             setter(result, value, callback(value, index, collection), collection);
           }
         } else {
-          forOwn(collection, function(value, key, collection) {
+          forOwn(collection, function (value, key, collection) {
             setter(result, value, callback(value, key, collection), collection);
           });
         }
@@ -1397,14 +1374,14 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function createWrapper(func, bitmask, partialArgs, partialRightArgs, thisArg, arity) {
       var isBind = bitmask & 1,
-          isBindKey = bitmask & 2,
-          isCurry = bitmask & 4,
-          isCurryBound = bitmask & 8,
-          isPartial = bitmask & 16,
-          isPartialRight = bitmask & 32;
+        isBindKey = bitmask & 2,
+        isCurry = bitmask & 4,
+        isCurryBound = bitmask & 8,
+        isPartial = bitmask & 16,
+        isPartialRight = bitmask & 32;
 
       if (!isBindKey && !isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
       if (isPartial && !partialArgs.length) {
         bitmask &= ~16;
@@ -1449,7 +1426,7 @@ _u = typeof _ == 'function' && _.noConflict();
         return createWrapper.apply(null, bindData);
       }
       // fast path for `_.bind`
-      var creater = (bitmask == 1 || bitmask === 17) ? baseBind : baseCreateWrapper;
+      var creater = bitmask == 1 || bitmask === 17 ? baseBind : baseCreateWrapper;
       return creater([func, bitmask, partialArgs, partialRightArgs, thisArg, arity]);
     }
 
@@ -1495,10 +1472,12 @@ _u = typeof _ == 'function' && _.noConflict();
      * @param {Function} func The function to set data on.
      * @param {Array} value The data array to set.
      */
-    var setBindData = !defineProperty ? noop : function(func, value) {
-      descriptor.value = value;
-      defineProperty(func, '__bindData__', descriptor);
-    };
+    var setBindData = !defineProperty
+      ? noop
+      : function (func, value) {
+          descriptor.value = value;
+          defineProperty(func, '__bindData__', descriptor);
+        };
 
     /**
      * A fallback implementation of `isPlainObject` which checks if a given value
@@ -1511,18 +1490,16 @@ _u = typeof _ == 'function' && _.noConflict();
      * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
      */
     function shimIsPlainObject(value) {
-      var ctor,
-          result;
+      var ctor, result;
 
       // avoid non Object objects, `arguments` objects, and DOM elements
-      if (!(value && toString.call(value) == objectClass) ||
-          (ctor = value.constructor, isFunction(ctor) && !(ctor instanceof ctor))) {
+      if (!(value && toString.call(value) == objectClass) || ((ctor = value.constructor), isFunction(ctor) && !(ctor instanceof ctor))) {
         return false;
       }
       // In most environments an object's own properties are iterated before
       // its inherited properties. If the last iterated property is an object's
       // own property then there are no inherited enumerable properties.
-      forIn(value, function(value, key) {
+      forIn(value, function (value, key) {
         result = key;
       });
       return typeof result == 'undefined' || hasOwnProperty.call(value, result);
@@ -1558,8 +1535,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => false
      */
     function isArguments(value) {
-      return value && typeof value == 'object' && typeof value.length == 'number' &&
-        toString.call(value) == argsClass || false;
+      return (value && typeof value == 'object' && typeof value.length == 'number' && toString.call(value) == argsClass) || false;
     }
 
     /**
@@ -1579,10 +1555,11 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.isArray([1, 2, 3]);
      * // => true
      */
-    var isArray = nativeIsArray || function(value) {
-      return value && typeof value == 'object' && typeof value.length == 'number' &&
-        toString.call(value) == arrayClass || false;
-    };
+    var isArray =
+      nativeIsArray ||
+      function (value) {
+        return (value && typeof value == 'object' && typeof value.length == 'number' && toString.call(value) == arrayClass) || false;
+      };
 
     /**
      * A fallback implementation of `Object.keys` which produces an array of the
@@ -1593,16 +1570,18 @@ _u = typeof _ == 'function' && _.noConflict();
      * @param {Object} object The object to inspect.
      * @returns {Array} Returns an array of property names.
      */
-    var shimKeys = function(object) {
-      var index, iterable = object, result = [];
+    var shimKeys = function (object) {
+      var index,
+        iterable = object,
+        result = [];
       if (!iterable) return result;
-      if (!(objectTypes[typeof object])) return result;
-        for (index in iterable) {
-          if (hasOwnProperty.call(iterable, index)) {
-            result.push(index);
-          }
+      if (!objectTypes[typeof object]) return result;
+      for (index in iterable) {
+        if (hasOwnProperty.call(iterable, index)) {
+          result.push(index);
         }
-      return result
+      }
+      return result;
     };
 
     /**
@@ -1618,12 +1597,14 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.keys({ 'one': 1, 'two': 2, 'three': 3 });
      * // => ['one', 'two', 'three'] (property order is not guaranteed across environments)
      */
-    var keys = !nativeKeys ? shimKeys : function(object) {
-      if (!isObject(object)) {
-        return [];
-      }
-      return nativeKeys(object);
-    };
+    var keys = !nativeKeys
+      ? shimKeys
+      : function (object) {
+          if (!isObject(object)) {
+            return [];
+          }
+          return nativeKeys(object);
+        };
 
     /**
      * Used to convert characters to HTML entities:
@@ -1638,7 +1619,7 @@ _u = typeof _ == 'function' && _.noConflict();
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#39;'
+      "'": '&#39;',
     };
 
     /** Used to convert HTML entities to characters */
@@ -1646,7 +1627,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
     /** Used to match HTML entities and HTML characters */
     var reEscapedHtml = RegExp('(' + keys(htmlUnescapes).join('|') + ')', 'g'),
-        reUnescapedHtml = RegExp('[' + keys(htmlEscapes).join('') + ']', 'g');
+      reUnescapedHtml = RegExp('[' + keys(htmlEscapes).join('') + ']', 'g');
 
     /*--------------------------------------------------------------------------*/
 
@@ -1680,12 +1661,14 @@ _u = typeof _ == 'function' && _.noConflict();
      * defaults(object, { 'name': 'fred', 'employer': 'slate' });
      * // => { 'name': 'barney', 'employer': 'slate' }
      */
-    var assign = function(object, source, guard) {
-      var index, iterable = object, result = iterable;
+    var assign = function (object, source, guard) {
+      var index,
+        iterable = object,
+        result = iterable;
       if (!iterable) return result;
       var args = arguments,
-          argsIndex = 0,
-          argsLength = typeof guard == 'number' ? 2 : args.length;
+        argsIndex = 0,
+        argsLength = typeof guard == 'number' ? 2 : args.length;
       if (argsLength > 3 && typeof args[argsLength - 2] == 'function') {
         var callback = baseCreateCallback(args[--argsLength - 1], args[argsLength--], 2);
       } else if (argsLength > 2 && typeof args[argsLength - 1] == 'function') {
@@ -1694,17 +1677,17 @@ _u = typeof _ == 'function' && _.noConflict();
       while (++argsIndex < argsLength) {
         iterable = args[argsIndex];
         if (iterable && objectTypes[typeof iterable]) {
-        var ownIndex = -1,
+          var ownIndex = -1,
             ownProps = objectTypes[typeof iterable] && keys(iterable),
             length = ownProps ? ownProps.length : 0;
 
-        while (++ownIndex < length) {
-          index = ownProps[ownIndex];
-          result[index] = callback ? callback(result[index], iterable[index]) : iterable[index];
-        }
+          while (++ownIndex < length) {
+            index = ownProps[ownIndex];
+            result[index] = callback ? callback(result[index], iterable[index]) : iterable[index];
+          }
         }
       }
-      return result
+      return result;
     };
 
     /**
@@ -1859,26 +1842,28 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.defaults(object, { 'name': 'fred', 'employer': 'slate' });
      * // => { 'name': 'barney', 'employer': 'slate' }
      */
-    var defaults = function(object, source, guard) {
-      var index, iterable = object, result = iterable;
+    var defaults = function (object, source, guard) {
+      var index,
+        iterable = object,
+        result = iterable;
       if (!iterable) return result;
       var args = arguments,
-          argsIndex = 0,
-          argsLength = typeof guard == 'number' ? 2 : args.length;
+        argsIndex = 0,
+        argsLength = typeof guard == 'number' ? 2 : args.length;
       while (++argsIndex < argsLength) {
         iterable = args[argsIndex];
         if (iterable && objectTypes[typeof iterable]) {
-        var ownIndex = -1,
+          var ownIndex = -1,
             ownProps = objectTypes[typeof iterable] && keys(iterable),
             length = ownProps ? ownProps.length : 0;
 
-        while (++ownIndex < length) {
-          index = ownProps[ownIndex];
-          if (typeof result[index] == 'undefined') result[index] = iterable[index];
-        }
+          while (++ownIndex < length) {
+            index = ownProps[ownIndex];
+            if (typeof result[index] == 'undefined') result[index] = iterable[index];
+          }
         }
       }
-      return result
+      return result;
     };
 
     /**
@@ -1925,7 +1910,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function findKey(object, callback, thisArg) {
       var result;
       callback = lodash.createCallback(callback, thisArg, 3);
-      forOwn(object, function(value, key, object) {
+      forOwn(object, function (value, key, object) {
         if (callback(value, key, object)) {
           result = key;
           return false;
@@ -1978,7 +1963,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function findLastKey(object, callback, thisArg) {
       var result;
       callback = lodash.createCallback(callback, thisArg, 3);
-      forOwnRight(object, function(value, key, object) {
+      forOwnRight(object, function (value, key, object) {
         if (callback(value, key, object)) {
           result = key;
           return false;
@@ -2018,15 +2003,17 @@ _u = typeof _ == 'function' && _.noConflict();
      * });
      * // => logs 'x', 'y', and 'move' (property order is not guaranteed across environments)
      */
-    var forIn = function(collection, callback, thisArg) {
-      var index, iterable = collection, result = iterable;
+    var forIn = function (collection, callback, thisArg) {
+      var index,
+        iterable = collection,
+        result = iterable;
       if (!iterable) return result;
       if (!objectTypes[typeof iterable]) return result;
       callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
-        for (index in iterable) {
-          if (callback(iterable[index], index, collection) === false) return result;
-        }
-      return result
+      for (index in iterable) {
+        if (callback(iterable[index], index, collection) === false) return result;
+      }
+      return result;
     };
 
     /**
@@ -2060,7 +2047,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function forInRight(object, callback, thisArg) {
       var pairs = [];
 
-      forIn(object, function(value, key) {
+      forIn(object, function (value, key) {
         pairs.push(key, value);
       });
 
@@ -2095,20 +2082,22 @@ _u = typeof _ == 'function' && _.noConflict();
      * });
      * // => logs '0', '1', and 'length' (property order is not guaranteed across environments)
      */
-    var forOwn = function(collection, callback, thisArg) {
-      var index, iterable = collection, result = iterable;
+    var forOwn = function (collection, callback, thisArg) {
+      var index,
+        iterable = collection,
+        result = iterable;
       if (!iterable) return result;
       if (!objectTypes[typeof iterable]) return result;
       callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
-        var ownIndex = -1,
-            ownProps = objectTypes[typeof iterable] && keys(iterable),
-            length = ownProps ? ownProps.length : 0;
+      var ownIndex = -1,
+        ownProps = objectTypes[typeof iterable] && keys(iterable),
+        length = ownProps ? ownProps.length : 0;
 
-        while (++ownIndex < length) {
-          index = ownProps[ownIndex];
-          if (callback(iterable[index], index, collection) === false) return result;
-        }
-      return result
+      while (++ownIndex < length) {
+        index = ownProps[ownIndex];
+        if (callback(iterable[index], index, collection) === false) return result;
+      }
+      return result;
     };
 
     /**
@@ -2131,7 +2120,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function forOwnRight(object, callback, thisArg) {
       var props = keys(object),
-          length = props.length;
+        length = props.length;
 
       callback = baseCreateCallback(callback, thisArg, 3);
       while (length--) {
@@ -2160,7 +2149,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function functions(object) {
       var result = [];
-      forIn(object, function(value, key) {
+      forIn(object, function (value, key) {
         if (isFunction(value)) {
           result.push(key);
         }
@@ -2202,9 +2191,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function invert(object) {
       var index = -1,
-          props = keys(object),
-          length = props.length,
-          result = {};
+        props = keys(object),
+        length = props.length,
+        result = {};
 
       while (++index < length) {
         var key = props[index];
@@ -2227,8 +2216,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => false
      */
     function isBoolean(value) {
-      return value === true || value === false ||
-        value && typeof value == 'object' && toString.call(value) == boolClass || false;
+      return value === true || value === false || (value && typeof value == 'object' && toString.call(value) == boolClass) || false;
     }
 
     /**
@@ -2245,7 +2233,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function isDate(value) {
-      return value && typeof value == 'object' && toString.call(value) == dateClass || false;
+      return (value && typeof value == 'object' && toString.call(value) == dateClass) || false;
     }
 
     /**
@@ -2262,7 +2250,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function isElement(value) {
-      return value && value.nodeType === 1 || false;
+      return (value && value.nodeType === 1) || false;
     }
 
     /**
@@ -2292,13 +2280,12 @@ _u = typeof _ == 'function' && _.noConflict();
         return result;
       }
       var className = toString.call(value),
-          length = value.length;
+        length = value.length;
 
-      if ((className == arrayClass || className == stringClass || className == argsClass ) ||
-          (className == objectClass && typeof length == 'number' && isFunction(value.splice))) {
+      if (className == arrayClass || className == stringClass || className == argsClass || (className == objectClass && typeof length == 'number' && isFunction(value.splice))) {
         return !length;
       }
-      forOwn(value, function() {
+      forOwn(value, function () {
         return (result = false);
       });
       return result;
@@ -2490,8 +2477,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function isNumber(value) {
-      return typeof value == 'number' ||
-        value && typeof value == 'object' && toString.call(value) == numberClass || false;
+      return typeof value == 'number' || (value && typeof value == 'object' && toString.call(value) == numberClass) || false;
     }
 
     /**
@@ -2518,17 +2504,17 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.isPlainObject({ 'x': 0, 'y': 0 });
      * // => true
      */
-    var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
-      if (!(value && toString.call(value) == objectClass)) {
-        return false;
-      }
-      var valueOf = value.valueOf,
-          objProto = isNative(valueOf) && (objProto = getPrototypeOf(valueOf)) && getPrototypeOf(objProto);
+    var isPlainObject = !getPrototypeOf
+      ? shimIsPlainObject
+      : function (value) {
+          if (!(value && toString.call(value) == objectClass)) {
+            return false;
+          }
+          var valueOf = value.valueOf,
+            objProto = isNative(valueOf) && (objProto = getPrototypeOf(valueOf)) && getPrototypeOf(objProto);
 
-      return objProto
-        ? (value == objProto || getPrototypeOf(value) == objProto)
-        : shimIsPlainObject(value);
-    };
+          return objProto ? value == objProto || getPrototypeOf(value) == objProto : shimIsPlainObject(value);
+        };
 
     /**
      * Checks if `value` is a regular expression.
@@ -2544,7 +2530,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function isRegExp(value) {
-      return value && typeof value == 'object' && toString.call(value) == regexpClass || false;
+      return (value && typeof value == 'object' && toString.call(value) == regexpClass) || false;
     }
 
     /**
@@ -2561,8 +2547,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function isString(value) {
-      return typeof value == 'string' ||
-        value && typeof value == 'object' && toString.call(value) == stringClass || false;
+      return typeof value == 'string' || (value && typeof value == 'object' && toString.call(value) == stringClass) || false;
     }
 
     /**
@@ -2622,7 +2607,7 @@ _u = typeof _ == 'function' && _.noConflict();
       var result = {};
       callback = lodash.createCallback(callback, thisArg, 3);
 
-      forOwn(object, function(value, key, object) {
+      forOwn(object, function (value, key, object) {
         result[key] = callback(value, key, object);
       });
       return result;
@@ -2681,7 +2666,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function merge(object) {
       var args = arguments,
-          length = 2;
+        length = 2;
 
       if (!isObject(object)) {
         return object;
@@ -2697,9 +2682,9 @@ _u = typeof _ == 'function' && _.noConflict();
         callback = args[--length];
       }
       var sources = slice(arguments, 1, length),
-          index = -1,
-          stackA = getArray(),
-          stackB = getArray();
+        index = -1,
+        stackA = getArray(),
+        stackB = getArray();
 
       while (++index < length) {
         baseMerge(object, sources[index], callback, stackA, stackB);
@@ -2739,13 +2724,13 @@ _u = typeof _ == 'function' && _.noConflict();
       var result = {};
       if (typeof callback != 'function') {
         var props = [];
-        forIn(object, function(value, key) {
+        forIn(object, function (value, key) {
           props.push(key);
         });
         props = baseDifference(props, baseFlatten(arguments, true, false, 1));
 
         var index = -1,
-            length = props.length;
+          length = props.length;
 
         while (++index < length) {
           var key = props[index];
@@ -2753,7 +2738,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       } else {
         callback = lodash.createCallback(callback, thisArg, 3);
-        forIn(object, function(value, key, object) {
+        forIn(object, function (value, key, object) {
           if (!callback(value, key, object)) {
             result[key] = value;
           }
@@ -2778,9 +2763,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function pairs(object) {
       var index = -1,
-          props = keys(object),
-          length = props.length,
-          result = Array(length);
+        props = keys(object),
+        length = props.length,
+        result = Array(length);
 
       while (++index < length) {
         var key = props[index];
@@ -2820,8 +2805,8 @@ _u = typeof _ == 'function' && _.noConflict();
       var result = {};
       if (typeof callback != 'function') {
         var index = -1,
-            props = baseFlatten(arguments, true, false, 1),
-            length = isObject(object) ? props.length : 0;
+          props = baseFlatten(arguments, true, false, 1),
+          length = isObject(object) ? props.length : 0;
 
         while (++index < length) {
           var key = props[index];
@@ -2831,7 +2816,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       } else {
         callback = lodash.createCallback(callback, thisArg, 3);
-        forIn(object, function(value, key, object) {
+        forIn(object, function (value, key, object) {
           if (callback(value, key, object)) {
             result[key] = value;
           }
@@ -2878,14 +2863,14 @@ _u = typeof _ == 'function' && _.noConflict();
           accumulator = [];
         } else {
           var ctor = object && object.constructor,
-              proto = ctor && ctor.prototype;
+            proto = ctor && ctor.prototype;
 
           accumulator = baseCreate(proto);
         }
       }
       if (callback) {
         callback = lodash.createCallback(callback, thisArg, 4);
-        (isArr ? forEach : forOwn)(object, function(value, index, object) {
+        (isArr ? forEach : forOwn)(object, function (value, index, object) {
           return callback(accumulator, value, index, object);
         });
       }
@@ -2907,9 +2892,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function values(object) {
       var index = -1,
-          props = keys(object),
-          length = props.length,
-          result = Array(length);
+        props = keys(object),
+        length = props.length,
+        result = Array(length);
 
       while (++index < length) {
         result[index] = object[props[index]];
@@ -2942,12 +2927,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function at(collection) {
       var args = arguments,
-          index = -1,
-          props = baseFlatten(args, true, false, 1),
-          length = (args[2] && args[2][args[1]] === collection) ? 1 : props.length,
-          result = Array(length);
+        index = -1,
+        props = baseFlatten(args, true, false, 1),
+        length = args[2] && args[2][args[1]] === collection ? 1 : props.length,
+        result = Array(length);
 
-      while(++index < length) {
+      while (++index < length) {
         result[index] = collection[props[index]];
       }
       return result;
@@ -2982,9 +2967,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function contains(collection, target, fromIndex) {
       var index = -1,
-          indexOf = getIndexOf(),
-          length = collection ? collection.length : 0,
-          result = false;
+        indexOf = getIndexOf(),
+        length = collection ? collection.length : 0,
+        result = false;
 
       fromIndex = (fromIndex < 0 ? nativeMax(0, length + fromIndex) : fromIndex) || 0;
       if (isArray(collection)) {
@@ -2992,7 +2977,7 @@ _u = typeof _ == 'function' && _.noConflict();
       } else if (typeof length == 'number') {
         result = (isString(collection) ? collection.indexOf(target, fromIndex) : indexOf(collection, target, fromIndex)) > -1;
       } else {
-        forOwn(collection, function(value) {
+        forOwn(collection, function (value) {
           if (++index >= fromIndex) {
             return !(result = value === target);
           }
@@ -3035,8 +3020,8 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.countBy(['one', 'two', 'three'], 'length');
      * // => { '3': 2, '5': 1 }
      */
-    var countBy = createAggregator(function(result, value, key) {
-      (hasOwnProperty.call(result, key) ? result[key]++ : result[key] = 1);
+    var countBy = createAggregator(function (result, value, key) {
+      hasOwnProperty.call(result, key) ? result[key]++ : (result[key] = 1);
     });
 
     /**
@@ -3085,7 +3070,7 @@ _u = typeof _ == 'function' && _.noConflict();
       callback = lodash.createCallback(callback, thisArg, 3);
 
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       if (typeof length == 'number') {
         while (++index < length) {
@@ -3094,7 +3079,7 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
       } else {
-        forOwn(collection, function(value, index, collection) {
+        forOwn(collection, function (value, index, collection) {
           return (result = !!callback(value, index, collection));
         });
       }
@@ -3146,7 +3131,7 @@ _u = typeof _ == 'function' && _.noConflict();
       callback = lodash.createCallback(callback, thisArg, 3);
 
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       if (typeof length == 'number') {
         while (++index < length) {
@@ -3156,7 +3141,7 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
       } else {
-        forOwn(collection, function(value, index, collection) {
+        forOwn(collection, function (value, index, collection) {
           if (callback(value, index, collection)) {
             result.push(value);
           }
@@ -3212,7 +3197,7 @@ _u = typeof _ == 'function' && _.noConflict();
       callback = lodash.createCallback(callback, thisArg, 3);
 
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       if (typeof length == 'number') {
         while (++index < length) {
@@ -3223,7 +3208,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       } else {
         var result;
-        forOwn(collection, function(value, index, collection) {
+        forOwn(collection, function (value, index, collection) {
           if (callback(value, index, collection)) {
             result = value;
             return false;
@@ -3256,7 +3241,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function findLast(collection, callback, thisArg) {
       var result;
       callback = lodash.createCallback(callback, thisArg, 3);
-      forEachRight(collection, function(value, index, collection) {
+      forEachRight(collection, function (value, index, collection) {
         if (callback(value, index, collection)) {
           result = value;
           return false;
@@ -3293,7 +3278,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function forEach(collection, callback, thisArg) {
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
       if (typeof length == 'number') {
@@ -3337,7 +3322,7 @@ _u = typeof _ == 'function' && _.noConflict();
       } else {
         var props = keys(collection);
         length = props.length;
-        forOwn(collection, function(value, key, collection) {
+        forOwn(collection, function (value, key, collection) {
           key = props ? props[--length] : --length;
           return callback(collection[key], key, collection);
         });
@@ -3380,8 +3365,8 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.groupBy(['one', 'two', 'three'], 'length');
      * // => { '3': ['one', 'two'], '5': ['three'] }
      */
-    var groupBy = createAggregator(function(result, value, key) {
-      (hasOwnProperty.call(result, key) ? result[key] : result[key] = []).push(value);
+    var groupBy = createAggregator(function (result, value, key) {
+      (hasOwnProperty.call(result, key) ? result[key] : (result[key] = [])).push(value);
     });
 
     /**
@@ -3423,7 +3408,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.indexBy(characters, function(key) { this.fromCharCode(key.code); }, String);
      * // => { 'a': { 'dir': 'left', 'code': 97 }, 'd': { 'dir': 'right', 'code': 100 } }
      */
-    var indexBy = createAggregator(function(result, value, key) {
+    var indexBy = createAggregator(function (result, value, key) {
       result[key] = value;
     });
 
@@ -3451,12 +3436,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function invoke(collection, methodName) {
       var args = slice(arguments, 2),
-          index = -1,
-          isFunc = typeof methodName == 'function',
-          length = collection ? collection.length : 0,
-          result = Array(typeof length == 'number' ? length : 0);
+        index = -1,
+        isFunc = typeof methodName == 'function',
+        length = collection ? collection.length : 0,
+        result = Array(typeof length == 'number' ? length : 0);
 
-      forEach(collection, function(value) {
+      forEach(collection, function (value) {
         result[++index] = (isFunc ? methodName : value[methodName]).apply(value, args);
       });
       return result;
@@ -3503,7 +3488,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function map(collection, callback, thisArg) {
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       callback = lodash.createCallback(callback, thisArg, 3);
       if (typeof length == 'number') {
@@ -3513,7 +3498,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       } else {
         result = [];
-        forOwn(collection, function(value, key, collection) {
+        forOwn(collection, function (value, key, collection) {
           result[++index] = callback(value, key, collection);
         });
       }
@@ -3562,7 +3547,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function max(collection, callback, thisArg) {
       var computed = -Infinity,
-          result = computed;
+        result = computed;
 
       // allows working with functions like `_.map` without using
       // their `index` argument as a callback
@@ -3571,7 +3556,7 @@ _u = typeof _ == 'function' && _.noConflict();
       }
       if (callback == null && isArray(collection)) {
         var index = -1,
-            length = collection.length;
+          length = collection.length;
 
         while (++index < length) {
           var value = collection[index];
@@ -3580,11 +3565,9 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
       } else {
-        callback = (callback == null && isString(collection))
-          ? charAtCallback
-          : lodash.createCallback(callback, thisArg, 3);
+        callback = callback == null && isString(collection) ? charAtCallback : lodash.createCallback(callback, thisArg, 3);
 
-        forEach(collection, function(value, index, collection) {
+        forEach(collection, function (value, index, collection) {
           var current = callback(value, index, collection);
           if (current > computed) {
             computed = current;
@@ -3637,7 +3620,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function min(collection, callback, thisArg) {
       var computed = Infinity,
-          result = computed;
+        result = computed;
 
       // allows working with functions like `_.map` without using
       // their `index` argument as a callback
@@ -3646,7 +3629,7 @@ _u = typeof _ == 'function' && _.noConflict();
       }
       if (callback == null && isArray(collection)) {
         var index = -1,
-            length = collection.length;
+          length = collection.length;
 
         while (++index < length) {
           var value = collection[index];
@@ -3655,11 +3638,9 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
       } else {
-        callback = (callback == null && isString(collection))
-          ? charAtCallback
-          : lodash.createCallback(callback, thisArg, 3);
+        callback = callback == null && isString(collection) ? charAtCallback : lodash.createCallback(callback, thisArg, 3);
 
-        forEach(collection, function(value, index, collection) {
+        forEach(collection, function (value, index, collection) {
           var current = callback(value, index, collection);
           if (current < computed) {
             computed = current;
@@ -3728,7 +3709,7 @@ _u = typeof _ == 'function' && _.noConflict();
       callback = lodash.createCallback(callback, thisArg, 4);
 
       var index = -1,
-          length = collection.length;
+        length = collection.length;
 
       if (typeof length == 'number') {
         if (noaccum) {
@@ -3738,10 +3719,8 @@ _u = typeof _ == 'function' && _.noConflict();
           accumulator = callback(accumulator, collection[index], index, collection);
         }
       } else {
-        forOwn(collection, function(value, index, collection) {
-          accumulator = noaccum
-            ? (noaccum = false, value)
-            : callback(accumulator, value, index, collection)
+        forOwn(collection, function (value, index, collection) {
+          accumulator = noaccum ? ((noaccum = false), value) : callback(accumulator, value, index, collection);
         });
       }
       return accumulator;
@@ -3769,10 +3748,8 @@ _u = typeof _ == 'function' && _.noConflict();
     function reduceRight(collection, callback, accumulator, thisArg) {
       var noaccum = arguments.length < 3;
       callback = lodash.createCallback(callback, thisArg, 4);
-      forEachRight(collection, function(value, index, collection) {
-        accumulator = noaccum
-          ? (noaccum = false, value)
-          : callback(accumulator, value, index, collection);
+      forEachRight(collection, function (value, index, collection) {
+        accumulator = noaccum ? ((noaccum = false), value) : callback(accumulator, value, index, collection);
       });
       return accumulator;
     }
@@ -3817,7 +3794,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function reject(collection, callback, thisArg) {
       callback = lodash.createCallback(callback, thisArg, 3);
-      return filter(collection, function(value, index, collection) {
+      return filter(collection, function (value, index, collection) {
         return !callback(value, index, collection);
       });
     }
@@ -3869,10 +3846,10 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function shuffle(collection) {
       var index = -1,
-          length = collection ? collection.length : 0,
-          result = Array(typeof length == 'number' ? length : 0);
+        length = collection ? collection.length : 0,
+        result = Array(typeof length == 'number' ? length : 0);
 
-      forEach(collection, function(value) {
+      forEach(collection, function (value) {
         var rand = baseRandom(0, ++index);
         result[index] = result[rand];
         result[rand] = value;
@@ -3952,7 +3929,7 @@ _u = typeof _ == 'function' && _.noConflict();
       callback = lodash.createCallback(callback, thisArg, 3);
 
       var index = -1,
-          length = collection ? collection.length : 0;
+        length = collection ? collection.length : 0;
 
       if (typeof length == 'number') {
         while (++index < length) {
@@ -3961,7 +3938,7 @@ _u = typeof _ == 'function' && _.noConflict();
           }
         }
       } else {
-        forOwn(collection, function(value, index, collection) {
+        forOwn(collection, function (value, index, collection) {
           return !(result = callback(value, index, collection));
         });
       }
@@ -4019,17 +3996,19 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function sortBy(collection, callback, thisArg) {
       var index = -1,
-          isArr = isArray(callback),
-          length = collection ? collection.length : 0,
-          result = Array(typeof length == 'number' ? length : 0);
+        isArr = isArray(callback),
+        length = collection ? collection.length : 0,
+        result = Array(typeof length == 'number' ? length : 0);
 
       if (!isArr) {
         callback = lodash.createCallback(callback, thisArg, 3);
       }
-      forEach(collection, function(value, key, collection) {
-        var object = result[++index] = getObject();
+      forEach(collection, function (value, key, collection) {
+        var object = (result[++index] = getObject());
         if (isArr) {
-          object.criteria = map(callback, function(key) { return value[key]; });
+          object.criteria = map(callback, function (key) {
+            return value[key];
+          });
         } else {
           (object.criteria = getArray())[0] = callback(value, key, collection);
         }
@@ -4115,8 +4094,8 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function compact(array) {
       var index = -1,
-          length = array ? array.length : 0,
-          result = [];
+        length = array ? array.length : 0,
+        result = [];
 
       while (++index < length) {
         var value = array[index];
@@ -4189,7 +4168,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function findIndex(array, callback, thisArg) {
       var index = -1,
-          length = array ? array.length : 0;
+        length = array ? array.length : 0;
 
       callback = lodash.createCallback(callback, thisArg, 3);
       while (++index < length) {
@@ -4305,7 +4284,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function first(array, callback, thisArg) {
       var n = 0,
-          length = array ? array.length : 0;
+        length = array ? array.length : 0;
 
       if (typeof callback != 'number' && callback != null) {
         var index = -1;
@@ -4367,7 +4346,7 @@ _u = typeof _ == 'function' && _.noConflict();
       // juggle arguments
       if (typeof isShallow != 'boolean' && isShallow != null) {
         thisArg = callback;
-        callback = (typeof isShallow != 'function' && thisArg && thisArg[isShallow] === array) ? null : isShallow;
+        callback = typeof isShallow != 'function' && thisArg && thisArg[isShallow] === array ? null : isShallow;
         isShallow = false;
       }
       if (callback != null) {
@@ -4403,7 +4382,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function indexOf(array, value, fromIndex) {
       if (typeof fromIndex == 'number') {
         var length = array ? array.length : 0;
-        fromIndex = (fromIndex < 0 ? nativeMax(0, length + fromIndex) : fromIndex || 0);
+        fromIndex = fromIndex < 0 ? nativeMax(0, length + fromIndex) : fromIndex || 0;
       } else if (fromIndex) {
         var index = sortedIndex(array, value);
         return array[index] === value ? index : -1;
@@ -4463,7 +4442,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function initial(array, callback, thisArg) {
       var n = 0,
-          length = array ? array.length : 0;
+        length = array ? array.length : 0;
 
       if (typeof callback != 'number' && callback != null) {
         var index = length;
@@ -4472,7 +4451,7 @@ _u = typeof _ == 'function' && _.noConflict();
           n++;
         }
       } else {
-        n = (callback == null || thisArg) ? 1 : callback || n;
+        n = callback == null || thisArg ? 1 : callback || n;
       }
       return slice(array, 0, nativeMin(nativeMax(0, length - n), length));
     }
@@ -4493,28 +4472,26 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function intersection() {
       var args = [],
-          argsIndex = -1,
-          argsLength = arguments.length,
-          caches = getArray(),
-          indexOf = getIndexOf(),
-          trustIndexOf = indexOf === baseIndexOf,
-          seen = getArray();
+        argsIndex = -1,
+        argsLength = arguments.length,
+        caches = getArray(),
+        indexOf = getIndexOf(),
+        trustIndexOf = indexOf === baseIndexOf,
+        seen = getArray();
 
       while (++argsIndex < argsLength) {
         var value = arguments[argsIndex];
         if (isArray(value) || isArguments(value)) {
           args.push(value);
-          caches.push(trustIndexOf && value.length >= largeArraySize &&
-            createCache(argsIndex ? args[argsIndex] : seen));
+          caches.push(trustIndexOf && value.length >= largeArraySize && createCache(argsIndex ? args[argsIndex] : seen));
         }
       }
       var array = args[0],
-          index = -1,
-          length = array ? array.length : 0,
-          result = [];
+        index = -1,
+        length = array ? array.length : 0,
+        result = [];
 
-      outer:
-      while (++index < length) {
+      outer: while (++index < length) {
         var cache = caches[0];
         value = array[index];
 
@@ -4593,7 +4570,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function last(array, callback, thisArg) {
       var n = 0,
-          length = array ? array.length : 0;
+        length = array ? array.length : 0;
 
       if (typeof callback != 'number' && callback != null) {
         var index = length;
@@ -4669,13 +4646,13 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function pull(array) {
       var args = arguments,
-          argsIndex = 0,
-          argsLength = args.length,
-          length = array ? array.length : 0;
+        argsIndex = 0,
+        argsLength = args.length,
+        length = array ? array.length : 0;
 
       while (++argsIndex < argsLength) {
         var index = -1,
-            value = args[argsIndex];
+          value = args[argsIndex];
         while (++index < length) {
           if (array[index] === value) {
             splice.call(array, index--, 1);
@@ -4720,7 +4697,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function range(start, end, step) {
       start = +start || 0;
-      step = typeof step == 'number' ? step : (+step || 1);
+      step = typeof step == 'number' ? step : +step || 1;
 
       if (end == null) {
         end = start;
@@ -4729,8 +4706,8 @@ _u = typeof _ == 'function' && _.noConflict();
       // use `Array(length)` so engines like Chakra and V8 avoid slower modes
       // http://youtu.be/XAqIpGU8ZZk#t=17m25s
       var index = -1,
-          length = nativeMax(0, ceil((end - start) / (step || 1))),
-          result = Array(length);
+        length = nativeMax(0, ceil((end - start) / (step || 1))),
+        result = Array(length);
 
       while (++index < length) {
         result[index] = start;
@@ -4773,8 +4750,8 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function remove(array, callback, thisArg) {
       var index = -1,
-          length = array ? array.length : 0,
-          result = [];
+        length = array ? array.length : 0,
+        result = [];
 
       callback = lodash.createCallback(callback, thisArg, 3);
       while (++index < length) {
@@ -4843,15 +4820,15 @@ _u = typeof _ == 'function' && _.noConflict();
     function rest(array, callback, thisArg) {
       if (typeof callback != 'number' && callback != null) {
         var n = 0,
-            index = -1,
-            length = array ? array.length : 0;
+          index = -1,
+          length = array ? array.length : 0;
 
         callback = lodash.createCallback(callback, thisArg, 3);
         while (++index < length && callback(array[index], index, array)) {
           n++;
         }
       } else {
-        n = (callback == null || thisArg) ? 1 : nativeMax(0, callback);
+        n = callback == null || thisArg ? 1 : nativeMax(0, callback);
       }
       return slice(array, n);
     }
@@ -4906,7 +4883,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function sortedIndex(array, value, callback, thisArg) {
       var low = 0,
-          high = array ? array.length : low;
+        high = array ? array.length : low;
 
       // explicitly reference `identity` for better inlining in Firefox
       callback = callback ? lodash.createCallback(callback, thisArg, 1) : identity;
@@ -4914,9 +4891,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
       while (low < high) {
         var mid = (low + high) >>> 1;
-        (callback(array[mid]) < value)
-          ? low = mid + 1
-          : high = mid;
+        callback(array[mid]) < value ? (low = mid + 1) : (high = mid);
       }
       return low;
     }
@@ -4987,7 +4962,7 @@ _u = typeof _ == 'function' && _.noConflict();
       // juggle arguments
       if (typeof isSorted != 'boolean' && isSorted != null) {
         thisArg = callback;
-        callback = (typeof isSorted != 'function' && thisArg && thisArg[isSorted] === array) ? null : isSorted;
+        callback = typeof isSorted != 'function' && thisArg && thisArg[isSorted] === array ? null : isSorted;
         isSorted = false;
       }
       if (callback != null) {
@@ -5034,14 +5009,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function xor() {
       var index = -1,
-          length = arguments.length;
+        length = arguments.length;
 
       while (++index < length) {
         var array = arguments[index];
         if (isArray(array) || isArguments(array)) {
-          var result = result
-            ? baseUniq(baseDifference(result, array).concat(baseDifference(array, result)))
-            : array;
+          var result = result ? baseUniq(baseDifference(result, array).concat(baseDifference(array, result))) : array;
         }
       }
       return result || [];
@@ -5065,9 +5038,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function zip() {
       var array = arguments.length > 1 ? arguments : arguments[0],
-          index = -1,
-          length = array ? max(pluck(array, 'length')) : 0,
-          result = Array(length < 0 ? 0 : length);
+        index = -1,
+        length = array ? max(pluck(array, 'length')) : 0,
+        result = Array(length < 0 ? 0 : length);
 
       while (++index < length) {
         result[index] = pluck(array, index);
@@ -5095,8 +5068,8 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function zipObject(keys, values) {
       var index = -1,
-          length = keys ? keys.length : 0,
-          result = {};
+        length = keys ? keys.length : 0,
+        result = {};
 
       if (!values && length && !isArray(keys[0])) {
         values = [];
@@ -5140,9 +5113,9 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function after(n, func) {
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
-      return function() {
+      return function () {
         if (--n < 1) {
           return func.apply(this, arguments);
         }
@@ -5172,9 +5145,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => 'hi fred'
      */
     function bind(func, thisArg) {
-      return arguments.length > 2
-        ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
-        : createWrapper(func, 1, null, null, thisArg);
+      return arguments.length > 2 ? createWrapper(func, 17, slice(arguments, 2), null, thisArg) : createWrapper(func, 1, null, null, thisArg);
     }
 
     /**
@@ -5203,8 +5174,8 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function bindAll(object) {
       var funcs = arguments.length > 1 ? baseFlatten(arguments, true, false, 1) : functions(object),
-          index = -1,
-          length = funcs.length;
+        index = -1,
+        length = funcs.length;
 
       while (++index < length) {
         var key = funcs[index];
@@ -5248,9 +5219,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => 'hiya fred!'
      */
     function bindKey(object, key) {
-      return arguments.length > 2
-        ? createWrapper(key, 19, slice(arguments, 2), null, object)
-        : createWrapper(key, 3, null, null, object);
+      return arguments.length > 2 ? createWrapper(key, 19, slice(arguments, 2), null, object) : createWrapper(key, 3, null, null, object);
     }
 
     /**
@@ -5285,16 +5254,16 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function compose() {
       var funcs = arguments,
-          length = funcs.length;
+        length = funcs.length;
 
       while (length--) {
         if (!isFunction(funcs[length])) {
-          throw new TypeError;
+          throw new TypeError();
         }
       }
-      return function() {
+      return function () {
         var args = arguments,
-            length = funcs.length;
+          length = funcs.length;
 
         while (length--) {
           args = [funcs[length].apply(this, args)];
@@ -5332,7 +5301,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => 6
      */
     function curry(func, arity) {
-      arity = typeof arity == 'number' ? arity : (+arity || func.length);
+      arity = typeof arity == 'number' ? arity : +arity || func.length;
       return createWrapper(func, 4, null, null, null, arity);
     }
 
@@ -5377,18 +5346,18 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function debounce(func, wait, options) {
       var args,
-          maxTimeoutId,
-          result,
-          stamp,
-          thisArg,
-          timeoutId,
-          trailingCall,
-          lastCalled = 0,
-          maxWait = false,
-          trailing = true;
+        maxTimeoutId,
+        result,
+        stamp,
+        thisArg,
+        timeoutId,
+        trailingCall,
+        lastCalled = 0,
+        maxWait = false,
+        trailing = true;
 
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
       wait = nativeMax(0, wait) || 0;
       if (options === true) {
@@ -5399,7 +5368,7 @@ _u = typeof _ == 'function' && _.noConflict();
         maxWait = 'maxWait' in options && (nativeMax(wait, options.maxWait) || 0);
         trailing = 'trailing' in options ? options.trailing : trailing;
       }
-      var delayed = function() {
+      var delayed = function () {
         var remaining = wait - (now() - stamp);
         if (remaining <= 0) {
           if (maxTimeoutId) {
@@ -5419,12 +5388,12 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       };
 
-      var maxDelayed = function() {
+      var maxDelayed = function () {
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
         maxTimeoutId = timeoutId = trailingCall = undefined;
-        if (trailing || (maxWait !== wait)) {
+        if (trailing || maxWait !== wait) {
           lastCalled = now();
           result = func.apply(thisArg, args);
           if (!timeoutId && !maxTimeoutId) {
@@ -5433,7 +5402,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       };
 
-      return function() {
+      return function () {
         args = arguments;
         stamp = now();
         thisArg = this;
@@ -5446,7 +5415,7 @@ _u = typeof _ == 'function' && _.noConflict();
             lastCalled = stamp;
           }
           var remaining = maxWait - (stamp - lastCalled),
-              isCalled = remaining <= 0;
+            isCalled = remaining <= 0;
 
           if (isCalled) {
             if (maxTimeoutId) {
@@ -5454,15 +5423,13 @@ _u = typeof _ == 'function' && _.noConflict();
             }
             lastCalled = stamp;
             result = func.apply(thisArg, args);
-          }
-          else if (!maxTimeoutId) {
+          } else if (!maxTimeoutId) {
             maxTimeoutId = setTimeout(maxDelayed, remaining);
           }
         }
         if (isCalled && timeoutId) {
           timeoutId = clearTimeout(timeoutId);
-        }
-        else if (!timeoutId && wait !== maxWait) {
+        } else if (!timeoutId && wait !== maxWait) {
           timeoutId = setTimeout(delayed, wait);
         }
         if (leadingCall) {
@@ -5493,10 +5460,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function defer(func) {
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
       var args = slice(arguments, 1);
-      return setTimeout(function() { func.apply(undefined, args); }, 1);
+      return setTimeout(function () {
+        func.apply(undefined, args);
+      }, 1);
     }
 
     /**
@@ -5517,10 +5486,12 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function delay(func, wait) {
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
       var args = slice(arguments, 2);
-      return setTimeout(function() { func.apply(undefined, args); }, wait);
+      return setTimeout(function () {
+        func.apply(undefined, args);
+      }, wait);
     }
 
     /**
@@ -5562,16 +5533,14 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function memoize(func, resolver) {
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
-      var memoized = function() {
+      var memoized = function () {
         var cache = memoized.cache,
-            key = resolver ? resolver.apply(this, arguments) : keyPrefix + arguments[0];
+          key = resolver ? resolver.apply(this, arguments) : keyPrefix + arguments[0];
 
-        return hasOwnProperty.call(cache, key)
-          ? cache[key]
-          : (cache[key] = func.apply(this, arguments));
-      }
+        return hasOwnProperty.call(cache, key) ? cache[key] : (cache[key] = func.apply(this, arguments));
+      };
       memoized.cache = {};
       return memoized;
     }
@@ -5594,13 +5563,12 @@ _u = typeof _ == 'function' && _.noConflict();
      * // `initialize` executes `createApplication` once
      */
     function once(func) {
-      var ran,
-          result;
+      var ran, result;
 
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
-      return function() {
+      return function () {
         if (ran) {
           return result;
         }
@@ -5699,10 +5667,10 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function throttle(func, wait, options) {
       var leading = true,
-          trailing = true;
+        trailing = true;
 
       if (!isFunction(func)) {
-        throw new TypeError;
+        throw new TypeError();
       }
       if (options === false) {
         leading = false;
@@ -5760,7 +5728,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => true
      */
     function constant(value) {
-      return function() {
+      return function () {
         return value;
       };
     }
@@ -5806,21 +5774,21 @@ _u = typeof _ == 'function' && _.noConflict();
         return property(func);
       }
       var props = keys(func),
-          key = props[0],
-          a = func[key];
+        key = props[0],
+        a = func[key];
 
       // handle "_.where" style callback shorthands
       if (props.length == 1 && a === a && !isObject(a)) {
         // fast path the common case of providing an object with a single
         // property containing a primitive value
-        return function(object) {
+        return function (object) {
           var b = object[key];
-          return a === b && (a !== 0 || (1 / a == 1 / b));
+          return a === b && (a !== 0 || 1 / a == 1 / b);
         };
       }
-      return function(object) {
+      return function (object) {
         var length = props.length,
-            result = false;
+          result = false;
 
         while (length--) {
           if (!(result = baseIsEqual(object[props[length]], func[props[length]], null, true))) {
@@ -5897,7 +5865,7 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function mixin(object, source, options) {
       var chain = true,
-          methodNames = source && functions(source);
+        methodNames = source && functions(source);
 
       if (!source || (!options && !methodNames.length)) {
         if (options == null) {
@@ -5914,15 +5882,15 @@ _u = typeof _ == 'function' && _.noConflict();
         chain = options.chain;
       }
       var ctor = object,
-          isFunc = isFunction(ctor);
+        isFunc = isFunction(ctor);
 
-      forEach(methodNames, function(methodName) {
-        var func = object[methodName] = source[methodName];
+      forEach(methodNames, function (methodName) {
+        var func = (object[methodName] = source[methodName]);
         if (isFunc) {
-          ctor.prototype[methodName] = function() {
+          ctor.prototype[methodName] = function () {
             var chainAll = this.__chain__,
-                value = this.__wrapped__,
-                args = [value];
+              value = this.__wrapped__,
+              args = [value];
 
             push.apply(args, arguments);
             var result = func.apply(object, args);
@@ -5985,9 +5953,11 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.defer(function() { console.log(_.now() - stamp); });
      * // => logs the number of milliseconds it took for the deferred function to be called
      */
-    var now = isNative(now = Date.now) && now || function() {
-      return new Date().getTime();
-    };
+    var now =
+      (isNative((now = Date.now)) && now) ||
+      function () {
+        return new Date().getTime();
+      };
 
     /**
      * Converts the given value into an integer of the specified radix.
@@ -6008,10 +5978,13 @@ _u = typeof _ == 'function' && _.noConflict();
      * _.parseInt('08');
      * // => 8
      */
-    var parseInt = nativeParseInt(whitespace + '08') == 8 ? nativeParseInt : function(value, radix) {
-      // Firefox < 21 and Opera < 15 follow the ES3 specified implementation of `parseInt`
-      return nativeParseInt(isString(value) ? value.replace(reLeadingSpacesAndZeros, '') : value, radix || 0);
-    };
+    var parseInt =
+      nativeParseInt(whitespace + '08') == 8
+        ? nativeParseInt
+        : function (value, radix) {
+            // Firefox < 21 and Opera < 15 follow the ES3 specified implementation of `parseInt`
+            return nativeParseInt(isString(value) ? value.replace(reLeadingSpacesAndZeros, '') : value, radix || 0);
+          };
 
     /**
      * Creates a "_.pluck" style function, which returns the `key` value of a
@@ -6038,7 +6011,7 @@ _u = typeof _ == 'function' && _.noConflict();
      * // => [{ 'name': 'barney', 'age': 36 }, { 'name': 'fred',   'age': 40 }]
      */
     function property(key) {
-      return function(object) {
+      return function (object) {
         return object[key];
       };
     }
@@ -6072,14 +6045,13 @@ _u = typeof _ == 'function' && _.noConflict();
      */
     function random(min, max, floating) {
       var noMin = min == null,
-          noMax = max == null;
+        noMax = max == null;
 
       if (floating == null) {
         if (typeof min == 'boolean' && noMax) {
           floating = min;
           min = 1;
-        }
-        else if (!noMax && typeof max == 'boolean') {
+        } else if (!noMax && typeof max == 'boolean') {
           floating = max;
           noMax = true;
         }
@@ -6096,7 +6068,7 @@ _u = typeof _ == 'function' && _.noConflict();
       }
       if (floating || min % 1 || max % 1) {
         var rand = nativeRandom();
-        return nativeMin(min + (rand * (max - min + parseFloat('1e-' + ((rand +'').length - 1)))), max);
+        return nativeMin(min + rand * (max - min + parseFloat('1e-' + ((rand + '').length - 1))), max);
       }
       return baseRandom(min, max);
     }
@@ -6233,23 +6205,18 @@ _u = typeof _ == 'function' && _.noConflict();
       options = defaults({}, options, settings);
 
       var imports = defaults({}, options.imports, settings.imports),
-          importsKeys = keys(imports),
-          importsValues = values(imports);
+        importsKeys = keys(imports),
+        importsValues = values(imports);
 
       var isEvaluating,
-          index = 0,
-          interpolate = options.interpolate || reNoMatch,
-          source = "__p += '";
+        index = 0,
+        interpolate = options.interpolate || reNoMatch,
+        source = "__p += '";
 
       // compile the regexp to match each delimiter
-      var reDelimiters = RegExp(
-        (options.escape || reNoMatch).source + '|' +
-        interpolate.source + '|' +
-        (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + '|' +
-        (options.evaluate || reNoMatch).source + '|$'
-      , 'g');
+      var reDelimiters = RegExp((options.escape || reNoMatch).source + '|' + interpolate.source + '|' + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + '|' + (options.evaluate || reNoMatch).source + '|$', 'g');
 
-      text.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
+      text.replace(reDelimiters, function (match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
         interpolateValue || (interpolateValue = esTemplateValue);
 
         // escape characters that cannot be included in string literals
@@ -6278,36 +6245,25 @@ _u = typeof _ == 'function' && _.noConflict();
       // if `variable` is not specified, wrap a with-statement around the generated
       // code to add the data object to the top of the scope chain
       var variable = options.variable,
-          hasVariable = variable;
+        hasVariable = variable;
 
       if (!hasVariable) {
         variable = 'obj';
         source = 'with (' + variable + ') {\n' + source + '\n}\n';
       }
       // cleanup code by stripping empty strings
-      source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
-        .replace(reEmptyStringMiddle, '$1')
-        .replace(reEmptyStringTrailing, '$1;');
+      source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source).replace(reEmptyStringMiddle, '$1').replace(reEmptyStringTrailing, '$1;');
 
       // frame code as the function body
-      source = 'function(' + variable + ') {\n' +
-        (hasVariable ? '' : variable + ' || (' + variable + ' = {});\n') +
-        "var __t, __p = '', __e = _.escape" +
-        (isEvaluating
-          ? ', __j = Array.prototype.join;\n' +
-            "function print() { __p += __j.call(arguments, '') }\n"
-          : ';\n'
-        ) +
-        source +
-        'return __p\n}';
+      source = 'function(' + variable + ') {\n' + (hasVariable ? '' : variable + ' || (' + variable + ' = {});\n') + "var __t, __p = '', __e = _.escape" + (isEvaluating ? ', __j = Array.prototype.join;\n' + "function print() { __p += __j.call(arguments, '') }\n" : ';\n') + source + 'return __p\n}';
 
       // Use a sourceURL for easier debugging.
       // http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl
-      var sourceURL = '\n/*\n//# sourceURL=' + (options.sourceURL || '/lodash/template/source[' + (templateCounter++) + ']') + '\n*/';
+      var sourceURL = '\n/*\n//# sourceURL=' + (options.sourceURL || '/lodash/template/source[' + templateCounter++ + ']') + '\n*/';
 
       try {
         var result = Function(importsKeys, 'return ' + source + sourceURL).apply(undefined, importsValues);
-      } catch(e) {
+      } catch (e) {
         e.source = source;
         throw e;
       }
@@ -6347,7 +6303,7 @@ _u = typeof _ == 'function' && _.noConflict();
     function times(n, callback, thisArg) {
       n = (n = +n) > -1 ? n : 0;
       var index = -1,
-          result = Array(n);
+        result = Array(n);
 
       callback = baseCreateCallback(callback, thisArg, 1);
       while (++index < n) {
@@ -6668,15 +6624,18 @@ _u = typeof _ == 'function' && _.noConflict();
     lodash.include = contains;
     lodash.inject = reduce;
 
-    mixin(function() {
-      var source = {}
-      forOwn(lodash, function(func, methodName) {
-        if (!lodash.prototype[methodName]) {
-          source[methodName] = func;
-        }
-      });
-      return source;
-    }(), false);
+    mixin(
+      (function () {
+        var source = {};
+        forOwn(lodash, function (func, methodName) {
+          if (!lodash.prototype[methodName]) {
+            source[methodName] = func;
+          }
+        });
+        return source;
+      })(),
+      false
+    );
 
     /*--------------------------------------------------------------------------*/
 
@@ -6689,16 +6648,14 @@ _u = typeof _ == 'function' && _.noConflict();
     lodash.take = first;
     lodash.head = first;
 
-    forOwn(lodash, function(func, methodName) {
+    forOwn(lodash, function (func, methodName) {
       var callbackable = methodName !== 'sample';
       if (!lodash.prototype[methodName]) {
-        lodash.prototype[methodName]= function(n, guard) {
+        lodash.prototype[methodName] = function (n, guard) {
           var chainAll = this.__chain__,
-              result = func(this.__wrapped__, n, guard);
+            result = func(this.__wrapped__, n, guard);
 
-          return !chainAll && (n == null || (guard && !(callbackable && typeof n == 'function')))
-            ? result
-            : new lodashWrapper(result, chainAll);
+          return !chainAll && (n == null || (guard && !(callbackable && typeof n == 'function'))) ? result : new lodashWrapper(result, chainAll);
         };
       }
     });
@@ -6721,31 +6678,29 @@ _u = typeof _ == 'function' && _.noConflict();
     lodash.prototype.valueOf = wrapperValueOf;
 
     // add `Array` functions that return unwrapped values
-    forEach(['join', 'pop', 'shift'], function(methodName) {
+    forEach(['join', 'pop', 'shift'], function (methodName) {
       var func = arrayRef[methodName];
-      lodash.prototype[methodName] = function() {
+      lodash.prototype[methodName] = function () {
         var chainAll = this.__chain__,
-            result = func.apply(this.__wrapped__, arguments);
+          result = func.apply(this.__wrapped__, arguments);
 
-        return chainAll
-          ? new lodashWrapper(result, chainAll)
-          : result;
+        return chainAll ? new lodashWrapper(result, chainAll) : result;
       };
     });
 
     // add `Array` functions that return the existing wrapped value
-    forEach(['push', 'reverse', 'sort', 'unshift'], function(methodName) {
+    forEach(['push', 'reverse', 'sort', 'unshift'], function (methodName) {
       var func = arrayRef[methodName];
-      lodash.prototype[methodName] = function() {
+      lodash.prototype[methodName] = function () {
         func.apply(this.__wrapped__, arguments);
         return this;
       };
     });
 
     // add `Array` functions that return new wrapped values
-    forEach(['concat', 'slice', 'splice'], function(methodName) {
+    forEach(['concat', 'slice', 'splice'], function (methodName) {
       var func = arrayRef[methodName];
-      lodash.prototype[methodName] = function() {
+      lodash.prototype[methodName] = function () {
         return new lodashWrapper(func.apply(this.__wrapped__, arguments), this.__chain__);
       };
     });
@@ -6766,7 +6721,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
     // define as an anonymous module so, through path mapping, it can be
     // referenced as the "underscore" module
-    define(function() {
+    define(function () {
       return _;
     });
   }
@@ -6780,8 +6735,7 @@ _u = typeof _ == 'function' && _.noConflict();
     else {
       freeExports._ = _;
     }
-  }
-  else {
+  } else {
     // in a browser or Rhino
     //root._ = _;
     //return _;
@@ -6790,7 +6744,7 @@ _u = typeof _ == 'function' && _.noConflict();
     root._ = _;
     return root._;
   }
-}.call(this));
+}).call(this);
 
 //  Underscore.string
 //  (c) 2010 Esa-Matti Suuronen <esa-matti aet suuronen dot org>
@@ -6799,7 +6753,7 @@ _u = typeof _ == 'function' && _.noConflict();
 //  Some code is borrowed from MooTools and Alexandru Marasteanu.
 //  Version '2.3.2'
 
-!function(root, String){
+!(function (root, String) {
   'use strict';
 
   // Defining helper functions.
@@ -6808,32 +6762,33 @@ _u = typeof _ == 'function' && _.noConflict();
   var nativeTrimRight = String.prototype.trimRight;
   var nativeTrimLeft = String.prototype.trimLeft;
 
-  var parseNumber = function(source) { return source * 1 || 0; };
+  var parseNumber = function (source) {
+    return source * 1 || 0;
+  };
 
-  var strRepeat = function(str, qty){
+  var strRepeat = function (str, qty) {
     if (qty < 1) return '';
     var result = '';
     while (qty > 0) {
       if (qty & 1) result += str;
-      qty >>= 1, str += str;
+      ((qty >>= 1), (str += str));
     }
     return result;
   };
 
   var slice = [].slice;
 
-  var defaultToWhiteSpace = function(characters) {
-    if (characters == null)
-      return '\\s';
-    else if (characters.source)
-      return characters.source;
-    else
-      return '[' + _s.escapeRegExp(characters) + ']';
+  var defaultToWhiteSpace = function (characters) {
+    if (characters == null) return '\\s';
+    else if (characters.source) return characters.source;
+    else return '[' + _s.escapeRegExp(characters) + ']';
   };
 
   // Helper for toBoolean
   function boolMatch(s, matchers) {
-    var i, matcher, down = s.toLowerCase();
+    var i,
+      matcher,
+      down = s.toLowerCase();
     matchers = [].concat(matchers);
     for (i = 0; i < matchers.length; i += 1) {
       matcher = matchers[i];
@@ -6848,11 +6803,11 @@ _u = typeof _ == 'function' && _.noConflict();
     gt: '>',
     quot: '"',
     amp: '&',
-    apos: "'"
+    apos: "'",
   };
 
   var reversedEscapeChars = {};
-  for(var key in escapeChars) reversedEscapeChars[escapeChars[key]] = key;
+  for (var key in escapeChars) reversedEscapeChars[escapeChars[key]] = key;
   reversedEscapeChars["'"] = '#39';
 
   // sprintf() for JavaScript 0.7-beta1
@@ -6861,30 +6816,40 @@ _u = typeof _ == 'function' && _.noConflict();
   // Copyright (c) Alexandru Marasteanu <alexaholic [at) gmail (dot] com>
   // All rights reserved.
 
-  var sprintf = (function() {
+  var sprintf = (function () {
     function get_type(variable) {
       return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
     }
 
     var str_repeat = strRepeat;
 
-    var str_format = function() {
+    var str_format = function () {
       if (!str_format.cache.hasOwnProperty(arguments[0])) {
         str_format.cache[arguments[0]] = str_format.parse(arguments[0]);
       }
       return str_format.format.call(null, str_format.cache[arguments[0]], arguments);
     };
 
-    str_format.format = function(parse_tree, argv) {
-      var cursor = 1, tree_length = parse_tree.length, node_type = '', arg, output = [], i, k, match, pad, pad_character, pad_length;
+    str_format.format = function (parse_tree, argv) {
+      var cursor = 1,
+        tree_length = parse_tree.length,
+        node_type = '',
+        arg,
+        output = [],
+        i,
+        k,
+        match,
+        pad,
+        pad_character,
+        pad_length;
       for (i = 0; i < tree_length; i++) {
         node_type = get_type(parse_tree[i]);
         if (node_type === 'string') {
           output.push(parse_tree[i]);
-        }
-        else if (node_type === 'array') {
+        } else if (node_type === 'array') {
           match = parse_tree[i]; // convenience purposes only
-          if (match[2]) { // keyword argument
+          if (match[2]) {
+            // keyword argument
             arg = argv[cursor];
             for (k = 0; k < match[2].length; k++) {
               if (!arg.hasOwnProperty(match[2][k])) {
@@ -6892,30 +6857,51 @@ _u = typeof _ == 'function' && _.noConflict();
               }
               arg = arg[match[2][k]];
             }
-          } else if (match[1]) { // positional argument (explicit)
+          } else if (match[1]) {
+            // positional argument (explicit)
             arg = argv[match[1]];
-          }
-          else { // positional argument (implicit)
+          } else {
+            // positional argument (implicit)
             arg = argv[cursor++];
           }
 
-          if (/[^s]/.test(match[8]) && (get_type(arg) != 'number')) {
+          if (/[^s]/.test(match[8]) && get_type(arg) != 'number') {
             throw new Error(sprintf('[_.sprintf] expecting number but found %s', get_type(arg)));
           }
           switch (match[8]) {
-            case 'b': arg = arg.toString(2); break;
-            case 'c': arg = String.fromCharCode(arg); break;
-            case 'd': arg = parseInt(arg, 10); break;
-            case 'e': arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential(); break;
-            case 'f': arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg); break;
-            case 'o': arg = arg.toString(8); break;
-            case 's': arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg); break;
-            case 'u': arg = Math.abs(arg); break;
-            case 'x': arg = arg.toString(16); break;
-            case 'X': arg = arg.toString(16).toUpperCase(); break;
+            case 'b':
+              arg = arg.toString(2);
+              break;
+            case 'c':
+              arg = String.fromCharCode(arg);
+              break;
+            case 'd':
+              arg = parseInt(arg, 10);
+              break;
+            case 'e':
+              arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential();
+              break;
+            case 'f':
+              arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg);
+              break;
+            case 'o':
+              arg = arg.toString(8);
+              break;
+            case 's':
+              arg = (arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg;
+              break;
+            case 'u':
+              arg = Math.abs(arg);
+              break;
+            case 'x':
+              arg = arg.toString(16);
+              break;
+            case 'X':
+              arg = arg.toString(16).toUpperCase();
+              break;
           }
-          arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+'+ arg : arg);
-          pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
+          arg = /[def]/.test(match[8]) && match[3] && arg >= 0 ? '+' + arg : arg;
+          pad_character = match[4] ? (match[4] == '0' ? '0' : match[4].charAt(1)) : ' ';
           pad_length = match[6] - String(arg).length;
           pad = match[6] ? str_repeat(pad_character, pad_length) : '';
           output.push(match[5] ? arg + pad : pad + arg);
@@ -6926,47 +6912,45 @@ _u = typeof _ == 'function' && _.noConflict();
 
     str_format.cache = {};
 
-    str_format.parse = function(fmt) {
-      var _fmt = fmt, match = [], parse_tree = [], arg_names = 0;
+    str_format.parse = function (fmt) {
+      var _fmt = fmt,
+        match = [],
+        parse_tree = [],
+        arg_names = 0;
       while (_fmt) {
         if ((match = /^[^\x25]+/.exec(_fmt)) !== null) {
           parse_tree.push(match[0]);
-        }
-        else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
+        } else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
           parse_tree.push('%');
-        }
-        else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(_fmt)) !== null) {
+        } else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(_fmt)) !== null) {
           if (match[2]) {
             arg_names |= 1;
-            var field_list = [], replacement_field = match[2], field_match = [];
+            var field_list = [],
+              replacement_field = match[2],
+              field_match = [];
             if ((field_match = /^([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
               field_list.push(field_match[1]);
               while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
                 if ((field_match = /^\.([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
                   field_list.push(field_match[1]);
-                }
-                else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
+                } else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
                   field_list.push(field_match[1]);
-                }
-                else {
+                } else {
                   throw new Error('[_.sprintf] huh?');
                 }
               }
-            }
-            else {
+            } else {
               throw new Error('[_.sprintf] huh?');
             }
             match[2] = field_list;
-          }
-          else {
+          } else {
             arg_names |= 2;
           }
           if (arg_names === 3) {
             throw new Error('[_.sprintf] mixing positional and named placeholders is not (yet) supported');
           }
           parse_tree.push(match);
-        }
-        else {
+        } else {
           throw new Error('[_.sprintf] huh?');
         }
         _fmt = _fmt.substring(match[0].length);
@@ -6977,41 +6961,38 @@ _u = typeof _ == 'function' && _.noConflict();
     return str_format;
   })();
 
-
-
   // Defining underscore.string
 
   var _s = {
-
     VERSION: '2.3.0',
 
-    isBlank: function(str){
+    isBlank: function (str) {
       if (str == null) str = '';
-      return (/^\s*$/).test(str);
+      return /^\s*$/.test(str);
     },
 
-    stripTags: function(str){
+    stripTags: function (str) {
       if (str == null) return '';
       return String(str).replace(/<\/?[^>]+>/g, '');
     },
 
-    capitalize : function(str){
+    capitalize: function (str) {
       str = str == null ? '' : String(str);
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
 
-    chop: function(str, step){
+    chop: function (str, step) {
       if (str == null) return [];
       str = String(str);
       step = ~~step;
       return step > 0 ? str.match(new RegExp('.{1,' + step + '}', 'g')) : [str];
     },
 
-    clean: function(str){
+    clean: function (str) {
       return _s.strip(str).replace(/\s+/g, ' ');
     },
 
-    count: function(str, substr){
+    count: function (str, substr) {
       if (str == null || substr == null) return 0;
 
       str = String(str);
@@ -7031,33 +7012,35 @@ _u = typeof _ == 'function' && _.noConflict();
       return count;
     },
 
-    chars: function(str) {
+    chars: function (str) {
       if (str == null) return [];
       return String(str).split('');
     },
 
-    swapCase: function(str) {
+    swapCase: function (str) {
       if (str == null) return '';
-      return String(str).replace(/\S/g, function(c){
+      return String(str).replace(/\S/g, function (c) {
         return c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase();
       });
     },
 
-    escapeHTML: function(str) {
+    escapeHTML: function (str) {
       if (str == null) return '';
-      return String(str).replace(/[&<>"']/g, function(m){ return '&' + reversedEscapeChars[m] + ';'; });
+      return String(str).replace(/[&<>"']/g, function (m) {
+        return '&' + reversedEscapeChars[m] + ';';
+      });
     },
 
-    unescapeHTML: function(str) {
+    unescapeHTML: function (str) {
       if (str == null) return '';
-      return String(str).replace(/\&([^;]+);/g, function(entity, entityCode){
+      return String(str).replace(/\&([^;]+);/g, function (entity, entityCode) {
         var match;
 
         if (entityCode in escapeChars) {
           return escapeChars[entityCode];
-        } else if (match = entityCode.match(/^#x([\da-fA-F]+)$/)) {
+        } else if ((match = entityCode.match(/^#x([\da-fA-F]+)$/))) {
           return String.fromCharCode(parseInt(match[1], 16));
-        } else if (match = entityCode.match(/^#(\d+)$/)) {
+        } else if ((match = entityCode.match(/^#(\d+)$/))) {
           return String.fromCharCode(~~match[1]);
         } else {
           return entity;
@@ -7065,28 +7048,28 @@ _u = typeof _ == 'function' && _.noConflict();
       });
     },
 
-    escapeRegExp: function(str){
+    escapeRegExp: function (str) {
       if (str == null) return '';
       return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
     },
 
-    splice: function(str, i, howmany, substr){
+    splice: function (str, i, howmany, substr) {
       var arr = _s.chars(str);
       arr.splice(~~i, ~~howmany, substr);
       return arr.join('');
     },
 
-    insert: function(str, i, substr){
+    insert: function (str, i, substr) {
       return _s.splice(str, i, 0, substr);
     },
 
-    include: function(str, needle){
+    include: function (str, needle) {
       if (needle === '') return true;
       if (str == null) return false;
       return String(str).indexOf(needle) !== -1;
     },
 
-    join: function() {
+    join: function () {
       var args = slice.call(arguments),
         separator = args.shift();
 
@@ -7095,85 +7078,100 @@ _u = typeof _ == 'function' && _.noConflict();
       return args.join(separator);
     },
 
-    lines: function(str) {
+    lines: function (str) {
       if (str == null) return [];
-      return String(str).split("\n");
+      return String(str).split('\n');
     },
 
-    reverse: function(str){
+    reverse: function (str) {
       return _s.chars(str).reverse().join('');
     },
 
-    startsWith: function(str, starts){
+    startsWith: function (str, starts) {
       if (starts === '') return true;
       if (str == null || starts == null) return false;
-      str = String(str); starts = String(starts);
+      str = String(str);
+      starts = String(starts);
       return str.length >= starts.length && str.slice(0, starts.length) === starts;
     },
 
-    endsWith: function(str, ends){
+    endsWith: function (str, ends) {
       if (ends === '') return true;
       if (str == null || ends == null) return false;
-      str = String(str); ends = String(ends);
+      str = String(str);
+      ends = String(ends);
       return str.length >= ends.length && str.slice(str.length - ends.length) === ends;
     },
 
-    succ: function(str){
+    succ: function (str) {
       if (str == null) return '';
       str = String(str);
-      return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length-1) + 1);
+      return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length - 1) + 1);
     },
 
-    titleize: function(str){
+    titleize: function (str) {
       if (str == null) return '';
-      str  = String(str).toLowerCase();
-      return str.replace(/(?:^|\s|-)\S/g, function(c){ return c.toUpperCase(); });
+      str = String(str).toLowerCase();
+      return str.replace(/(?:^|\s|-)\S/g, function (c) {
+        return c.toUpperCase();
+      });
     },
 
-    camelize: function(str){
-      return _s.trim(str).replace(/[-_\s]+(.)?/g, function(match, c){ return c ? c.toUpperCase() : ""; });
+    camelize: function (str) {
+      return _s.trim(str).replace(/[-_\s]+(.)?/g, function (match, c) {
+        return c ? c.toUpperCase() : '';
+      });
     },
 
-    underscored: function(str){
-      return _s.trim(str).replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
+    underscored: function (str) {
+      return _s
+        .trim(str)
+        .replace(/([a-z\d])([A-Z]+)/g, '$1_$2')
+        .replace(/[-\s]+/g, '_')
+        .toLowerCase();
     },
 
-    dasherize: function(str){
-      return _s.trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
+    dasherize: function (str) {
+      return _s
+        .trim(str)
+        .replace(/([A-Z])/g, '-$1')
+        .replace(/[-_\s]+/g, '-')
+        .toLowerCase();
     },
 
-    classify: function(str){
+    classify: function (str) {
       return _s.titleize(String(str).replace(/[\W_]/g, ' ')).replace(/\s/g, '');
     },
 
-    humanize: function(str){
-      return _s.capitalize(_s.underscored(str).replace(/_id$/,'').replace(/_/g, ' '));
+    humanize: function (str) {
+      return _s.capitalize(_s.underscored(str).replace(/_id$/, '').replace(/_/g, ' '));
     },
 
-    trim: function(str, characters){
+    trim: function (str, characters) {
       if (str == null) return '';
       if (!characters && nativeTrim) return nativeTrim.call(str);
       characters = defaultToWhiteSpace(characters);
       return String(str).replace(new RegExp('\^' + characters + '+|' + characters + '+$', 'g'), '');
     },
 
-    ltrim: function(str, characters){
+    ltrim: function (str, characters) {
       if (str == null) return '';
       if (!characters && nativeTrimLeft) return nativeTrimLeft.call(str);
       characters = defaultToWhiteSpace(characters);
       return String(str).replace(new RegExp('^' + characters + '+'), '');
     },
 
-    rtrim: function(str, characters){
+    rtrim: function (str, characters) {
       if (str == null) return '';
       if (!characters && nativeTrimRight) return nativeTrimRight.call(str);
       characters = defaultToWhiteSpace(characters);
       return String(str).replace(new RegExp(characters + '+$'), '');
     },
 
-    truncate: function(str, length, truncateStr){
+    truncate: function (str, length, truncateStr) {
       if (str == null) return '';
-      str = String(str); truncateStr = truncateStr || '...';
+      str = String(str);
+      truncateStr = truncateStr || '...';
       length = ~~length;
       return str.length > length ? str.slice(0, length) + truncateStr : str;
     },
@@ -7183,168 +7181,173 @@ _u = typeof _ == 'function' && _.noConflict();
      * prune extra chars, never leaving a half-chopped word.
      * @author github.com/rwz
      */
-    prune: function(str, length, pruneStr){
+    prune: function (str, length, pruneStr) {
       if (str == null) return '';
 
-      str = String(str); length = ~~length;
+      str = String(str);
+      length = ~~length;
       pruneStr = pruneStr != null ? String(pruneStr) : '...';
 
       if (str.length <= length) return str;
 
-      var tmpl = function(c){ return c.toUpperCase() !== c.toLowerCase() ? 'A' : ' '; },
-        template = str.slice(0, length+1).replace(/.(?=\W*\w*$)/g, tmpl); // 'Hello, world' -> 'HellAA AAAAA'
+      var tmpl = function (c) {
+          return c.toUpperCase() !== c.toLowerCase() ? 'A' : ' ';
+        },
+        template = str.slice(0, length + 1).replace(/.(?=\W*\w*$)/g, tmpl); // 'Hello, world' -> 'HellAA AAAAA'
 
-      if (template.slice(template.length-2).match(/\w\w/))
-        template = template.replace(/\s*\S+$/, '');
-      else
-        template = _s.rtrim(template.slice(0, template.length-1));
+      if (template.slice(template.length - 2).match(/\w\w/)) template = template.replace(/\s*\S+$/, '');
+      else template = _s.rtrim(template.slice(0, template.length - 1));
 
-      return (template+pruneStr).length > str.length ? str : str.slice(0, template.length)+pruneStr;
+      return (template + pruneStr).length > str.length ? str : str.slice(0, template.length) + pruneStr;
     },
 
-    words: function(str, delimiter) {
+    words: function (str, delimiter) {
       if (_s.isBlank(str)) return [];
       return _s.trim(str, delimiter).split(delimiter || /\s+/);
     },
 
-    pad: function(str, length, padStr, type) {
+    pad: function (str, length, padStr, type) {
       str = str == null ? '' : String(str);
       length = ~~length;
 
-      var padlen  = 0;
+      var padlen = 0;
 
-      if (!padStr)
-        padStr = ' ';
-      else if (padStr.length > 1)
-        padStr = padStr.charAt(0);
+      if (!padStr) padStr = ' ';
+      else if (padStr.length > 1) padStr = padStr.charAt(0);
 
-      switch(type) {
+      switch (type) {
         case 'right':
           padlen = length - str.length;
           return str + strRepeat(padStr, padlen);
         case 'both':
           padlen = length - str.length;
-          return strRepeat(padStr, Math.ceil(padlen/2)) + str
-                  + strRepeat(padStr, Math.floor(padlen/2));
+          return strRepeat(padStr, Math.ceil(padlen / 2)) + str + strRepeat(padStr, Math.floor(padlen / 2));
         default: // 'left'
           padlen = length - str.length;
           return strRepeat(padStr, padlen) + str;
-        }
+      }
     },
 
-    lpad: function(str, length, padStr) {
+    lpad: function (str, length, padStr) {
       return _s.pad(str, length, padStr);
     },
 
-    rpad: function(str, length, padStr) {
+    rpad: function (str, length, padStr) {
       return _s.pad(str, length, padStr, 'right');
     },
 
-    lrpad: function(str, length, padStr) {
+    lrpad: function (str, length, padStr) {
       return _s.pad(str, length, padStr, 'both');
     },
 
     sprintf: sprintf,
 
-    vsprintf: function(fmt, argv){
+    vsprintf: function (fmt, argv) {
       argv.unshift(fmt);
       return sprintf.apply(null, argv);
     },
 
-    toNumber: function(str, decimals) {
+    toNumber: function (str, decimals) {
       if (!str) return 0;
       str = _s.trim(str);
       if (!str.match(/^-?\d+(?:\.\d+)?$/)) return NaN;
       return parseNumber(parseNumber(str).toFixed(~~decimals));
     },
 
-    numberFormat : function(number, dec, dsep, tsep) {
+    numberFormat: function (number, dec, dsep, tsep) {
       if (isNaN(number) || number == null) return '';
 
       number = number.toFixed(~~dec);
       tsep = typeof tsep == 'string' ? tsep : ',';
 
-      var parts = number.split('.'), fnums = parts[0],
+      var parts = number.split('.'),
+        fnums = parts[0],
         decimals = parts[1] ? (dsep || '.') + parts[1] : '';
 
       return fnums.replace(/(\d)(?=(?:\d{3})+$)/g, '$1' + tsep) + decimals;
     },
 
-    strRight: function(str, sep){
+    strRight: function (str, sep) {
       if (str == null) return '';
-      str = String(str); sep = sep != null ? String(sep) : sep;
+      str = String(str);
+      sep = sep != null ? String(sep) : sep;
       var pos = !sep ? -1 : str.indexOf(sep);
-      return ~pos ? str.slice(pos+sep.length, str.length) : str;
+      return ~pos ? str.slice(pos + sep.length, str.length) : str;
     },
 
-    strRightBack: function(str, sep){
+    strRightBack: function (str, sep) {
       if (str == null) return '';
-      str = String(str); sep = sep != null ? String(sep) : sep;
+      str = String(str);
+      sep = sep != null ? String(sep) : sep;
       var pos = !sep ? -1 : str.lastIndexOf(sep);
-      return ~pos ? str.slice(pos+sep.length, str.length) : str;
+      return ~pos ? str.slice(pos + sep.length, str.length) : str;
     },
 
-    strLeft: function(str, sep){
+    strLeft: function (str, sep) {
       if (str == null) return '';
-      str = String(str); sep = sep != null ? String(sep) : sep;
+      str = String(str);
+      sep = sep != null ? String(sep) : sep;
       var pos = !sep ? -1 : str.indexOf(sep);
       return ~pos ? str.slice(0, pos) : str;
     },
 
-    strLeftBack: function(str, sep){
+    strLeftBack: function (str, sep) {
       if (str == null) return '';
-      str += ''; sep = sep != null ? ''+sep : sep;
+      str += '';
+      sep = sep != null ? '' + sep : sep;
       var pos = str.lastIndexOf(sep);
       return ~pos ? str.slice(0, pos) : str;
     },
 
-    toSentence: function(array, separator, lastSeparator, serial) {
+    toSentence: function (array, separator, lastSeparator, serial) {
       separator = separator || ', ';
       lastSeparator = lastSeparator || ' and ';
-      var a = array.slice(), lastMember = a.pop();
+      var a = array.slice(),
+        lastMember = a.pop();
 
       if (array.length > 2 && serial) lastSeparator = _s.rtrim(separator) + lastSeparator;
 
       return a.length ? a.join(separator) + lastSeparator + lastMember : lastMember;
     },
 
-    toSentenceSerial: function() {
+    toSentenceSerial: function () {
       var args = slice.call(arguments);
       args[3] = true;
       return _s.toSentence.apply(_s, args);
     },
 
-    slugify: function(str) {
+    slugify: function (str) {
       if (str == null) return '';
 
-      var from  = "ąàáäâãåæăćęèéëêìíïîłńòóöôõøśșțùúüûñçżź",
-          to    = "aaaaaaaaaceeeeeiiiilnoooooosstuuuunczz",
-          regex = new RegExp(defaultToWhiteSpace(from), 'g');
+      var from = 'ąàáäâãåæăćęèéëêìíïîłńòóöôõøśșțùúüûñçżź',
+        to = 'aaaaaaaaaceeeeeiiiilnoooooosstuuuunczz',
+        regex = new RegExp(defaultToWhiteSpace(from), 'g');
 
-      str = String(str).toLowerCase().replace(regex, function(c){
-        var index = from.indexOf(c);
-        return to.charAt(index) || '-';
-      });
+      str = String(str)
+        .toLowerCase()
+        .replace(regex, function (c) {
+          var index = from.indexOf(c);
+          return to.charAt(index) || '-';
+        });
 
       return _s.dasherize(str.replace(/[^\w\s-]/g, ''));
     },
 
-    surround: function(str, wrapper) {
+    surround: function (str, wrapper) {
       return [wrapper, str, wrapper].join('');
     },
 
-    quote: function(str, quoteChar) {
+    quote: function (str, quoteChar) {
       return _s.surround(str, quoteChar || '"');
     },
 
-    unquote: function(str, quoteChar) {
+    unquote: function (str, quoteChar) {
       quoteChar = quoteChar || '"';
-      if (str[0] === quoteChar && str[str.length-1] === quoteChar)
-        return str.slice(1,str.length-1);
+      if (str[0] === quoteChar && str[str.length - 1] === quoteChar) return str.slice(1, str.length - 1);
       else return str;
     },
 
-    exports: function() {
+    exports: function () {
       var result = {};
 
       for (var prop in this) {
@@ -7355,7 +7358,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return result;
     },
 
-    repeat: function(str, qty, separator){
+    repeat: function (str, qty, separator) {
       if (str == null) return '';
 
       qty = ~~qty;
@@ -7368,7 +7371,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return repeat.join(separator);
     },
 
-    naturalCmp: function(str1, str2){
+    naturalCmp: function (str1, str2) {
       if (str1 == str2) return 0;
       if (!str1) return -1;
       if (!str2) return 1;
@@ -7378,44 +7381,43 @@ _u = typeof _ == 'function' && _.noConflict();
         tokens2 = String(str2).toLowerCase().match(cmpRegex),
         count = Math.min(tokens1.length, tokens2.length);
 
-      for(var i = 0; i < count; i++) {
-        var a = tokens1[i], b = tokens2[i];
+      for (var i = 0; i < count; i++) {
+        var a = tokens1[i],
+          b = tokens2[i];
 
-        if (a !== b){
+        if (a !== b) {
           var num1 = parseInt(a, 10);
-          if (!isNaN(num1)){
+          if (!isNaN(num1)) {
             var num2 = parseInt(b, 10);
-            if (!isNaN(num2) && num1 - num2)
-              return num1 - num2;
+            if (!isNaN(num2) && num1 - num2) return num1 - num2;
           }
           return a < b ? -1 : 1;
         }
       }
 
-      if (tokens1.length === tokens2.length)
-        return tokens1.length - tokens2.length;
+      if (tokens1.length === tokens2.length) return tokens1.length - tokens2.length;
 
       return str1 < str2 ? -1 : 1;
     },
 
-    levenshtein: function(str1, str2) {
+    levenshtein: function (str1, str2) {
       if (str1 == null && str2 == null) return 0;
       if (str1 == null) return String(str2).length;
       if (str2 == null) return String(str1).length;
 
-      str1 = String(str1); str2 = String(str2);
+      str1 = String(str1);
+      str2 = String(str2);
 
-      var current = [], prev, value;
+      var current = [],
+        prev,
+        value;
 
       for (var i = 0; i <= str2.length; i++)
         for (var j = 0; j <= str1.length; j++) {
           if (i && j)
-            if (str1.charAt(j - 1) === str2.charAt(i - 1))
-              value = prev;
-            else
-              value = Math.min(current[j], current[j - 1], prev) + 1;
-          else
-            value = i + j;
+            if (str1.charAt(j - 1) === str2.charAt(i - 1)) value = prev;
+            else value = Math.min(current[j], current[j - 1], prev) + 1;
+          else value = i + j;
 
           prev = current[j];
           current[j] = value;
@@ -7424,47 +7426,47 @@ _u = typeof _ == 'function' && _.noConflict();
       return current.pop();
     },
 
-    toBoolean: function(str, trueValues, falseValues) {
-      if (typeof str === "number") str = "" + str;
-      if (typeof str !== "string") return !!str;
+    toBoolean: function (str, trueValues, falseValues) {
+      if (typeof str === 'number') str = '' + str;
+      if (typeof str !== 'string') return !!str;
       str = _s.trim(str);
-      if (boolMatch(str, trueValues || ["true", "1"])) return true;
-      if (boolMatch(str, falseValues || ["false", "0"])) return false;
-    }
+      if (boolMatch(str, trueValues || ['true', '1'])) return true;
+      if (boolMatch(str, falseValues || ['false', '0'])) return false;
+    },
   };
 
   // Aliases
 
-  _s.strip    = _s.trim;
-  _s.lstrip   = _s.ltrim;
-  _s.rstrip   = _s.rtrim;
-  _s.center   = _s.lrpad;
-  _s.rjust    = _s.lpad;
-  _s.ljust    = _s.rpad;
+  _s.strip = _s.trim;
+  _s.lstrip = _s.ltrim;
+  _s.rstrip = _s.rtrim;
+  _s.center = _s.lrpad;
+  _s.rjust = _s.lpad;
+  _s.ljust = _s.rpad;
   _s.contains = _s.include;
-  _s.q        = _s.quote;
-  _s.toBool   = _s.toBoolean;
+  _s.q = _s.quote;
+  _s.toBool = _s.toBoolean;
 
   // Exporting
 
   // CommonJS module is defined
   if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports)
-      module.exports = _s;
+    if (typeof module !== 'undefined' && module.exports) module.exports = _s;
 
     exports._s = _s;
   }
 
   // Register as a named module with AMD.
   if (typeof define === 'function' && define.amd)
-    define('underscore.string', [], function(){ return _s; });
-
+    define('underscore.string', [], function () {
+      return _s;
+    });
 
   // Integrate with Underscore.js if defined
   // or create our own underscore object.
   root._ = root._ || {};
   root._.string = root._.str = _s;
-}(this, String);
+})(this, String);
 
 //! moment.js
 //! version : 2.9.0
@@ -7479,13 +7481,12 @@ _u = typeof _ == 'function' && _.noConflict();
 
   var moment,
     VERSION = '2.9.0',
-  // the global-scope this is NOT the global object in Node.js
-    globalScope = (typeof global !== 'undefined' && (typeof window === 'undefined' || window === global.window)) ? global : this,
+    // the global-scope this is NOT the global object in Node.js
+    globalScope = typeof global !== 'undefined' && (typeof window === 'undefined' || window === global.window) ? global : this,
     oldGlobalMoment,
     round = Math.round,
     hasOwnProperty = Object.prototype.hasOwnProperty,
     i,
-
     YEAR = 0,
     MONTH = 1,
     DATE = 2,
@@ -7493,29 +7494,22 @@ _u = typeof _ == 'function' && _.noConflict();
     MINUTE = 4,
     SECOND = 5,
     MILLISECOND = 6,
-
-  // internal storage for locale config files
+    // internal storage for locale config files
     locales = {},
-
-  // extra moment internal properties (plugins register props here)
+    // extra moment internal properties (plugins register props here)
     momentProperties = [],
-
-  // check for nodeJS
-    hasModule = (typeof module !== 'undefined' && module && module.exports),
-
-  // ASP.NET json date format regex
+    // check for nodeJS
+    hasModule = typeof module !== 'undefined' && module && module.exports,
+    // ASP.NET json date format regex
     aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
     aspNetTimeSpanJsonRegex = /(\-)?(?:(\d*)\.)?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/,
-
-  // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
-  // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+    // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+    // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
     isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
-
-  // format tokens
+    // format tokens
     formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
     localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
-
-  // parsing token regexes
+    // parsing token regexes
     parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
     parseTokenOneToThreeDigits = /\d{1,3}/, // 0 - 999
     parseTokenOneToFourDigits = /\d{1,4}/, // 0 - 9999
@@ -7526,197 +7520,185 @@ _u = typeof _ == 'function' && _.noConflict();
     parseTokenT = /T/i, // T (ISO separator)
     parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
     parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
-
-  //strict parsing regexes
+    //strict parsing regexes
     parseTokenOneDigit = /\d/, // 0 - 9
     parseTokenTwoDigits = /\d\d/, // 00 - 99
     parseTokenThreeDigits = /\d{3}/, // 000 - 999
     parseTokenFourDigits = /\d{4}/, // 0000 - 9999
     parseTokenSixDigits = /[+-]?\d{6}/, // -999,999 - 999,999
     parseTokenSignedNumber = /[+-]?\d+/, // -inf - inf
-
-  // iso 8601 regex
-  // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+    // iso 8601 regex
+    // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
     isoRegex = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
-
     isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
-
     isoDates = [
       ['YYYYYY-MM-DD', /[+-]\d{6}-\d{2}-\d{2}/],
       ['YYYY-MM-DD', /\d{4}-\d{2}-\d{2}/],
       ['GGGG-[W]WW-E', /\d{4}-W\d{2}-\d/],
       ['GGGG-[W]WW', /\d{4}-W\d{2}/],
-      ['YYYY-DDD', /\d{4}-\d{3}/]
+      ['YYYY-DDD', /\d{4}-\d{3}/],
     ],
-
-  // iso time formats and regexes
+    // iso time formats and regexes
     isoTimes = [
       ['HH:mm:ss.SSSS', /(T| )\d\d:\d\d:\d\d\.\d+/],
       ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
       ['HH:mm', /(T| )\d\d:\d\d/],
-      ['HH', /(T| )\d\d/]
+      ['HH', /(T| )\d\d/],
     ],
-
-  // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-', '15', '30']
+    // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-', '15', '30']
     parseTimezoneChunker = /([\+\-]|\d\d)/gi,
-
-  // getter and setter names
+    // getter and setter names
     proxyGettersAndSetters = 'Date|Hours|Minutes|Seconds|Milliseconds'.split('|'),
     unitMillisecondFactors = {
-      'Milliseconds' : 1,
-      'Seconds' : 1e3,
-      'Minutes' : 6e4,
-      'Hours' : 36e5,
-      'Days' : 864e5,
-      'Months' : 2592e6,
-      'Years' : 31536e6
+      Milliseconds: 1,
+      Seconds: 1e3,
+      Minutes: 6e4,
+      Hours: 36e5,
+      Days: 864e5,
+      Months: 2592e6,
+      Years: 31536e6,
     },
-
     unitAliases = {
-      ms : 'millisecond',
-      s : 'second',
-      m : 'minute',
-      h : 'hour',
-      d : 'day',
-      D : 'date',
-      w : 'week',
-      W : 'isoWeek',
-      M : 'month',
-      Q : 'quarter',
-      y : 'year',
-      DDD : 'dayOfYear',
-      e : 'weekday',
-      E : 'isoWeekday',
+      ms: 'millisecond',
+      s: 'second',
+      m: 'minute',
+      h: 'hour',
+      d: 'day',
+      D: 'date',
+      w: 'week',
+      W: 'isoWeek',
+      M: 'month',
+      Q: 'quarter',
+      y: 'year',
+      DDD: 'dayOfYear',
+      e: 'weekday',
+      E: 'isoWeekday',
       gg: 'weekYear',
-      GG: 'isoWeekYear'
+      GG: 'isoWeekYear',
     },
-
     camelFunctions = {
-      dayofyear : 'dayOfYear',
-      isoweekday : 'isoWeekday',
-      isoweek : 'isoWeek',
-      weekyear : 'weekYear',
-      isoweekyear : 'isoWeekYear'
+      dayofyear: 'dayOfYear',
+      isoweekday: 'isoWeekday',
+      isoweek: 'isoWeek',
+      weekyear: 'weekYear',
+      isoweekyear: 'isoWeekYear',
     },
-
-  // format function strings
+    // format function strings
     formatFunctions = {},
-
-  // default relative time thresholds
+    // default relative time thresholds
     relativeTimeThresholds = {
-      s: 45,  // seconds to minute
-      m: 45,  // minutes to hour
-      h: 22,  // hours to day
-      d: 26,  // days to month
-      M: 11   // months to year
+      s: 45, // seconds to minute
+      m: 45, // minutes to hour
+      h: 22, // hours to day
+      d: 26, // days to month
+      M: 11, // months to year
     },
-
-  // tokens to ordinalize and pad
+    // tokens to ordinalize and pad
     ordinalizeTokens = 'DDD w W M D d'.split(' '),
     paddedTokens = 'M D H h m s w W'.split(' '),
-
     formatTokenFunctions = {
-      M    : function () {
+      M: function () {
         return this.month() + 1;
       },
-      MMM  : function (format) {
+      MMM: function (format) {
         return this.localeData().monthsShort(this, format);
       },
-      MMMM : function (format) {
+      MMMM: function (format) {
         return this.localeData().months(this, format);
       },
-      D    : function () {
+      D: function () {
         return this.date();
       },
-      DDD  : function () {
+      DDD: function () {
         return this.dayOfYear();
       },
-      d    : function () {
+      d: function () {
         return this.day();
       },
-      dd   : function (format) {
+      dd: function (format) {
         return this.localeData().weekdaysMin(this, format);
       },
-      ddd  : function (format) {
+      ddd: function (format) {
         return this.localeData().weekdaysShort(this, format);
       },
-      dddd : function (format) {
+      dddd: function (format) {
         return this.localeData().weekdays(this, format);
       },
-      w    : function () {
+      w: function () {
         return this.week();
       },
-      W    : function () {
+      W: function () {
         return this.isoWeek();
       },
-      YY   : function () {
+      YY: function () {
         return leftZeroFill(this.year() % 100, 2);
       },
-      YYYY : function () {
+      YYYY: function () {
         return leftZeroFill(this.year(), 4);
       },
-      YYYYY : function () {
+      YYYYY: function () {
         return leftZeroFill(this.year(), 5);
       },
-      YYYYYY : function () {
-        var y = this.year(), sign = y >= 0 ? '+' : '-';
+      YYYYYY: function () {
+        var y = this.year(),
+          sign = y >= 0 ? '+' : '-';
         return sign + leftZeroFill(Math.abs(y), 6);
       },
-      gg   : function () {
+      gg: function () {
         return leftZeroFill(this.weekYear() % 100, 2);
       },
-      gggg : function () {
+      gggg: function () {
         return leftZeroFill(this.weekYear(), 4);
       },
-      ggggg : function () {
+      ggggg: function () {
         return leftZeroFill(this.weekYear(), 5);
       },
-      GG   : function () {
+      GG: function () {
         return leftZeroFill(this.isoWeekYear() % 100, 2);
       },
-      GGGG : function () {
+      GGGG: function () {
         return leftZeroFill(this.isoWeekYear(), 4);
       },
-      GGGGG : function () {
+      GGGGG: function () {
         return leftZeroFill(this.isoWeekYear(), 5);
       },
-      e : function () {
+      e: function () {
         return this.weekday();
       },
-      E : function () {
+      E: function () {
         return this.isoWeekday();
       },
-      a    : function () {
+      a: function () {
         return this.localeData().meridiem(this.hours(), this.minutes(), true);
       },
-      A    : function () {
+      A: function () {
         return this.localeData().meridiem(this.hours(), this.minutes(), false);
       },
-      H    : function () {
+      H: function () {
         return this.hours();
       },
-      h    : function () {
+      h: function () {
         return this.hours() % 12 || 12;
       },
-      m    : function () {
+      m: function () {
         return this.minutes();
       },
-      s    : function () {
+      s: function () {
         return this.seconds();
       },
-      S    : function () {
+      S: function () {
         return toInt(this.milliseconds() / 100);
       },
-      SS   : function () {
+      SS: function () {
         return leftZeroFill(toInt(this.milliseconds() / 10), 2);
       },
-      SSS  : function () {
+      SSS: function () {
         return leftZeroFill(this.milliseconds(), 3);
       },
-      SSSS : function () {
+      SSSS: function () {
         return leftZeroFill(this.milliseconds(), 3);
       },
-      Z    : function () {
+      Z: function () {
         var a = this.utcOffset(),
           b = '+';
         if (a < 0) {
@@ -7725,7 +7707,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         return b + leftZeroFill(toInt(a / 60), 2) + ':' + leftZeroFill(toInt(a) % 60, 2);
       },
-      ZZ   : function () {
+      ZZ: function () {
         var a = this.utcOffset(),
           b = '+';
         if (a < 0) {
@@ -7734,36 +7716,36 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         return b + leftZeroFill(toInt(a / 60), 2) + leftZeroFill(toInt(a) % 60, 2);
       },
-      z : function () {
+      z: function () {
         return this.zoneAbbr();
       },
-      zz : function () {
+      zz: function () {
         return this.zoneName();
       },
-      x    : function () {
+      x: function () {
         return this.valueOf();
       },
-      X    : function () {
+      X: function () {
         return this.unix();
       },
-      Q : function () {
+      Q: function () {
         return this.quarter();
-      }
+      },
     },
-
     deprecations = {},
-
     lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'],
-
     updateInProgress = false;
 
   // Pick the first defined of two or three arguments. dfl comes from
   // default.
   function dfl(a, b, c) {
     switch (arguments.length) {
-      case 2: return a != null ? a : b;
-      case 3: return a != null ? a : b != null ? b : c;
-      default: throw new Error('Implement me');
+      case 2:
+        return a != null ? a : b;
+      case 3:
+        return a != null ? a : b != null ? b : c;
+      default:
+        throw new Error('Implement me');
     }
   }
 
@@ -7775,22 +7757,21 @@ _u = typeof _ == 'function' && _.noConflict();
     // We need to deep clone this object, and es5 standard is not very
     // helpful.
     return {
-      empty : false,
-      unusedTokens : [],
-      unusedInput : [],
-      overflow : -2,
-      charsLeftOver : 0,
-      nullInput : false,
-      invalidMonth : null,
-      invalidFormat : false,
-      userInvalidated : false,
-      iso: false
+      empty: false,
+      unusedTokens: [],
+      unusedInput: [],
+      overflow: -2,
+      charsLeftOver: 0,
+      nullInput: false,
+      invalidMonth: null,
+      invalidFormat: false,
+      userInvalidated: false,
+      iso: false,
     };
   }
 
   function printMsg(msg) {
-    if (moment.suppressDeprecationWarnings === false &&
-      typeof console !== 'undefined' && console.warn) {
+    if (moment.suppressDeprecationWarnings === false && typeof console !== 'undefined' && console.warn) {
       console.warn('Deprecation warning: ' + msg);
     }
   }
@@ -7826,10 +7807,11 @@ _u = typeof _ == 'function' && _.noConflict();
 
   function monthDiff(a, b) {
     // difference in months
-    var wholeMonthDiff = ((b.year() - a.year()) * 12) + (b.month() - a.month()),
-    // b is in (anchor - 1 month, anchor + 1 month)
+    var wholeMonthDiff = (b.year() - a.year()) * 12 + (b.month() - a.month()),
+      // b is in (anchor - 1 month, anchor + 1 month)
       anchor = a.clone().add(wholeMonthDiff, 'months'),
-      anchor2, adjust;
+      anchor2,
+      adjust;
 
     if (b - anchor < 0) {
       anchor2 = a.clone().add(wholeMonthDiff - 1, 'months');
@@ -7853,7 +7835,6 @@ _u = typeof _ == 'function' && _.noConflict();
     formatTokenFunctions[i + i] = padToken(formatTokenFunctions[i], 2);
   }
   formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
-
 
   function meridiemFixWrap(locale, hour, meridiem) {
     var isPm;
@@ -7884,8 +7865,7 @@ _u = typeof _ == 'function' && _.noConflict();
    Constructors
    ************************************/
 
-  function Locale() {
-  }
+  function Locale() {}
 
   // Moment prototype object
   function Moment(config, skipOverflow) {
@@ -7917,20 +7897,18 @@ _u = typeof _ == 'function' && _.noConflict();
       milliseconds = normalizedInput.millisecond || 0;
 
     // representation for dateAddRemove
-    this._milliseconds = +milliseconds +
-    seconds * 1e3 + // 1000
-    minutes * 6e4 + // 1000 * 60
-    hours * 36e5; // 1000 * 60 * 60
+    this._milliseconds =
+      +milliseconds +
+      seconds * 1e3 + // 1000
+      minutes * 6e4 + // 1000 * 60
+      hours * 36e5; // 1000 * 60 * 60
     // Because of dateAddRemove treats 24 hours as different from a
     // day when working around DST, we need to store them separately
-    this._days = +days +
-    weeks * 7;
+    this._days = +days + weeks * 7;
     // It is impossible translate months into days without knowing
     // which months you are are talking about, so we have to store
     // it separately.
-    this._months = +months +
-    quarters * 3 +
-    years * 12;
+    this._months = +months + quarters * 3 + years * 12;
 
     this._data = {};
 
@@ -7942,7 +7920,6 @@ _u = typeof _ == 'function' && _.noConflict();
   /************************************
    Helpers
    ************************************/
-
 
   function extend(a, b) {
     for (var i in b) {
@@ -8030,15 +8007,14 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   function positiveMomentsDifference(base, other) {
-    var res = {milliseconds: 0, months: 0};
+    var res = { milliseconds: 0, months: 0 };
 
-    res.months = other.month() - base.month() +
-    (other.year() - base.year()) * 12;
+    res.months = other.month() - base.month() + (other.year() - base.year()) * 12;
     if (base.clone().add(res.months, 'M').isAfter(other)) {
       --res.months;
     }
 
-    res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+    res.milliseconds = +other - +base.clone().add(res.months, 'M');
 
     return res;
   }
@@ -8063,8 +8039,10 @@ _u = typeof _ == 'function' && _.noConflict();
       var dur, tmp;
       //invert the arguments, but complain about it
       if (period !== null && !isNaN(+period)) {
-        deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
-        tmp = val; val = period; period = tmp;
+        deprecateSimple(name, 'moment().' + name + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+        tmp = val;
+        val = period;
+        period = tmp;
       }
 
       val = typeof val === 'string' ? +val : val;
@@ -8100,8 +8078,7 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   function isDate(input) {
-    return Object.prototype.toString.call(input) === '[object Date]' ||
-      input instanceof Date;
+    return Object.prototype.toString.call(input) === '[object Date]' || input instanceof Date;
   }
 
   // compare two arrays, return the number of differences
@@ -8111,8 +8088,7 @@ _u = typeof _ == 'function' && _.noConflict();
       diffs = 0,
       i;
     for (i = 0; i < len; i++) {
-      if ((dontConvert && array1[i] !== array2[i]) ||
-        (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+      if ((dontConvert && array1[i] !== array2[i]) || (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
         diffs++;
       }
     }
@@ -8150,17 +8126,16 @@ _u = typeof _ == 'function' && _.noConflict();
     if (field.indexOf('week') === 0) {
       count = 7;
       setter = 'day';
-    }
-    else if (field.indexOf('month') === 0) {
+    } else if (field.indexOf('month') === 0) {
       count = 12;
       setter = 'month';
-    }
-    else {
+    } else {
       return;
     }
 
     moment[field] = function (format, index) {
-      var i, getter,
+      var i,
+        getter,
         method = moment._locale[field],
         results = [];
 
@@ -8176,8 +8151,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
       if (index != null) {
         return getter(index);
-      }
-      else {
+      } else {
         for (i = 0; i < count; i++) {
           results.push(getter(i));
         }
@@ -8221,16 +8195,19 @@ _u = typeof _ == 'function' && _.noConflict();
     var overflow;
     if (m._a && m._pf.overflow === -2) {
       overflow =
-        m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
-          m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
-            m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
-            (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
-            m._a[SECOND] !== 0 ||
-            m._a[MILLISECOND] !== 0)) ? HOUR :
-              m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
-                m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
-                  m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
-                    -1;
+        m._a[MONTH] < 0 || m._a[MONTH] > 11
+          ? MONTH
+          : m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH])
+            ? DATE
+            : m._a[HOUR] < 0 || m._a[HOUR] > 24 || (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 || m._a[SECOND] !== 0 || m._a[MILLISECOND] !== 0))
+              ? HOUR
+              : m._a[MINUTE] < 0 || m._a[MINUTE] > 59
+                ? MINUTE
+                : m._a[SECOND] < 0 || m._a[SECOND] > 59
+                  ? SECOND
+                  : m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999
+                    ? MILLISECOND
+                    : -1;
 
       if (m._pf._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
         overflow = DATE;
@@ -8242,19 +8219,10 @@ _u = typeof _ == 'function' && _.noConflict();
 
   function isValid(m) {
     if (m._isValid == null) {
-      m._isValid = !isNaN(m._d.getTime()) &&
-      m._pf.overflow < 0 &&
-      !m._pf.empty &&
-      !m._pf.invalidMonth &&
-      !m._pf.nullInput &&
-      !m._pf.invalidFormat &&
-      !m._pf.userInvalidated;
+      m._isValid = !isNaN(m._d.getTime()) && m._pf.overflow < 0 && !m._pf.empty && !m._pf.invalidMonth && !m._pf.nullInput && !m._pf.invalidFormat && !m._pf.userInvalidated;
 
       if (m._strict) {
-        m._isValid = m._isValid &&
-        m._pf.charsLeftOver === 0 &&
-        m._pf.unusedTokens.length === 0 &&
-        m._pf.bigHour === undefined;
+        m._isValid = m._isValid && m._pf.charsLeftOver === 0 && m._pf.unusedTokens.length === 0 && m._pf.bigHour === undefined;
       }
     }
     return m._isValid;
@@ -8268,7 +8236,11 @@ _u = typeof _ == 'function' && _.noConflict();
   // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
   // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
   function chooseLocale(names) {
-    var i = 0, j, next, locale, split;
+    var i = 0,
+      j,
+      next,
+      locale,
+      split;
 
     while (i < names.length) {
       split = normalizeLocale(names[i]).split('-');
@@ -8299,7 +8271,7 @@ _u = typeof _ == 'function' && _.noConflict();
         require('./locale/' + name);
         // because defineLocale currently also sets the global locale, we want to undo that for lazy loaded locales
         moment.locale(oldLocale);
-      } catch (e) { }
+      } catch (e) {}
     }
     return locales[name];
   }
@@ -8310,8 +8282,7 @@ _u = typeof _ == 'function' && _.noConflict();
     var res, diff;
     if (model._isUTC) {
       res = model.clone();
-      diff = (moment.isMoment(input) || isDate(input) ?
-        +input : +moment(input)) - (+res);
+      diff = (moment.isMoment(input) || isDate(input) ? +input : +moment(input)) - +res;
       // Use low-level api, because this fn is low-level api.
       res._d.setTime(+res._d + diff);
       moment.updateOffset(res, false);
@@ -8325,10 +8296,8 @@ _u = typeof _ == 'function' && _.noConflict();
    Locale
    ************************************/
 
-
   extend(Locale.prototype, {
-
-    set : function (config) {
+    set: function (config) {
       var prop, i;
       for (i in config) {
         prop = config[i];
@@ -8343,17 +8312,17 @@ _u = typeof _ == 'function' && _.noConflict();
       this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
     },
 
-    _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
-    months : function (m) {
+    _months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+    months: function (m) {
       return this._months[m.month()];
     },
 
-    _monthsShort : 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
-    monthsShort : function (m) {
+    _monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+    monthsShort: function (m) {
       return this._monthsShort[m.month()];
     },
 
-    monthsParse : function (monthName, format, strict) {
+    monthsParse: function (monthName, format, strict) {
       var i, mom, regex;
 
       if (!this._monthsParse) {
@@ -8384,22 +8353,22 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    _weekdays : 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
-    weekdays : function (m) {
+    _weekdays: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+    weekdays: function (m) {
       return this._weekdays[m.day()];
     },
 
-    _weekdaysShort : 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
-    weekdaysShort : function (m) {
+    _weekdaysShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+    weekdaysShort: function (m) {
       return this._weekdaysShort[m.day()];
     },
 
-    _weekdaysMin : 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
-    weekdaysMin : function (m) {
+    _weekdaysMin: 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+    weekdaysMin: function (m) {
       return this._weekdaysMin[m.day()];
     },
 
-    weekdaysParse : function (weekdayName) {
+    weekdaysParse: function (weekdayName) {
       var i, mom, regex;
 
       if (!this._weekdaysParse) {
@@ -8420,15 +8389,15 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    _longDateFormat : {
-      LTS : 'h:mm:ss A',
-      LT : 'h:mm A',
-      L : 'MM/DD/YYYY',
-      LL : 'MMMM D, YYYY',
-      LLL : 'MMMM D, YYYY LT',
-      LLLL : 'dddd, MMMM D, YYYY LT'
+    _longDateFormat: {
+      LTS: 'h:mm:ss A',
+      LT: 'h:mm A',
+      L: 'MM/DD/YYYY',
+      LL: 'MMMM D, YYYY',
+      LLL: 'MMMM D, YYYY LT',
+      LLLL: 'dddd, MMMM D, YYYY LT',
     },
-    longDateFormat : function (key) {
+    longDateFormat: function (key) {
       var output = this._longDateFormat[key];
       if (!output && this._longDateFormat[key.toUpperCase()]) {
         output = this._longDateFormat[key.toUpperCase()].replace(/MMMM|MM|DD|dddd/g, function (val) {
@@ -8439,14 +8408,14 @@ _u = typeof _ == 'function' && _.noConflict();
       return output;
     },
 
-    isPM : function (input) {
+    isPM: function (input) {
       // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
       // Using charAt should be more compatible.
-      return ((input + '').toLowerCase().charAt(0) === 'p');
+      return (input + '').toLowerCase().charAt(0) === 'p';
     },
 
-    _meridiemParse : /[ap]\.?m?\.?/i,
-    meridiem : function (hours, minutes, isLower) {
+    _meridiemParse: /[ap]\.?m?\.?/i,
+    meridiem: function (hours, minutes, isLower) {
       if (hours > 11) {
         return isLower ? 'pm' : 'PM';
       } else {
@@ -8454,89 +8423,85 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-
-    _calendar : {
-      sameDay : '[Today at] LT',
-      nextDay : '[Tomorrow at] LT',
-      nextWeek : 'dddd [at] LT',
-      lastDay : '[Yesterday at] LT',
-      lastWeek : '[Last] dddd [at] LT',
-      sameElse : 'L'
+    _calendar: {
+      sameDay: '[Today at] LT',
+      nextDay: '[Tomorrow at] LT',
+      nextWeek: 'dddd [at] LT',
+      lastDay: '[Yesterday at] LT',
+      lastWeek: '[Last] dddd [at] LT',
+      sameElse: 'L',
     },
-    calendar : function (key, mom, now) {
+    calendar: function (key, mom, now) {
       var output = this._calendar[key];
       return typeof output === 'function' ? output.apply(mom, [now]) : output;
     },
 
-    _relativeTime : {
-      future : 'in %s',
-      past : '%s ago',
-      s : 'a few seconds',
-      m : 'a minute',
-      mm : '%d minutes',
-      h : 'an hour',
-      hh : '%d hours',
-      d : 'a day',
-      dd : '%d days',
-      M : 'a month',
-      MM : '%d months',
-      y : 'a year',
-      yy : '%d years'
+    _relativeTime: {
+      future: 'in %s',
+      past: '%s ago',
+      s: 'a few seconds',
+      m: 'a minute',
+      mm: '%d minutes',
+      h: 'an hour',
+      hh: '%d hours',
+      d: 'a day',
+      dd: '%d days',
+      M: 'a month',
+      MM: '%d months',
+      y: 'a year',
+      yy: '%d years',
     },
 
-    relativeTime : function (number, withoutSuffix, string, isFuture) {
+    relativeTime: function (number, withoutSuffix, string, isFuture) {
       var output = this._relativeTime[string];
-      return (typeof output === 'function') ?
-        output(number, withoutSuffix, string, isFuture) :
-        output.replace(/%d/i, number);
+      return typeof output === 'function' ? output(number, withoutSuffix, string, isFuture) : output.replace(/%d/i, number);
     },
 
-    pastFuture : function (diff, output) {
+    pastFuture: function (diff, output) {
       var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
       return typeof format === 'function' ? format(output) : format.replace(/%s/i, output);
     },
 
-    ordinal : function (number) {
+    ordinal: function (number) {
       return this._ordinal.replace('%d', number);
     },
-    _ordinal : '%d',
-    _ordinalParse : /\d{1,2}/,
+    _ordinal: '%d',
+    _ordinalParse: /\d{1,2}/,
 
-    preparse : function (string) {
+    preparse: function (string) {
       return string;
     },
 
-    postformat : function (string) {
+    postformat: function (string) {
       return string;
     },
 
-    week : function (mom) {
+    week: function (mom) {
       return weekOfYear(mom, this._week.dow, this._week.doy).week;
     },
 
-    _week : {
-      dow : 0, // Sunday is the first day of the week.
-      doy : 6  // The week that contains Jan 1st is the first week of the year.
+    _week: {
+      dow: 0, // Sunday is the first day of the week.
+      doy: 6, // The week that contains Jan 1st is the first week of the year.
     },
 
-    firstDayOfWeek : function () {
+    firstDayOfWeek: function () {
       return this._week.dow;
     },
 
-    firstDayOfYear : function () {
+    firstDayOfYear: function () {
       return this._week.doy;
     },
 
     _invalidDate: 'Invalid date',
     invalidDate: function () {
       return this._invalidDate;
-    }
+    },
   });
 
   /************************************
    Formatting
    ************************************/
-
 
   function removeFormattingTokens(input) {
     if (input.match(/\[[\s\S]/)) {
@@ -8546,7 +8511,9 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   function makeFormatFunction(format) {
-    var array = format.match(formattingTokens), i, length;
+    var array = format.match(formattingTokens),
+      i,
+      length;
 
     for (i = 0, length = array.length; i < length; i++) {
       if (formatTokenFunctions[array[i]]) {
@@ -8597,15 +8564,14 @@ _u = typeof _ == 'function' && _.noConflict();
     return format;
   }
 
-
   /************************************
    Parsing
    ************************************/
 
-
   // get the regex to find the next token
   function getParseRegexForToken(token, config) {
-    var a, strict = config._strict;
+    var a,
+      strict = config._strict;
     switch (token) {
       case 'Q':
         return parseTokenOneDigit;
@@ -8687,7 +8653,7 @@ _u = typeof _ == 'function' && _.noConflict();
         return parseTokenOneOrTwoDigits;
       case 'Do':
         return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
-      default :
+      default:
         a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
         return a;
     }
@@ -8695,7 +8661,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
   function utcOffsetFromString(string) {
     string = string || '';
-    var possibleTzMatches = (string.match(parseTokenTimezone) || []),
+    var possibleTzMatches = string.match(parseTokenTimezone) || [],
       tzChunk = possibleTzMatches[possibleTzMatches.length - 1] || [],
       parts = (tzChunk + '').match(parseTimezoneChunker) || ['-', 0, 0],
       minutes = +(parts[1] * 60) + toInt(parts[2]);
@@ -8705,7 +8671,8 @@ _u = typeof _ == 'function' && _.noConflict();
 
   // function to convert string input to date
   function addTimeToArrayFromToken(token, input, config) {
-    var a, datePartArray = config._a;
+    var a,
+      datePartArray = config._a;
 
     switch (token) {
       // QUARTER
@@ -8715,14 +8682,14 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         break;
       // MONTH
-      case 'M' : // fall through to MM
-      case 'MM' :
+      case 'M': // fall through to MM
+      case 'MM':
         if (input != null) {
           datePartArray[MONTH] = toInt(input) - 1;
         }
         break;
-      case 'MMM' : // fall through to MMMM
-      case 'MMMM' :
+      case 'MMM': // fall through to MMMM
+      case 'MMMM':
         a = config._locale.monthsParse(input, token, config._strict);
         // if we didn't find a month name, mark the date as invalid.
         if (a != null) {
@@ -8732,65 +8699,64 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         break;
       // DAY OF MONTH
-      case 'D' : // fall through to DD
-      case 'DD' :
+      case 'D': // fall through to DD
+      case 'DD':
         if (input != null) {
           datePartArray[DATE] = toInt(input);
         }
         break;
-      case 'Do' :
+      case 'Do':
         if (input != null) {
-          datePartArray[DATE] = toInt(parseInt(
-            input.match(/\d{1,2}/)[0], 10));
+          datePartArray[DATE] = toInt(parseInt(input.match(/\d{1,2}/)[0], 10));
         }
         break;
       // DAY OF YEAR
-      case 'DDD' : // fall through to DDDD
-      case 'DDDD' :
+      case 'DDD': // fall through to DDDD
+      case 'DDDD':
         if (input != null) {
           config._dayOfYear = toInt(input);
         }
 
         break;
       // YEAR
-      case 'YY' :
+      case 'YY':
         datePartArray[YEAR] = moment.parseTwoDigitYear(input);
         break;
-      case 'YYYY' :
-      case 'YYYYY' :
-      case 'YYYYYY' :
+      case 'YYYY':
+      case 'YYYYY':
+      case 'YYYYYY':
         datePartArray[YEAR] = toInt(input);
         break;
       // AM / PM
-      case 'a' : // fall through to A
-      case 'A' :
+      case 'a': // fall through to A
+      case 'A':
         config._meridiem = input;
         // config._isPm = config._locale.isPM(input);
         break;
       // HOUR
-      case 'h' : // fall through to hh
-      case 'hh' :
+      case 'h': // fall through to hh
+      case 'hh':
         config._pf.bigHour = true;
       /* falls through */
-      case 'H' : // fall through to HH
-      case 'HH' :
+      case 'H': // fall through to HH
+      case 'HH':
         datePartArray[HOUR] = toInt(input);
         break;
       // MINUTE
-      case 'm' : // fall through to mm
-      case 'mm' :
+      case 'm': // fall through to mm
+      case 'mm':
         datePartArray[MINUTE] = toInt(input);
         break;
       // SECOND
-      case 's' : // fall through to ss
-      case 'ss' :
+      case 's': // fall through to ss
+      case 'ss':
         datePartArray[SECOND] = toInt(input);
         break;
       // MILLISECOND
-      case 'S' :
-      case 'SS' :
-      case 'SSS' :
-      case 'SSSS' :
+      case 'S':
+      case 'SS':
+      case 'SSS':
+      case 'SSSS':
         datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
         break;
       // UNIX OFFSET (MILLISECONDS)
@@ -8802,8 +8768,8 @@ _u = typeof _ == 'function' && _.noConflict();
         config._d = new Date(parseFloat(input) * 1000);
         break;
       // TIMEZONE
-      case 'Z' : // fall through to ZZ
-      case 'ZZ' :
+      case 'Z': // fall through to ZZ
+      case 'ZZ':
         config._useUTC = true;
         config._tzm = utcOffsetFromString(input);
         break;
@@ -8893,7 +8859,11 @@ _u = typeof _ == 'function' && _.noConflict();
   // note: all values past the year are optional and will default to the lowest possible value.
   // [year, month, day , hour, minute, second, millisecond]
   function dateFromConfig(config) {
-    var i, date, input = [], currentDate, yearToUse;
+    var i,
+      date,
+      input = [],
+      currentDate,
+      yearToUse;
 
     if (config._d) {
       return;
@@ -8930,14 +8900,11 @@ _u = typeof _ == 'function' && _.noConflict();
 
     // Zero out whatever was not defaulted, including time
     for (; i < 7; i++) {
-      config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+      config._a[i] = input[i] = config._a[i] == null ? (i === 2 ? 1 : 0) : config._a[i];
     }
 
     // Check for 24:00:00.000
-    if (config._a[HOUR] === 24 &&
-      config._a[MINUTE] === 0 &&
-      config._a[SECOND] === 0 &&
-      config._a[MILLISECOND] === 0) {
+    if (config._a[HOUR] === 24 && config._a[MINUTE] === 0 && config._a[SECOND] === 0 && config._a[MILLISECOND] === 0) {
       config._nextDay = true;
       config._a[HOUR] = 0;
     }
@@ -8962,15 +8929,7 @@ _u = typeof _ == 'function' && _.noConflict();
     }
 
     normalizedInput = normalizeObjectUnits(config._i);
-    config._a = [
-      normalizedInput.year,
-      normalizedInput.month,
-      normalizedInput.day || normalizedInput.date,
-      normalizedInput.hour,
-      normalizedInput.minute,
-      normalizedInput.second,
-      normalizedInput.millisecond
-    ];
+    config._a = [normalizedInput.year, normalizedInput.month, normalizedInput.day || normalizedInput.date, normalizedInput.hour, normalizedInput.minute, normalizedInput.second, normalizedInput.millisecond];
 
     dateFromConfig(config);
   }
@@ -8978,11 +8937,7 @@ _u = typeof _ == 'function' && _.noConflict();
   function currentDateArray(config) {
     var now = new Date();
     if (config._useUTC) {
-      return [
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate()
-      ];
+      return [now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()];
     } else {
       return [now.getFullYear(), now.getMonth(), now.getDate()];
     }
@@ -9000,7 +8955,11 @@ _u = typeof _ == 'function' && _.noConflict();
 
     // This array is used to make a Date, either with `new Date` or `Date.UTC`
     var string = '' + config._i,
-      i, parsedInput, tokens, token, skipped,
+      i,
+      parsedInput,
+      tokens,
+      token,
+      skipped,
       stringLength = string.length,
       totalParsedInputLength = 0;
 
@@ -9021,13 +8980,11 @@ _u = typeof _ == 'function' && _.noConflict();
       if (formatTokenFunctions[token]) {
         if (parsedInput) {
           config._pf.empty = false;
-        }
-        else {
+        } else {
           config._pf.unusedTokens.push(token);
         }
         addTimeToArrayFromToken(token, parsedInput, config);
-      }
-      else if (config._strict && !parsedInput) {
+      } else if (config._strict && !parsedInput) {
         config._pf.unusedTokens.push(token);
       }
     }
@@ -9043,8 +9000,7 @@ _u = typeof _ == 'function' && _.noConflict();
       config._pf.bigHour = undefined;
     }
     // handle meridiem
-    config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR],
-      config._meridiem);
+    config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR], config._meridiem);
     dateFromConfig(config);
     checkOverflow(config);
   }
@@ -9062,12 +9018,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
   // date from string and array of format strings
   function makeDateFromStringAndArray(config) {
-    var tempConfig,
-      bestMoment,
-
-      scoreToBeat,
-      i,
-      currentScore;
+    var tempConfig, bestMoment, scoreToBeat, i, currentScore;
 
     if (config._f.length === 0) {
       config._pf.invalidFormat = true;
@@ -9108,7 +9059,8 @@ _u = typeof _ == 'function' && _.noConflict();
 
   // date from iso format
   function parseISO(config) {
-    var i, l,
+    var i,
+      l,
       string = config._i,
       match = isoRegex.exec(string);
 
@@ -9146,7 +9098,8 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   function map(arr, fn) {
-    var res = [], i;
+    var res = [],
+      i;
     for (i = 0; i < arr.length; ++i) {
       res.push(fn(arr[i], i));
     }
@@ -9154,7 +9107,8 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   function makeDateFromInput(config) {
-    var input = config._i, matched;
+    var input = config._i,
+      matched;
     if (input === undefined) {
       config._d = new Date();
     } else if (isDate(input)) {
@@ -9168,9 +9122,9 @@ _u = typeof _ == 'function' && _.noConflict();
         return parseInt(obj, 10);
       });
       dateFromConfig(config);
-    } else if (typeof(input) === 'object') {
+    } else if (typeof input === 'object') {
       dateFromObject(config);
-    } else if (typeof(input) === 'number') {
+    } else if (typeof input === 'number') {
       // from milliseconds
       config._d = new Date(input);
     } else {
@@ -9202,8 +9156,7 @@ _u = typeof _ == 'function' && _.noConflict();
     if (typeof input === 'string') {
       if (!isNaN(input)) {
         input = parseInt(input, 10);
-      }
-      else {
+      } else {
         input = locale.weekdaysParse(input);
         if (typeof input !== 'number') {
           return null;
@@ -9216,7 +9169,6 @@ _u = typeof _ == 'function' && _.noConflict();
   /************************************
    Relative Time
    ************************************/
-
 
   // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
   function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
@@ -9231,17 +9183,16 @@ _u = typeof _ == 'function' && _.noConflict();
       days = round(duration.as('d')),
       months = round(duration.as('M')),
       years = round(duration.as('y')),
-
-      args = seconds < relativeTimeThresholds.s && ['s', seconds] ||
-        minutes === 1 && ['m'] ||
-        minutes < relativeTimeThresholds.m && ['mm', minutes] ||
-        hours === 1 && ['h'] ||
-        hours < relativeTimeThresholds.h && ['hh', hours] ||
-        days === 1 && ['d'] ||
-        days < relativeTimeThresholds.d && ['dd', days] ||
-        months === 1 && ['M'] ||
-        months < relativeTimeThresholds.M && ['MM', months] ||
-        years === 1 && ['y'] || ['yy', years];
+      args = (seconds < relativeTimeThresholds.s && ['s', seconds]) ||
+        (minutes === 1 && ['m']) ||
+        (minutes < relativeTimeThresholds.m && ['mm', minutes]) ||
+        (hours === 1 && ['h']) ||
+        (hours < relativeTimeThresholds.h && ['hh', hours]) ||
+        (days === 1 && ['d']) ||
+        (days < relativeTimeThresholds.d && ['dd', days]) ||
+        (months === 1 && ['M']) ||
+        (months < relativeTimeThresholds.M && ['MM', months]) ||
+        (years === 1 && ['y']) || ['yy', years];
 
     args[2] = withoutSuffix;
     args[3] = +posNegDuration > 0;
@@ -9249,11 +9200,9 @@ _u = typeof _ == 'function' && _.noConflict();
     return substituteTimeAgo.apply({}, args);
   }
 
-
   /************************************
    Week of Year
    ************************************/
-
 
   // firstDayOfWeek       0 = sun, 6 = sat
   //                      the day of the week that starts the week
@@ -9267,7 +9216,6 @@ _u = typeof _ == 'function' && _.noConflict();
       daysToDayOfWeek = firstDayOfWeekOfYear - mom.day(),
       adjustedMoment;
 
-
     if (daysToDayOfWeek > end) {
       daysToDayOfWeek -= 7;
     }
@@ -9279,13 +9227,15 @@ _u = typeof _ == 'function' && _.noConflict();
     adjustedMoment = moment(mom).add(daysToDayOfWeek, 'd');
     return {
       week: Math.ceil(adjustedMoment.dayOfYear() / 7),
-      year: adjustedMoment.year()
+      year: adjustedMoment.year(),
     };
   }
 
   //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
   function dayOfYearFromWeeks(year, week, weekday, firstDayOfWeekOfYear, firstDayOfWeek) {
-    var d = makeUTCDate(year, 0, 1).getUTCDay(), daysToAdd, dayOfYear;
+    var d = makeUTCDate(year, 0, 1).getUTCDay(),
+      daysToAdd,
+      dayOfYear;
 
     d = d === 0 ? 7 : d;
     weekday = weekday != null ? weekday : firstDayOfWeek;
@@ -9294,7 +9244,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
     return {
       year: dayOfYear > 0 ? year : year - 1,
-      dayOfYear: dayOfYear > 0 ?  dayOfYear : daysInYear(year - 1) + dayOfYear
+      dayOfYear: dayOfYear > 0 ? dayOfYear : daysInYear(year - 1) + dayOfYear,
     };
   }
 
@@ -9310,7 +9260,7 @@ _u = typeof _ == 'function' && _.noConflict();
     config._locale = config._locale || moment.localeData(config._l);
 
     if (input === null || (format === undefined && input === '')) {
-      return moment.invalid({nullInput: true});
+      return moment.invalid({ nullInput: true });
     }
 
     if (typeof input === 'string') {
@@ -9342,7 +9292,7 @@ _u = typeof _ == 'function' && _.noConflict();
   moment = function (input, format, locale, strict) {
     var c;
 
-    if (typeof(locale) === 'boolean') {
+    if (typeof locale === 'boolean') {
       strict = locale;
       locale = undefined;
     }
@@ -9362,15 +9312,9 @@ _u = typeof _ == 'function' && _.noConflict();
 
   moment.suppressDeprecationWarnings = false;
 
-  moment.createFromInputFallback = deprecate(
-    'moment construction falls back to js Date. This is ' +
-    'discouraged and will be removed in upcoming major ' +
-    'release. Please refer to ' +
-    'https://github.com/moment/moment/issues/1407 for more info.',
-    function (config) {
-      config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
-    }
-  );
+  moment.createFromInputFallback = deprecate('moment construction falls back to js Date. This is ' + 'discouraged and will be removed in upcoming major ' + 'release. Please refer to ' + 'https://github.com/moment/moment/issues/1407 for more info.', function (config) {
+    config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+  });
 
   // Pick a moment m from moments so that m[fn](other) is true for all
   // other. This relies on the function fn to be transitive.
@@ -9410,7 +9354,7 @@ _u = typeof _ == 'function' && _.noConflict();
   moment.utc = function (input, format, locale, strict) {
     var c;
 
-    if (typeof(locale) === 'boolean') {
+    if (typeof locale === 'boolean') {
       strict = locale;
       locale = undefined;
     }
@@ -9437,7 +9381,7 @@ _u = typeof _ == 'function' && _.noConflict();
   // duration
   moment.duration = function (input, key) {
     var duration = input,
-    // matching against regexp is expensive, do it on demand
+      // matching against regexp is expensive, do it on demand
       match = null,
       sign,
       ret,
@@ -9448,7 +9392,7 @@ _u = typeof _ == 'function' && _.noConflict();
       duration = {
         ms: input._milliseconds,
         d: input._days,
-        M: input._months
+        M: input._months,
       };
     } else if (typeof input === 'number') {
       duration = {};
@@ -9458,17 +9402,17 @@ _u = typeof _ == 'function' && _.noConflict();
         duration.milliseconds = input;
       }
     } else if (!!(match = aspNetTimeSpanJsonRegex.exec(input))) {
-      sign = (match[1] === '-') ? -1 : 1;
+      sign = match[1] === '-' ? -1 : 1;
       duration = {
         y: 0,
         d: toInt(match[DATE]) * sign,
         h: toInt(match[HOUR]) * sign,
         m: toInt(match[MINUTE]) * sign,
         s: toInt(match[SECOND]) * sign,
-        ms: toInt(match[MILLISECOND]) * sign
+        ms: toInt(match[MILLISECOND]) * sign,
       };
     } else if (!!(match = isoDurationRegex.exec(input))) {
-      sign = (match[1] === '-') ? -1 : 1;
+      sign = match[1] === '-' ? -1 : 1;
       parseIso = function (inp) {
         // We'd normally use ~~inp for this, but unfortunately it also
         // converts floats to ints.
@@ -9484,12 +9428,12 @@ _u = typeof _ == 'function' && _.noConflict();
         h: parseIso(match[5]),
         m: parseIso(match[6]),
         s: parseIso(match[7]),
-        w: parseIso(match[8])
+        w: parseIso(match[8]),
       };
-    } else if (duration == null) {// checks for null or undefined
+    } else if (duration == null) {
+      // checks for null or undefined
       duration = {};
-    } else if (typeof duration === 'object' &&
-      ('from' in duration || 'to' in duration)) {
+    } else if (typeof duration === 'object' && ('from' in duration || 'to' in duration)) {
       diffRes = momentsDifference(moment(duration.from), moment(duration.to));
 
       duration = {};
@@ -9535,12 +9479,9 @@ _u = typeof _ == 'function' && _.noConflict();
     return true;
   };
 
-  moment.lang = deprecate(
-    'moment.lang is deprecated. Use moment.locale instead.',
-    function (key, value) {
-      return moment.locale(key, value);
-    }
-  );
+  moment.lang = deprecate('moment.lang is deprecated. Use moment.locale instead.', function (key, value) {
+    return moment.locale(key, value);
+  });
 
   // This function will load locale and then set the global locale.  If
   // no arguments are passed in, it will simply return the current global
@@ -9548,10 +9489,9 @@ _u = typeof _ == 'function' && _.noConflict();
   moment.locale = function (key, values) {
     var data;
     if (key) {
-      if (typeof(values) !== 'undefined') {
+      if (typeof values !== 'undefined') {
         data = moment.defineLocale(key, values);
-      }
-      else {
+      } else {
         data = moment.localeData(key);
       }
 
@@ -9582,12 +9522,9 @@ _u = typeof _ == 'function' && _.noConflict();
     }
   };
 
-  moment.langData = deprecate(
-    'moment.langData is deprecated. Use moment.localeData instead.',
-    function (key) {
-      return moment.localeData(key);
-    }
-  );
+  moment.langData = deprecate('moment.langData is deprecated. Use moment.localeData instead.', function (key) {
+    return moment.localeData(key);
+  });
 
   // returns locale data
   moment.localeData = function (key) {
@@ -9615,8 +9552,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
   // compare moment object
   moment.isMoment = function (obj) {
-    return obj instanceof Moment ||
-      (obj != null && hasOwnProp(obj, '_isAMomentObject'));
+    return obj instanceof Moment || (obj != null && hasOwnProp(obj, '_isAMomentObject'));
   };
 
   // for typechecking Duration objects
@@ -9636,8 +9572,7 @@ _u = typeof _ == 'function' && _.noConflict();
     var m = moment.utc(NaN);
     if (flags != null) {
       extend(m._pf, flags);
-    }
-    else {
+    } else {
       m._pf.userInvalidated = true;
     }
 
@@ -9658,30 +9593,28 @@ _u = typeof _ == 'function' && _.noConflict();
    Moment Prototype
    ************************************/
 
-
-  extend(moment.fn = Moment.prototype, {
-
-    clone : function () {
+  extend((moment.fn = Moment.prototype), {
+    clone: function () {
       return moment(this);
     },
 
-    valueOf : function () {
-      return +this._d - ((this._offset || 0) * 60000);
+    valueOf: function () {
+      return +this._d - (this._offset || 0) * 60000;
     },
 
-    unix : function () {
+    unix: function () {
       return Math.floor(+this / 1000);
     },
 
-    toString : function () {
+    toString: function () {
       return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
     },
 
-    toDate : function () {
+    toDate: function () {
       return this._offset ? new Date(+this) : this._d;
     },
 
-    toISOString : function () {
+    toISOString: function () {
       var m = moment(this).utc();
       if (0 < m.year() && m.year() <= 9999) {
         if ('function' === typeof Date.prototype.toISOString) {
@@ -9695,24 +9628,16 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    toArray : function () {
+    toArray: function () {
       var m = this;
-      return [
-        m.year(),
-        m.month(),
-        m.date(),
-        m.hours(),
-        m.minutes(),
-        m.seconds(),
-        m.milliseconds()
-      ];
+      return [m.year(), m.month(), m.date(), m.hours(), m.minutes(), m.seconds(), m.milliseconds()];
     },
 
-    isValid : function () {
+    isValid: function () {
       return isValid(this);
     },
 
-    isDSTShifted : function () {
+    isDSTShifted: function () {
       if (this._a) {
         return this.isValid() && compareArrays(this._a, (this._isUTC ? moment.utc(this._a) : moment(this._a)).toArray()) > 0;
       }
@@ -9720,7 +9645,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return false;
     },
 
-    parsingFlags : function () {
+    parsingFlags: function () {
       return extend({}, this._pf);
     },
 
@@ -9728,11 +9653,11 @@ _u = typeof _ == 'function' && _.noConflict();
       return this._pf.overflow;
     },
 
-    utc : function (keepLocalTime) {
+    utc: function (keepLocalTime) {
       return this.utcOffset(0, keepLocalTime);
     },
 
-    local : function (keepLocalTime) {
+    local: function (keepLocalTime) {
       if (this._isUTC) {
         this.utcOffset(0, keepLocalTime);
         this._isUTC = false;
@@ -9744,19 +9669,22 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    format : function (inputString) {
+    format: function (inputString) {
       var output = formatMoment(this, inputString || moment.defaultFormat);
       return this.localeData().postformat(output);
     },
 
-    add : createAdder(1, 'add'),
+    add: createAdder(1, 'add'),
 
-    subtract : createAdder(-1, 'subtract'),
+    subtract: createAdder(-1, 'subtract'),
 
-    diff : function (input, units, asFloat) {
+    diff: function (input, units, asFloat) {
       var that = makeAs(input, this),
         zoneDiff = (that.utcOffset() - this.utcOffset()) * 6e4,
-        anchor, diff, output, daysAdjust;
+        anchor,
+        diff,
+        output,
+        daysAdjust;
 
       units = normalizeUnits(units);
 
@@ -9769,50 +9697,50 @@ _u = typeof _ == 'function' && _.noConflict();
         }
       } else {
         diff = this - that;
-        output = units === 'second' ? diff / 1e3 : // 1000
-          units === 'minute' ? diff / 6e4 : // 1000 * 60
-            units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
-              units === 'day' ? (diff - zoneDiff) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
-                units === 'week' ? (diff - zoneDiff) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
-                  diff;
+        output =
+          units === 'second'
+            ? diff / 1e3 // 1000
+            : units === 'minute'
+              ? diff / 6e4 // 1000 * 60
+              : units === 'hour'
+                ? diff / 36e5 // 1000 * 60 * 60
+                : units === 'day'
+                  ? (diff - zoneDiff) / 864e5 // 1000 * 60 * 60 * 24, negate dst
+                  : units === 'week'
+                    ? (diff - zoneDiff) / 6048e5 // 1000 * 60 * 60 * 24 * 7, negate dst
+                    : diff;
       }
       return asFloat ? output : absRound(output);
     },
 
-    from : function (time, withoutSuffix) {
-      return moment.duration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+    from: function (time, withoutSuffix) {
+      return moment.duration({ to: this, from: time }).locale(this.locale()).humanize(!withoutSuffix);
     },
 
-    fromNow : function (withoutSuffix) {
+    fromNow: function (withoutSuffix) {
       return this.from(moment(), withoutSuffix);
     },
 
-    calendar : function (time) {
+    calendar: function (time) {
       // We want to compare the start of today, vs this.
       // Getting start-of-today depends on whether we're locat/utc/offset
       // or not.
       var now = time || moment(),
         sod = makeAs(now, this).startOf('day'),
         diff = this.diff(sod, 'days', true),
-        format = diff < -6 ? 'sameElse' :
-          diff < -1 ? 'lastWeek' :
-            diff < 0 ? 'lastDay' :
-              diff < 1 ? 'sameDay' :
-                diff < 2 ? 'nextDay' :
-                  diff < 7 ? 'nextWeek' : 'sameElse';
+        format = diff < -6 ? 'sameElse' : diff < -1 ? 'lastWeek' : diff < 0 ? 'lastDay' : diff < 1 ? 'sameDay' : diff < 2 ? 'nextDay' : diff < 7 ? 'nextWeek' : 'sameElse';
       return this.format(this.localeData().calendar(format, this, moment(now)));
     },
 
-    isLeapYear : function () {
+    isLeapYear: function () {
       return isLeapYear(this.year());
     },
 
-    isDST : function () {
-      return (this.utcOffset() > this.clone().month(0).utcOffset() ||
-      this.utcOffset() > this.clone().month(5).utcOffset());
+    isDST: function () {
+      return this.utcOffset() > this.clone().month(0).utcOffset() || this.utcOffset() > this.clone().month(5).utcOffset();
     },
 
-    day : function (input) {
+    day: function (input) {
       var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
       if (input != null) {
         input = parseWeekday(input, this.localeData());
@@ -9822,9 +9750,9 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    month : makeAccessor('Month', true),
+    month: makeAccessor('Month', true),
 
-    startOf : function (units) {
+    startOf: function (units) {
       units = normalizeUnits(units);
       // the following switch intentionally omits break keywords
       // to utilize falling through the cases.
@@ -9872,7 +9800,9 @@ _u = typeof _ == 'function' && _.noConflict();
       if (units === undefined || units === 'millisecond') {
         return this;
       }
-      return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+      return this.startOf(units)
+        .add(1, units === 'isoWeek' ? 'week' : units)
+        .subtract(1, 'ms');
     },
 
     isAfter: function (input, units) {
@@ -9911,43 +9841,33 @@ _u = typeof _ == 'function' && _.noConflict();
         return +this === +input;
       } else {
         inputMs = +moment(input);
-        return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
+        return +this.clone().startOf(units) <= inputMs && inputMs <= +this.clone().endOf(units);
       }
     },
 
-    min: deprecate(
-      'moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
-      function (other) {
-        other = moment.apply(null, arguments);
-        return other < this ? this : other;
-      }
-    ),
+    min: deprecate('moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548', function (other) {
+      other = moment.apply(null, arguments);
+      return other < this ? this : other;
+    }),
 
-    max: deprecate(
-      'moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
-      function (other) {
-        other = moment.apply(null, arguments);
-        return other > this ? this : other;
-      }
-    ),
+    max: deprecate('moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548', function (other) {
+      other = moment.apply(null, arguments);
+      return other > this ? this : other;
+    }),
 
-    zone : deprecate(
-      'moment().zone is deprecated, use moment().utcOffset instead. ' +
-      'https://github.com/moment/moment/issues/1779',
-      function (input, keepLocalTime) {
-        if (input != null) {
-          if (typeof input !== 'string') {
-            input = -input;
-          }
-
-          this.utcOffset(input, keepLocalTime);
-
-          return this;
-        } else {
-          return -this.utcOffset();
+    zone: deprecate('moment().zone is deprecated, use moment().utcOffset instead. ' + 'https://github.com/moment/moment/issues/1779', function (input, keepLocalTime) {
+      if (input != null) {
+        if (typeof input !== 'string') {
+          input = -input;
         }
+
+        this.utcOffset(input, keepLocalTime);
+
+        return this;
+      } else {
+        return -this.utcOffset();
       }
-    ),
+    }),
 
     // keepLocalTime = true means only change the timezone, without
     // affecting the local hour. So 5:31:26 +0300 --[utcOffset(2, true)]-->
@@ -9959,7 +9879,7 @@ _u = typeof _ == 'function' && _.noConflict();
     // a second time. In case it wants us to change the offset again
     // _changeInProgress == true case, then we have to adjust, because
     // there is no such time in the given timezone.
-    utcOffset : function (input, keepLocalTime) {
+    utcOffset: function (input, keepLocalTime) {
       var offset = this._offset || 0,
         localAdjust;
       if (input != null) {
@@ -9979,8 +9899,7 @@ _u = typeof _ == 'function' && _.noConflict();
         }
         if (offset !== input) {
           if (!keepLocalTime || this._changeInProgress) {
-            addOrSubtractDurationFromMoment(this,
-              moment.duration(input - offset, 'm'), 1, false);
+            addOrSubtractDurationFromMoment(this, moment.duration(input - offset, 'm'), 1, false);
           } else if (!this._changeInProgress) {
             this._changeInProgress = true;
             moment.updateOffset(this, true);
@@ -9994,27 +9913,27 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    isLocal : function () {
+    isLocal: function () {
       return !this._isUTC;
     },
 
-    isUtcOffset : function () {
+    isUtcOffset: function () {
       return this._isUTC;
     },
 
-    isUtc : function () {
+    isUtc: function () {
       return this._isUTC && this._offset === 0;
     },
 
-    zoneAbbr : function () {
+    zoneAbbr: function () {
       return this._isUTC ? 'UTC' : '';
     },
 
-    zoneName : function () {
+    zoneName: function () {
       return this._isUTC ? 'Coordinated Universal Time' : '';
     },
 
-    parseZone : function () {
+    parseZone: function () {
       if (this._tzm) {
         this.utcOffset(this._tzm);
       } else if (typeof this._i === 'string') {
@@ -10023,84 +9942,82 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    hasAlignedHourOffset : function (input) {
+    hasAlignedHourOffset: function (input) {
       if (!input) {
         input = 0;
-      }
-      else {
+      } else {
         input = moment(input).utcOffset();
       }
 
       return (this.utcOffset() - input) % 60 === 0;
     },
 
-    daysInMonth : function () {
+    daysInMonth: function () {
       return daysInMonth(this.year(), this.month());
     },
 
-    dayOfYear : function (input) {
+    dayOfYear: function (input) {
       var dayOfYear = round((moment(this).startOf('day') - moment(this).startOf('year')) / 864e5) + 1;
-      return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+      return input == null ? dayOfYear : this.add(input - dayOfYear, 'd');
     },
 
-    quarter : function (input) {
-      return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+    quarter: function (input) {
+      return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + (this.month() % 3));
     },
 
-    weekYear : function (input) {
+    weekYear: function (input) {
       var year = weekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).year;
-      return input == null ? year : this.add((input - year), 'y');
+      return input == null ? year : this.add(input - year, 'y');
     },
 
-    isoWeekYear : function (input) {
+    isoWeekYear: function (input) {
       var year = weekOfYear(this, 1, 4).year;
-      return input == null ? year : this.add((input - year), 'y');
+      return input == null ? year : this.add(input - year, 'y');
     },
 
-    week : function (input) {
+    week: function (input) {
       var week = this.localeData().week(this);
       return input == null ? week : this.add((input - week) * 7, 'd');
     },
 
-    isoWeek : function (input) {
+    isoWeek: function (input) {
       var week = weekOfYear(this, 1, 4).week;
       return input == null ? week : this.add((input - week) * 7, 'd');
     },
 
-    weekday : function (input) {
+    weekday: function (input) {
       var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
       return input == null ? weekday : this.add(input - weekday, 'd');
     },
 
-    isoWeekday : function (input) {
+    isoWeekday: function (input) {
       // behaves the same as moment#day except
       // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
       // as a setter, sunday should belong to the previous week.
       return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
     },
 
-    isoWeeksInYear : function () {
+    isoWeeksInYear: function () {
       return weeksInYear(this.year(), 1, 4);
     },
 
-    weeksInYear : function () {
+    weeksInYear: function () {
       var weekInfo = this.localeData()._week;
       return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
     },
 
-    get : function (units) {
+    get: function (units) {
       units = normalizeUnits(units);
       return this[units]();
     },
 
-    set : function (units, value) {
+    set: function (units, value) {
       var unit;
       if (typeof units === 'object') {
         for (unit in units) {
           this.set(unit, units[unit]);
         }
-      }
-      else {
+      } else {
         units = normalizeUnits(units);
         if (typeof this[units] === 'function') {
           this[units](value);
@@ -10112,7 +10029,7 @@ _u = typeof _ == 'function' && _.noConflict();
     // If passed a locale key, it will set the locale for this
     // instance.  Otherwise, it will return the locale configuration
     // variables for this instance.
-    locale : function (key) {
+    locale: function (key) {
       var newLocaleData;
 
       if (key === undefined) {
@@ -10126,27 +10043,23 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     },
 
-    lang : deprecate(
-      'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
-      function (key) {
-        if (key === undefined) {
-          return this.localeData();
-        } else {
-          return this.locale(key);
-        }
+    lang: deprecate('moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.', function (key) {
+      if (key === undefined) {
+        return this.localeData();
+      } else {
+        return this.locale(key);
       }
-    ),
+    }),
 
-    localeData : function () {
+    localeData: function () {
       return this._locale;
     },
 
-    _dateUtcOffset : function () {
+    _dateUtcOffset: function () {
       // On Firefox.24 Date#getTimezoneOffset returns a floating point.
       // https://github.com/moment/moment/pull/1871
       return -Math.round(this._d.getTimezoneOffset() / 15) * 15;
-    }
-
+    },
   });
 
   function rawMonthSetter(mom, value) {
@@ -10161,8 +10074,7 @@ _u = typeof _ == 'function' && _.noConflict();
       }
     }
 
-    dayOfMonth = Math.min(mom.date(),
-      daysInMonth(mom.year(), value));
+    dayOfMonth = Math.min(mom.date(), daysInMonth(mom.year(), value));
     mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
     return mom;
   }
@@ -10222,26 +10134,27 @@ _u = typeof _ == 'function' && _.noConflict();
    Duration Prototype
    ************************************/
 
-
-  function daysToYears (days) {
+  function daysToYears(days) {
     // 400 years have 146097 days (taking into account leap year rules)
-    return days * 400 / 146097;
+    return (days * 400) / 146097;
   }
 
-  function yearsToDays (years) {
+  function yearsToDays(years) {
     // years * 365 + absRound(years / 4) -
     //     absRound(years / 100) + absRound(years / 400);
-    return years * 146097 / 400;
+    return (years * 146097) / 400;
   }
 
-  extend(moment.duration.fn = Duration.prototype, {
-
-    _bubble : function () {
+  extend((moment.duration.fn = Duration.prototype), {
+    _bubble: function () {
       var milliseconds = this._milliseconds,
         days = this._days,
         months = this._months,
         data = this._data,
-        seconds, minutes, hours, years = 0;
+        seconds,
+        minutes,
+        hours,
+        years = 0;
 
       // The following code bubbles up values, see the tests for
       // examples of what that means.
@@ -10276,7 +10189,7 @@ _u = typeof _ == 'function' && _.noConflict();
       data.years = years;
     },
 
-    abs : function () {
+    abs: function () {
       this._milliseconds = Math.abs(this._milliseconds);
       this._days = Math.abs(this._days);
       this._months = Math.abs(this._months);
@@ -10291,18 +10204,15 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    weeks : function () {
+    weeks: function () {
       return absRound(this.days() / 7);
     },
 
-    valueOf : function () {
-      return this._milliseconds +
-        this._days * 864e5 +
-        (this._months % 12) * 2592e6 +
-        toInt(this._months / 12) * 31536e6;
+    valueOf: function () {
+      return this._milliseconds + this._days * 864e5 + (this._months % 12) * 2592e6 + toInt(this._months / 12) * 31536e6;
     },
 
-    humanize : function (withSuffix) {
+    humanize: function (withSuffix) {
       var output = relativeTime(this, !withSuffix, this.localeData());
 
       if (withSuffix) {
@@ -10312,7 +10222,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return this.localeData().postformat(output);
     },
 
-    add : function (input, val) {
+    add: function (input, val) {
       // supports only 2.0-style add(1, 's') or add(moment)
       var dur = moment.duration(input, val);
 
@@ -10325,7 +10235,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    subtract : function (input, val) {
+    subtract: function (input, val) {
       var dur = moment.duration(input, val);
 
       this._milliseconds -= dur._milliseconds;
@@ -10337,12 +10247,12 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    get : function (units) {
+    get: function (units) {
       units = normalizeUnits(units);
       return this[units.toLowerCase() + 's']();
     },
 
-    as : function (units) {
+    as: function (units) {
       var days, months;
       units = normalizeUnits(units);
 
@@ -10354,30 +10264,33 @@ _u = typeof _ == 'function' && _.noConflict();
         // handle milliseconds separately because of floating point math errors (issue #1867)
         days = this._days + Math.round(yearsToDays(this._months / 12));
         switch (units) {
-          case 'week': return days / 7 + this._milliseconds / 6048e5;
-          case 'day': return days + this._milliseconds / 864e5;
-          case 'hour': return days * 24 + this._milliseconds / 36e5;
-          case 'minute': return days * 24 * 60 + this._milliseconds / 6e4;
-          case 'second': return days * 24 * 60 * 60 + this._milliseconds / 1000;
+          case 'week':
+            return days / 7 + this._milliseconds / 6048e5;
+          case 'day':
+            return days + this._milliseconds / 864e5;
+          case 'hour':
+            return days * 24 + this._milliseconds / 36e5;
+          case 'minute':
+            return days * 24 * 60 + this._milliseconds / 6e4;
+          case 'second':
+            return days * 24 * 60 * 60 + this._milliseconds / 1000;
           // Math.floor prevents floating point math errors here
-          case 'millisecond': return Math.floor(days * 24 * 60 * 60 * 1000) + this._milliseconds;
-          default: throw new Error('Unknown unit ' + units);
+          case 'millisecond':
+            return Math.floor(days * 24 * 60 * 60 * 1000) + this._milliseconds;
+          default:
+            throw new Error('Unknown unit ' + units);
         }
       }
     },
 
-    lang : moment.fn.lang,
-    locale : moment.fn.locale,
+    lang: moment.fn.lang,
+    locale: moment.fn.locale,
 
-    toIsoString : deprecate(
-      'toIsoString() is deprecated. Please use toISOString() instead ' +
-      '(notice the capitals)',
-      function () {
-        return this.toISOString();
-      }
-    ),
+    toIsoString: deprecate('toIsoString() is deprecated. Please use toISOString() instead ' + '(notice the capitals)', function () {
+      return this.toISOString();
+    }),
 
-    toISOString : function () {
+    toISOString: function () {
       // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
       var years = Math.abs(this.years()),
         months = Math.abs(this.months()),
@@ -10392,24 +10305,16 @@ _u = typeof _ == 'function' && _.noConflict();
         return 'P0D';
       }
 
-      return (this.asSeconds() < 0 ? '-' : '') +
-        'P' +
-        (years ? years + 'Y' : '') +
-        (months ? months + 'M' : '') +
-        (days ? days + 'D' : '') +
-        ((hours || minutes || seconds) ? 'T' : '') +
-        (hours ? hours + 'H' : '') +
-        (minutes ? minutes + 'M' : '') +
-        (seconds ? seconds + 'S' : '');
+      return (this.asSeconds() < 0 ? '-' : '') + 'P' + (years ? years + 'Y' : '') + (months ? months + 'M' : '') + (days ? days + 'D' : '') + (hours || minutes || seconds ? 'T' : '') + (hours ? hours + 'H' : '') + (minutes ? minutes + 'M' : '') + (seconds ? seconds + 'S' : '');
     },
 
-    localeData : function () {
+    localeData: function () {
       return this._locale;
     },
 
-    toJSON : function () {
+    toJSON: function () {
       return this.toISOString();
-    }
+    },
   });
 
   moment.duration.fn.toString = moment.duration.fn.toISOString;
@@ -10455,18 +10360,14 @@ _u = typeof _ == 'function' && _.noConflict();
    Default Locale
    ************************************/
 
-
-    // Set default locale, other locale will inherit from English.
+  // Set default locale, other locale will inherit from English.
   moment.locale('en', {
     ordinalParse: /\d{1,2}(th|st|nd|rd)/,
-    ordinal : function (number) {
+    ordinal: function (number) {
       var b = number % 10,
-        output = (toInt(number % 100 / 10) === 1) ? 'th' :
-          (b === 1) ? 'st' :
-            (b === 2) ? 'nd' :
-              (b === 3) ? 'rd' : 'th';
+        output = toInt((number % 100) / 10) === 1 ? 'th' : b === 1 ? 'st' : b === 2 ? 'nd' : b === 3 ? 'rd' : 'th';
       return number + output;
-    }
+    },
   });
 
   /* EMBED_LOCALES */
@@ -10482,11 +10383,7 @@ _u = typeof _ == 'function' && _.noConflict();
     }
     oldGlobalMoment = globalScope.moment;
     if (shouldDeprecate) {
-      globalScope.moment = deprecate(
-        'Accessing Moment through the global scope is ' +
-        'deprecated, and will be removed in an upcoming ' +
-        'release.',
-        moment);
+      globalScope.moment = deprecate('Accessing Moment through the global scope is ' + 'deprecated, and will be removed in an upcoming ' + 'release.', moment);
     } else {
       globalScope.moment = moment;
     }
@@ -10519,29 +10416,26 @@ _u = typeof _ == 'function' && _.noConflict();
  */
 
 (function () {
-
   /************************************
    Constants
    ************************************/
 
   var numeral,
     VERSION = '1.5.3',
-  // internal storage for language config files
+    // internal storage for language config files
     languages = {},
     currentLanguage = 'en',
     zeroFormat = null,
     defaultFormat = '0,0',
-  // check for nodeJS
-    hasModule = (typeof module !== 'undefined' && module.exports);
-
+    // check for nodeJS
+    hasModule = typeof module !== 'undefined' && module.exports;
 
   /************************************
    Constructors
    ************************************/
 
-
   // Numeral prototype object
-  function Numeral (number) {
+  function Numeral(number) {
     this._value = number;
   }
 
@@ -10551,7 +10445,7 @@ _u = typeof _ == 'function' && _.noConflict();
    * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
    * problems for accounting- and finance-related software.
    */
-  function toFixed (value, precision, roundingFunction, optionals) {
+  function toFixed(value, precision, roundingFunction, optionals) {
     var power = Math.pow(10, precision),
       optionalsRegExp,
       output;
@@ -10573,17 +10467,21 @@ _u = typeof _ == 'function' && _.noConflict();
    ************************************/
 
   // determine what type of formatting we need to do
-  function formatNumeral (n, format, roundingFunction) {
+  function formatNumeral(n, format, roundingFunction) {
     var output;
 
     // figure out what kind of format we are dealing with
-    if (format.indexOf('$') > -1) { // currency!!!!!
+    if (format.indexOf('$') > -1) {
+      // currency!!!!!
       output = formatCurrency(n, format, roundingFunction);
-    } else if (format.indexOf('%') > -1) { // percentage
+    } else if (format.indexOf('%') > -1) {
+      // percentage
       output = formatPercentage(n, format, roundingFunction);
-    } else if (format.indexOf(':') > -1) { // time
+    } else if (format.indexOf(':') > -1) {
+      // time
       output = formatTime(n, format);
-    } else { // plain ol' numbers or bytes
+    } else {
+      // plain ol' numbers or bytes
       output = formatNumber(n._value, format, roundingFunction);
     }
 
@@ -10592,7 +10490,7 @@ _u = typeof _ == 'function' && _.noConflict();
   }
 
   // revert to number
-  function unformatNumeral (n, string) {
+  function unformatNumeral(n, string) {
     var stringOriginal = string,
       thousandRegExp,
       millionRegExp,
@@ -10609,7 +10507,7 @@ _u = typeof _ == 'function' && _.noConflict();
         n._value = 0;
       } else {
         if (languages[currentLanguage].delimiters.decimal !== '.') {
-          string = string.replace(/\./g,'').replace(languages[currentLanguage].delimiters.decimal, '.');
+          string = string.replace(/\./g, '').replace(languages[currentLanguage].delimiters.decimal, '.');
         }
 
         // see if abbreviations are there so that we can multiply to the correct number
@@ -10620,7 +10518,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
         // see if bytes are there so that we can multiply to the correct number
         for (power = 0; power <= suffixes.length; power++) {
-          bytesMultiplier = (string.indexOf(suffixes[power]) > -1) ? Math.pow(1024, power + 1) : false;
+          bytesMultiplier = string.indexOf(suffixes[power]) > -1 ? Math.pow(1024, power + 1) : false;
 
           if (bytesMultiplier) {
             break;
@@ -10628,16 +10526,24 @@ _u = typeof _ == 'function' && _.noConflict();
         }
 
         // do some math to create our number
-        n._value = ((bytesMultiplier) ? bytesMultiplier : 1) * ((stringOriginal.match(thousandRegExp)) ? Math.pow(10, 3) : 1) * ((stringOriginal.match(millionRegExp)) ? Math.pow(10, 6) : 1) * ((stringOriginal.match(billionRegExp)) ? Math.pow(10, 9) : 1) * ((stringOriginal.match(trillionRegExp)) ? Math.pow(10, 12) : 1) * ((string.indexOf('%') > -1) ? 0.01 : 1) * (((string.split('-').length + Math.min(string.split('(').length-1, string.split(')').length-1)) % 2)? 1: -1) * Number(string.replace(/[^0-9\.]+/g, ''));
+        n._value =
+          (bytesMultiplier ? bytesMultiplier : 1) *
+          (stringOriginal.match(thousandRegExp) ? Math.pow(10, 3) : 1) *
+          (stringOriginal.match(millionRegExp) ? Math.pow(10, 6) : 1) *
+          (stringOriginal.match(billionRegExp) ? Math.pow(10, 9) : 1) *
+          (stringOriginal.match(trillionRegExp) ? Math.pow(10, 12) : 1) *
+          (string.indexOf('%') > -1 ? 0.01 : 1) *
+          ((string.split('-').length + Math.min(string.split('(').length - 1, string.split(')').length - 1)) % 2 ? 1 : -1) *
+          Number(string.replace(/[^0-9\.]+/g, ''));
 
         // round if we are talking about bytes
-        n._value = (bytesMultiplier) ? Math.ceil(n._value) : n._value;
+        n._value = bytesMultiplier ? Math.ceil(n._value) : n._value;
       }
     }
     return n._value;
   }
 
-  function formatCurrency (n, format, roundingFunction) {
+  function formatCurrency(n, format, roundingFunction) {
     var symbolIndex = format.indexOf('$'),
       openParenIndex = format.indexOf('('),
       minusSignIndex = format.indexOf('-'),
@@ -10664,7 +10570,7 @@ _u = typeof _ == 'function' && _.noConflict();
       if (output.indexOf('(') > -1 || output.indexOf('-') > -1) {
         output = output.split('');
         spliceIndex = 1;
-        if (symbolIndex < openParenIndex || symbolIndex < minusSignIndex){
+        if (symbolIndex < openParenIndex || symbolIndex < minusSignIndex) {
           // the symbol appears before the "(" or "-"
           spliceIndex = 0;
         }
@@ -10686,7 +10592,7 @@ _u = typeof _ == 'function' && _.noConflict();
     return output;
   }
 
-  function formatPercentage (n, format, roundingFunction) {
+  function formatPercentage(n, format, roundingFunction) {
     var space = '',
       output,
       value = n._value * 100;
@@ -10701,7 +10607,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
     output = formatNumber(value, format, roundingFunction);
 
-    if (output.indexOf(')') > -1 ) {
+    if (output.indexOf(')') > -1) {
       output = output.split('');
       output.splice(-1, 0, space + '%');
       output = output.join('');
@@ -10712,34 +10618,34 @@ _u = typeof _ == 'function' && _.noConflict();
     return output;
   }
 
-  function formatTime (n) {
-    var hours = Math.floor(n._value/60/60),
-      minutes = Math.floor((n._value - (hours * 60 * 60))/60),
-      seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
-    return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
+  function formatTime(n) {
+    var hours = Math.floor(n._value / 60 / 60),
+      minutes = Math.floor((n._value - hours * 60 * 60) / 60),
+      seconds = Math.round(n._value - hours * 60 * 60 - minutes * 60);
+    return hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
   }
 
-  function unformatTime (string) {
+  function unformatTime(string) {
     var timeArray = string.split(':'),
       seconds = 0;
     // turn hours and minutes into seconds and add them all up
     if (timeArray.length === 3) {
       // hours
-      seconds = seconds + (Number(timeArray[0]) * 60 * 60);
+      seconds = seconds + Number(timeArray[0]) * 60 * 60;
       // minutes
-      seconds = seconds + (Number(timeArray[1]) * 60);
+      seconds = seconds + Number(timeArray[1]) * 60;
       // seconds
       seconds = seconds + Number(timeArray[2]);
     } else if (timeArray.length === 2) {
       // minutes
-      seconds = seconds + (Number(timeArray[0]) * 60);
+      seconds = seconds + Number(timeArray[0]) * 60;
       // seconds
       seconds = seconds + Number(timeArray[1]);
     }
     return Number(seconds);
   }
 
-  function formatNumber (value, format, roundingFunction) {
+  function formatNumber(value, format, roundingFunction) {
     var negP = false,
       signed = false,
       optDec = false,
@@ -10793,19 +10699,19 @@ _u = typeof _ == 'function' && _.noConflict();
           format = format.replace('a', '');
         }
 
-        if (abs >= Math.pow(10, 12) && !abbrForce || abbrT) {
+        if ((abs >= Math.pow(10, 12) && !abbrForce) || abbrT) {
           // trillion
           abbr = abbr + languages[currentLanguage].abbreviations.trillion;
           value = value / Math.pow(10, 12);
-        } else if (abs < Math.pow(10, 12) && abs >= Math.pow(10, 9) && !abbrForce || abbrB) {
+        } else if ((abs < Math.pow(10, 12) && abs >= Math.pow(10, 9) && !abbrForce) || abbrB) {
           // billion
           abbr = abbr + languages[currentLanguage].abbreviations.billion;
           value = value / Math.pow(10, 9);
-        } else if (abs < Math.pow(10, 9) && abs >= Math.pow(10, 6) && !abbrForce || abbrM) {
+        } else if ((abs < Math.pow(10, 9) && abs >= Math.pow(10, 6) && !abbrForce) || abbrM) {
           // million
           abbr = abbr + languages[currentLanguage].abbreviations.million;
           value = value / Math.pow(10, 6);
-        } else if (abs < Math.pow(10, 6) && abs >= Math.pow(10, 3) && !abbrForce || abbrK) {
+        } else if ((abs < Math.pow(10, 6) && abs >= Math.pow(10, 3) && !abbrForce) || abbrK) {
           // thousand
           abbr = abbr + languages[currentLanguage].abbreviations.thousand;
           value = value / Math.pow(10, 3);
@@ -10824,7 +10730,7 @@ _u = typeof _ == 'function' && _.noConflict();
 
         for (power = 0; power <= suffixes.length; power++) {
           min = Math.pow(1024, power);
-          max = Math.pow(1024, power+1);
+          max = Math.pow(1024, power + 1);
 
           if (value >= min && value < max) {
             bytes = bytes + suffixes[power];
@@ -10862,7 +10768,7 @@ _u = typeof _ == 'function' && _.noConflict();
         if (precision.indexOf('[') > -1) {
           precision = precision.replace(']', '');
           precision = precision.split('[');
-          d = toFixed(value, (precision[0].length + precision[1].length), roundingFunction, precision[1].length);
+          d = toFixed(value, precision[0].length + precision[1].length, roundingFunction, precision[1].length);
         } else {
           d = toFixed(value, precision.length, roundingFunction);
         }
@@ -10896,7 +10802,7 @@ _u = typeof _ == 'function' && _.noConflict();
         w = '';
       }
 
-      return ((negP && neg) ? '(' : '') + ((!negP && neg) ? '-' : '') + ((!neg && signed) ? '+' : '') + w + d + ((ord) ? ord : '') + ((abbr) ? abbr : '') + ((bytes) ? bytes : '') + ((negP && neg) ? ')' : '');
+      return (negP && neg ? '(' : '') + (!negP && neg ? '-' : '') + (!neg && signed ? '+' : '') + w + d + (ord ? ord : '') + (abbr ? abbr : '') + (bytes ? bytes : '') + (negP && neg ? ')' : '');
     }
   }
 
@@ -10933,7 +10839,7 @@ _u = typeof _ == 'function' && _.noConflict();
     }
 
     if (key && !values) {
-      if(!languages[key]) {
+      if (!languages[key]) {
         throw new Error('Unknown language : ' + key);
       }
       currentLanguage = key;
@@ -10964,44 +10870,33 @@ _u = typeof _ == 'function' && _.noConflict();
   numeral.language('en', {
     delimiters: {
       thousands: ',',
-      decimal: '.'
+      decimal: '.',
     },
     abbreviations: {
       thousand: 'k',
       million: 'm',
       billion: 'b',
-      trillion: 't'
+      trillion: 't',
     },
     ordinal: function (number) {
       var b = number % 10;
-      return (~~ (number % 100 / 10) === 1) ? 'th' :
-        (b === 1) ? 'st' :
-          (b === 2) ? 'nd' :
-            (b === 3) ? 'rd' : 'th';
+      return ~~((number % 100) / 10) === 1 ? 'th' : b === 1 ? 'st' : b === 2 ? 'nd' : b === 3 ? 'rd' : 'th';
     },
     currency: {
-      symbol: '$'
-    }
+      symbol: '$',
+    },
   });
 
   numeral.zeroFormat = function (format) {
-    zeroFormat = typeof(format) === 'string' ? format : null;
+    zeroFormat = typeof format === 'string' ? format : null;
   };
 
   numeral.defaultFormat = function (format) {
-    defaultFormat = typeof(format) === 'string' ? format : '0.0';
+    defaultFormat = typeof format === 'string' ? format : '0.0';
   };
 
-  numeral.validate = function(val, culture) {
-
-    var _decimalSep,
-      _thousandSep,
-      _currSymbol,
-      _valArray,
-      _abbrObj,
-      _thousandRegEx,
-      languageData,
-      temp;
+  numeral.validate = function (val, culture) {
+    var _decimalSep, _thousandSep, _currSymbol, _valArray, _abbrObj, _thousandRegEx, languageData, temp;
 
     //coerce val to string
     if (typeof val !== 'string') {
@@ -11014,7 +10909,6 @@ _u = typeof _ == 'function' && _.noConflict();
     //trim whitespaces from either sides
     val = val.trim();
 
-
     //if val is empty return false
     if (val === '') {
       return false;
@@ -11022,7 +10916,6 @@ _u = typeof _ == 'function' && _.noConflict();
 
     //replace the initial '+' or '-' sign if present
     val = val.replace(/^[+-]?/, '');
-
 
     //get the decimal and thousands separator from numeral.languageData
     try {
@@ -11055,14 +10948,14 @@ _u = typeof _ == 'function' && _.noConflict();
     //validating abbreviation symbol
     temp = val.match(/[^\d]+$/);
     if (temp !== null) {
-      val = val.slice(0, - 1);
+      val = val.slice(0, -1);
       if (temp[0] !== _abbrObj.thousand && temp[0] !== _abbrObj.million && temp[0] !== _abbrObj.billion && temp[0] !== _abbrObj.trillion) {
         return false;
       }
     }
 
     //if val is just digits the return true
-    if ( !! val.match(/^\d+$/)) {
+    if (!!val.match(/^\d+$/)) {
       return true;
     }
     _thousandRegEx = new RegExp(_thousandSep + '{2}');
@@ -11073,12 +10966,12 @@ _u = typeof _ == 'function' && _.noConflict();
         return false;
       } else {
         if (_valArray.length < 2) {
-          return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx));
+          return !!_valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx);
         } else {
           if (_valArray[0].length === 1) {
-            return ( !! _valArray[0].match(/^\d+$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
+            return !!_valArray[0].match(/^\d+$/) && !_valArray[0].match(_thousandRegEx) && !!_valArray[1].match(/^\d+$/);
           } else {
-            return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
+            return !!_valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx) && !!_valArray[1].match(/^\d+$/);
           }
         }
       }
@@ -11150,7 +11043,6 @@ _u = typeof _ == 'function' && _.noConflict();
     };
   }
 
-
   /**
    * Computes the multiplier necessary to make x >= 1,
    * effectively eliminating miscalculations caused by
@@ -11178,46 +11070,40 @@ _u = typeof _ == 'function' && _.noConflict();
     }, -Infinity);
   }
 
-
   /************************************
    Numeral Prototype
    ************************************/
 
-
   numeral.fn = Numeral.prototype = {
-
-    clone : function () {
+    clone: function () {
       return numeral(this);
     },
 
-    format : function (inputString, roundingFunction) {
-      return formatNumeral(this,
-        inputString ? inputString : defaultFormat,
-        (roundingFunction !== undefined) ? roundingFunction : Math.round
-      );
+    format: function (inputString, roundingFunction) {
+      return formatNumeral(this, inputString ? inputString : defaultFormat, roundingFunction !== undefined ? roundingFunction : Math.round);
     },
 
-    unformat : function (inputString) {
+    unformat: function (inputString) {
       if (Object.prototype.toString.call(inputString) === '[object Number]') {
         return inputString;
       }
       return unformatNumeral(this, inputString ? inputString : defaultFormat);
     },
 
-    value : function () {
+    value: function () {
       return this._value;
     },
 
-    valueOf : function () {
+    valueOf: function () {
       return this._value;
     },
 
-    set : function (value) {
+    set: function (value) {
       this._value = Number(value);
       return this;
     },
 
-    add : function (value) {
+    add: function (value) {
       var corrFactor = correctionFactor.call(null, this._value, value);
 
       function cback(accum, curr, currI, O) {
@@ -11227,7 +11113,7 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    subtract : function (value) {
+    subtract: function (value) {
       var corrFactor = correctionFactor.call(null, this._value, value);
 
       function cback(accum, curr, currI, O) {
@@ -11237,17 +11123,16 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    multiply : function (value) {
+    multiply: function (value) {
       function cback(accum, curr, currI, O) {
         var corrFactor = correctionFactor(accum, curr);
-        return (accum * corrFactor) * (curr * corrFactor) /
-          (corrFactor * corrFactor);
+        return (accum * corrFactor * (curr * corrFactor)) / (corrFactor * corrFactor);
       }
       this._value = [this._value, value].reduce(cback, 1);
       return this;
     },
 
-    divide : function (value) {
+    divide: function (value) {
       function cback(accum, curr, currI, O) {
         var corrFactor = correctionFactor(accum, curr);
         return (accum * corrFactor) / (curr * corrFactor);
@@ -11256,10 +11141,9 @@ _u = typeof _ == 'function' && _.noConflict();
       return this;
     },
 
-    difference : function (value) {
+    difference: function (value) {
       return Math.abs(numeral(this._value).subtract(value).value());
-    }
-
+    },
   };
 
   /************************************
@@ -11310,260 +11194,262 @@ _u = typeof _ == 'function' && _.noConflict();
 /*global unescape, define */
 
 (function ($) {
-    'use strict';
+  'use strict';
 
-    /*
-    * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-    * to work around bugs in some JS interpreters.
-    */
-    function safe_add(x, y) {
-        var lsw = (x & 0xFFFF) + (y & 0xFFFF),
-            msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-        return (msw << 16) | (lsw & 0xFFFF);
+  /*
+   * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+   * to work around bugs in some JS interpreters.
+   */
+  function safe_add(x, y) {
+    var lsw = (x & 0xffff) + (y & 0xffff),
+      msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+    return (msw << 16) | (lsw & 0xffff);
+  }
+
+  /*
+   * Bitwise rotate a 32-bit number to the left.
+   */
+  function bit_rol(num, cnt) {
+    return (num << cnt) | (num >>> (32 - cnt));
+  }
+
+  /*
+   * These functions implement the four basic operations the algorithm uses.
+   */
+  function md5_cmn(q, a, b, x, s, t) {
+    return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
+  }
+  function md5_ff(a, b, c, d, x, s, t) {
+    return md5_cmn((b & c) | (~b & d), a, b, x, s, t);
+  }
+  function md5_gg(a, b, c, d, x, s, t) {
+    return md5_cmn((b & d) | (c & ~d), a, b, x, s, t);
+  }
+  function md5_hh(a, b, c, d, x, s, t) {
+    return md5_cmn(b ^ c ^ d, a, b, x, s, t);
+  }
+  function md5_ii(a, b, c, d, x, s, t) {
+    return md5_cmn(c ^ (b | ~d), a, b, x, s, t);
+  }
+
+  /*
+   * Calculate the MD5 of an array of little-endian words, and a bit length.
+   */
+  function binl_md5(x, len) {
+    /* append padding */
+    x[len >> 5] |= 0x80 << (len % 32);
+    x[(((len + 64) >>> 9) << 4) + 14] = len;
+
+    var i,
+      olda,
+      oldb,
+      oldc,
+      oldd,
+      a = 1732584193,
+      b = -271733879,
+      c = -1732584194,
+      d = 271733878;
+
+    for (i = 0; i < x.length; i += 16) {
+      olda = a;
+      oldb = b;
+      oldc = c;
+      oldd = d;
+
+      a = md5_ff(a, b, c, d, x[i], 7, -680876936);
+      d = md5_ff(d, a, b, c, x[i + 1], 12, -389564586);
+      c = md5_ff(c, d, a, b, x[i + 2], 17, 606105819);
+      b = md5_ff(b, c, d, a, x[i + 3], 22, -1044525330);
+      a = md5_ff(a, b, c, d, x[i + 4], 7, -176418897);
+      d = md5_ff(d, a, b, c, x[i + 5], 12, 1200080426);
+      c = md5_ff(c, d, a, b, x[i + 6], 17, -1473231341);
+      b = md5_ff(b, c, d, a, x[i + 7], 22, -45705983);
+      a = md5_ff(a, b, c, d, x[i + 8], 7, 1770035416);
+      d = md5_ff(d, a, b, c, x[i + 9], 12, -1958414417);
+      c = md5_ff(c, d, a, b, x[i + 10], 17, -42063);
+      b = md5_ff(b, c, d, a, x[i + 11], 22, -1990404162);
+      a = md5_ff(a, b, c, d, x[i + 12], 7, 1804603682);
+      d = md5_ff(d, a, b, c, x[i + 13], 12, -40341101);
+      c = md5_ff(c, d, a, b, x[i + 14], 17, -1502002290);
+      b = md5_ff(b, c, d, a, x[i + 15], 22, 1236535329);
+
+      a = md5_gg(a, b, c, d, x[i + 1], 5, -165796510);
+      d = md5_gg(d, a, b, c, x[i + 6], 9, -1069501632);
+      c = md5_gg(c, d, a, b, x[i + 11], 14, 643717713);
+      b = md5_gg(b, c, d, a, x[i], 20, -373897302);
+      a = md5_gg(a, b, c, d, x[i + 5], 5, -701558691);
+      d = md5_gg(d, a, b, c, x[i + 10], 9, 38016083);
+      c = md5_gg(c, d, a, b, x[i + 15], 14, -660478335);
+      b = md5_gg(b, c, d, a, x[i + 4], 20, -405537848);
+      a = md5_gg(a, b, c, d, x[i + 9], 5, 568446438);
+      d = md5_gg(d, a, b, c, x[i + 14], 9, -1019803690);
+      c = md5_gg(c, d, a, b, x[i + 3], 14, -187363961);
+      b = md5_gg(b, c, d, a, x[i + 8], 20, 1163531501);
+      a = md5_gg(a, b, c, d, x[i + 13], 5, -1444681467);
+      d = md5_gg(d, a, b, c, x[i + 2], 9, -51403784);
+      c = md5_gg(c, d, a, b, x[i + 7], 14, 1735328473);
+      b = md5_gg(b, c, d, a, x[i + 12], 20, -1926607734);
+
+      a = md5_hh(a, b, c, d, x[i + 5], 4, -378558);
+      d = md5_hh(d, a, b, c, x[i + 8], 11, -2022574463);
+      c = md5_hh(c, d, a, b, x[i + 11], 16, 1839030562);
+      b = md5_hh(b, c, d, a, x[i + 14], 23, -35309556);
+      a = md5_hh(a, b, c, d, x[i + 1], 4, -1530992060);
+      d = md5_hh(d, a, b, c, x[i + 4], 11, 1272893353);
+      c = md5_hh(c, d, a, b, x[i + 7], 16, -155497632);
+      b = md5_hh(b, c, d, a, x[i + 10], 23, -1094730640);
+      a = md5_hh(a, b, c, d, x[i + 13], 4, 681279174);
+      d = md5_hh(d, a, b, c, x[i], 11, -358537222);
+      c = md5_hh(c, d, a, b, x[i + 3], 16, -722521979);
+      b = md5_hh(b, c, d, a, x[i + 6], 23, 76029189);
+      a = md5_hh(a, b, c, d, x[i + 9], 4, -640364487);
+      d = md5_hh(d, a, b, c, x[i + 12], 11, -421815835);
+      c = md5_hh(c, d, a, b, x[i + 15], 16, 530742520);
+      b = md5_hh(b, c, d, a, x[i + 2], 23, -995338651);
+
+      a = md5_ii(a, b, c, d, x[i], 6, -198630844);
+      d = md5_ii(d, a, b, c, x[i + 7], 10, 1126891415);
+      c = md5_ii(c, d, a, b, x[i + 14], 15, -1416354905);
+      b = md5_ii(b, c, d, a, x[i + 5], 21, -57434055);
+      a = md5_ii(a, b, c, d, x[i + 12], 6, 1700485571);
+      d = md5_ii(d, a, b, c, x[i + 3], 10, -1894986606);
+      c = md5_ii(c, d, a, b, x[i + 10], 15, -1051523);
+      b = md5_ii(b, c, d, a, x[i + 1], 21, -2054922799);
+      a = md5_ii(a, b, c, d, x[i + 8], 6, 1873313359);
+      d = md5_ii(d, a, b, c, x[i + 15], 10, -30611744);
+      c = md5_ii(c, d, a, b, x[i + 6], 15, -1560198380);
+      b = md5_ii(b, c, d, a, x[i + 13], 21, 1309151649);
+      a = md5_ii(a, b, c, d, x[i + 4], 6, -145523070);
+      d = md5_ii(d, a, b, c, x[i + 11], 10, -1120210379);
+      c = md5_ii(c, d, a, b, x[i + 2], 15, 718787259);
+      b = md5_ii(b, c, d, a, x[i + 9], 21, -343485551);
+
+      a = safe_add(a, olda);
+      b = safe_add(b, oldb);
+      c = safe_add(c, oldc);
+      d = safe_add(d, oldd);
     }
+    return [a, b, c, d];
+  }
 
-    /*
-    * Bitwise rotate a 32-bit number to the left.
-    */
-    function bit_rol(num, cnt) {
-        return (num << cnt) | (num >>> (32 - cnt));
+  /*
+   * Convert an array of little-endian words to a string
+   */
+  function binl2rstr(input) {
+    var i,
+      output = '';
+    for (i = 0; i < input.length * 32; i += 8) {
+      output += String.fromCharCode((input[i >> 5] >>> (i % 32)) & 0xff);
     }
+    return output;
+  }
 
-    /*
-    * These functions implement the four basic operations the algorithm uses.
-    */
-    function md5_cmn(q, a, b, x, s, t) {
-        return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
+  /*
+   * Convert a raw string to an array of little-endian words
+   * Characters >255 have their high-byte silently ignored.
+   */
+  function rstr2binl(input) {
+    var i,
+      output = [];
+    output[(input.length >> 2) - 1] = undefined;
+    for (i = 0; i < output.length; i += 1) {
+      output[i] = 0;
     }
-    function md5_ff(a, b, c, d, x, s, t) {
-        return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
+    for (i = 0; i < input.length * 8; i += 8) {
+      output[i >> 5] |= (input.charCodeAt(i / 8) & 0xff) << (i % 32);
     }
-    function md5_gg(a, b, c, d, x, s, t) {
-        return md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
+    return output;
+  }
+
+  /*
+   * Calculate the MD5 of a raw string
+   */
+  function rstr_md5(s) {
+    return binl2rstr(binl_md5(rstr2binl(s), s.length * 8));
+  }
+
+  /*
+   * Calculate the HMAC-MD5, of a key and some data (raw strings)
+   */
+  function rstr_hmac_md5(key, data) {
+    var i,
+      bkey = rstr2binl(key),
+      ipad = [],
+      opad = [],
+      hash;
+    ipad[15] = opad[15] = undefined;
+    if (bkey.length > 16) {
+      bkey = binl_md5(bkey, key.length * 8);
     }
-    function md5_hh(a, b, c, d, x, s, t) {
-        return md5_cmn(b ^ c ^ d, a, b, x, s, t);
+    for (i = 0; i < 16; i += 1) {
+      ipad[i] = bkey[i] ^ 0x36363636;
+      opad[i] = bkey[i] ^ 0x5c5c5c5c;
     }
-    function md5_ii(a, b, c, d, x, s, t) {
-        return md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
+    hash = binl_md5(ipad.concat(rstr2binl(data)), 512 + data.length * 8);
+    return binl2rstr(binl_md5(opad.concat(hash), 512 + 128));
+  }
+
+  /*
+   * Convert a raw string to a hex string
+   */
+  function rstr2hex(input) {
+    var hex_tab = '0123456789abcdef',
+      output = '',
+      x,
+      i;
+    for (i = 0; i < input.length; i += 1) {
+      x = input.charCodeAt(i);
+      output += hex_tab.charAt((x >>> 4) & 0x0f) + hex_tab.charAt(x & 0x0f);
     }
+    return output;
+  }
 
-    /*
-    * Calculate the MD5 of an array of little-endian words, and a bit length.
-    */
-    function binl_md5(x, len) {
-        /* append padding */
-        x[len >> 5] |= 0x80 << (len % 32);
-        x[(((len + 64) >>> 9) << 4) + 14] = len;
+  /*
+   * Encode a string as utf-8
+   */
+  function str2rstr_utf8(input) {
+    return unescape(encodeURIComponent(input));
+  }
 
-        var i, olda, oldb, oldc, oldd,
-            a =  1732584193,
-            b = -271733879,
-            c = -1732584194,
-            d =  271733878;
+  /*
+   * Take string arguments and return either raw or hex encoded strings
+   */
+  function raw_md5(s) {
+    return rstr_md5(str2rstr_utf8(s));
+  }
+  function hex_md5(s) {
+    return rstr2hex(raw_md5(s));
+  }
+  function raw_hmac_md5(k, d) {
+    return rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d));
+  }
+  function hex_hmac_md5(k, d) {
+    return rstr2hex(raw_hmac_md5(k, d));
+  }
 
-        for (i = 0; i < x.length; i += 16) {
-            olda = a;
-            oldb = b;
-            oldc = c;
-            oldd = d;
-
-            a = md5_ff(a, b, c, d, x[i],       7, -680876936);
-            d = md5_ff(d, a, b, c, x[i +  1], 12, -389564586);
-            c = md5_ff(c, d, a, b, x[i +  2], 17,  606105819);
-            b = md5_ff(b, c, d, a, x[i +  3], 22, -1044525330);
-            a = md5_ff(a, b, c, d, x[i +  4],  7, -176418897);
-            d = md5_ff(d, a, b, c, x[i +  5], 12,  1200080426);
-            c = md5_ff(c, d, a, b, x[i +  6], 17, -1473231341);
-            b = md5_ff(b, c, d, a, x[i +  7], 22, -45705983);
-            a = md5_ff(a, b, c, d, x[i +  8],  7,  1770035416);
-            d = md5_ff(d, a, b, c, x[i +  9], 12, -1958414417);
-            c = md5_ff(c, d, a, b, x[i + 10], 17, -42063);
-            b = md5_ff(b, c, d, a, x[i + 11], 22, -1990404162);
-            a = md5_ff(a, b, c, d, x[i + 12],  7,  1804603682);
-            d = md5_ff(d, a, b, c, x[i + 13], 12, -40341101);
-            c = md5_ff(c, d, a, b, x[i + 14], 17, -1502002290);
-            b = md5_ff(b, c, d, a, x[i + 15], 22,  1236535329);
-
-            a = md5_gg(a, b, c, d, x[i +  1],  5, -165796510);
-            d = md5_gg(d, a, b, c, x[i +  6],  9, -1069501632);
-            c = md5_gg(c, d, a, b, x[i + 11], 14,  643717713);
-            b = md5_gg(b, c, d, a, x[i],      20, -373897302);
-            a = md5_gg(a, b, c, d, x[i +  5],  5, -701558691);
-            d = md5_gg(d, a, b, c, x[i + 10],  9,  38016083);
-            c = md5_gg(c, d, a, b, x[i + 15], 14, -660478335);
-            b = md5_gg(b, c, d, a, x[i +  4], 20, -405537848);
-            a = md5_gg(a, b, c, d, x[i +  9],  5,  568446438);
-            d = md5_gg(d, a, b, c, x[i + 14],  9, -1019803690);
-            c = md5_gg(c, d, a, b, x[i +  3], 14, -187363961);
-            b = md5_gg(b, c, d, a, x[i +  8], 20,  1163531501);
-            a = md5_gg(a, b, c, d, x[i + 13],  5, -1444681467);
-            d = md5_gg(d, a, b, c, x[i +  2],  9, -51403784);
-            c = md5_gg(c, d, a, b, x[i +  7], 14,  1735328473);
-            b = md5_gg(b, c, d, a, x[i + 12], 20, -1926607734);
-
-            a = md5_hh(a, b, c, d, x[i +  5],  4, -378558);
-            d = md5_hh(d, a, b, c, x[i +  8], 11, -2022574463);
-            c = md5_hh(c, d, a, b, x[i + 11], 16,  1839030562);
-            b = md5_hh(b, c, d, a, x[i + 14], 23, -35309556);
-            a = md5_hh(a, b, c, d, x[i +  1],  4, -1530992060);
-            d = md5_hh(d, a, b, c, x[i +  4], 11,  1272893353);
-            c = md5_hh(c, d, a, b, x[i +  7], 16, -155497632);
-            b = md5_hh(b, c, d, a, x[i + 10], 23, -1094730640);
-            a = md5_hh(a, b, c, d, x[i + 13],  4,  681279174);
-            d = md5_hh(d, a, b, c, x[i],      11, -358537222);
-            c = md5_hh(c, d, a, b, x[i +  3], 16, -722521979);
-            b = md5_hh(b, c, d, a, x[i +  6], 23,  76029189);
-            a = md5_hh(a, b, c, d, x[i +  9],  4, -640364487);
-            d = md5_hh(d, a, b, c, x[i + 12], 11, -421815835);
-            c = md5_hh(c, d, a, b, x[i + 15], 16,  530742520);
-            b = md5_hh(b, c, d, a, x[i +  2], 23, -995338651);
-
-            a = md5_ii(a, b, c, d, x[i],       6, -198630844);
-            d = md5_ii(d, a, b, c, x[i +  7], 10,  1126891415);
-            c = md5_ii(c, d, a, b, x[i + 14], 15, -1416354905);
-            b = md5_ii(b, c, d, a, x[i +  5], 21, -57434055);
-            a = md5_ii(a, b, c, d, x[i + 12],  6,  1700485571);
-            d = md5_ii(d, a, b, c, x[i +  3], 10, -1894986606);
-            c = md5_ii(c, d, a, b, x[i + 10], 15, -1051523);
-            b = md5_ii(b, c, d, a, x[i +  1], 21, -2054922799);
-            a = md5_ii(a, b, c, d, x[i +  8],  6,  1873313359);
-            d = md5_ii(d, a, b, c, x[i + 15], 10, -30611744);
-            c = md5_ii(c, d, a, b, x[i +  6], 15, -1560198380);
-            b = md5_ii(b, c, d, a, x[i + 13], 21,  1309151649);
-            a = md5_ii(a, b, c, d, x[i +  4],  6, -145523070);
-            d = md5_ii(d, a, b, c, x[i + 11], 10, -1120210379);
-            c = md5_ii(c, d, a, b, x[i +  2], 15,  718787259);
-            b = md5_ii(b, c, d, a, x[i +  9], 21, -343485551);
-
-            a = safe_add(a, olda);
-            b = safe_add(b, oldb);
-            c = safe_add(c, oldc);
-            d = safe_add(d, oldd);
-        }
-        return [a, b, c, d];
+  function md5(string, key, raw) {
+    if (!key) {
+      if (!raw) {
+        return hex_md5(string);
+      }
+      return raw_md5(string);
     }
+    if (!raw) {
+      return hex_hmac_md5(key, string);
+    }
+    return raw_hmac_md5(key, string);
+  }
 
-    /*
-    * Convert an array of little-endian words to a string
-    */
-    function binl2rstr(input) {
-        var i,
-            output = '';
-        for (i = 0; i < input.length * 32; i += 8) {
-            output += String.fromCharCode((input[i >> 5] >>> (i % 32)) & 0xFF);
-        }
-        return output;
-    }
+  if (typeof define === 'function' && define.amd) {
+    define(function () {
+      return md5;
+    });
+  } else {
+    $.md5 = md5;
+  }
+})(this);
 
-    /*
-    * Convert a raw string to an array of little-endian words
-    * Characters >255 have their high-byte silently ignored.
-    */
-    function rstr2binl(input) {
-        var i,
-            output = [];
-        output[(input.length >> 2) - 1] = undefined;
-        for (i = 0; i < output.length; i += 1) {
-            output[i] = 0;
-        }
-        for (i = 0; i < input.length * 8; i += 8) {
-            output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (i % 32);
-        }
-        return output;
-    }
-
-    /*
-    * Calculate the MD5 of a raw string
-    */
-    function rstr_md5(s) {
-        return binl2rstr(binl_md5(rstr2binl(s), s.length * 8));
-    }
-
-    /*
-    * Calculate the HMAC-MD5, of a key and some data (raw strings)
-    */
-    function rstr_hmac_md5(key, data) {
-        var i,
-            bkey = rstr2binl(key),
-            ipad = [],
-            opad = [],
-            hash;
-        ipad[15] = opad[15] = undefined;
-        if (bkey.length > 16) {
-            bkey = binl_md5(bkey, key.length * 8);
-        }
-        for (i = 0; i < 16; i += 1) {
-            ipad[i] = bkey[i] ^ 0x36363636;
-            opad[i] = bkey[i] ^ 0x5C5C5C5C;
-        }
-        hash = binl_md5(ipad.concat(rstr2binl(data)), 512 + data.length * 8);
-        return binl2rstr(binl_md5(opad.concat(hash), 512 + 128));
-    }
-
-    /*
-    * Convert a raw string to a hex string
-    */
-    function rstr2hex(input) {
-        var hex_tab = '0123456789abcdef',
-            output = '',
-            x,
-            i;
-        for (i = 0; i < input.length; i += 1) {
-            x = input.charCodeAt(i);
-            output += hex_tab.charAt((x >>> 4) & 0x0F) +
-                hex_tab.charAt(x & 0x0F);
-        }
-        return output;
-    }
-
-    /*
-    * Encode a string as utf-8
-    */
-    function str2rstr_utf8(input) {
-        return unescape(encodeURIComponent(input));
-    }
-
-    /*
-    * Take string arguments and return either raw or hex encoded strings
-    */
-    function raw_md5(s) {
-        return rstr_md5(str2rstr_utf8(s));
-    }
-    function hex_md5(s) {
-        return rstr2hex(raw_md5(s));
-    }
-    function raw_hmac_md5(k, d) {
-        return rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d));
-    }
-    function hex_hmac_md5(k, d) {
-        return rstr2hex(raw_hmac_md5(k, d));
-    }
-
-    function md5(string, key, raw) {
-        if (!key) {
-            if (!raw) {
-                return hex_md5(string);
-            }
-            return raw_md5(string);
-        }
-        if (!raw) {
-            return hex_hmac_md5(key, string);
-        }
-        return raw_hmac_md5(key, string);
-    }
-
-    if (typeof define === 'function' && define.amd) {
-        define(function () {
-            return md5;
-        });
-    } else {
-        $.md5 = md5;
-    }
-}(this));
-
-this.j$ = this.jStat = (function(Math, undefined) {
-
+this.j$ = this.jStat = (function (Math, undefined) {
   // For quick reference.
   var concat = Array.prototype.concat;
   var slice = Array.prototype.slice;
@@ -11573,41 +11459,35 @@ this.j$ = this.jStat = (function(Math, undefined) {
   // TODO: This calculation can be improved.
   function calcRdx(n, m) {
     var val = n > m ? n : m;
-    return Math.pow(10,
-                    17 - ~~(Math.log(((val > 0) ? val : -val)) * Math.LOG10E));
+    return Math.pow(10, 17 - ~~(Math.log(val > 0 ? val : -val) * Math.LOG10E));
   }
 
-
-  var isArray = Array.isArray || function isArray(arg) {
-    return toString.call(arg) === '[object Array]';
-  };
-
+  var isArray =
+    Array.isArray ||
+    function isArray(arg) {
+      return toString.call(arg) === '[object Array]';
+    };
 
   function isFunction(arg) {
     return toString.call(arg) === '[object Function]';
   }
 
-
   function isNumber(arg) {
     return typeof arg === 'number' && arg === arg;
   }
-
 
   // Converts the jStat matrix to vector.
   function toVector(arr) {
     return concat.apply([], arr);
   }
 
-
   // The one and only jStat constructor.
   function jStat() {
     return new jStat._init(arguments);
   }
 
-
   // TODO: Remove after all references in src files have been removed.
   jStat.fn = jStat.prototype;
-
 
   // By separating the initializer from the constructor it's easier to handle
   // always returning a new instance whether "new" was used or not.
@@ -11619,32 +11499,30 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Check if matrix.
       if (isArray(args[0][0])) {
         // See if a mapping function was also passed.
-        if (isFunction(args[1]))
-          args[0] = jStat.map(args[0], args[1]);
+        if (isFunction(args[1])) args[0] = jStat.map(args[0], args[1]);
         // Iterate over each is faster than this.push.apply(this, args[0].
-        for (i = 0; i < args[0].length; i++)
-          this[i] = args[0][i];
+        for (i = 0; i < args[0].length; i++) this[i] = args[0][i];
         this.length = args[0].length;
 
-      // Otherwise must be a vector.
+        // Otherwise must be a vector.
       } else {
         this[0] = isFunction(args[1]) ? jStat.map(args[0], args[1]) : args[0];
         this.length = 1;
       }
 
-    // If first argument is number, assume creation of sequence.
+      // If first argument is number, assume creation of sequence.
     } else if (isNumber(args[0])) {
       this[0] = jStat.seq.apply(null, args);
       this.length = 1;
 
-    // Handle case when jStat object is passed to jStat.
+      // Handle case when jStat object is passed to jStat.
     } else if (args[0] instanceof jStat) {
       // Duplicate the object and pass it back.
       return jStat(args[0].toArray());
 
-    // Unexpected argument value, return empty jStat object.
-    // TODO: This is strange behavior. Shouldn't this throw or some such to let
-    // the user know they had bad arguments?
+      // Unexpected argument value, return empty jStat object.
+      // TODO: This is strange behavior. Shouldn't this throw or some such to let
+      // the user know they had bad arguments?
     } else {
       this[0] = [];
       this.length = 1;
@@ -11655,7 +11533,6 @@ this.j$ = this.jStat = (function(Math, undefined) {
   jStat._init.prototype = jStat.prototype;
   jStat._init.constructor = jStat;
 
-
   // Utility functions.
   // TODO: for internal use only?
   jStat.utils = {
@@ -11663,9 +11540,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
     isArray: isArray,
     isFunction: isFunction,
     isNumber: isNumber,
-    toVector: toVector
+    toVector: toVector,
   };
-
 
   // Easily extend the jStat object.
   // TODO: is this seriously necessary?
@@ -11673,72 +11549,60 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var i, j;
 
     if (arguments.length === 1) {
-      for (j in obj)
-        jStat[j] = obj[j];
+      for (j in obj) jStat[j] = obj[j];
       return this;
     }
 
     for (i = 1; i < arguments.length; i++) {
-      for (j in arguments[i])
-        obj[j] = arguments[i][j];
+      for (j in arguments[i]) obj[j] = arguments[i][j];
     }
 
     return obj;
   };
-
 
   // Returns the number of rows in the matrix.
   jStat.rows = function rows(arr) {
     return arr.length || 1;
   };
 
-
   // Returns the number of columns in the matrix.
   jStat.cols = function cols(arr) {
     return arr[0].length || 1;
   };
 
-
   // Returns the dimensions of the object { rows: i, cols: j }
   jStat.dimensions = function dimensions(arr) {
     return {
       rows: jStat.rows(arr),
-      cols: jStat.cols(arr)
+      cols: jStat.cols(arr),
     };
   };
-
 
   // Returns a specified row as a vector
   jStat.row = function row(arr, index) {
     return arr[index];
   };
 
-
   // Returns the specified column as a vector
   jStat.col = function cols(arr, index) {
     var column = new Array(arr.length);
-    for (var i = 0; i < arr.length; i++)
-      column[i] = [arr[i][index]];
+    for (var i = 0; i < arr.length; i++) column[i] = [arr[i][index]];
     return column;
   };
-
 
   // Returns the diagonal of the matrix
   jStat.diag = function diag(arr) {
     var nrow = jStat.rows(arr);
     var res = new Array(nrow);
-    for (var row = 0; row < nrow; row++)
-      res[row] = [arr[row][row]];
+    for (var row = 0; row < nrow; row++) res[row] = [arr[row][row]];
     return res;
   };
-
 
   // Returns the anti-diagonal of the matrix
   jStat.antidiag = function antidiag(arr) {
     var nrow = jStat.rows(arr) - 1;
     var res = new Array(nrow);
-    for (var i = 0; nrow >= 0; nrow--, i++)
-      res[i] = [arr[i][nrow]];
+    for (var i = 0; nrow >= 0; nrow--, i++) res[i] = [arr[i][nrow]];
     return res;
   };
 
@@ -11748,16 +11612,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var objArr, rows, cols, j, i;
 
     // Make sure arr is in matrix format.
-    if (!isArray(arr[0]))
-      arr = [arr];
+    if (!isArray(arr[0])) arr = [arr];
 
     rows = arr.length;
     cols = arr[0].length;
 
     for (i = 0; i < cols; i++) {
       objArr = new Array(rows);
-      for (j = 0; j < rows; j++)
-        objArr[j] = arr[j][i];
+      for (j = 0; j < rows; j++) objArr[j] = arr[j][i];
       obj.push(objArr);
     }
 
@@ -11765,14 +11627,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return obj.length === 1 ? obj[0] : obj;
   };
 
-
   // Map a function to an array or array of arrays.
   // "toAlter" is an internal variable.
   jStat.map = function map(arr, func, toAlter) {
     var row, nrow, ncol, res, col;
 
-    if (!isArray(arr[0]))
-      arr = [arr];
+    if (!isArray(arr[0])) arr = [arr];
 
     nrow = arr.length;
     ncol = arr[0].length;
@@ -11780,24 +11640,20 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     for (row = 0; row < nrow; row++) {
       // if the row doesn't exist, create it
-      if (!res[row])
-        res[row] = new Array(ncol);
-      for (col = 0; col < ncol; col++)
-        res[row][col] = func(arr[row][col], row, col);
+      if (!res[row]) res[row] = new Array(ncol);
+      for (col = 0; col < ncol; col++) res[row][col] = func(arr[row][col], row, col);
     }
 
     return res.length === 1 ? res[0] : res;
   };
-
 
   // Destructively alter an array.
   jStat.alter = function alter(arr, func) {
     return jStat.map(arr, func, true);
   };
 
-
   // Generate a rows x cols matrix according to the supplied function.
-  jStat.create = function  create(rows, cols, func) {
+  jStat.create = function create(rows, cols, func) {
     var res = new Array(rows);
     var i, j;
 
@@ -11808,54 +11664,47 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     for (i = 0; i < rows; i++) {
       res[i] = new Array(cols);
-      for (j = 0; j < cols; j++)
-        res[i][j] = func(i, j);
+      for (j = 0; j < cols; j++) res[i][j] = func(i, j);
     }
 
     return res;
   };
 
-
-  function retZero() { return 0; }
-
+  function retZero() {
+    return 0;
+  }
 
   // Generate a rows x cols matrix of zeros.
   jStat.zeros = function zeros(rows, cols) {
-    if (!isNumber(cols))
-      cols = rows;
+    if (!isNumber(cols)) cols = rows;
     return jStat.create(rows, cols, retZero);
   };
 
-
-  function retOne() { return 1; }
-
+  function retOne() {
+    return 1;
+  }
 
   // Generate a rows x cols matrix of ones.
   jStat.ones = function ones(rows, cols) {
-    if (!isNumber(cols))
-      cols = rows;
+    if (!isNumber(cols)) cols = rows;
     return jStat.create(rows, cols, retOne);
   };
 
-
   // Generate a rows x cols matrix of uniformly random numbers.
   jStat.rand = function rand(rows, cols) {
-    if (!isNumber(cols))
-      cols = rows;
+    if (!isNumber(cols)) cols = rows;
     return jStat.create(rows, cols, Math.random);
   };
 
-
-  function retIdent(i, j) { return i === j ? 1 : 0; }
-
+  function retIdent(i, j) {
+    return i === j ? 1 : 0;
+  }
 
   // Generate an identity matrix of size row x cols.
   jStat.identity = function identity(rows, cols) {
-    if (!isNumber(cols))
-      cols = rows;
+    if (!isNumber(cols)) cols = rows;
     return jStat.create(rows, cols, retIdent);
   };
-
 
   // Tests whether a matrix is symmetric
   jStat.symmetric = function symmetric(arr) {
@@ -11863,29 +11712,23 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var size = arr.length;
     var row, col;
 
-    if (arr.length !== arr[0].length)
-      return false;
+    if (arr.length !== arr[0].length) return false;
 
     for (row = 0; row < size; row++) {
-      for (col = 0; col < size; col++)
-        if (arr[col][row] !== arr[row][col])
-          return false;
+      for (col = 0; col < size; col++) if (arr[col][row] !== arr[row][col]) return false;
     }
 
     return true;
   };
-
 
   // Set all values to zero.
   jStat.clear = function clear(arr) {
     return jStat.alter(arr, retZero);
   };
 
-
   // Generate sequence.
   jStat.seq = function seq(min, max, length, func) {
-    if (!isFunction(func))
-      func = false;
+    if (!isFunction(func)) func = false;
 
     var arr = [];
     var hival = calcRdx(min, max);
@@ -11895,15 +11738,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     // Current is assigned using a technique to compensate for IEEE error.
     // TODO: Needs better implementation.
-    for (cnt = 0;
-         current <= max;
-         cnt++, current = (min * hival + step * hival * cnt) / hival) {
-      arr.push((func ? func(current, cnt) : current));
+    for (cnt = 0; current <= max; cnt++, current = (min * hival + step * hival * cnt) / hival) {
+      arr.push(func ? func(current, cnt) : current);
     }
 
     return arr;
   };
-
 
   // TODO: Go over this entire implementation. Seems a tragic waste of resources
   // doing all this work. Instead, and while ugly, use new Function() to generate
@@ -11923,18 +11763,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
   jProto.splice = Array.prototype.splice;
   jProto.slice = Array.prototype.slice;
 
-
   // Return a clean array.
   jProto.toArray = function toArray() {
     return this.length > 1 ? slice.call(this) : slice.call(this)[0];
   };
 
-
   // Map a function to a matrix or vector.
   jProto.map = function map(func, toAlter) {
     return jStat(jStat.map(this, func, toAlter));
   };
-
 
   // Destructively alter an array.
   jProto.alter = function alter(func) {
@@ -11942,90 +11779,83 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return this;
   };
 
-
   // Extend prototype with methods that have no argument.
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jProto[passfunc] = function(func) {
-        var self = this,
-        results;
-        // Check for callback.
-        if (func) {
-          setTimeout(function() {
-            func.call(self, jProto[passfunc].call(self));
-          });
-          return this;
-        }
-        results = jStat[passfunc](this);
-        return isArray(results) ? jStat(results) : results;
-      };
-    })(funcs[i]);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jProto[passfunc] = function (func) {
+          var self = this,
+            results;
+          // Check for callback.
+          if (func) {
+            setTimeout(function () {
+              func.call(self, jProto[passfunc].call(self));
+            });
+            return this;
+          }
+          results = jStat[passfunc](this);
+          return isArray(results) ? jStat(results) : results;
+        };
+      })(funcs[i]);
   })('transpose clear symmetric rows cols dimensions diag antidiag'.split(' '));
 
-
   // Extend prototype with methods that have one argument.
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jProto[passfunc] = function(index, func) {
-        var self = this;
-        // check for callback
-        if (func) {
-          setTimeout(function() {
-            func.call(self, jProto[passfunc].call(self, index));
-          });
-          return this;
-        }
-        return jStat(jStat[passfunc](this, index));
-      };
-    })(funcs[i]);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jProto[passfunc] = function (index, func) {
+          var self = this;
+          // check for callback
+          if (func) {
+            setTimeout(function () {
+              func.call(self, jProto[passfunc].call(self, index));
+            });
+            return this;
+          }
+          return jStat(jStat[passfunc](this, index));
+        };
+      })(funcs[i]);
   })('row col'.split(' '));
 
-
   // Extend prototype with simple shortcut methods.
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jProto[passfunc] = new Function(
-          'return jStat(jStat.' + passfunc + '.apply(null, arguments));');
-    })(funcs[i]);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jProto[passfunc] = new Function('return jStat(jStat.' + passfunc + '.apply(null, arguments));');
+      })(funcs[i]);
   })('create zeros ones rand identity'.split(' '));
-
 
   // Exposing jStat.
   return jStat;
-
-  }(Math));
-  (function(jStat, Math) {
-
+})(Math);
+(function (jStat, Math) {
   var isFunction = jStat.utils.isFunction;
 
   // Ascending functions for sort
-  function ascNum(a, b) { return a - b; }
+  function ascNum(a, b) {
+    return a - b;
+  }
 
   function clip(arg, min, max) {
     return Math.max(min, Math.min(arg, max));
   }
-
 
   // sum of an array
   jStat.sum = function sum(arr) {
     var sum = 0;
     var i = arr.length;
     var tmp;
-    while (--i >= 0)
-      sum += arr[i];
+    while (--i >= 0) sum += arr[i];
     return sum;
   };
-
 
   // sum squared
   jStat.sumsqrd = function sumsqrd(arr) {
     var sum = 0;
     var i = arr.length;
-    while (--i >= 0)
-      sum += arr[i] * arr[i];
+    while (--i >= 0) sum += arr[i] * arr[i];
     return sum;
   };
-
 
   // sum of squared errors of prediction (SSE)
   jStat.sumsqerr = function sumsqerr(arr) {
@@ -12040,67 +11870,52 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return sum;
   };
 
-
   // product of an array
   jStat.product = function product(arr) {
     var prod = 1;
     var i = arr.length;
-    while (--i >= 0)
-      prod *= arr[i];
+    while (--i >= 0) prod *= arr[i];
     return prod;
   };
-
 
   // minimum value of an array
   jStat.min = function min(arr) {
     var low = arr[0];
     var i = 0;
-    while (++i < arr.length)
-      if (arr[i] < low)
-        low = arr[i];
+    while (++i < arr.length) if (arr[i] < low) low = arr[i];
     return low;
   };
-
 
   // maximum value of an array
   jStat.max = function max(arr) {
     var high = arr[0];
     var i = 0;
-    while (++i < arr.length)
-      if (arr[i] > high)
-        high = arr[i];
+    while (++i < arr.length) if (arr[i] > high) high = arr[i];
     return high;
   };
-
 
   // mean value of an array
   jStat.mean = function mean(arr) {
     return jStat.sum(arr) / arr.length;
   };
 
-
   // mean squared error (MSE)
   jStat.meansqerr = function meansqerr(arr) {
     return jStat.sumsqerr(arr) / arr.length;
   };
-
 
   // geometric mean of an array
   jStat.geomean = function geomean(arr) {
     return Math.pow(jStat.product(arr), 1 / arr.length);
   };
 
-
   // median of an array
   jStat.median = function median(arr) {
     var arrlen = arr.length;
     var _arr = arr.slice().sort(ascNum);
     // check if array is even or odd, then return the appropriate
-    return !(arrlen & 1)
-      ? (_arr[(arrlen / 2) - 1 ] + _arr[(arrlen / 2)]) / 2
-      : _arr[(arrlen / 2) | 0 ];
+    return !(arrlen & 1) ? (_arr[arrlen / 2 - 1] + _arr[arrlen / 2]) / 2 : _arr[(arrlen / 2) | 0];
   };
-
 
   // cumulative sum of an array
   jStat.cumsum = function cumsum(arr) {
@@ -12108,22 +11923,18 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var sums = new Array(len);
     var i;
     sums[0] = arr[0];
-    for (i = 1; i < len; i++)
-      sums[i] = sums[i - 1] + arr[i];
+    for (i = 1; i < len; i++) sums[i] = sums[i - 1] + arr[i];
     return sums;
   };
-
 
   // successive differences of a sequence
   jStat.diff = function diff(arr) {
     var diffs = [];
     var arrLen = arr.length;
     var i;
-    for (i = 1; i < arrLen; i++)
-      diffs.push(arr[i] - arr[i - 1]);
+    for (i = 1; i < arrLen; i++) diffs.push(arr[i] - arr[i - 1]);
     return diffs;
   };
-
 
   // mode of an array
   // if there are multiple modes of an array, return all of them
@@ -12159,7 +11970,6 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return numMaxCount === 0 ? mode_arr[0] : mode_arr;
   };
 
-
   // range of an array
   jStat.range = function range(arr) {
     return jStat.max(arr) - jStat.min(arr);
@@ -12171,53 +11981,41 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return jStat.sumsqerr(arr) / (arr.length - (flag ? 1 : 0));
   };
 
-
   // standard deviation of an array
   // flag indicates population vs sample
   jStat.stdev = function stdev(arr, flag) {
     return Math.sqrt(jStat.variance(arr, flag));
   };
 
-
   // mean deviation (mean absolute deviation) of an array
   jStat.meandev = function meandev(arr) {
     var devSum = 0;
     var mean = jStat.mean(arr);
     var i;
-    for (i = arr.length - 1; i >= 0; i--)
-      devSum += Math.abs(arr[i] - mean);
+    for (i = arr.length - 1; i >= 0; i--) devSum += Math.abs(arr[i] - mean);
     return devSum / arr.length;
   };
-
 
   // median deviation (median absolute deviation) of an array
   jStat.meddev = function meddev(arr) {
     var devSum = 0;
     var median = jStat.median(arr);
     var i;
-    for (i = arr.length - 1; i >= 0; i--)
-      devSum += Math.abs(arr[i] - median);
+    for (i = arr.length - 1; i >= 0; i--) devSum += Math.abs(arr[i] - median);
     return devSum / arr.length;
   };
-
 
   // coefficient of variation
   jStat.coeffvar = function coeffvar(arr) {
     return jStat.stdev(arr) / jStat.mean(arr);
   };
 
-
   // quartiles of an array
   jStat.quartiles = function quartiles(arr) {
     var arrlen = arr.length;
     var _arr = arr.slice().sort(ascNum);
-    return [
-      _arr[ Math.round((arrlen) / 4) - 1 ],
-      _arr[ Math.round((arrlen) / 2) - 1 ],
-      _arr[ Math.round((arrlen) * 3 / 4) - 1 ]
-    ];
+    return [_arr[Math.round(arrlen / 4) - 1], _arr[Math.round(arrlen / 2) - 1], _arr[Math.round((arrlen * 3) / 4) - 1]];
   };
-
 
   // Arbitary quantiles of an array. Direct port of the scipy.stats
   // implementation by Pierre GF Gerard-Marchant.
@@ -12227,10 +12025,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var n = arr.length;
     var i, p, m, aleph, k, gamma;
 
-    if (typeof alphap === 'undefined')
-      alphap = 3 / 8;
-    if (typeof betap === 'undefined')
-      betap = 3 / 8;
+    if (typeof alphap === 'undefined') alphap = 3 / 8;
+    if (typeof betap === 'undefined') betap = 3 / 8;
 
     for (i = 0; i < quantilesArray.length; i++) {
       p = quantilesArray[i];
@@ -12253,13 +12049,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var strict = false;
     var value, i;
 
-    if (kind === 'strict')
-      strict = true;
+    if (kind === 'strict') strict = true;
 
     for (i = 0; i < len; i++) {
       value = arr[i];
-      if ((strict && value < score) ||
-          (!strict && value <= score)) {
+      if ((strict && value < score) || (!strict && value <= score)) {
         counter++;
       }
     }
@@ -12275,29 +12069,23 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var sq_dev = new Array(arr1Len);
     var i;
 
-    for (i = 0; i < arr1Len; i++)
-      sq_dev[i] = (arr1[i] - u) * (arr2[i] - v);
+    for (i = 0; i < arr1Len; i++) sq_dev[i] = (arr1[i] - u) * (arr2[i] - v);
 
     return jStat.sum(sq_dev) / (arr1Len - 1);
   };
 
-
   // (pearson's) population correlation coefficient, rho
   jStat.corrcoeff = function corrcoeff(arr1, arr2) {
-    return jStat.covariance(arr1, arr2) /
-        jStat.stdev(arr1, 1) /
-        jStat.stdev(arr2, 1);
+    return jStat.covariance(arr1, arr2) / jStat.stdev(arr1, 1) / jStat.stdev(arr2, 1);
   };
 
-
   var jProto = jStat.prototype;
-
 
   // Extend jProto with method for calculating cumulative sums, as it does not
   // run again in case of true.
   // If a matrix is passed, automatically assume operation should be done on the
   // columns.
-  jProto.cumsum = function(fullbool, func) {
+  jProto.cumsum = function (fullbool, func) {
     var arr = [];
     var i = 0;
     var tmpthis = this;
@@ -12310,7 +12098,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     // Check if a callback was passed with the function.
     if (func) {
-      setTimeout(function() {
+      setTimeout(function () {
         func.call(tmpthis, jProto.cumsum.call(tmpthis, fullbool));
       });
       return this;
@@ -12319,127 +12107,108 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // Check if matrix and run calculations.
     if (this.length > 1) {
       tmpthis = fullbool === true ? this : this.transpose();
-      for (; i < tmpthis.length; i++)
-        arr[i] = jStat.cumsum(tmpthis[i]);
+      for (; i < tmpthis.length; i++) arr[i] = jStat.cumsum(tmpthis[i]);
       return arr;
     }
 
     return jStat.cumsum(this[0], fullbool);
   };
 
-
   // Extend jProto with methods which don't require arguments and work on columns.
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      // If a matrix is passed, automatically assume operation should be done on
-      // the columns.
-      jProto[passfunc] = function(fullbool, func) {
-        var arr = [];
-        var i = 0;
-        var tmpthis = this;
-        // Assignment reassignation depending on how parameters were passed in.
-        if (isFunction(fullbool)) {
-          func = fullbool;
-          fullbool = false;
-        }
-        // Check if a callback was passed with the function.
-        if (func) {
-          setTimeout(function() {
-            func.call(tmpthis, jProto[passfunc].call(tmpthis, fullbool));
-          });
-          return this;
-        }
-        // Check if matrix and run calculations.
-        if (this.length > 1) {
-          tmpthis = fullbool === true ? this : this.transpose();
-          for (; i < tmpthis.length; i++)
-            arr[i] = jStat[passfunc](tmpthis[i]);
-          return fullbool === true
-              ? jStat[passfunc](jStat.utils.toVector(arr))
-              : arr;
-        }
-        // Pass fullbool if only vector, not a matrix. for variance and stdev.
-        return jStat[passfunc](this[0], fullbool);
-      };
-    })(funcs[i]);
-  })(('sum sumsqrd sumsqerr product min max mean meansqerr geomean median diff ' +
-      'mode range variance stdev meandev meddev coeffvar quartiles').split(' '));
-
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        // If a matrix is passed, automatically assume operation should be done on
+        // the columns.
+        jProto[passfunc] = function (fullbool, func) {
+          var arr = [];
+          var i = 0;
+          var tmpthis = this;
+          // Assignment reassignation depending on how parameters were passed in.
+          if (isFunction(fullbool)) {
+            func = fullbool;
+            fullbool = false;
+          }
+          // Check if a callback was passed with the function.
+          if (func) {
+            setTimeout(function () {
+              func.call(tmpthis, jProto[passfunc].call(tmpthis, fullbool));
+            });
+            return this;
+          }
+          // Check if matrix and run calculations.
+          if (this.length > 1) {
+            tmpthis = fullbool === true ? this : this.transpose();
+            for (; i < tmpthis.length; i++) arr[i] = jStat[passfunc](tmpthis[i]);
+            return fullbool === true ? jStat[passfunc](jStat.utils.toVector(arr)) : arr;
+          }
+          // Pass fullbool if only vector, not a matrix. for variance and stdev.
+          return jStat[passfunc](this[0], fullbool);
+        };
+      })(funcs[i]);
+  })(('sum sumsqrd sumsqerr product min max mean meansqerr geomean median diff ' + 'mode range variance stdev meandev meddev coeffvar quartiles').split(' '));
 
   // Extend jProto with functions that take arguments. Operations on matrices are
   // done on columns.
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jProto[passfunc] = function() {
-        var arr = [];
-        var i = 0;
-        var tmpthis = this;
-        var args = Array.prototype.slice.call(arguments);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jProto[passfunc] = function () {
+          var arr = [];
+          var i = 0;
+          var tmpthis = this;
+          var args = Array.prototype.slice.call(arguments);
 
-        // If the last argument is a function, we assume it's a callback; we
-        // strip the callback out and call the function again.
-        if (isFunction(args[args.length - 1])) {
-          var callbackFunction = args[args.length - 1];
-          var argsToPass = args.slice(0, args.length - 1);
+          // If the last argument is a function, we assume it's a callback; we
+          // strip the callback out and call the function again.
+          if (isFunction(args[args.length - 1])) {
+            var callbackFunction = args[args.length - 1];
+            var argsToPass = args.slice(0, args.length - 1);
 
-          setTimeout(function() {
-            callbackFunction.call(tmpthis,
-                                  jProto[passfunc].apply(tmpthis, argsToPass));
-          });
-          return this;
+            setTimeout(function () {
+              callbackFunction.call(tmpthis, jProto[passfunc].apply(tmpthis, argsToPass));
+            });
+            return this;
 
-        // Otherwise we curry the function args and call normally.
-        } else {
-          var callbackFunction = undefined;
-          var curriedFunction = function curriedFunction(vector) {
-            return jStat[passfunc].apply(tmpthis, [vector].concat(args));
+            // Otherwise we curry the function args and call normally.
+          } else {
+            var callbackFunction = undefined;
+            var curriedFunction = function curriedFunction(vector) {
+              return jStat[passfunc].apply(tmpthis, [vector].concat(args));
+            };
           }
-        }
 
-        // If this is a matrix, run column-by-column.
-        if (this.length > 1) {
-          tmpthis = tmpthis.transpose();
-          for (; i < tmpthis.length; i++)
-            arr[i] = curriedFunction(tmpthis[i]);
-          return arr;
-        }
+          // If this is a matrix, run column-by-column.
+          if (this.length > 1) {
+            tmpthis = tmpthis.transpose();
+            for (; i < tmpthis.length; i++) arr[i] = curriedFunction(tmpthis[i]);
+            return arr;
+          }
 
-        // Otherwise run on the vector.
-        return curriedFunction(this[0]);
-      };
-    })(funcs[i]);
+          // Otherwise run on the vector.
+          return curriedFunction(this[0]);
+        };
+      })(funcs[i]);
   })('quantiles percentileOfScore'.split(' '));
-
-  }(this.jStat, Math));
-  // Special functions //
-  (function(jStat, Math) {
-
+})(this.jStat, Math);
+// Special functions //
+(function (jStat, Math) {
   // Log-gamma function
   jStat.gammaln = function gammaln(x) {
     var j = 0;
-    var cof = [
-      76.18009172947146, -86.50532032941677, 24.01409824083091,
-      -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5
-    ];
+    var cof = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
     var ser = 1.000000000190015;
     var xx, y, tmp;
     tmp = (y = xx = x) + 5.5;
     tmp -= (xx + 0.5) * Math.log(tmp);
-    for (; j < 6; j++)
-      ser += cof[j] / ++y;
-    return Math.log(2.5066282746310005 * ser / xx) - tmp;
+    for (; j < 6; j++) ser += cof[j] / ++y;
+    return Math.log((2.5066282746310005 * ser) / xx) - tmp;
   };
-
 
   // gamma of x
   jStat.gammafn = function gammafn(x) {
-    var p = [-1.716185138865495, 24.76565080557592, -379.80425647094563,
-             629.3311553128184, 866.9662027904133, -31451.272968848367,
-             -36144.413418691176, 66456.14382024054
-    ];
-    var q = [-30.8402300119739, 315.35062697960416, -1015.1563674902192,
-             -3107.771671572311, 22538.118420980151, 4755.8462775278811,
-             -134659.9598649693, -115132.2596755535];
+    var p = [-1.716185138865495, 24.76565080557592, -379.80425647094563, 629.3311553128184, 866.9662027904133, -31451.272968848367, -36144.413418691176, 66456.14382024054];
+    var q = [-30.8402300119739, 315.35062697960416, -1015.1563674902192, -3107.771671572311, 22538.118420980151, 4755.8462775278811, -134659.9598649693, -115132.2596755535];
     var fact = false;
     var n = 0;
     var xden = 0;
@@ -12447,9 +12216,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var y = x;
     var i, z, yi, res, sum, ysq;
     if (y <= 0) {
-      res = y % 1 + 3.6e-16;
+      res = (y % 1) + 3.6e-16;
       if (res) {
-        fact = (!(y & 1) ? 1 : -1) * Math.PI / Math.sin(Math.PI * res);
+        fact = ((!(y & 1) ? 1 : -1) * Math.PI) / Math.sin(Math.PI * res);
         y = 1 - y;
       } else {
         return Infinity;
@@ -12480,7 +12249,6 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return res;
   };
 
-
   // lower incomplete gamma function P(a,x)
   jStat.gammap = function gammap(a, x) {
     var aln = jStat.gammaln(a);
@@ -12493,7 +12261,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var h = d;
     var i = 1;
     // calculate maximum number of itterations required for a
-    var ITMAX = -~(Math.log((a >= 1) ? a : 1 / a) * 8.5 + a * 0.4 + 17);
+    var ITMAX = -~(Math.log(a >= 1 ? a : 1 / a) * 8.5 + a * 0.4 + 17);
     var an, endval;
 
     if (x < 0 || a <= 0) {
@@ -12502,7 +12270,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (; i <= ITMAX; i++) {
         sum += del *= x / ++ap;
       }
-      return sum * Math.exp(-x + a * Math.log(x) - (aln));
+      return sum * Math.exp(-x + a * Math.log(x) - aln);
     }
 
     for (; i <= ITMAX; i++) {
@@ -12514,9 +12282,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
       h *= d * c;
     }
 
-    return 1 - h * Math.exp(-x + a * Math.log(x) - (aln));
+    return 1 - h * Math.exp(-x + a * Math.log(x) - aln);
   };
-
 
   // natural log factorial of n
   jStat.factorialln = function factorialln(n) {
@@ -12531,40 +12298,30 @@ this.j$ = this.jStat = (function(Math, undefined) {
   // combinations of n, m
   jStat.combination = function combination(n, m) {
     // make sure n or m don't exceed the upper limit of usable values
-    return (n > 170 || m > 170)
-        ? Math.exp(jStat.combinationln(n, m))
-        : (jStat.factorial(n) / jStat.factorial(m)) / jStat.factorial(n - m);
+    return n > 170 || m > 170 ? Math.exp(jStat.combinationln(n, m)) : jStat.factorial(n) / jStat.factorial(m) / jStat.factorial(n - m);
   };
 
-
-  jStat.combinationln = function combinationln(n, m){
+  jStat.combinationln = function combinationln(n, m) {
     return jStat.factorialln(n) - jStat.factorialln(m) - jStat.factorialln(n - m);
   };
-
 
   // permutations of n, m
   jStat.permutation = function permutation(n, m) {
     return jStat.factorial(n) / jStat.factorial(n - m);
   };
 
-
   // beta function
   jStat.betafn = function betafn(x, y) {
     // ensure arguments are positive
-    if (x <= 0 || y <= 0)
-      return undefined;
+    if (x <= 0 || y <= 0) return undefined;
     // make sure x + y doesn't exceed the upper limit of usable values
-    return (x + y > 170)
-        ? Math.exp(jStat.betaln(x, y))
-        : jStat.gammafn(x) * jStat.gammafn(y) / jStat.gammafn(x + y);
+    return x + y > 170 ? Math.exp(jStat.betaln(x, y)) : (jStat.gammafn(x) * jStat.gammafn(y)) / jStat.gammafn(x + y);
   };
-
 
   // natural logarithm of beta function
   jStat.betaln = function betaln(x, y) {
     return jStat.gammaln(x) + jStat.gammaln(y) - jStat.gammaln(x + y);
   };
-
 
   // Evaluates the continued fraction for incomplete beta function by modified
   // Lentz's method.
@@ -12575,45 +12332,38 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var qap = a + 1;
     var qam = a - 1;
     var c = 1;
-    var d = 1 - qab * x / qap;
+    var d = 1 - (qab * x) / qap;
     var m2, aa, del, h;
 
     // These q's will be used in factors that occur in the coefficients
-    if (Math.abs(d) < fpmin)
-      d = fpmin;
+    if (Math.abs(d) < fpmin) d = fpmin;
     d = 1 / d;
     h = d;
 
     for (; m <= 100; m++) {
       m2 = 2 * m;
-      aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+      aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
       // One step (the even one) of the recurrence
       d = 1 + aa * d;
-      if (Math.abs(d) < fpmin)
-        d = fpmin;
+      if (Math.abs(d) < fpmin) d = fpmin;
       c = 1 + aa / c;
-      if (Math.abs(c) < fpmin)
-        c = fpmin;
+      if (Math.abs(c) < fpmin) c = fpmin;
       d = 1 / d;
       h *= d * c;
-      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+      aa = (-(a + m) * (qab + m) * x) / ((a + m2) * (qap + m2));
       // Next step of the recurrence (the odd one)
       d = 1 + aa * d;
-      if (Math.abs(d) < fpmin)
-        d = fpmin;
+      if (Math.abs(d) < fpmin) d = fpmin;
       c = 1 + aa / c;
-      if (Math.abs(c) < fpmin)
-        c = fpmin;
+      if (Math.abs(c) < fpmin) c = fpmin;
       d = 1 / d;
       del = d * c;
       h *= del;
-      if (Math.abs(del - 1.0) < 3e-7)
-        break;
+      if (Math.abs(del - 1.0) < 3e-7) break;
     }
 
     return h;
   };
-
 
   // Returns the inverse incomplte gamma function
   jStat.gammapinv = function gammapinv(p, a) {
@@ -12623,60 +12373,42 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var gln = jStat.gammaln(a);
     var x, err, t, u, pp, lna1, afac;
 
-    if (p >= 1)
-      return Math.max(100, a + 100 * Math.sqrt(a));
-    if (p <= 0)
-      return 0;
+    if (p >= 1) return Math.max(100, a + 100 * Math.sqrt(a));
+    if (p <= 0) return 0;
     if (a > 1) {
       lna1 = Math.log(a1);
       afac = Math.exp(a1 * (lna1 - 1) - gln);
-      pp = (p < 0.5) ? p : 1 - p;
+      pp = p < 0.5 ? p : 1 - p;
       t = Math.sqrt(-2 * Math.log(pp));
       x = (2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t;
-      if (p < 0.5)
-        x = -x;
-      x = Math.max(1e-3,
-                   a * Math.pow(1 - 1 / (9 * a) - x / (3 * Math.sqrt(a)), 3));
+      if (p < 0.5) x = -x;
+      x = Math.max(1e-3, a * Math.pow(1 - 1 / (9 * a) - x / (3 * Math.sqrt(a)), 3));
     } else {
       t = 1 - a * (0.253 + a * 0.12);
-      if (p < t)
-        x = Math.pow(p / t, 1 / a);
-      else
-        x = 1 - Math.log(1 - (p - t) / (1 - t));
+      if (p < t) x = Math.pow(p / t, 1 / a);
+      else x = 1 - Math.log(1 - (p - t) / (1 - t));
     }
 
-    for(; j < 12; j++) {
-      if (x <= 0)
-        return 0;
+    for (; j < 12; j++) {
+      if (x <= 0) return 0;
       err = jStat.gammap(a, x) - p;
-      if (a > 1)
-        t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
-      else
-        t = Math.exp(-x + a1 * Math.log(x) - gln);
+      if (a > 1) t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
+      else t = Math.exp(-x + a1 * Math.log(x) - gln);
       u = err / t;
-      x -= (t = u / (1 - 0.5 * Math.min(1, u * ((a - 1) / x - 1))));
-      if (x <= 0)
-        x = 0.5 * (x + t);
-      if (Math.abs(t) < EPS * x)
-        break;
+      x -= t = u / (1 - 0.5 * Math.min(1, u * ((a - 1) / x - 1)));
+      if (x <= 0) x = 0.5 * (x + t);
+      if (Math.abs(t) < EPS * x) break;
     }
 
     return x;
   };
 
-
   // Returns the error function erf(x)
   jStat.erf = function erf(x) {
-    var cof = [-1.3026537197817094, 6.4196979235649026e-1, 1.9476473204185836e-2,
-               -9.561514786808631e-3, -9.46595344482036e-4, 3.66839497852761e-4,
-               4.2523324806907e-5, -2.0278578112534e-5, -1.624290004647e-6,
-               1.303655835580e-6, 1.5626441722e-8, -8.5238095915e-8,
-               6.529054439e-9, 5.059343495e-9, -9.91364156e-10,
-               -2.27365122e-10, 9.6467911e-11, 2.394038e-12,
-               -6.886027e-12, 8.94487e-13, 3.13092e-13,
-               -1.12708e-13, 3.81e-16, 7.106e-15,
-               -1.523e-15, -9.4e-17, 1.21e-16,
-               -2.8e-17];
+    var cof = [
+      -1.3026537197817094, 6.4196979235649026e-1, 1.9476473204185836e-2, -9.561514786808631e-3, -9.46595344482036e-4, 3.66839497852761e-4, 4.2523324806907e-5, -2.0278578112534e-5, -1.624290004647e-6, 1.30365583558e-6, 1.5626441722e-8, -8.5238095915e-8, 6.529054439e-9, 5.059343495e-9,
+      -9.91364156e-10, -2.27365122e-10, 9.6467911e-11, 2.394038e-12, -6.886027e-12, 8.94487e-13, 3.13092e-13, -1.12708e-13, 3.81e-16, 7.106e-15, -1.523e-15, -9.4e-17, 1.21e-16, -2.8e-17,
+    ];
     var j = cof.length - 1;
     var isneg = false;
     var d = 0;
@@ -12691,7 +12423,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     t = 2 / (2 + x);
     ty = 4 * t - 2;
 
-    for(; j > 0; j--) {
+    for (; j > 0; j--) {
       tmp = d;
       d = ty * d - dd + cof[j];
       dd = tmp;
@@ -12701,32 +12433,26 @@ this.j$ = this.jStat = (function(Math, undefined) {
     return isneg ? res - 1 : 1 - res;
   };
 
-
   // Returns the complmentary error function erfc(x)
   jStat.erfc = function erfc(x) {
     return 1 - jStat.erf(x);
   };
 
-
   // Returns the inverse of the complementary error function
   jStat.erfcinv = function erfcinv(p) {
     var j = 0;
     var x, err, t, pp;
-    if (p >= 2)
-      return -100;
-    if (p <= 0)
-      return 100;
-    pp = (p < 1) ? p : 2 - p;
+    if (p >= 2) return -100;
+    if (p <= 0) return 100;
+    pp = p < 1 ? p : 2 - p;
     t = Math.sqrt(-2 * Math.log(pp / 2));
-    x = -0.70711 * ((2.30753 + t * 0.27061) /
-                    (1 + t * (0.99229 + t * 0.04481)) - t);
+    x = -0.70711 * ((2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t);
     for (; j < 2; j++) {
       err = jStat.erfc(x) - pp;
       x += err / (1.12837916709551257 * Math.exp(-x * x) - x * err);
     }
-    return (p < 1) ? x : -x;
+    return p < 1 ? x : -x;
   };
-
 
   // Returns the inverse of the incomplete beta function
   jStat.ibetainv = function ibetainv(p, a, b) {
@@ -12735,20 +12461,16 @@ this.j$ = this.jStat = (function(Math, undefined) {
     var b1 = b - 1;
     var j = 0;
     var lna, lnb, pp, t, u, err, x, al, h, w, afac;
-    if (p <= 0)
-      return 0;
-    if (p >= 1)
-      return 1;
+    if (p <= 0) return 0;
+    if (p >= 1) return 1;
     if (a >= 1 && b >= 1) {
-      pp = (p < 0.5) ? p : 1 - p;
+      pp = p < 0.5 ? p : 1 - p;
       t = Math.sqrt(-2 * Math.log(pp));
-      x = (2.30753 + t * 0.27061) / (1 + t* (0.99229 + t * 0.04481)) - t;
-      if (p < 0.5)
-        x = -x;
+      x = (2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t;
+      if (p < 0.5) x = -x;
       al = (x * x - 3) / 6;
-      h = 2 / (1 / (2 * a - 1)  + 1 / (2 * b - 1));
-      w = (x * Math.sqrt(al + h) / h) - (1 / (2 * b - 1) - 1 / (2 * a - 1)) *
-          (al + 5 / 6 - 2 / (3 * h));
+      h = 2 / (1 / (2 * a - 1) + 1 / (2 * b - 1));
+      w = (x * Math.sqrt(al + h)) / h - (1 / (2 * b - 1) - 1 / (2 * a - 1)) * (al + 5 / 6 - 2 / (3 * h));
       x = a / (a + b * Math.exp(2 * w));
     } else {
       lna = Math.log(a / (a + b));
@@ -12756,212 +12478,187 @@ this.j$ = this.jStat = (function(Math, undefined) {
       t = Math.exp(a * lna) / a;
       u = Math.exp(b * lnb) / b;
       w = t + u;
-      if (p < t / w)
-        x = Math.pow(a * w * p, 1 / a);
-      else
-        x = 1 - Math.pow(b * w * (1 - p), 1 / b);
+      if (p < t / w) x = Math.pow(a * w * p, 1 / a);
+      else x = 1 - Math.pow(b * w * (1 - p), 1 / b);
     }
     afac = -jStat.gammaln(a) - jStat.gammaln(b) + jStat.gammaln(a + b);
-    for(; j < 10; j++) {
-      if (x === 0 || x === 1)
-        return x;
+    for (; j < 10; j++) {
+      if (x === 0 || x === 1) return x;
       err = jStat.ibeta(x, a, b) - p;
       t = Math.exp(a1 * Math.log(x) + b1 * Math.log(1 - x) + afac);
       u = err / t;
-      x -= (t = u / (1 - 0.5 * Math.min(1, u * (a1 / x - b1 / (1 - x)))));
-      if (x <= 0)
-        x = 0.5 * (x + t);
-      if (x >= 1)
-        x = 0.5 * (x + t + 1);
-      if (Math.abs(t) < EPS * x && j > 0)
-        break;
+      x -= t = u / (1 - 0.5 * Math.min(1, u * (a1 / x - b1 / (1 - x))));
+      if (x <= 0) x = 0.5 * (x + t);
+      if (x >= 1) x = 0.5 * (x + t + 1);
+      if (Math.abs(t) < EPS * x && j > 0) break;
     }
     return x;
   };
 
-
   // Returns the incomplete beta function I_x(a,b)
   jStat.ibeta = function ibeta(x, a, b) {
     // Factors in front of the continued fraction.
-    var bt = (x === 0 || x === 1) ?  0 :
-      Math.exp(jStat.gammaln(a + b) - jStat.gammaln(a) -
-               jStat.gammaln(b) + a * Math.log(x) + b *
-               Math.log(1 - x));
-    if (x < 0 || x > 1)
-      return false;
+    var bt = x === 0 || x === 1 ? 0 : Math.exp(jStat.gammaln(a + b) - jStat.gammaln(a) - jStat.gammaln(b) + a * Math.log(x) + b * Math.log(1 - x));
+    if (x < 0 || x > 1) return false;
     if (x < (a + 1) / (a + b + 2))
       // Use continued fraction directly.
-      return bt * jStat.betacf(x, a, b) / a;
+      return (bt * jStat.betacf(x, a, b)) / a;
     // else use continued fraction after making the symmetry transformation.
-    return 1 - bt * jStat.betacf(1 - x, b, a) / b;
+    return 1 - (bt * jStat.betacf(1 - x, b, a)) / b;
   };
-
 
   // Returns a normal deviate (mu=0, sigma=1).
   // If n and m are specified it returns a object of normal deviates.
   jStat.randn = function randn(n, m) {
     var u, v, x, y, q, mat;
-    if (!m)
-      m = n;
+    if (!m) m = n;
     if (n)
-      return jStat.create(n, m, function() { return jStat.randn(); });
+      return jStat.create(n, m, function () {
+        return jStat.randn();
+      });
     do {
       u = Math.random();
       v = 1.7156 * (Math.random() - 0.5);
       x = u - 0.449871;
       y = Math.abs(v) + 0.386595;
-      q = x * x + y * (0.19600 * y - 0.25472 * x);
+      q = x * x + y * (0.196 * y - 0.25472 * x);
     } while (q > 0.27597 && (q > 0.27846 || v * v > -4 * Math.log(u) * u * u));
     return v / u;
   };
-
 
   // Returns a gamma deviate by the method of Marsaglia and Tsang.
   jStat.randg = function randg(shape, n, m) {
     var oalph = shape;
     var a1, a2, u, v, x, mat;
-    if (!m)
-      m = n;
-    if (!shape)
-      shape = 1;
+    if (!m) m = n;
+    if (!shape) shape = 1;
     if (n) {
-      mat = jStat.zeros(n,m);
-      mat.alter(function() { return jStat.randg(shape); });
+      mat = jStat.zeros(n, m);
+      mat.alter(function () {
+        return jStat.randg(shape);
+      });
       return mat;
     }
-    if (shape < 1)
-      shape += 1;
+    if (shape < 1) shape += 1;
     a1 = shape - 1 / 3;
     a2 = 1 / Math.sqrt(9 * a1);
     do {
       do {
         x = jStat.randn();
         v = 1 + a2 * x;
-      } while(v <= 0);
+      } while (v <= 0);
       v = v * v * v;
       u = Math.random();
-    } while(u > 1 - 0.331 * Math.pow(x, 4) &&
-            Math.log(u) > 0.5 * x*x + a1 * (1 - v + Math.log(v)));
+    } while (u > 1 - 0.331 * Math.pow(x, 4) && Math.log(u) > 0.5 * x * x + a1 * (1 - v + Math.log(v)));
     // alpha > 1
-    if (shape == oalph)
-      return a1 * v;
+    if (shape == oalph) return a1 * v;
     // alpha < 1
     do {
       u = Math.random();
-    } while(u === 0);
+    } while (u === 0);
     return Math.pow(u, 1 / oalph) * a1 * v;
   };
 
-
   // making use of static methods on the instance
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jStat.fn[passfunc] = function() {
-        return jStat(
-            jStat.map(this, function(value) { return jStat[passfunc](value); }));
-      }
-    })(funcs[i]);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jStat.fn[passfunc] = function () {
+          return jStat(
+            jStat.map(this, function (value) {
+              return jStat[passfunc](value);
+            })
+          );
+        };
+      })(funcs[i]);
   })('gammaln gammafn factorial factorialln'.split(' '));
 
-
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jStat.fn[passfunc] = function() {
-        return jStat(jStat[passfunc].apply(null, arguments));
-      };
-    })(funcs[i]);
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jStat.fn[passfunc] = function () {
+          return jStat(jStat[passfunc].apply(null, arguments));
+        };
+      })(funcs[i]);
   })('randn'.split(' '));
-
-  }(this.jStat, Math));
-  (function(jStat, Math) {
-
+})(this.jStat, Math);
+(function (jStat, Math) {
   // generate all distribution instance methods
-  (function(list) {
-    for (var i = 0; i < list.length; i++) (function(func) {
-      // distribution instance method
-      jStat[func] = function(a, b, c) {
-        if (!(this instanceof arguments.callee))
-          return new arguments.callee(a, b, c);
-        this._a = a;
-        this._b = b;
-        this._c = c;
-        return this;
-      };
-      // distribution method to be used on a jStat instance
-      jStat.fn[func] = function(a, b, c) {
-        var newthis = jStat[func](a, b, c);
-        newthis.data = this;
-        return newthis;
-      };
-      // sample instance method
-      jStat[func].prototype.sample = function(arr) {
-        var a = this._a;
-        var b = this._b;
-        var c = this._c;
-        if (arr)
-          return jStat.alter(arr, function() {
-            return jStat[func].sample(a, b, c);
-          });
-        else
-          return jStat[func].sample(a, b, c);
-      };
-      // generate the pdf, cdf and inv instance methods
-      (function(vals) {
-        for (var i = 0; i < vals.length; i++) (function(fnfunc) {
-          jStat[func].prototype[fnfunc] = function(x) {
-            var a = this._a;
-            var b = this._b;
-            var c = this._c;
-            if (!x && x !== 0)
-              x = this.data;
-            if (typeof x !== 'number') {
-              return jStat.fn.map.call(x, function(x) {
+  (function (list) {
+    for (var i = 0; i < list.length; i++)
+      (function (func) {
+        // distribution instance method
+        jStat[func] = function (a, b, c) {
+          if (!(this instanceof arguments.callee)) return new arguments.callee(a, b, c);
+          this._a = a;
+          this._b = b;
+          this._c = c;
+          return this;
+        };
+        // distribution method to be used on a jStat instance
+        jStat.fn[func] = function (a, b, c) {
+          var newthis = jStat[func](a, b, c);
+          newthis.data = this;
+          return newthis;
+        };
+        // sample instance method
+        jStat[func].prototype.sample = function (arr) {
+          var a = this._a;
+          var b = this._b;
+          var c = this._c;
+          if (arr)
+            return jStat.alter(arr, function () {
+              return jStat[func].sample(a, b, c);
+            });
+          else return jStat[func].sample(a, b, c);
+        };
+        // generate the pdf, cdf and inv instance methods
+        (function (vals) {
+          for (var i = 0; i < vals.length; i++)
+            (function (fnfunc) {
+              jStat[func].prototype[fnfunc] = function (x) {
+                var a = this._a;
+                var b = this._b;
+                var c = this._c;
+                if (!x && x !== 0) x = this.data;
+                if (typeof x !== 'number') {
+                  return jStat.fn.map.call(x, function (x) {
+                    return jStat[func][fnfunc](x, a, b, c);
+                  });
+                }
                 return jStat[func][fnfunc](x, a, b, c);
-              });
-            }
-            return jStat[func][fnfunc](x, a, b, c);
-          };
-        })(vals[i]);
-      })('pdf cdf inv'.split(' '));
-      // generate the mean, median, mode and variance instance methods
-      (function(vals) {
-        for (var i = 0; i < vals.length; i++) (function(fnfunc) {
-          jStat[func].prototype[fnfunc] = function() {
-            return jStat[func][fnfunc](this._a, this._b, this._c);
-          };
-        })(vals[i]);
-      })('mean median mode variance'.split(' '));
-    })(list[i]);
-  })((
-    'beta centralF cauchy chisquare exponential gamma invgamma kumaraswamy ' +
-    'lognormal normal pareto studentt weibull uniform  binomial negbin hypgeom ' +
-    'poisson triangular'
-  ).split(' '));
-
-
+              };
+            })(vals[i]);
+        })('pdf cdf inv'.split(' '));
+        // generate the mean, median, mode and variance instance methods
+        (function (vals) {
+          for (var i = 0; i < vals.length; i++)
+            (function (fnfunc) {
+              jStat[func].prototype[fnfunc] = function () {
+                return jStat[func][fnfunc](this._a, this._b, this._c);
+              };
+            })(vals[i]);
+        })('mean median mode variance'.split(' '));
+      })(list[i]);
+  })(('beta centralF cauchy chisquare exponential gamma invgamma kumaraswamy ' + 'lognormal normal pareto studentt weibull uniform  binomial negbin hypgeom ' + 'poisson triangular').split(' '));
 
   // extend beta function with static methods
   jStat.extend(jStat.beta, {
     pdf: function pdf(x, alpha, beta) {
       // PDF is zero outside the support
-      if (x > 1 || x < 0)
-        return 0;
+      if (x > 1 || x < 0) return 0;
       // PDF is one for the uniform case
-      if (alpha == 1 && beta == 1)
-        return 1;
+      if (alpha == 1 && beta == 1) return 1;
 
       if (alpha < 512 || beta < 512) {
-        return (Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1)) /
-            jStat.betafn(alpha, beta);
+        return (Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1)) / jStat.betafn(alpha, beta);
       } else {
-        return Math.exp((alpha - 1) * Math.log(x) +
-                        (beta - 1) * Math.log(1 - x) -
-                        jStat.betaln(alpha, beta));
+        return Math.exp((alpha - 1) * Math.log(x) + (beta - 1) * Math.log(1 - x) - jStat.betaln(alpha, beta));
       }
     },
 
     cdf: function cdf(x, alpha, beta) {
-      return (x > 1 || x < 0) ? (x > 1) * 1 : jStat.ibeta(x, alpha, beta);
+      return x > 1 || x < 0 ? (x > 1) * 1 : jStat.ibeta(x, alpha, beta);
     },
 
     inv: function inv(x, alpha, beta) {
@@ -12988,18 +12685,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     variance: function variance(alpha, beta) {
       return (alpha * beta) / (Math.pow(alpha + beta, 2) * (alpha + beta + 1));
-    }
+    },
   });
 
   // extend F function with static methods
   jStat.extend(jStat.centralF, {
     pdf: function pdf(x, df1, df2) {
-      if (x < 0)
-        return undefined;
-      return Math.sqrt((Math.pow(df1 * x, df1) * Math.pow(df2, df2)) /
-                       (Math.pow(df1 * x + df2, df1 + df2))) /
-                       (x * jStat.betafn(df1/2, df2/2));
-
+      if (x < 0) return undefined;
+      return Math.sqrt((Math.pow(df1 * x, df1) * Math.pow(df2, df2)) / Math.pow(df1 * x + df2, df1 + df2)) / (x * jStat.betafn(df1 / 2, df2 / 2));
     },
 
     cdf: function cdf(x, df1, df2) {
@@ -13011,40 +12704,37 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     mean: function mean(df1, df2) {
-      return (df2 > 2) ? df2 / (df2 - 2) : undefined;
+      return df2 > 2 ? df2 / (df2 - 2) : undefined;
     },
 
     mode: function mode(df1, df2) {
-      return (df1 > 2) ? (df2 * (df1 - 2)) / (df1 * (df2 + 2)) : undefined;
+      return df1 > 2 ? (df2 * (df1 - 2)) / (df1 * (df2 + 2)) : undefined;
     },
 
     // return a random sample
     sample: function sample(df1, df2) {
       var x1 = jStat.randg(df1 / 2) * 2;
       var x2 = jStat.randg(df2 / 2) * 2;
-      return (x1 / df1) / (x2 / df2);
+      return x1 / df1 / (x2 / df2);
     },
 
     variance: function variance(df1, df2) {
-      if (df2 <= 4)
-        return undefined;
-      return 2 * df2 * df2 * (df1 + df2 - 2) /
-          (df1 * (df2 - 2) * (df2 - 2) * (df2 - 4));
-    }
+      if (df2 <= 4) return undefined;
+      return (2 * df2 * df2 * (df1 + df2 - 2)) / (df1 * (df2 - 2) * (df2 - 2) * (df2 - 4));
+    },
   });
-
 
   // extend cauchy function with static methods
   jStat.extend(jStat.cauchy, {
     pdf: function pdf(x, local, scale) {
-      return (scale / (Math.pow(x - local, 2) + Math.pow(scale, 2))) / Math.PI;
+      return scale / (Math.pow(x - local, 2) + Math.pow(scale, 2)) / Math.PI;
     },
 
     cdf: function cdf(x, local, scale) {
       return Math.atan((x - local) / scale) / Math.PI + 0.5;
     },
 
-    inv: function(p, local, scale) {
+    inv: function (p, local, scale) {
       return local + scale * Math.tan(Math.PI * (p - 0.5));
     },
 
@@ -13057,39 +12747,35 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     sample: function sample(local, scale) {
-      return jStat.randn() *
-          Math.sqrt(1 / (2 * jStat.randg(0.5))) * scale + local;
-    }
+      return jStat.randn() * Math.sqrt(1 / (2 * jStat.randg(0.5))) * scale + local;
+    },
   });
-
-
 
   // extend chisquare function with static methods
   jStat.extend(jStat.chisquare, {
     pdf: function pdf(x, dof) {
-      return Math.exp((dof / 2 - 1) * Math.log(x) - x / 2 - (dof / 2) *
-                      Math.log(2) - jStat.gammaln(dof / 2));
+      return Math.exp((dof / 2 - 1) * Math.log(x) - x / 2 - (dof / 2) * Math.log(2) - jStat.gammaln(dof / 2));
     },
 
     cdf: function cdf(x, dof) {
       return jStat.gammap(dof / 2, x / 2);
     },
 
-    inv: function(p, dof) {
+    inv: function (p, dof) {
       return 2 * jStat.gammapinv(p, 0.5 * dof);
     },
 
-    mean : function(dof) {
+    mean: function (dof) {
       return dof;
     },
 
     // TODO: this is an approximation (is there a better way?)
     median: function median(dof) {
-      return dof * Math.pow(1 - (2 / (9 * dof)), 3);
+      return dof * Math.pow(1 - 2 / (9 * dof), 3);
     },
 
     mode: function mode(dof) {
-      return (dof - 2 > 0) ? dof - 2 : 0;
+      return dof - 2 > 0 ? dof - 2 : 0;
     },
 
     sample: function sample(dof) {
@@ -13098,10 +12784,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     variance: function variance(dof) {
       return 2 * dof;
-    }
+    },
   });
-
-
 
   // extend exponential function with static methods
   jStat.extend(jStat.exponential, {
@@ -13113,11 +12797,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return x < 0 ? 0 : 1 - Math.exp(-rate * x);
     },
 
-    inv: function(p, rate) {
+    inv: function (p, rate) {
       return -Math.log(1 - p) / rate;
     },
 
-    mean : function(rate) {
+    mean: function (rate) {
       return 1 / rate;
     },
 
@@ -13130,37 +12814,34 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     sample: function sample(rate) {
-      return -1 / rate * Math.log(Math.random());
+      return (-1 / rate) * Math.log(Math.random());
     },
 
-    variance : function(rate) {
+    variance: function (rate) {
       return Math.pow(rate, -2);
-    }
+    },
   });
-
-
 
   // extend gamma function with static methods
   jStat.extend(jStat.gamma, {
     pdf: function pdf(x, shape, scale) {
-      return Math.exp((shape - 1) * Math.log(x) - x / scale -
-                      jStat.gammaln(shape) - shape * Math.log(scale));
+      return Math.exp((shape - 1) * Math.log(x) - x / scale - jStat.gammaln(shape) - shape * Math.log(scale));
     },
 
     cdf: function cdf(x, shape, scale) {
       return jStat.gammap(shape, x / scale);
     },
 
-    inv: function(p, shape, scale) {
+    inv: function (p, shape, scale) {
       return jStat.gammapinv(p, shape) * scale;
     },
 
-    mean : function(shape, scale) {
+    mean: function (shape, scale) {
       return shape * scale;
     },
 
     mode: function mode(shape, scale) {
-      if(shape > 1) return (shape - 1) * scale;
+      if (shape > 1) return (shape - 1) * scale;
       return undefined;
     },
 
@@ -13170,26 +12851,25 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     variance: function variance(shape, scale) {
       return shape * scale * scale;
-    }
+    },
   });
 
   // extend inverse gamma function with static methods
   jStat.extend(jStat.invgamma, {
     pdf: function pdf(x, shape, scale) {
-      return Math.exp(-(shape + 1) * Math.log(x) - scale / x -
-                      jStat.gammaln(shape) + shape * Math.log(scale));
+      return Math.exp(-(shape + 1) * Math.log(x) - scale / x - jStat.gammaln(shape) + shape * Math.log(scale));
     },
 
     cdf: function cdf(x, shape, scale) {
       return 1 - jStat.gammap(shape, scale / x);
     },
 
-    inv: function(p, shape, scale) {
+    inv: function (p, shape, scale) {
       return scale / jStat.gammapinv(1 - p, shape);
     },
 
-    mean : function(shape, scale) {
-      return (shape > 1) ? scale / (shape - 1) : undefined;
+    mean: function (shape, scale) {
+      return shape > 1 ? scale / (shape - 1) : undefined;
     },
 
     mode: function mode(shape, scale) {
@@ -13201,28 +12881,23 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     variance: function variance(shape, scale) {
-      if (shape <= 2)
-        return undefined;
-      return scale * scale / ((shape - 1) * (shape - 1) * (shape - 2));
-    }
+      if (shape <= 2) return undefined;
+      return (scale * scale) / ((shape - 1) * (shape - 1) * (shape - 2));
+    },
   });
-
 
   // extend kumaraswamy function with static methods
   jStat.extend(jStat.kumaraswamy, {
     pdf: function pdf(x, alpha, beta) {
-      return Math.exp(Math.log(alpha) + Math.log(beta) + (alpha - 1) *
-                      Math.log(x) + (beta - 1) *
-                      Math.log(1 - Math.pow(x, alpha)));
+      return Math.exp(Math.log(alpha) + Math.log(beta) + (alpha - 1) * Math.log(x) + (beta - 1) * Math.log(1 - Math.pow(x, alpha)));
     },
 
     cdf: function cdf(x, alpha, beta) {
-      return (1 - Math.pow(1 - Math.pow(x, alpha), beta));
+      return 1 - Math.pow(1 - Math.pow(x, alpha), beta);
     },
 
-    mean : function(alpha, beta) {
-      return (beta * jStat.gammafn(1 + 1 / alpha) *
-              jStat.gammafn(beta)) / (jStat.gammafn(1 + 1 / alpha + beta));
+    mean: function (alpha, beta) {
+      return (beta * jStat.gammafn(1 + 1 / alpha) * jStat.gammafn(beta)) / jStat.gammafn(1 + 1 / alpha + beta);
     },
 
     median: function median(alpha, beta) {
@@ -13230,38 +12905,32 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     mode: function mode(alpha, beta) {
-      if (!(alpha >= 1 && beta >= 1 && (alpha !== 1 && beta !== 1)))
-        return undefined;
+      if (!(alpha >= 1 && beta >= 1 && alpha !== 1 && beta !== 1)) return undefined;
       return Math.pow((alpha - 1) / (alpha * beta - 1), 1 / alpha);
     },
 
     variance: function variance(alpha, beta) {
       throw new Error('variance not yet implemented');
       // TODO: complete this
-    }
+    },
   });
-
-
 
   // extend lognormal function with static methods
   jStat.extend(jStat.lognormal, {
     pdf: function pdf(x, mu, sigma) {
-      return Math.exp(-Math.log(x) - 0.5 * Math.log(2 * Math.PI) -
-                      Math.log(sigma) - Math.pow(Math.log(x) - mu, 2) /
-                      (2 * sigma * sigma));
+      return Math.exp(-Math.log(x) - 0.5 * Math.log(2 * Math.PI) - Math.log(sigma) - Math.pow(Math.log(x) - mu, 2) / (2 * sigma * sigma));
     },
 
     cdf: function cdf(x, mu, sigma) {
-      return 0.5 +
-          (0.5 * jStat.erf((Math.log(x) - mu) / Math.sqrt(2 * sigma * sigma)));
+      return 0.5 + 0.5 * jStat.erf((Math.log(x) - mu) / Math.sqrt(2 * sigma * sigma));
     },
 
-    inv: function(p, mu, sigma) {
+    inv: function (p, mu, sigma) {
       return Math.exp(-1.41421356237309505 * sigma * jStat.erfcinv(2 * p) + mu);
     },
 
     mean: function mean(mu, sigma) {
-      return Math.exp(mu + sigma * sigma / 2);
+      return Math.exp(mu + (sigma * sigma) / 2);
     },
 
     median: function median(mu, sigma) {
@@ -13278,27 +12947,24 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     variance: function variance(mu, sigma) {
       return (Math.exp(sigma * sigma) - 1) * Math.exp(2 * mu + sigma * sigma);
-    }
+    },
   });
-
-
 
   // extend normal function with static methods
   jStat.extend(jStat.normal, {
     pdf: function pdf(x, mean, std) {
-      return Math.exp(-0.5 * Math.log(2 * Math.PI) -
-                      Math.log(std) - Math.pow(x - mean, 2) / (2 * std * std));
+      return Math.exp(-0.5 * Math.log(2 * Math.PI) - Math.log(std) - Math.pow(x - mean, 2) / (2 * std * std));
     },
 
     cdf: function cdf(x, mean, std) {
       return 0.5 * (1 + jStat.erf((x - mean) / Math.sqrt(2 * std * std)));
     },
 
-    inv: function(p, mean, std) {
+    inv: function (p, mean, std) {
       return -1.41421356237309505 * std * jStat.erfcinv(2 * p) + mean;
     },
 
-    mean : function(mean, std) {
+    mean: function (mean, std) {
       return mean;
     },
 
@@ -13314,18 +12980,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return jStat.randn() * std + mean;
     },
 
-    variance : function(mean, std) {
+    variance: function (mean, std) {
       return std * std;
-    }
+    },
   });
-
-
 
   // extend pareto function with static methods
   jStat.extend(jStat.pareto, {
     pdf: function pdf(x, scale, shape) {
-      if (x <= scale)
-        return undefined;
+      if (x <= scale) return undefined;
       return (shape * Math.pow(scale, shape)) / Math.pow(x, shape + 1);
     },
 
@@ -13334,8 +12997,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     mean: function mean(scale, shape) {
-      if (shape <= 1)
-        return undefined;
+      if (shape <= 1) return undefined;
       return (shape * Math.pow(scale, shape)) / (shape - 1);
     },
 
@@ -13347,37 +13009,31 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return scale;
     },
 
-    variance : function(scale, shape) {
-      if (shape <= 2)
-        return undefined;
-      return (scale*scale * shape) / (Math.pow(shape - 1, 2) * (shape - 2));
-    }
+    variance: function (scale, shape) {
+      if (shape <= 2) return undefined;
+      return (scale * scale * shape) / (Math.pow(shape - 1, 2) * (shape - 2));
+    },
   });
-
-
 
   // extend studentt function with static methods
   jStat.extend(jStat.studentt, {
     pdf: function pdf(x, dof) {
-      return (jStat.gammafn((dof + 1) / 2) / (Math.sqrt(dof * Math.PI) *
-          jStat.gammafn(dof / 2))) *
-          Math.pow(1 + ((x * x) / dof), -((dof + 1) / 2));
+      return (jStat.gammafn((dof + 1) / 2) / (Math.sqrt(dof * Math.PI) * jStat.gammafn(dof / 2))) * Math.pow(1 + (x * x) / dof, -((dof + 1) / 2));
     },
 
     cdf: function cdf(x, dof) {
       var dof2 = dof / 2;
-      return jStat.ibeta((x + Math.sqrt(x * x + dof)) /
-                         (2 * Math.sqrt(x * x + dof)), dof2, dof2);
+      return jStat.ibeta((x + Math.sqrt(x * x + dof)) / (2 * Math.sqrt(x * x + dof)), dof2, dof2);
     },
 
-    inv: function(p, dof) {
+    inv: function (p, dof) {
       var x = jStat.ibetainv(2 * Math.min(p, 1 - p), 0.5 * dof, 0.5);
-      x = Math.sqrt(dof * (1 - x) / x);
-      return (p > 0) ? x : -x;
+      x = Math.sqrt((dof * (1 - x)) / x);
+      return p > 0 ? x : -x;
     },
 
     mean: function mean(dof) {
-      return (dof > 1) ? 0 : undefined;
+      return dof > 1 ? 0 : undefined;
     },
 
     median: function median(dof) {
@@ -13393,30 +13049,26 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     variance: function variance(dof) {
-      return (dof  > 2) ? dof / (dof - 2) : (dof > 1) ? Infinity : undefined;
-    }
+      return dof > 2 ? dof / (dof - 2) : dof > 1 ? Infinity : undefined;
+    },
   });
-
-
 
   // extend weibull function with static methods
   jStat.extend(jStat.weibull, {
     pdf: function pdf(x, scale, shape) {
-      if (x < 0)
-        return 0;
-      return (shape / scale) * Math.pow((x / scale), (shape - 1)) *
-          Math.exp(-(Math.pow((x / scale), shape)));
+      if (x < 0) return 0;
+      return (shape / scale) * Math.pow(x / scale, shape - 1) * Math.exp(-Math.pow(x / scale, shape));
     },
 
     cdf: function cdf(x, scale, shape) {
-      return x < 0 ? 0 : 1 - Math.exp(-Math.pow((x / scale), shape));
+      return x < 0 ? 0 : 1 - Math.exp(-Math.pow(x / scale, shape));
     },
 
-    inv: function(p, scale, shape) {
+    inv: function (p, scale, shape) {
       return scale * Math.pow(-Math.log(1 - p), 1 / shape);
     },
 
-    mean : function(scale, shape) {
+    mean: function (scale, shape) {
       return scale * jStat.gammafn(1 + 1 / shape);
     },
 
@@ -13425,8 +13077,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     mode: function mode(scale, shape) {
-      if (shape <= 1)
-        return undefined;
+      if (shape <= 1) return undefined;
       return scale * Math.pow((shape - 1) / shape, 1 / shape);
     },
 
@@ -13435,24 +13086,19 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     variance: function variance(scale, shape) {
-      return scale * scale * jStat.gammafn(1 + 2 / shape) -
-          Math.pow(this.mean(scale, shape), 2);
-    }
+      return scale * scale * jStat.gammafn(1 + 2 / shape) - Math.pow(this.mean(scale, shape), 2);
+    },
   });
-
-
 
   // extend uniform function with static methods
   jStat.extend(jStat.uniform, {
     pdf: function pdf(x, a, b) {
-      return (x < a || x > b) ? 0 : 1 / (b - a);
+      return x < a || x > b ? 0 : 1 / (b - a);
     },
 
     cdf: function cdf(x, a, b) {
-      if (x < a)
-        return 0;
-      else if (x < b)
-        return (x - a) / (b - a);
+      if (x < a) return 0;
+      else if (x < b) return (x - a) / (b - a);
       return 1;
     },
 
@@ -13469,64 +13115,52 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     sample: function sample(a, b) {
-      return (a / 2 + b / 2) + (b / 2 - a / 2) * (2 * Math.random() - 1);
+      return a / 2 + b / 2 + (b / 2 - a / 2) * (2 * Math.random() - 1);
     },
 
     variance: function variance(a, b) {
       return Math.pow(b - a, 2) / 12;
-    }
+    },
   });
-
-
 
   // extend uniform function with static methods
   jStat.extend(jStat.binomial, {
     pdf: function pdf(k, n, p) {
-      return (p === 0 || p === 1) ?
-        ((n * p) === k ? 1 : 0) :
-        jStat.combination(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+      return p === 0 || p === 1 ? (n * p === k ? 1 : 0) : jStat.combination(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
     },
 
     cdf: function cdf(x, n, p) {
       var binomarr = [],
-      k = 0;
+        k = 0;
       if (x < 0) {
         return 0;
       }
       if (x < n) {
         for (; k <= x; k++) {
-          binomarr[ k ] = jStat.binomial.pdf(k, n, p);
+          binomarr[k] = jStat.binomial.pdf(k, n, p);
         }
         return jStat.sum(binomarr);
       }
       return 1;
-    }
+    },
   });
-
-
 
   // extend uniform function with static methods
   jStat.extend(jStat.negbin, {
     pdf: function pdf(k, r, p) {
-      return k !== k | 0
-        ? false
-        : k < 0
-          ? 0
-          : jStat.combination(k + r - 1, r - 1) * Math.pow(1 - p, k) * Math.pow(p, r);
+      return (k !== k) | 0 ? false : k < 0 ? 0 : jStat.combination(k + r - 1, r - 1) * Math.pow(1 - p, k) * Math.pow(p, r);
     },
 
     cdf: function cdf(x, r, p) {
       var sum = 0,
-      k = 0;
+        k = 0;
       if (x < 0) return 0;
       for (; k <= x; k++) {
         sum += jStat.negbin.pdf(k, r, p);
       }
       return sum;
-    }
+    },
   });
-
-
 
   // extend uniform function with static methods
   jStat.extend(jStat.hypgeom, {
@@ -13540,33 +13174,31 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // m = number of successes in population
       // n = number of items drawn from population
 
-      if(k !== k | 0) {
+      if ((k !== k) | 0) {
         return false;
-      } else if(k < 0 || k < m - (N - n)) {
+      } else if (k < 0 || k < m - (N - n)) {
         // It's impossible to have this few successes drawn.
         return 0;
-      } else if(k > n || k > m) {
+      } else if (k > n || k > m) {
         // It's impossible to have this many successes drawn.
         return 0;
       } else if (m * 2 > N) {
         // More than half the population is successes.
 
-        if(n * 2 > N) {
+        if (n * 2 > N) {
           // More than half the population is sampled.
 
-          return jStat.hypgeom.pdf(N - m - n + k, N, N - m, N - n)
+          return jStat.hypgeom.pdf(N - m - n + k, N, N - m, N - n);
         } else {
           // Half or less of the population is sampled.
 
           return jStat.hypgeom.pdf(n - k, N, N - m, n);
         }
-
-      } else if(n * 2 > N) {
+      } else if (n * 2 > N) {
         // Half or less is successes.
 
         return jStat.hypgeom.pdf(m - k, N, m, N - n);
-
-      } else if(m < n) {
+      } else if (m < n) {
         // We want to have the number of things sampled to be less than the
         // successes available. So swap the definitions of successful and sampled.
         return jStat.hypgeom.pdf(k, N, n, m);
@@ -13587,14 +13219,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
         // This keeps track of how much we have normalized.
         var samplesDone = 0;
 
-        for(var i = 0; i < k; i++) {
+        for (var i = 0; i < k; i++) {
           // For every possible number of successes up to that observed...
 
-          while(scaledPDF > 1 && samplesDone < n) {
+          while (scaledPDF > 1 && samplesDone < n) {
             // Intermediate result is growing too big. Apply some of the
             // normalization to shrink everything.
 
-            scaledPDF *= 1 - (m / (N - samplesDone));
+            scaledPDF *= 1 - m / (N - samplesDone);
 
             // Say we've normalized by this sample already.
             samplesDone++;
@@ -13602,12 +13234,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
           // Work out the partially-normalized hypergeometric PDF for the next
           // number of successes
-          scaledPDF *= (n - i) * (m - i) / ((i + 1) * (N - m - n + i + 1));
+          scaledPDF *= ((n - i) * (m - i)) / ((i + 1) * (N - m - n + i + 1));
         }
 
-        for(; samplesDone < n; samplesDone++) {
+        for (; samplesDone < n; samplesDone++) {
           // Apply all the rest of the normalization
-          scaledPDF *= 1 - (m / (N - samplesDone));
+          scaledPDF *= 1 - m / (N - samplesDone);
         }
 
         // Bound answer sanely before returning.
@@ -13627,31 +13259,29 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // m = number of successes in population
       // n = number of items drawn from population
 
-      if(x < 0 || x < m - (N - n)) {
+      if (x < 0 || x < m - (N - n)) {
         // It's impossible to have this few successes drawn or fewer.
         return 0;
-      } else if(x >= n || x >= m) {
+      } else if (x >= n || x >= m) {
         // We will always have this many successes or fewer.
         return 1;
       } else if (m * 2 > N) {
         // More than half the population is successes.
 
-        if(n * 2 > N) {
+        if (n * 2 > N) {
           // More than half the population is sampled.
 
-          return jStat.hypgeom.cdf(N - m - n + x, N, N - m, N - n)
+          return jStat.hypgeom.cdf(N - m - n + x, N, N - m, N - n);
         } else {
           // Half or less of the population is sampled.
 
           return 1 - jStat.hypgeom.cdf(n - x - 1, N, N - m, n);
         }
-
-      } else if(n * 2 > N) {
+      } else if (n * 2 > N) {
         // Half or less is successes.
 
         return 1 - jStat.hypgeom.cdf(m - x - 1, N, m, N - n);
-
-      } else if(m < n) {
+      } else if (m < n) {
         // We want to have the number of things sampled to be less than the
         // successes available. So swap the definitions of successful and sampled.
         return jStat.hypgeom.cdf(x, N, n, m);
@@ -13675,14 +13305,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
         // This keeps track of how much we have normalized.
         var samplesDone = 0;
 
-        for(var i = 0; i < x; i++) {
+        for (var i = 0; i < x; i++) {
           // For every possible number of successes up to that observed...
 
-          while(scaledCDF > 1 && samplesDone < n) {
+          while (scaledCDF > 1 && samplesDone < n) {
             // Intermediate result is growing too big. Apply some of the
             // normalization to shrink everything.
 
-            var factor = 1 - (m / (N - samplesDone));
+            var factor = 1 - m / (N - samplesDone);
 
             scaledPDF *= factor;
             scaledCDF *= factor;
@@ -13693,34 +13323,32 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
           // Work out the partially-normalized hypergeometric PDF for the next
           // number of successes
-          scaledPDF *= (n - i) * (m - i) / ((i + 1) * (N - m - n + i + 1));
+          scaledPDF *= ((n - i) * (m - i)) / ((i + 1) * (N - m - n + i + 1));
 
           // Add to the CDF answer.
           scaledCDF += scaledPDF;
         }
 
-        for(; samplesDone < n; samplesDone++) {
+        for (; samplesDone < n; samplesDone++) {
           // Apply all the rest of the normalization
-          scaledCDF *= 1 - (m / (N - samplesDone));
+          scaledCDF *= 1 - m / (N - samplesDone);
         }
 
         // Bound answer sanely before returning.
         return Math.min(1, Math.max(0, scaledCDF));
       }
-    }
+    },
   });
-
-
 
   // extend uniform function with static methods
   jStat.extend(jStat.poisson, {
     pdf: function pdf(k, l) {
-      return Math.pow(l, k) * Math.exp(-l) / jStat.factorial(k);
+      return (Math.pow(l, k) * Math.exp(-l)) / jStat.factorial(k);
     },
 
     cdf: function cdf(x, l) {
       var sumarr = [],
-      k = 0;
+        k = 0;
       if (x < 0) return 0;
       for (; k <= x; k++) {
         sumarr.push(jStat.poisson.pdf(k, l));
@@ -13728,44 +13356,38 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return jStat.sum(sumarr);
     },
 
-    mean : function(l) {
+    mean: function (l) {
       return l;
     },
 
-    variance : function(l) {
+    variance: function (l) {
       return l;
     },
 
     sample: function sample(l) {
-      var p = 1, k = 0, L = Math.exp(-l);
+      var p = 1,
+        k = 0,
+        L = Math.exp(-l);
       do {
         k++;
         p *= Math.random();
       } while (p > L);
       return k - 1;
-    }
+    },
   });
 
   // extend triangular function with static methods
   jStat.extend(jStat.triangular, {
     pdf: function pdf(x, a, b, c) {
-      return (b <= a || c < a || c > b)
-        ? undefined
-        : (x < a || x > b)
-          ? 0
-          : (x <= c)
-            ? (2 * (x - a)) / ((b - a) * (c - a))
-            : (2 * (b - x)) / ((b - a) * (b - c));
+      return b <= a || c < a || c > b ? undefined : x < a || x > b ? 0 : x <= c ? (2 * (x - a)) / ((b - a) * (c - a)) : (2 * (b - x)) / ((b - a) * (b - c));
     },
 
     cdf: function cdf(x, a, b, c) {
-      if (b <= a || c < a || c > b)
-        return undefined;
+      if (b <= a || c < a || c > b) return undefined;
       if (x < a) {
         return 0;
       } else {
-        if (x <= c)
-          return Math.pow(x - a, 2) / ((b - a) * (c - a));
+        if (x <= c) return Math.pow(x - a, 2) / ((b - a) * (c - a));
         return 1 - Math.pow(b - x, 2) / ((b - a) * (b - c));
       }
       // never reach this
@@ -13790,118 +13412,128 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     sample: function sample(a, b, c) {
       var u = Math.random();
-      if (u < ((c - a) / (b - a)))
-        return a + Math.sqrt(u * (b - a) * (c - a))
+      if (u < (c - a) / (b - a)) return a + Math.sqrt(u * (b - a) * (c - a));
       return b - Math.sqrt((1 - u) * (b - a) * (b - c));
     },
 
     variance: function variance(a, b, c) {
       return (a * a + b * b + c * c - a * b - a * c - b * c) / 18;
-    }
+    },
   });
+})(this.jStat, Math);
+/* Provides functions for the solution of linear system of equations, integration, extrapolation,
+ * interpolation, eigenvalue problems, differential equations and PCA analysis. */
 
-  }(this.jStat, Math));
-  /* Provides functions for the solution of linear system of equations, integration, extrapolation,
-   * interpolation, eigenvalue problems, differential equations and PCA analysis. */
-
-  (function(jStat, Math) {
-
+(function (jStat, Math) {
   var push = Array.prototype.push;
   var isArray = jStat.utils.isArray;
 
   jStat.extend({
-
     // add a vector/matrix to a vector/matrix or scalar
     add: function add(arr, arg) {
       // check if arg is a vector or scalar
       if (isArray(arg)) {
-        if (!isArray(arg[0])) arg = [ arg ];
-        return jStat.map(arr, function(value, row, col) {
+        if (!isArray(arg[0])) arg = [arg];
+        return jStat.map(arr, function (value, row, col) {
           return value + arg[row][col];
         });
       }
-      return jStat.map(arr, function(value) { return value + arg; });
+      return jStat.map(arr, function (value) {
+        return value + arg;
+      });
     },
 
     // subtract a vector or scalar from the vector
     subtract: function subtract(arr, arg) {
       // check if arg is a vector or scalar
       if (isArray(arg)) {
-        if (!isArray(arg[0])) arg = [ arg ];
-        return jStat.map(arr, function(value, row, col) {
+        if (!isArray(arg[0])) arg = [arg];
+        return jStat.map(arr, function (value, row, col) {
           return value - arg[row][col] || 0;
         });
       }
-      return jStat.map(arr, function(value) { return value - arg; });
+      return jStat.map(arr, function (value) {
+        return value - arg;
+      });
     },
 
     // matrix division
     divide: function divide(arr, arg) {
       if (isArray(arg)) {
-        if (!isArray(arg[0])) arg = [ arg ];
+        if (!isArray(arg[0])) arg = [arg];
         return jStat.multiply(arr, jStat.inv(arg));
       }
-      return jStat.map(arr, function(value) { return value / arg; });
+      return jStat.map(arr, function (value) {
+        return value / arg;
+      });
     },
 
     // matrix multiplication
     multiply: function multiply(arr, arg) {
-      var row, col, nrescols, sum,
-      nrow = arr.length,
-      ncol = arr[0].length,
-      res = jStat.zeros(nrow, nrescols = (isArray(arg)) ? arg[0].length : ncol),
-      rescols = 0;
+      var row,
+        col,
+        nrescols,
+        sum,
+        nrow = arr.length,
+        ncol = arr[0].length,
+        res = jStat.zeros(nrow, (nrescols = isArray(arg) ? arg[0].length : ncol)),
+        rescols = 0;
       if (isArray(arg)) {
         for (; rescols < nrescols; rescols++) {
           for (row = 0; row < nrow; row++) {
             sum = 0;
-            for (col = 0; col < ncol; col++)
-            sum += arr[row][col] * arg[col][rescols];
+            for (col = 0; col < ncol; col++) sum += arr[row][col] * arg[col][rescols];
             res[row][rescols] = sum;
           }
         }
-        return (nrow === 1 && rescols === 1) ? res[0][0] : res;
+        return nrow === 1 && rescols === 1 ? res[0][0] : res;
       }
-      return jStat.map(arr, function(value) { return value * arg; });
+      return jStat.map(arr, function (value) {
+        return value * arg;
+      });
     },
 
     // Returns the dot product of two matricies
     dot: function dot(arr, arg) {
-      if (!isArray(arr[0])) arr = [ arr ];
-      if (!isArray(arg[0])) arg = [ arg ];
+      if (!isArray(arr[0])) arr = [arr];
+      if (!isArray(arg[0])) arg = [arg];
       // convert column to row vector
-      var left = (arr[0].length === 1 && arr.length !== 1) ? jStat.transpose(arr) : arr,
-      right = (arg[0].length === 1 && arg.length !== 1) ? jStat.transpose(arg) : arg,
-      res = [],
-      row = 0,
-      nrow = left.length,
-      ncol = left[0].length,
-      sum, col;
+      var left = arr[0].length === 1 && arr.length !== 1 ? jStat.transpose(arr) : arr,
+        right = arg[0].length === 1 && arg.length !== 1 ? jStat.transpose(arg) : arg,
+        res = [],
+        row = 0,
+        nrow = left.length,
+        ncol = left[0].length,
+        sum,
+        col;
       for (; row < nrow; row++) {
         res[row] = [];
         sum = 0;
-        for (col = 0; col < ncol; col++)
-        sum += left[row][col] * right[row][col];
+        for (col = 0; col < ncol; col++) sum += left[row][col] * right[row][col];
         res[row] = sum;
       }
-      return (res.length === 1) ? res[0] : res;
+      return res.length === 1 ? res[0] : res;
     },
 
     // raise every element by a scalar
     pow: function pow(arr, arg) {
-      return jStat.map(arr, function(value) { return Math.pow(value, arg); });
+      return jStat.map(arr, function (value) {
+        return Math.pow(value, arg);
+      });
     },
 
     // generate the absolute values of the vector
     abs: function abs(arr) {
-      return jStat.map(arr, function(value) { return Math.abs(value); });
+      return jStat.map(arr, function (value) {
+        return Math.abs(value);
+      });
     },
 
     // TODO: make compatible with matrices
     // computes the p-norm of the vector
     norm: function norm(arr, p) {
       var nnorm = 0,
-      i = 0;
+        i = 0;
       // check the p-value of the norm, and set for most common case
       if (isNaN(p)) p = 2;
       // check if multi-dimensional array, and make vector correction
@@ -13922,7 +13554,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // augment one matrix by another
     aug: function aug(a, b) {
       var newarr = a.slice(),
-      i = 0;
+        i = 0;
       for (; i < newarr.length; i++) {
         push.apply(newarr[i], b[i]);
       }
@@ -13931,16 +13563,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     inv: function inv(a) {
       var rows = a.length,
-      cols = a[0].length,
-      b = jStat.identity(rows, cols),
-      c = jStat.gauss_jordan(a, b),
-      obj = [],
-      i = 0,
-      j;
+        cols = a[0].length,
+        b = jStat.identity(rows, cols),
+        c = jStat.gauss_jordan(a, b),
+        obj = [],
+        i = 0,
+        j;
       for (; i < rows; i++) {
         obj[i] = [];
-        for (j = cols - 1; j < c[0].length; j++)
-        obj[i][j - cols] = c[i][j];
+        for (j = cols - 1; j < c[0].length; j++) obj[i][j - cols] = c[i][j];
       }
       return obj;
     },
@@ -13948,15 +13579,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // calculate the determinant of a matrix
     det: function det(a) {
       var alen = a.length,
-      alend = alen * 2,
-      vals = new Array(alend),
-      rowshift = alen - 1,
-      colshift = alend - 1,
-      mrow = rowshift - alen + 1,
-      mcol = colshift,
-      i = 0,
-      result = 0,
-      j;
+        alend = alen * 2,
+        vals = new Array(alend),
+        rowshift = alen - 1,
+        colshift = alend - 1,
+        mrow = rowshift - alen + 1,
+        mcol = colshift,
+        i = 0,
+        result = 0,
+        j;
       // check for special 2x2 case
       if (alen === 2) {
         return a[0][0] * a[1][1] - a[0][1] * a[1][0];
@@ -13966,8 +13597,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
       for (i = 0; i < alen; i++) {
         for (j = 0; j < alen; j++) {
-          vals[(mrow < 0) ? mrow + alen : mrow ] *= a[i][j];
-          vals[(mcol < alen) ? mcol + alen : mcol ] *= a[i][j];
+          vals[mrow < 0 ? mrow + alen : mrow] *= a[i][j];
+          vals[mcol < alen ? mcol + alen : mcol] *= a[i][j];
           mrow++;
           mcol--;
         }
@@ -13985,16 +13616,19 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     gauss_elimination: function gauss_elimination(a, b) {
       var i = 0,
-      j = 0,
-      n = a.length,
-      m = a[0].length,
-      factor = 1,
-      sum = 0,
-      x = [],
-      maug, pivot, temp, k;
+        j = 0,
+        n = a.length,
+        m = a[0].length,
+        factor = 1,
+        sum = 0,
+        x = [],
+        maug,
+        pivot,
+        temp,
+        k;
       a = jStat.aug(a, b);
       maug = a[0].length;
-      for(; i < n; i++) {
+      for (; i < n; i++) {
         pivot = a[i][i];
         j = i;
         for (k = i + 1; k < m; k++) {
@@ -14004,7 +13638,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
           }
         }
         if (j != i) {
-          for(k = 0; k < maug; k++) {
+          for (k = 0; k < maug; k++) {
             temp = a[i][k];
             a[i][k] = a[j][k];
             a[j][k] = temp;
@@ -14012,36 +13646,35 @@ this.j$ = this.jStat = (function(Math, undefined) {
         }
         for (j = i + 1; j < n; j++) {
           factor = a[j][i] / a[i][i];
-          for(k = i; k < maug; k++) {
+          for (k = i; k < maug; k++) {
             a[j][k] = a[j][k] - factor * a[i][k];
           }
         }
       }
       for (i = n - 1; i >= 0; i--) {
         sum = 0;
-        for (j = i + 1; j<= n - 1; j++) {
+        for (j = i + 1; j <= n - 1; j++) {
           sum = x[j] * a[i][j];
         }
-        x[i] =(a[i][maug - 1] - sum) / a[i][i];
+        x[i] = (a[i][maug - 1] - sum) / a[i][i];
       }
       return x;
     },
 
     gauss_jordan: function gauss_jordan(a, b) {
       var m = jStat.aug(a, b),
-      h = m.length,
-      w = m[0].length;
+        h = m.length,
+        w = m[0].length;
       // find max pivot
       for (var y = 0; y < h; y++) {
         var maxrow = y;
-        for (var y2 = y+1; y2 < h; y2++) {
-          if (Math.abs(m[y2][y]) > Math.abs(m[maxrow][y]))
-            maxrow = y2;
+        for (var y2 = y + 1; y2 < h; y2++) {
+          if (Math.abs(m[y2][y]) > Math.abs(m[maxrow][y])) maxrow = y2;
         }
         var tmp = m[y];
         m[y] = m[maxrow];
-        m[maxrow] = tmp
-        for (var y2 = y+1; y2 < h; y2++) {
+        m[maxrow] = tmp;
+        for (var y2 = y + 1; y2 < h; y2++) {
           c = m[y2][y] / m[y][y];
           for (var x = y; x < w; x++) {
             m[y2][x] -= m[y][x] * c;
@@ -14049,11 +13682,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
         }
       }
       // backsubstitute
-      for (var y = h-1; y >= 0; y--) {
+      for (var y = h - 1; y >= 0; y--) {
         c = m[y][y];
         for (var y2 = 0; y2 < y; y2++) {
-          for (var x = w-1; x > y-1; x--) {
-            m[y2][x] -= m[y][x] * m[y2][y] / c;
+          for (var x = w - 1; x > y - 1; x--) {
+            m[y2][x] -= (m[y][x] * m[y2][y]) / c;
           }
         }
         m[y][y] /= c;
@@ -14102,7 +13735,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       xv = x;
       xk = jStat.add(jStat.multiply(h, x), c);
       i = 2;
-      while (Math.abs(jStat.norm(jStat.subtract(xk,xv))) > r) {
+      while (Math.abs(jStat.norm(jStat.subtract(xk, xv))) > r) {
         xv = xk;
         xk = jStat.add(jStat.multiply(h, xv), c);
         i++;
@@ -14171,11 +13804,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
           }
         }
       }
-      h = jStat.multiply(jStat.inv(jStat.add(d, jStat.multiply(l, w))),
-                         jStat.subtract(jStat.multiply(d, 1 - w),
-                                        jStat.multiply(u, w)));
-      c = jStat.multiply(jStat.multiply(jStat.inv(jStat.add(d,
-          jStat.multiply(l, w))), b), w);
+      h = jStat.multiply(jStat.inv(jStat.add(d, jStat.multiply(l, w))), jStat.subtract(jStat.multiply(d, 1 - w), jStat.multiply(u, w)));
+      c = jStat.multiply(jStat.multiply(jStat.inv(jStat.add(d, jStat.multiply(l, w))), b), w);
       xv = x;
       xk = jStat.add(jStat.multiply(h, x), c);
       i = 2;
@@ -14196,16 +13826,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var alpha, r, k, j, factor;
       for (; i < m - 1; i++) {
         alpha = 0;
-        for (j = i + 1; j < n; j++)
-        alpha += (a[j][i] * a[j][i]);
-        factor = (a[i + 1][i] > 0) ? -1 : 1;
+        for (j = i + 1; j < n; j++) alpha += a[j][i] * a[j][i];
+        factor = a[i + 1][i] > 0 ? -1 : 1;
         alpha = factor * Math.sqrt(alpha);
-        r = Math.sqrt((((alpha * alpha) - a[i + 1][i] * alpha) / 2));
+        r = Math.sqrt((alpha * alpha - a[i + 1][i] * alpha) / 2);
         w = jStat.zeros(m, 1);
         w[i + 1][0] = (a[i + 1][i] - alpha) / (2 * r);
         for (k = i + 2; k < m; k++) w[k][0] = a[k][i] / (2 * r);
-        p = jStat.subtract(jStat.identity(m, n),
-            jStat.multiply(jStat.multiply(w, jStat.transpose(w)), 2));
+        p = jStat.subtract(jStat.identity(m, n), jStat.multiply(jStat.multiply(w, jStat.transpose(w)), 2));
         a = jStat.multiply(p, jStat.multiply(a, p));
       }
       return a;
@@ -14222,24 +13850,20 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var j, alpha, r, k, factor, sum;
       for (; i < m - 1; i++) {
         alpha = 0;
-        for (j = i + 1; j < n; j++)
-          alpha += (a[j][i] * a[j][i]);
-        factor = (a[i + 1][i] > 0) ? -1 : 1;
+        for (j = i + 1; j < n; j++) alpha += a[j][i] * a[j][i];
+        factor = a[i + 1][i] > 0 ? -1 : 1;
         alpha = factor * Math.sqrt(alpha);
-        r = Math.sqrt((((alpha * alpha) - a[i + 1][i] * alpha) / 2));
+        r = Math.sqrt((alpha * alpha - a[i + 1][i] * alpha) / 2);
         w = jStat.zeros(m, 1);
         w[i + 1][0] = (a[i + 1][i] - alpha) / (2 * r);
-        for (k = i + 2; k < m; k++)
-          w[k][0] = a[k][i] / (2 * r);
-        p = jStat.subtract(jStat.identity(m, n),
-            jStat.multiply(jStat.multiply(w, jStat.transpose(w)), 2));
+        for (k = i + 2; k < m; k++) w[k][0] = a[k][i] / (2 * r);
+        p = jStat.subtract(jStat.identity(m, n), jStat.multiply(jStat.multiply(w, jStat.transpose(w)), 2));
         a = jStat.multiply(p, a);
         b = jStat.multiply(p, b);
       }
       for (i = m - 1; i >= 0; i--) {
         sum = 0;
-        for (j = i + 1; j <= n - 1; j++)
-        sum = x[j] * a[i][j];
+        for (j = i + 1; j <= n - 1; j++) sum = x[j] * a[i][j];
         x[i] = b[i][0] / a[i][i];
       }
       return x;
@@ -14269,10 +13893,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
             }
           }
         }
-        if (a[p][p] === a[q][q])
-          theta = (a[p][q] > 0) ? Math.PI / 4 : -Math.PI / 4;
-        else
-          theta = Math.atan(2 * a[p][q] / (a[p][p] - a[q][q])) / 2;
+        if (a[p][p] === a[q][q]) theta = a[p][q] > 0 ? Math.PI / 4 : -Math.PI / 4;
+        else theta = Math.atan((2 * a[p][q]) / (a[p][p] - a[q][q])) / 2;
         s = jStat.identity(n, n);
         s[p][p] = Math.cos(theta);
         s[p][q] = -Math.sin(theta);
@@ -14312,7 +13934,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
           k1 = h * f(t_j, u_j);
           k2 = h * f(t_j + h / 2, u_j + k1 / 2);
           k3 = h * f(t_j + h / 2, u_j + k2 / 2);
-          k4 = h * f(t_j +h, u_j + k3);
+          k4 = h * f(t_j + h, u_j + k3);
           u_j1 = u_j + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
           u_j = u_j1;
           t_j = t_j + h;
@@ -14333,7 +13955,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         for (j = a, k = 0; j <= b; j = j + h, k++) x[k] = j;
         m = x.length;
         for (j = 1; j < m - 1; j++) {
-          I += (((j % 2) !== 0) ? 4 : 2) * f(x[j]);
+          I += (j % 2 !== 0 ? 4 : 2) * f(x[j]);
         }
         I = (h / 3) * (I + f(b));
         g[i] = I;
@@ -14343,8 +13965,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       a1 = g.length;
       m = 1;
       while (a1 !== 1) {
-        for (j = 0; j < a1 - 1; j++)
-        h1[j] = ((Math.pow(4, m)) * g[j + 1] - g[j]) / (Math.pow(4, m) - 1);
+        for (j = 0; j < a1 - 1; j++) h1[j] = (Math.pow(4, m) * g[j + 1] - g[j]) / (Math.pow(4, m) - 1);
         a1 = h1.length;
         g = h1;
         h1 = [];
@@ -14358,16 +13979,19 @@ this.j$ = this.jStat = (function(Math, undefined) {
         var i = 0;
         var n = X.length;
         var p;
-        for (; i < n; i++)
-          if (X[i] === x) p = i;
+        for (; i < n; i++) if (X[i] === x) p = i;
         return p;
       }
       var n = X.length,
-      h_min = Math.abs(x - X[pos(X, x) + 1]),
-      i = 0,
-      g = [],
-      h1 = [],
-      y1, y2, m, a, j;
+        h_min = Math.abs(x - X[pos(X, x) + 1]),
+        i = 0,
+        g = [],
+        h1 = [],
+        y1,
+        y2,
+        m,
+        a,
+        j;
       while (h >= h_min) {
         y1 = pos(X, x + h);
         y2 = pos(X, x);
@@ -14378,8 +14002,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       a = g.length;
       m = 1;
       while (a != 1) {
-        for (j = 0; j < a - 1; j++)
-        h1[j] = ((Math.pow(4, m)) * g[j + 1] - g[j]) / (Math.pow(4, m) - 1);
+        for (j = 0; j < a - 1; j++) h1[j] = (Math.pow(4, m) * g[j + 1] - g[j]) / (Math.pow(4, m) - 1);
         a = h1.length;
         g = h1;
         h1 = [];
@@ -14396,11 +14019,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var k = 0;
       var i = 1;
       var m;
-      for (; j <= b; j = j + h, k++)
-        x[k] = j;
+      for (; j <= b; j = j + h, k++) x[k] = j;
       m = x.length;
       for (; i < m - 1; i++) {
-        I += ((i % 2 !== 0) ? 4 : 2) * f(x[i]);
+        I += (i % 2 !== 0 ? 4 : 2) * f(x[i]);
       }
       return (h / 3) * (I + f(b));
     },
@@ -14421,11 +14043,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
         }
         dl[i] = 0;
         for (j = 0; j < n; j++) {
-          if (i != j) dl[i] += 1 / (X [i] - X[j]);
+          if (i != j) dl[i] += 1 / (X[i] - X[j]);
         }
         A[i] = (1 - 2 * (value - X[i]) * dl[i]) * (l[i] * l[i]);
         B[i] = (value - X[i]) * (l[i] * l[i]);
-        p += (A[i] * F[i] + B[i] * dF[i]);
+        p += A[i] * F[i] + B[i] * dF[i];
       }
       return p;
     },
@@ -14449,7 +14071,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     cubic_spline: function cubic_spline(X, F, value) {
       var n = X.length;
-      var i = 0, j;
+      var i = 0,
+        j;
       var A = [];
       var B = [];
       var alpha = [];
@@ -14457,32 +14080,29 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var h = [];
       var b = [];
       var d = [];
-      for (; i < n - 1; i++)
-        h[i] = X[i + 1] - X[i];
+      for (; i < n - 1; i++) h[i] = X[i + 1] - X[i];
       alpha[0] = 0;
       for (i = 1; i < n - 1; i++) {
-        alpha[i] = (3 / h[i]) * (F[i + 1] - F[i]) -
-            (3 / h[i-1]) * (F[i] - F[i-1]);
+        alpha[i] = (3 / h[i]) * (F[i + 1] - F[i]) - (3 / h[i - 1]) * (F[i] - F[i - 1]);
       }
       for (i = 1; i < n - 1; i++) {
         A[i] = [];
         B[i] = [];
-        A[i][i-1] = h[i-1];
+        A[i][i - 1] = h[i - 1];
         A[i][i] = 2 * (h[i - 1] + h[i]);
-        A[i][i+1] = h[i];
+        A[i][i + 1] = h[i];
         B[i][0] = alpha[i];
       }
       c = jStat.multiply(jStat.inv(A), B);
       for (j = 0; j < n - 1; j++) {
-        b[j] = (F[j + 1] - F[j]) / h[j] - h[j] * (c[j + 1][0] + 2 * c[j][0]) / 3;
+        b[j] = (F[j + 1] - F[j]) / h[j] - (h[j] * (c[j + 1][0] + 2 * c[j][0])) / 3;
         d[j] = (c[j + 1][0] - c[j][0]) / (3 * h[j]);
       }
       for (j = 0; j < n; j++) {
         if (X[j] > value) break;
       }
       j -= 1;
-      return F[j] + (value - X[j]) * b[j] + jStat.sq(value-X[j]) *
-          c[j] + (value - X[j]) * jStat.sq(value - X[j]) * d[j];
+      return F[j] + (value - X[j]) * b[j] + jStat.sq(value - X[j]) * c[j] + (value - X[j]) * jStat.sq(value - X[j]) * d[j];
     },
 
     gauss_quadrature: function gauss_quadrature() {
@@ -14510,7 +14130,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
       for (i = 0; i < n; i++) {
         B[i] = [];
-        for(j = 0; j < m; j++) {
+        for (j = 0; j < m; j++) {
           B[i][j] = X[j][i] - u[j];
         }
       }
@@ -14518,7 +14138,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (i = 0; i < m; i++) {
         C[i] = [];
         for (j = 0; j < m; j++) {
-          C[i][j] = (jStat.dot([B[i]], [B[j]])) / (n - 1);
+          C[i][j] = jStat.dot([B[i]], [B[j]]) / (n - 1);
         }
       }
       result = jStat.jacobi(C);
@@ -14527,7 +14147,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       Vt = jStat.transpose(V);
       for (i = 0; i < D.length; i++) {
         for (j = i; j < D.length; j++) {
-          if(D[i] < D[j])  {
+          if (D[i] < D[j]) {
             temp1 = D[i];
             D[i] = D[j];
             D[j] = temp1;
@@ -14545,29 +14165,28 @@ this.j$ = this.jStat = (function(Math, undefined) {
         }
       }
       return [X, D, Vt, Y];
-    }
+    },
   });
 
   // extend jStat.fn with methods that require one argument
-  (function(funcs) {
-    for (var i = 0; i < funcs.length; i++) (function(passfunc) {
-      jStat.fn[passfunc] = function(arg, func) {
-        var tmpthis = this;
-        // check for callback
-        if (func) {
-          setTimeout(function() {
-            func.call(tmpthis, jStat.fn[passfunc].call(tmpthis, arg));
-          }, 15);
-          return this;
-        }
-        return jStat(jStat[passfunc](this, arg));
-      };
-    }(funcs[i]));
-  }('add divide multiply subtract dot pow abs norm angle'.split(' ')));
-
-  }(this.jStat, Math));
-  (function(jStat, Math) {
-
+  (function (funcs) {
+    for (var i = 0; i < funcs.length; i++)
+      (function (passfunc) {
+        jStat.fn[passfunc] = function (arg, func) {
+          var tmpthis = this;
+          // check for callback
+          if (func) {
+            setTimeout(function () {
+              func.call(tmpthis, jStat.fn[passfunc].call(tmpthis, arg));
+            }, 15);
+            return this;
+          }
+          return jStat(jStat[passfunc](this, arg));
+        };
+      })(funcs[i]);
+  })('add divide multiply subtract dot pow abs norm angle'.split(' '));
+})(this.jStat, Math);
+(function (jStat, Math) {
   var slice = [].slice;
   var isNumber = jStat.utils.isNumber;
 
@@ -14592,22 +14211,16 @@ this.j$ = this.jStat = (function(Math, undefined) {
     ztest: function ztest() {
       var args = slice.call(arguments);
       if (args.length === 4) {
-        if(isNumber(args[1])) {
-          var z = jStat.zscore(args[0],args[1],args[2])
-          return (args[3] === 1) ?
-            (jStat.normal.cdf(-Math.abs(z),0,1)) :
-            (jStat.normal.cdf(-Math.abs(z),0,1)* 2);
+        if (isNumber(args[1])) {
+          var z = jStat.zscore(args[0], args[1], args[2]);
+          return args[3] === 1 ? jStat.normal.cdf(-Math.abs(z), 0, 1) : jStat.normal.cdf(-Math.abs(z), 0, 1) * 2;
         }
-        var z = args[0]
-        return (args[2] === 1) ?
-          (jStat.normal.cdf(-Math.abs(z),0,1)) :
-          (jStat.normal.cdf(-Math.abs(z),0,1)*2);
+        var z = args[0];
+        return args[2] === 1 ? jStat.normal.cdf(-Math.abs(z), 0, 1) : jStat.normal.cdf(-Math.abs(z), 0, 1) * 2;
       }
-      var z = jStat.zscore(args[0],args[1],args[3])
-      return (args[1] === 1) ?
-        (jStat.normal.cdf(-Math.abs(z), 0, 1)) :
-        (jStat.normal.cdf(-Math.abs(z), 0, 1)*2);
-    }
+      var z = jStat.zscore(args[0], args[1], args[3]);
+      return args[1] === 1 ? jStat.normal.cdf(-Math.abs(z), 0, 1) : jStat.normal.cdf(-Math.abs(z), 0, 1) * 2;
+    },
   });
 
   jStat.extend(jStat.fn, {
@@ -14617,10 +14230,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     ztest: function ztest(value, sides, flag) {
       var zscore = Math.abs(this.zscore(value, flag));
-      return (sides === 1) ?
-        (jStat.normal.cdf(-zscore, 0, 1)) :
-        (jStat.normal.cdf(-zscore, 0, 1) * 2);
-    }
+      return sides === 1 ? jStat.normal.cdf(-zscore, 0, 1) : jStat.normal.cdf(-zscore, 0, 1) * 2;
+    },
   });
 
   // T Statistics
@@ -14630,10 +14241,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // (value, array)
     tscore: function tscore() {
       var args = slice.call(arguments);
-      return (args.length === 4) ?
-        ((args[0] - args[1]) / (args[2] / Math.sqrt(args[3]))) :
-        ((args[0] - jStat.mean(args[1])) /
-         (jStat.stdev(args[1], true) / Math.sqrt(args[1].length)));
+      return args.length === 4 ? (args[0] - args[1]) / (args[2] / Math.sqrt(args[3])) : (args[0] - jStat.mean(args[1])) / (jStat.stdev(args[1], true) / Math.sqrt(args[1].length));
     },
 
     // 3 different paramter lists:
@@ -14645,21 +14253,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var tscore;
       if (args.length === 5) {
         tscore = Math.abs(jStat.tscore(args[0], args[1], args[2], args[3]));
-        return (args[4] === 1) ?
-          (jStat.studentt.cdf(-tscore, args[3]-1)) :
-          (jStat.studentt.cdf(-tscore, args[3]-1)*2);
+        return args[4] === 1 ? jStat.studentt.cdf(-tscore, args[3] - 1) : jStat.studentt.cdf(-tscore, args[3] - 1) * 2;
       }
       if (isNumber(args[1])) {
-        tscore = Math.abs(args[0])
-        return (args[2] == 1) ?
-          (jStat.studentt.cdf(-tscore, args[1]-1)) :
-          (jStat.studentt.cdf(-tscore, args[1]-1) * 2);
+        tscore = Math.abs(args[0]);
+        return args[2] == 1 ? jStat.studentt.cdf(-tscore, args[1] - 1) : jStat.studentt.cdf(-tscore, args[1] - 1) * 2;
       }
-      tscore = Math.abs(jStat.tscore(args[0], args[1]))
-      return (args[2] == 1) ?
-        (jStat.studentt.cdf(-tscore, args[1].length-1)) :
-        (jStat.studentt.cdf(-tscore, args[1].length-1) * 2);
-    }
+      tscore = Math.abs(jStat.tscore(args[0], args[1]));
+      return args[2] == 1 ? jStat.studentt.cdf(-tscore, args[1].length - 1) : jStat.studentt.cdf(-tscore, args[1].length - 1) * 2;
+    },
   });
 
   jStat.extend(jStat.fn, {
@@ -14668,10 +14270,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
     },
 
     ttest: function ttest(value, sides) {
-      return (sides === 1) ?
-        (1 - jStat.studentt.cdf(Math.abs(this.tscore(value)), this.cols()-1)) :
-        (jStat.studentt.cdf(-Math.abs(this.tscore(value)), this.cols()-1)*2);
-    }
+      return sides === 1 ? 1 - jStat.studentt.cdf(Math.abs(this.tscore(value)), this.cols() - 1) : jStat.studentt.cdf(-Math.abs(this.tscore(value)), this.cols() - 1) * 2;
+    },
   });
 
   // F Statistics
@@ -14682,7 +14282,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // array of arrays conversion
     anovafscore: function anovafscore() {
       var args = slice.call(arguments),
-      expVar, sample, sampMean, sampSampMean, tmpargs, unexpVar, i, j;
+        expVar,
+        sample,
+        sampMean,
+        sampSampMean,
+        tmpargs,
+        unexpVar,
+        i,
+        j;
       if (args.length === 1) {
         tmpargs = new Array(args[0].length);
         for (i = 0; i < args[0].length; i++) {
@@ -14705,7 +14312,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (i = 0; i < args.length; i++) {
         expVar = expVar + args[i].length * Math.pow(jStat.mean(args[i]) - sampMean, 2);
       }
-      expVar /= (args.length - 1);
+      expVar /= args.length - 1;
       // Computes unexplained variance
       unexpVar = 0;
       for (i = 0; i < args.length; i++) {
@@ -14714,7 +14321,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
           unexpVar += Math.pow(args[i][j] - sampSampMean, 2);
         }
       }
-      unexpVar /= (sample.length - args.length);
+      unexpVar /= sample.length - args.length;
       return expVar / unexpVar;
     },
 
@@ -14723,7 +14330,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // (anovafscore, df1, df2)
     anovaftest: function anovaftest() {
       var args = slice.call(arguments),
-      df1, df2, n, i;
+        df1,
+        df2,
+        n,
+        i;
       if (isNumber(args[0])) {
         return 1 - jStat.centralF.cdf(args[0], args[1], args[2]);
       }
@@ -14739,7 +14349,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     ftest: function ftest(fscore, df1, df2) {
       return 1 - jStat.centralF.cdf(fscore, df1, df2);
-    }
+    },
   });
 
   jStat.extend(jStat.fn, {
@@ -14754,7 +14364,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         n = n + this[i].length;
       }
       return jStat.ftest(this.anovafscore(), this.length - 1, n - this.length);
-    }
+    },
   });
 
   // Error Bounds
@@ -14764,14 +14374,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // (value, alpha, array)
     normalci: function normalci() {
       var args = slice.call(arguments),
-      ans = new Array(2),
-      change;
+        ans = new Array(2),
+        change;
       if (args.length === 4) {
-        change = Math.abs(jStat.normal.inv(args[1] / 2, 0, 1) *
-                          args[2] / Math.sqrt(args[3]));
+        change = Math.abs((jStat.normal.inv(args[1] / 2, 0, 1) * args[2]) / Math.sqrt(args[3]));
       } else {
-        change = Math.abs(jStat.normal.inv(args[1] / 2, 0, 1) *
-                          jStat.stdev(args[2]) / Math.sqrt(args[2].length));
+        change = Math.abs((jStat.normal.inv(args[1] / 2, 0, 1) * jStat.stdev(args[2])) / Math.sqrt(args[2].length));
       }
       ans[0] = args[0] - change;
       ans[1] = args[0] + change;
@@ -14783,14 +14391,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
     // (value, alpha, array)
     tci: function tci() {
       var args = slice.call(arguments),
-      ans = new Array(2),
-      change;
+        ans = new Array(2),
+        change;
       if (args.length === 4) {
-        change = Math.abs(jStat.studentt.inv(args[1] / 2, args[3] - 1) *
-                          args[2] / Math.sqrt(args[3]));
+        change = Math.abs((jStat.studentt.inv(args[1] / 2, args[3] - 1) * args[2]) / Math.sqrt(args[3]));
       } else {
-        change = Math.abs(jStat.studentt.inv(args[1] / 2, args[2].length - 1) *
-                          jStat.stdev(args[2], true) / Math.sqrt(args[2].length));
+        change = Math.abs((jStat.studentt.inv(args[1] / 2, args[2].length - 1) * jStat.stdev(args[2], true)) / Math.sqrt(args[2].length));
       }
       ans[0] = args[0] - change;
       ans[1] = args[0] + change;
@@ -14799,7 +14405,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     significant: function significant(pvalue, alpha) {
       return pvalue < alpha;
-    }
+    },
   });
 
   jStat.extend(jStat.fn, {
@@ -14809,9 +14415,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     tci: function tci(value, alpha) {
       return jStat.tci(value, alpha, this.toArray());
-    }
+    },
   });
-}(this.jStat, Math));
+})(this.jStat, Math);
 
 // Copyright (c) 2012 Sutoiku, Inc.
 
@@ -14849,7 +14455,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 (function () {
   var root = this;
 
-  var Formula = root.Formula = {};
+  var Formula = (root.Formula = {});
   var _ = root._;
   var numeral = root.numeral;
   var jStat = root.jStat;
@@ -14858,21 +14464,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
   var md5 = root.md5;
   var _s = _.str;
 
-  if (typeof exports !== "undefined") {
-    module.exports = exportModule(
-      require('numeral'),
-      require('jStat'),
-      require('moment'),
-      require('lodash'),
-      require('underscore.string'),
-      require('blueimp-md5')
-    );
-  } else if (typeof define === "function" && define.amd) {
-    define(
-      'formula',
-      ['numeral', 'jstat', 'moment', 'lodash', 'underscore.string', 'md5'],
-      exportModule
-    );
+  if (typeof exports !== 'undefined') {
+    module.exports = exportModule(require('numeral'), require('jStat'), require('moment'), require('lodash'), require('underscore.string'), require('blueimp-md5'));
+  } else if (typeof define === 'function' && define.amd) {
+    define('formula', ['numeral', 'jstat', 'moment', 'lodash', 'underscore.string', 'md5'], exportModule);
   } else {
     Formula = exportModule(numeral, jStat, moment, lodash, _s, md5);
     return Formula;
@@ -14883,69 +14478,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     var SQRT2PI = 2.5066282746310002;
 
-    var WEEK_STARTS = [
-      undefined,
-      0,
-      1,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      0
-    ];
+    var WEEK_STARTS = [undefined, 0, 1, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 2, 3, 4, 5, 6, 0];
 
-    var WEEK_TYPES = [
-      [],
-      [1, 2, 3, 4, 5, 6, 7],
-      [7, 1, 2, 3, 4, 5, 6],
-      [6, 0, 1, 2, 3, 4, 5],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [7, 1, 2, 3, 4, 5, 6],
-      [6, 7, 1, 2, 3, 4, 5],
-      [5, 6, 7, 1, 2, 3, 4],
-      [4, 5, 6, 7, 1, 2, 3],
-      [3, 4, 5, 6, 7, 1, 2],
-      [2, 3, 4, 5, 6, 7, 1],
-      [1, 2, 3, 4, 5, 6, 7]
-    ];
+    var WEEK_TYPES = [[], [1, 2, 3, 4, 5, 6, 7], [7, 1, 2, 3, 4, 5, 6], [6, 0, 1, 2, 3, 4, 5], [], [], [], [], [], [], [], [7, 1, 2, 3, 4, 5, 6], [6, 7, 1, 2, 3, 4, 5], [5, 6, 7, 1, 2, 3, 4], [4, 5, 6, 7, 1, 2, 3], [3, 4, 5, 6, 7, 1, 2], [2, 3, 4, 5, 6, 7, 1], [1, 2, 3, 4, 5, 6, 7]];
 
-    var WEEKEND_TYPES = [
-      [],
-      [6, 0],
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 5],
-      [5, 6],
-      undefined,
-      undefined,
-      undefined,
-      [0],
-      [1],
-      [2],
-      [3],
-      [4],
-      [5],
-      [6]
-    ];
+    var WEEKEND_TYPES = [[], [6, 0], [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], undefined, undefined, undefined, [0], [1], [2], [3], [4], [5], [6]];
 
     var simplifyArguments = function (arguments) {
       for (var prop in arguments) {
@@ -14965,10 +14502,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return _.flatten(arguments);
     };
 
-	Formula.FLATTENSINGLE = function (value) {
-		value = Formula.FLATTEN(value);
-		return value[0];
-	};
+    Formula.FLATTENSINGLE = function (value) {
+      value = Formula.FLATTEN(value);
+      return value[0];
+    };
 
     // Generate a callback function
     Formula.FUNCTION = function () {
@@ -14976,15 +14513,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var expression = args[args.length - 1];
       var regexp = /(\w+)\(/g;
       var newExpression = expression.replace(regexp, function () {
-        return "Formulae." + arguments[0];
+        return 'Formulae.' + arguments[0];
       });
 
-      args[args.length - 1] = "return " + newExpression + ";";
+      args[args.length - 1] = 'return ' + newExpression + ';';
       if (newExpression !== expression) {
         args.unshift('Formulae');
       }
 
-      return  Function.apply(null, args);
+      return Function.apply(null, args);
     };
 
     // Moment functions
@@ -15053,28 +14590,27 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.INTERVAL = function (second) {
-      var year  = Math.floor(second/946080000);
-      second    = second%946080000;
-      var month = Math.floor(second/2592000);
-      second    = second%2592000;
-      var day   = Math.floor(second/86400);
-      second    = second%86400;
+      var year = Math.floor(second / 946080000);
+      second = second % 946080000;
+      var month = Math.floor(second / 2592000);
+      second = second % 2592000;
+      var day = Math.floor(second / 86400);
+      second = second % 86400;
 
-      var hour  = Math.floor(second/3600);
-      second    = second%3600;
-      var min   = Math.floor(second/60);
-      second    = second%60;
-      var sec   = second;
+      var hour = Math.floor(second / 3600);
+      second = second % 3600;
+      var min = Math.floor(second / 60);
+      second = second % 60;
+      var sec = second;
 
-      year  = (year  > 0) ? year  + 'Y' : '';
-      month = (month > 0) ? month + 'M' : '';
-      day   = (day   > 0) ? day   + 'D' : '';
-      hour  = (hour  > 0) ? hour  + 'H' : '';
-      min   = (min   > 0) ? min   + 'M' : '';
-      sec   = (sec   > 0) ? sec   + 'S' : '';
+      year = year > 0 ? year + 'Y' : '';
+      month = month > 0 ? month + 'M' : '';
+      day = day > 0 ? day + 'D' : '';
+      hour = hour > 0 ? hour + 'H' : '';
+      min = min > 0 ? min + 'M' : '';
+      sec = sec > 0 ? sec + 'S' : '';
 
-      return 'P' + year + month + day +
-             'T' + hour + min + sec;
+      return 'P' + year + month + day + 'T' + hour + min + sec;
     };
 
     // Custom Functions
@@ -15105,7 +14641,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return result;
     };
 
-    Formula.FINDFIELD = function(database, title) {
+    Formula.FINDFIELD = function (database, title) {
       var index = null;
       for (var i = 0; i < database.length; i++) {
         if (database[i][0] === title) {
@@ -15121,7 +14657,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return index;
     };
 
-    Formula.FINDRESULTINDEX = function(database, criteria) {
+    Formula.FINDRESULTINDEX = function (database, criteria) {
       var maxCriteriaLength = criteria[0].length;
       for (var i = 1; i < criteria.length; i++) {
         if (criteria[i].length > maxCriteriaLength) {
@@ -15155,15 +14691,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     // Database functions
-    Formula.DAVERAGE = function(database, field, criteria) {
+    Formula.DAVERAGE = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
 
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15173,18 +14709,18 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (var i = 0; i < resultIndexes.length; i++) {
         sum += targetFields[resultIndexes[i]];
       }
-      var average = Formula.IF(resultIndexes.length === 0, "#DIV/0!", sum / resultIndexes.length);
+      var average = Formula.IF(resultIndexes.length === 0, '#DIV/0!', sum / resultIndexes.length);
       return average;
     };
 
-    Formula.DCOUNT = function(database, field, criteria) {
+    Formula.DCOUNT = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15197,14 +14733,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.COUNT(targetValues);
     };
 
-    Formula.DCOUNTA = function(database, field, criteria) {
+    Formula.DCOUNTA = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15217,14 +14753,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.COUNTA(targetValues);
     };
 
-    Formula.DGET = function(database, field, criteria) {
+    Formula.DGET = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15243,14 +14779,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return targetFields[resultIndexes[0]];
     };
 
-    Formula.DMAX = function(database, field, criteria) {
+    Formula.DMAX = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15265,14 +14801,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return maxValue;
     };
 
-    Formula.DMIN = function(database, field, criteria) {
+    Formula.DMIN = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15287,14 +14823,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return minValue;
     };
 
-    Formula.DPRODUCT = function(database, field, criteria) {
+    Formula.DPRODUCT = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15312,14 +14848,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return result;
     };
 
-    Formula.DSTDEV = function(database, field, criteria) {
+    Formula.DSTDEV = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15333,14 +14869,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.STDEVS(targetValues);
     };
 
-    Formula.DSTDEVP = function(database, field, criteria) {
+    Formula.DSTDEVP = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15354,14 +14890,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.STDEVP(targetValues);
     };
 
-    Formula.DSUM = function(database, field, criteria) {
+    Formula.DSUM = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15374,14 +14910,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.SUM(targetValues);
     };
 
-    Formula.DVAR = function(database, field, criteria) {
+    Formula.DVAR = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15394,14 +14930,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return Formula.VARS(targetValues);
     };
 
-    Formula.DVARP = function(database, field, criteria) {
+    Formula.DVARP = function (database, field, criteria) {
       // Return error if field is not a number and not a string
-      if (isNaN(field) && (typeof field !== "string")) {
+      if (isNaN(field) && typeof field !== 'string') {
         return '#VALUE!';
       }
       var resultIndexes = Formula.FINDRESULTINDEX(database, criteria);
       var targetFields = [];
-      if (typeof field === "string") {
+      if (typeof field === 'string') {
         var index = Formula.FINDFIELD(database, field);
         targetFields = _.rest(database[index]);
       } else {
@@ -15423,19 +14959,18 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
     };
 
-
     // Date functions
     Formula.DATE = function () {
-		var args = arguments;
+      var args = arguments;
 
-		if (!args.length) {
-			return moment().format(window.supsystic.Tables._dateFormat);
-		}
-		if (args.length === 3) {
-			args[1] = args[1] - 1; // Monthes are between 0 and 11.
-			return moment(new Date(args[0], args[1], args[2])).format(window.supsystic.Tables._dateFormat);
-		}
-		return 'N/A';
+      if (!args.length) {
+        return moment().format(window.supsystic.Tables._dateFormat);
+      }
+      if (args.length === 3) {
+        args[1] = args[1] - 1; // Monthes are between 0 and 11.
+        return moment(new Date(args[0], args[1], args[2])).format(window.supsystic.Tables._dateFormat);
+      }
+      return 'N/A';
       /*if (!arguments.length) {
         return new Date();
       }
@@ -15451,17 +14986,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.DATEVALUE = function (date_text) {
-		return Math.ceil((moment(date_text, window.supsystic.Tables._dateFormat) - moment('1900-01-01', 'YYYY-MM-DD')) / 86400000) + 2;
+      return Math.ceil((moment(date_text, window.supsystic.Tables._dateFormat) - moment('1900-01-01', 'YYYY-MM-DD')) / 86400000) + 2;
       //return Math.ceil((moment(date_text) - moment('1900-01-01')) / 86400000) + 2;
     };
 
     Formula.DAY = function (date) {
       return moment(date, window.supsystic.Tables._dateFormat).date();
-	  //return new Date(date).getDate();
+      //return new Date(date).getDate();
     };
 
     Formula.DAYS = function (end_date, start_date) {
-		return moment(end_date, window.supsystic.Tables._dateFormat).diff(moment(start_date, window.supsystic.Tables._dateFormat), 'days');
+      return moment(end_date, window.supsystic.Tables._dateFormat).diff(moment(start_date, window.supsystic.Tables._dateFormat), 'days');
       //return moment(new Date(end_date)).diff(moment(new Date(start_date)), 'days');
     };
 
@@ -15475,19 +15010,18 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var sd = start.date();
       var ed = end.date();
       if (method) {
-        sd = (sd === 31) ? 30 : sd;
-        ed = (ed === 31) ? 30 : ed;
-      }
-      else {
+        sd = sd === 31 ? 30 : sd;
+        ed = ed === 31 ? 30 : ed;
+      } else {
         if (start.month() === 1) {
           smd = start.daysInMonth();
         }
         if (end.month() === 1) {
           emd = end.daysInMonth();
         }
-        sd = (sd === smd) ? 30 : sd;
+        sd = sd === smd ? 30 : sd;
         if (sd === 30 || sd === smd) {
-          ed = (ed === emd) ? 30 : ed;
+          ed = ed === emd ? 30 : ed;
         }
       }
       return 360 * (end.year() - start.year()) + 30 * (end.month() - start.month()) + (ed - sd);
@@ -15499,11 +15033,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.EOMONTH = function (start_date, months) {
-		var edate = moment(start_date, window.supsystic.Tables._dateFormat).add(months, 'months').toDate(),
-			ndate = new Date(edate.getFullYear(), edate.getMonth(), new Date(edate.getFullYear(), edate.getMonth() + 1, 0).getDate());
+      var edate = moment(start_date, window.supsystic.Tables._dateFormat).add(months, 'months').toDate(),
+        ndate = new Date(edate.getFullYear(), edate.getMonth(), new Date(edate.getFullYear(), edate.getMonth() + 1, 0).getDate());
 
-		return moment(ndate).format(window.supsystic.Tables._dateFormat);
-	  //var edate = moment(new Date(start_date)).add('months', months);
+      return moment(ndate).format(window.supsystic.Tables._dateFormat);
+      //var edate = moment(new Date(start_date)).add('months', months);
       //return new Date(edate.year(), edate.month(), edate.daysInMonth());
     };
 
@@ -15512,35 +15046,35 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.HOUR = function (timestamp) {
-		if(isNaN(timestamp)) {
-			return moment(timestamp, window.supsystic.Tables._timeFormat).hours();
-		} else {
-			return (timestamp <= 1) ? Math.floor(24 * timestamp) : new Date(timestamp).getHours();
-		}
-	  //return (timestamp <= 1) ? Math.floor(24 * timestamp) : new Date(timestamp).getHours();
+      if (isNaN(timestamp)) {
+        return moment(timestamp, window.supsystic.Tables._timeFormat).hours();
+      } else {
+        return timestamp <= 1 ? Math.floor(24 * timestamp) : new Date(timestamp).getHours();
+      }
+      //return (timestamp <= 1) ? Math.floor(24 * timestamp) : new Date(timestamp).getHours();
     };
 
     Formula.MINUTE = function (timestamp) {
-		if(isNaN(timestamp)) {
-			return moment(timestamp, window.supsystic.Tables._timeFormat).minutes();
-		} else {
-			return (timestamp <= 1) ? Math.floor(24 * 60 * timestamp) - 60 * Math.floor(24 * timestamp) : new Date(timestamp).getMinutes();
-		}
+      if (isNaN(timestamp)) {
+        return moment(timestamp, window.supsystic.Tables._timeFormat).minutes();
+      } else {
+        return timestamp <= 1 ? Math.floor(24 * 60 * timestamp) - 60 * Math.floor(24 * timestamp) : new Date(timestamp).getMinutes();
+      }
       //return (timestamp <= 1) ? Math.floor(24 * 60 * timestamp) - 60 * Math.floor(24 * timestamp) : new Date(timestamp).getMinutes();
     };
 
     Formula.ISOWEEKNUM = function (date) {
       return moment(date, window.supsystic.Tables._dateFormat).isoWeek();
-	  //return moment(new Date(date)).format('w');
+      //return moment(new Date(date)).format('w');
     };
 
     Formula.MONTH = function (timestamp) {
-		if(isNaN(timestamp)) {
-			return moment(timestamp, window.supsystic.Tables._dateFormat).month() + 1;
-		} else {
-			return new Date(timestamp).getMonth() + 1;
-		}
-		//return new Date(timestamp).getMonth() + 1;
+      if (isNaN(timestamp)) {
+        return moment(timestamp, window.supsystic.Tables._dateFormat).month() + 1;
+      } else {
+        return new Date(timestamp).getMonth() + 1;
+      }
+      //return new Date(timestamp).getMonth() + 1;
     };
 
     Formula.NETWORKDAYS = function (start_date, end_date, holidays) {
@@ -15548,7 +15082,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.NETWORKDAYSINTL = function (start_date, end_date, weekend, holidays) {
-      var weekend_type = (typeof weekend === 'undefined') ? 1 : weekend;
+      var weekend_type = typeof weekend === 'undefined' ? 1 : weekend;
       var weekend_days = WEEKEND_TYPES[weekend_type];
       var sd = moment(start_date);
       var ed = moment(end_date);
@@ -15600,17 +15134,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.WEEKDAY = function (date, type) {
       var week_day = moment(new Date(date)).format('d');
-      var week_type = (typeof type === 'undefined') ? 1 : type;
+      var week_type = typeof type === 'undefined' ? 1 : type;
       return WEEK_TYPES[week_type][week_day];
     };
 
     Formula.WEEKNUM = function (date, type) {
       var current_date = moment(new Date(date));
       var january_first = moment(new Date(current_date.year(), 0, 1));
-      var week_type = (typeof type === 'undefined') ? 1 : type;
+      var week_type = typeof type === 'undefined' ? 1 : type;
       var week_start = WEEK_STARTS[week_type];
       var first_day = january_first.format('d');
-      var offset = (first_day < week_start) ? week_start - first_day + 1 : first_day - week_start;
+      var offset = first_day < week_start ? week_start - first_day + 1 : first_day - week_start;
       if (week_type === 21) {
         return Formula.ISOWEEKNUM(date);
       } else {
@@ -15623,7 +15157,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.WORKDAYINTL = function (start_date, days, weekend, holidays) {
-      var weekend_type = (typeof weekend === 'undefined') ? 1 : weekend;
+      var weekend_type = typeof weekend === 'undefined' ? 1 : weekend;
       var weekend_days = WEEKEND_TYPES[weekend_type];
       var sd = moment(new Date(start_date));
       var cd = sd;
@@ -15653,7 +15187,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Credits: David A. Wheeler [http://www.dwheeler.com/]
 
       // Initialize parameters
-      basis = (typeof basis === 'undefined') ? 0 : basis;
+      basis = typeof basis === 'undefined' ? 0 : basis;
       var sdate = moment(new Date(start_date));
       var edate = moment(new Date(end_date));
 
@@ -15703,7 +15237,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
           } else if (smonth === 1 && sdate.daysInMonth() === sday) {
             sday = 30;
           }
-          return ((eday + emonth * 30 + eyear * 360) - (sday + smonth * 30 + syear * 360)) / 360;
+          return (eday + emonth * 30 + eyear * 360 - (sday + smonth * 30 + syear * 360)) / 360;
 
         case 1:
           // Actual/actual
@@ -15724,7 +15258,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
             return false;
           };
           var ylength = 365;
-          if (syear === eyear || ((syear + 1) === eyear) && ((smonth > emonth) || ((smonth === emonth) && (sday >= eday)))) {
+          if (syear === eyear || (syear + 1 === eyear && (smonth > emonth || (smonth === emonth && sday >= eday)))) {
             if (syear === eyear && moment([syear]).isLeapYear()) {
               ylength = 366;
             } else if (feb29Between(sdate, edate) || (emonth === 1 && eday === 29)) {
@@ -15732,7 +15266,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
             }
             return edate.diff(sdate, 'days') / ylength;
           } else {
-            var years = (eyear - syear) + 1;
+            var years = eyear - syear + 1;
             var days = moment(new Date(eyear + 1, 0, 1)).diff(moment(new Date(syear, 0, 1)), 'days');
             var average = days / years;
             return edate.diff(sdate, 'days') / average;
@@ -15757,7 +15291,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
             eday = 30;
           }
           // Remarkably, do NOT change February 28 or February 29 at ALL
-          return ((eday + emonth * 30 + eyear * 360) - (sday + smonth * 30 + syear * 360)) / 360;
+          return (eday + emonth * 30 + eyear * 360 - (sday + smonth * 30 + syear * 360)) / 360;
       }
     };
 
@@ -15765,112 +15299,125 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     // This function is extracted from the source code of SheetJS/bessel:
     // https://github.com/SheetJS/bessel/blob/master/bessel.js#L144
-    Formula.BESSELI = (function() {
+    Formula.BESSELI = (function () {
       function horner(arr, v) {
-        return arr.reduce(function(z, w) {
-          return v*z + w;
+        return arr.reduce(function (z, w) {
+          return v * z + w;
         }, 0);
       }
       var b0_a = [1.0, 3.5156229, 3.0899424, 1.2067492, 0.2659732, 0.360768e-1, 0.45813e-2].reverse();
       var b0_b = [0.39894228, 0.1328592e-1, 0.225319e-2, -0.157565e-2, 0.916281e-2, -0.2057706e-1, 0.2635537e-1, -0.1647633e-1, 0.392377e-2].reverse();
       function bessel0(x) {
-        if(x <= 3.75) {
-          return horner(b0_a, x*x/(3.75*3.75));
+        if (x <= 3.75) {
+          return horner(b0_a, (x * x) / (3.75 * 3.75));
         }
-        return Math.exp(Math.abs(x))/Math.sqrt(Math.abs(x))*horner(b0_b, 3.75/Math.abs(x));
+        return (Math.exp(Math.abs(x)) / Math.sqrt(Math.abs(x))) * horner(b0_b, 3.75 / Math.abs(x));
       }
 
       var b1_a = [0.5, 0.87890594, 0.51498869, 0.15084934, 0.2658733e-1, 0.301532e-2, 0.32411e-3].reverse();
       var b1_b = [0.39894228, -0.3988024e-1, -0.362018e-2, 0.163801e-2, -0.1031555e-1, 0.2282967e-1, -0.2895312e-1, 0.1787654e-1, -0.420059e-2].reverse();
       function bessel1(x) {
-        if(x < 3.75) {
-          return x * horner(b1_a, x*x/(3.75*3.75));
+        if (x < 3.75) {
+          return x * horner(b1_a, (x * x) / (3.75 * 3.75));
         }
-        return (x < 0 ? -1 : 1) * Math.exp(Math.abs(x))/Math.sqrt(Math.abs(x))*horner(b1_b, 3.75/Math.abs(x));
+        return (((x < 0 ? -1 : 1) * Math.exp(Math.abs(x))) / Math.sqrt(Math.abs(x))) * horner(b1_b, 3.75 / Math.abs(x));
       }
 
       return function besseli(x, n) {
         n = Math.round(n);
-        if(n === 0) {
+        if (n === 0) {
           return bessel0(x);
         }
-        if(n === 1) {
+        if (n === 1) {
           return bessel1(x);
         }
-        if(n < 0) {
+        if (n < 0) {
           throw 'BESSELI Order (' + n + ') must be nonnegative';
         }
-        if(Math.abs(x) === 0) {
+        if (Math.abs(x) === 0) {
           return 0;
         }
 
-        var ret, j, tox = 2 / Math.abs(x), m, bip, bi, bim;
-        m=2*Math.round((n+Math.round(Math.sqrt(40*n)))/2);
-        bip=ret=0.0;
-        bi=1.0;
-        for (j=m;j>0;j--) {
-          bim=j*tox*bi + bip;
-          bip=bi; bi=bim;
-          if (Math.abs(bi) > 1E10) {
-            bi *= 1E-10;
-            bip *= 1E-10;
-            ret *= 1E-10;
+        var ret,
+          j,
+          tox = 2 / Math.abs(x),
+          m,
+          bip,
+          bi,
+          bim;
+        m = 2 * Math.round((n + Math.round(Math.sqrt(40 * n))) / 2);
+        bip = ret = 0.0;
+        bi = 1.0;
+        for (j = m; j > 0; j--) {
+          bim = j * tox * bi + bip;
+          bip = bi;
+          bi = bim;
+          if (Math.abs(bi) > 1e10) {
+            bi *= 1e-10;
+            bip *= 1e-10;
+            ret *= 1e-10;
           }
-          if(j === n) {
+          if (j === n) {
             ret = bip;
           }
         }
         ret *= besseli(x, 0) / bi;
-        return x < 0 && (n%2) ? -ret : ret;
+        return x < 0 && n % 2 ? -ret : ret;
       };
-
     })();
 
     // This function is extracted from the source code of SheetJS/bessel:
     // https://github.com/SheetJS/bessel/blob/master/bessel.js#L25
-    Formula.BESSELJ = (function() {
+    Formula.BESSELJ = (function () {
       function horner(arr, v) {
-        return arr.reduce(function(z, w) {
-          return v*z + w;
+        return arr.reduce(function (z, w) {
+          return v * z + w;
         }, 0);
       }
-      var b0_a1a = [57568490574.0,-13362590354.0,651619640.7,-11214424.18,77392.33017,-184.9052456].reverse();
-      var b0_a2a = [57568490411.0,1029532985.0,9494680.718,59272.64853,267.8532712,1.0].reverse();
+      var b0_a1a = [57568490574.0, -13362590354.0, 651619640.7, -11214424.18, 77392.33017, -184.9052456].reverse();
+      var b0_a2a = [57568490411.0, 1029532985.0, 9494680.718, 59272.64853, 267.8532712, 1.0].reverse();
       var b0_a1b = [1.0, -0.1098628627e-2, 0.2734510407e-4, -0.2073370639e-5, 0.2093887211e-6].reverse();
       var b0_a2b = [-0.1562499995e-1, 0.1430488765e-3, -0.6911147651e-5, 0.7621095161e-6, -0.934935152e-7].reverse();
       var W = 0.636619772; // 2 / Math.PI
 
       function bessel0(x) {
-        var a, a1, a2, y = x * x, xx = Math.abs(x) - 0.785398164;
-        if(Math.abs(x) < 8) {
+        var a,
+          a1,
+          a2,
+          y = x * x,
+          xx = Math.abs(x) - 0.785398164;
+        if (Math.abs(x) < 8) {
           a1 = horner(b0_a1a, y);
           a2 = horner(b0_a2a, y);
-          a = a1/a2;
-        }
-        else {
+          a = a1 / a2;
+        } else {
           y = 64 / y;
           a1 = horner(b0_a1b, y);
           a2 = horner(b0_a2b, y);
-          a = Math.sqrt(W/Math.abs(x))*(Math.cos(xx)*a1-Math.sin(xx)*a2*8/Math.abs(x));
+          a = Math.sqrt(W / Math.abs(x)) * (Math.cos(xx) * a1 - (Math.sin(xx) * a2 * 8) / Math.abs(x));
         }
         return a;
       }
-      var b1_a1a = [72362614232.0,-7895059235.0,242396853.1,-2972611.439, 15704.48260, -30.16036606].reverse();
+      var b1_a1a = [72362614232.0, -7895059235.0, 242396853.1, -2972611.439, 15704.4826, -30.16036606].reverse();
       var b1_a2a = [144725228442.0, 2300535178.0, 18583304.74, 99447.43394, 376.9991397, 1.0].reverse();
       var b1_a1b = [1.0, 0.183105e-2, -0.3516396496e-4, 0.2457520174e-5, -0.240337019e-6].reverse();
       var b1_a2b = [0.04687499995, -0.2002690873e-3, 0.8449199096e-5, -0.88228987e-6, 0.105787412e-6].reverse();
       function bessel1(x) {
-        var a, a1, a2, y = x*x, xx = Math.abs(x) - 2.356194491;
-        if(Math.abs(x)< 8) {
-          a1 = x*horner(b1_a1a, y);
+        var a,
+          a1,
+          a2,
+          y = x * x,
+          xx = Math.abs(x) - 2.356194491;
+        if (Math.abs(x) < 8) {
+          a1 = x * horner(b1_a1a, y);
           a2 = horner(b1_a2a, y);
           a = a1 / a2;
         } else {
           y = 64 / y;
-          a1=horner(b1_a1b, y);
-          a2=horner(b1_a2b, y);
-          a=Math.sqrt(W/Math.abs(x))*(Math.cos(xx)*a1-Math.sin(xx)*a2*8/Math.abs(x));
-          if(x < 0) {
+          a1 = horner(b1_a1b, y);
+          a2 = horner(b1_a2b, y);
+          a = Math.sqrt(W / Math.abs(x)) * (Math.cos(xx) * a1 - (Math.sin(xx) * a2 * 8) / Math.abs(x));
+          if (x < 0) {
             a = -a;
           }
         }
@@ -15878,133 +15425,146 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       function _bessel_iter(x, n, f0, f1, sign) {
-        if(!sign) {
+        if (!sign) {
           sign = -1;
         }
-        var tdx = 2 / x, f2;
-        if(n === 0) {
+        var tdx = 2 / x,
+          f2;
+        if (n === 0) {
           return f0;
         }
-        if(n === 1) {
+        if (n === 1) {
           return f1;
         }
-        for(var o = 1; o !== n; ++o) {
+        for (var o = 1; o !== n; ++o) {
           f2 = f1 * o * tdx + sign * f0;
-          f0 = f1; f1 = f2;
+          f0 = f1;
+          f1 = f2;
         }
         return f1;
       }
 
       return function besselj(x, n) {
         n = Math.round(n);
-        if(n === 0) {
+        if (n === 0) {
           return bessel0(Math.abs(x));
         }
-        if(n === 1) {
+        if (n === 1) {
           return bessel1(Math.abs(x));
         }
-        if(n < 0) {
+        if (n < 0) {
           throw 'BESSELJ: Order (' + n + ') must be nonnegative';
         }
-        if(Math.abs(x) === 0) {
+        if (Math.abs(x) === 0) {
           return 0;
         }
 
-        var ret, j, tox = 2 / Math.abs(x), m, jsum, sum, bjp, bj, bjm;
-        if(Math.abs(x) > n) {
-          ret = _bessel_iter(x, n, bessel0(Math.abs(x)), bessel1(Math.abs(x)),-1);
+        var ret,
+          j,
+          tox = 2 / Math.abs(x),
+          m,
+          jsum,
+          sum,
+          bjp,
+          bj,
+          bjm;
+        if (Math.abs(x) > n) {
+          ret = _bessel_iter(x, n, bessel0(Math.abs(x)), bessel1(Math.abs(x)), -1);
         } else {
-          m=2*Math.floor((n+Math.floor(Math.sqrt(40*n)))/2);
-          jsum=0;
-          bjp=ret=sum=0.0;
-          bj=1.0;
-          for (j=m;j>0;j--) {
-            bjm=j*tox*bj-bjp;
-            bjp=bj;
-            bj=bjm;
-            if (Math.abs(bj) > 1E10) {
-              bj *= 1E-10;
-              bjp *= 1E-10;
-              ret *= 1E-10;
-              sum *= 1E-10;
+          m = 2 * Math.floor((n + Math.floor(Math.sqrt(40 * n))) / 2);
+          jsum = 0;
+          bjp = ret = sum = 0.0;
+          bj = 1.0;
+          for (j = m; j > 0; j--) {
+            bjm = j * tox * bj - bjp;
+            bjp = bj;
+            bj = bjm;
+            if (Math.abs(bj) > 1e10) {
+              bj *= 1e-10;
+              bjp *= 1e-10;
+              ret *= 1e-10;
+              sum *= 1e-10;
             }
             if (jsum) {
               sum += bj;
             }
-            jsum=!jsum;
+            jsum = !jsum;
             if (j === n) {
-              ret=bjp;
+              ret = bjp;
             }
           }
-          sum=2.0*sum-bj;
+          sum = 2.0 * sum - bj;
           ret /= sum;
         }
-        return x < 0 && (n%2) ? -ret : ret;
+        return x < 0 && n % 2 ? -ret : ret;
       };
     })();
 
     // This function is extracted from the source code of SheetJS/bessel:
     // https://github.com/SheetJS/bessel/blob/master/bessel.js#L186
-    Formula.BESSELK = (function() {
+    Formula.BESSELK = (function () {
       function horner(arr, v) {
-        return arr.reduce(function(z, w) {
-          return v*z + w;
+        return arr.reduce(function (z, w) {
+          return v * z + w;
         }, 0);
       }
-      var b0_a = [-0.57721566, 0.42278420, 0.23069756, 0.3488590e-1, 0.262698e-2, 0.10750e-3, 0.74e-5].reverse();
-      var b0_b = [1.25331414, -0.7832358e-1, 0.2189568e-1, -0.1062446e-1, 0.587872e-2, -0.251540e-2, 0.53208e-3].reverse();
+      var b0_a = [-0.57721566, 0.4227842, 0.23069756, 0.348859e-1, 0.262698e-2, 0.1075e-3, 0.74e-5].reverse();
+      var b0_b = [1.25331414, -0.7832358e-1, 0.2189568e-1, -0.1062446e-1, 0.587872e-2, -0.25154e-2, 0.53208e-3].reverse();
       function bessel0(x) {
-        if(x <= 2) {
-          return -Math.log(x/2)*Formula.BESSELI(x,0) + horner(b0_a,x*x/4);
+        if (x <= 2) {
+          return -Math.log(x / 2) * Formula.BESSELI(x, 0) + horner(b0_a, (x * x) / 4);
         }
-        return Math.exp(-x)/Math.sqrt(x)*horner(b0_b,2/x);
+        return (Math.exp(-x) / Math.sqrt(x)) * horner(b0_b, 2 / x);
       }
 
       var b1_a = [1.0, 0.15443144, -0.67278579, -0.18156897, -0.1919402e-1, -0.110404e-2, -0.4686e-4].reverse();
-      var b1_b = [1.25331414, 0.23498619, -0.3655620e-1, 0.1504268e-1, -0.780353e-2, 0.325614e-2, -0.68245e-3].reverse();
+      var b1_b = [1.25331414, 0.23498619, -0.365562e-1, 0.1504268e-1, -0.780353e-2, 0.325614e-2, -0.68245e-3].reverse();
       function bessel1(x) {
-        if(x <= 2) {
-          return Math.log(x/2)*Formula.BESSELI(x,1) + (1/x)*horner(b1_a,x*x/4);
+        if (x <= 2) {
+          return Math.log(x / 2) * Formula.BESSELI(x, 1) + (1 / x) * horner(b1_a, (x * x) / 4);
         }
-        return Math.exp(-x)/Math.sqrt(x)*horner(b1_b,2/x);
+        return (Math.exp(-x) / Math.sqrt(x)) * horner(b1_b, 2 / x);
       }
 
       function _bessel_iter(x, n, f0, f1, sign) {
-        if(!sign) {
+        if (!sign) {
           sign = -1;
         }
-        var tdx = 2 / x, f2;
-        if(n === 0) {
+        var tdx = 2 / x,
+          f2;
+        if (n === 0) {
           return f0;
         }
-        if(n === 1) {
+        if (n === 1) {
           return f1;
         }
-        for(var o = 1; o !== n; ++o) {
+        for (var o = 1; o !== n; ++o) {
           f2 = f1 * o * tdx + sign * f0;
-          f0 = f1; f1 = f2;
+          f0 = f1;
+          f1 = f2;
         }
         return f1;
       }
 
       function _bessel_wrap(bessel0, bessel1, name, nonzero, sign) {
-        return function bessel(x,n) {
-          if(n === 0) {
+        return function bessel(x, n) {
+          if (n === 0) {
             return bessel0(x);
           }
-          if(n === 1) {
+          if (n === 1) {
             return bessel1(x);
           }
-          if(n < 0) {
+          if (n < 0) {
             throw name + ': Order (' + n + ') must be nonnegative';
           }
-          if(nonzero === 1 && x === 0) {
+          if (nonzero === 1 && x === 0) {
             throw name + ': Undefined when x == 0';
           }
-          if(nonzero === 2 && x <= 0) {
+          if (nonzero === 2 && x <= 0) {
             throw name + ': Undefined when x <= 0';
           }
-          var b0 = bessel0(x), b1 = bessel1(x);
+          var b0 = bessel0(x),
+            b1 = bessel1(x);
           return _bessel_iter(x, n, b0, b1, sign);
         };
       }
@@ -16014,88 +15574,99 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     // This function is extracted from the source code of SheetJS/bessel:
     // https://github.com/SheetJS/bessel/blob/master/bessel.js#L101
-    Formula.BESSELY = (function() {
+    Formula.BESSELY = (function () {
       function horner(arr, v) {
-        return arr.reduce(function(z, w) {
-          return v*z + w;
+        return arr.reduce(function (z, w) {
+          return v * z + w;
         }, 0);
       }
       var b0_a1a = [-2957821389.0, 7062834065.0, -512359803.6, 10879881.29, -86327.92757, 228.4622733].reverse();
-      var b0_a2a = [40076544269.0, 745249964.8, 7189466.438, 47447.26470, 226.1030244, 1.0].reverse();
+      var b0_a2a = [40076544269.0, 745249964.8, 7189466.438, 47447.2647, 226.1030244, 1.0].reverse();
       var b0_a1b = [1.0, -0.1098628627e-2, 0.2734510407e-4, -0.2073370639e-5, 0.2093887211e-6].reverse();
       var b0_a2b = [-0.1562499995e-1, 0.1430488765e-3, -0.6911147651e-5, 0.7621095161e-6, -0.934945152e-7].reverse();
 
       var W = 0.636619772;
       function bessel0(x) {
-        var a, a1, a2, y = x * x, xx = x - 0.785398164;
-        if(x < 8) {
+        var a,
+          a1,
+          a2,
+          y = x * x,
+          xx = x - 0.785398164;
+        if (x < 8) {
           a1 = horner(b0_a1a, y);
           a2 = horner(b0_a2a, y);
-          a = a1/a2 + W * Formula.BESSELJ(x,0) * Math.log(x);
+          a = a1 / a2 + W * Formula.BESSELJ(x, 0) * Math.log(x);
         } else {
           y = 64 / y;
           a1 = horner(b0_a1b, y);
           a2 = horner(b0_a2b, y);
-          a = Math.sqrt(W/x)*(Math.sin(xx)*a1+Math.cos(xx)*a2*8/x);
+          a = Math.sqrt(W / x) * (Math.sin(xx) * a1 + (Math.cos(xx) * a2 * 8) / x);
         }
         return a;
       }
 
-      var b1_a1a = [-0.4900604943e13, 0.1275274390e13, -0.5153438139e11, 0.7349264551e9, -0.4237922726e7, 0.8511937935e4].reverse();
-      var b1_a2a = [0.2499580570e14, 0.4244419664e12, 0.3733650367e10, 0.2245904002e8, 0.1020426050e6, 0.3549632885e3, 1].reverse();
+      var b1_a1a = [-0.4900604943e13, 0.127527439e13, -0.5153438139e11, 0.7349264551e9, -0.4237922726e7, 0.8511937935e4].reverse();
+      var b1_a2a = [0.249958057e14, 0.4244419664e12, 0.3733650367e10, 0.2245904002e8, 0.102042605e6, 0.3549632885e3, 1].reverse();
       var b1_a1b = [1.0, 0.183105e-2, -0.3516396496e-4, 0.2457520174e-5, -0.240337019e-6].reverse();
       var b1_a2b = [0.04687499995, -0.2002690873e-3, 0.8449199096e-5, -0.88228987e-6, 0.105787412e-6].reverse();
       function bessel1(x) {
-        var a, a1, a2, y = x*x, xx = x - 2.356194491;
-        if(x < 8) {
-          a1 = x*horner(b1_a1a, y);
+        var a,
+          a1,
+          a2,
+          y = x * x,
+          xx = x - 2.356194491;
+        if (x < 8) {
+          a1 = x * horner(b1_a1a, y);
           a2 = horner(b1_a2a, y);
-          a = a1/a2 + W * (Formula.BESSELJ(x,1) * Math.log(x) - 1 / x);
+          a = a1 / a2 + W * (Formula.BESSELJ(x, 1) * Math.log(x) - 1 / x);
         } else {
           y = 64 / y;
-          a1=horner(b1_a1b, y);
-          a2=horner(b1_a2b, y);
-          a=Math.sqrt(W/x)*(Math.sin(xx)*a1+Math.cos(xx)*a2*8/x);
+          a1 = horner(b1_a1b, y);
+          a2 = horner(b1_a2b, y);
+          a = Math.sqrt(W / x) * (Math.sin(xx) * a1 + (Math.cos(xx) * a2 * 8) / x);
         }
         return a;
       }
 
       function _bessel_iter(x, n, f0, f1, sign) {
-        if(!sign) {
+        if (!sign) {
           sign = -1;
         }
-        var tdx = 2 / x, f2;
-        if(n === 0) {
+        var tdx = 2 / x,
+          f2;
+        if (n === 0) {
           return f0;
         }
-        if(n === 1) {
+        if (n === 1) {
           return f1;
         }
-        for(var o = 1; o !== n; ++o) {
+        for (var o = 1; o !== n; ++o) {
           f2 = f1 * o * tdx + sign * f0;
-          f0 = f1; f1 = f2;
+          f0 = f1;
+          f1 = f2;
         }
         return f1;
       }
 
       function _bessel_wrap(bessel0, bessel1, name, nonzero, sign) {
-        return function bessel(x,n) {
-          if(n === 0) {
+        return function bessel(x, n) {
+          if (n === 0) {
             return bessel0(x);
           }
-          if(n === 1) {
+          if (n === 1) {
             return bessel1(x);
           }
-          if(n < 0) {
+          if (n < 0) {
             throw name + ': Order (' + n + ') must be nonnegative';
           }
-          if(nonzero === 1 && x === 0) {
+          if (nonzero === 1 && x === 0) {
             throw name + ': Undefined when x == 0';
           }
-          if(nonzero === 2 && x <= 0) {
+          if (nonzero === 2 && x <= 0) {
             throw name + ': Undefined when x <= 0';
           }
-          var b0 = bessel0(x), b1 = bessel1(x);
+          var b0 = bessel0(x),
+            b1 = bessel1(x);
           return _bessel_iter(x, n, b0, b1, sign);
         };
       }
@@ -16104,7 +15675,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     })();
 
     Formula.VALIDBIN = function (number) {
-      return (/^[01]{1,10}$/).test(number);
+      return /^[01]{1,10}$/.test(number);
     };
 
     Formula.BIN2DEC = function (number) {
@@ -16158,7 +15729,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16195,7 +15766,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16251,7 +15822,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return number shifted by shift bits to the left or to the right if shift is negative
-      return (shift >= 0 ) ? number << shift : number >> -shift;
+      return shift >= 0 ? number << shift : number >> -shift;
     };
 
     Formula.BITOR = function (number1, number2) {
@@ -16306,7 +15877,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return number shifted by shift bits to the right or to the left if shift is negative
-      return (shift >= 0 ) ? number >> shift : number << -shift;
+      return shift >= 0 ? number >> shift : number << -shift;
     };
 
     Formula.BITXOR = function (number1, number2) {
@@ -16341,7 +15912,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Set suffix
-      suffix = (typeof suffix === 'undefined') ? 'i' : suffix;
+      suffix = typeof suffix === 'undefined' ? 'i' : suffix;
 
       // Return error if suffix is neither "i" nor "j"
       if (suffix !== 'i' && suffix !== 'j') {
@@ -16352,12 +15923,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
       if (real === 0 && imaginary === 0) {
         return 0;
       } else if (real === 0) {
-        return (imaginary === 1) ? suffix : imaginary.toString() + suffix;
+        return imaginary === 1 ? suffix : imaginary.toString() + suffix;
       } else if (imaginary === 0) {
         return real.toString();
       } else {
-        var sign = (imaginary > 0) ? '+' : '';
-        return real.toString() + sign + ((imaginary === 1) ? suffix : imaginary.toString() + suffix);
+        var sign = imaginary > 0 ? '+' : '';
+        return real.toString() + sign + (imaginary === 1 ? suffix : imaginary.toString() + suffix);
       }
     };
 
@@ -16370,190 +15941,190 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // List of units supported by CONVERT and units defined by the International System of Units
       // [Name, Symbol, Alternate symbols, Quantity, ISU, CONVERT, Conversion ratio]
       var units = [
-        ["a.u. of action", "?", null, "action", false, false, 1.05457168181818e-34],
-        ["a.u. of charge", "e", null, "electric_charge", false, false, 1.60217653141414e-19],
-        ["a.u. of energy", "Eh", null, "energy", false, false, 4.35974417757576e-18],
-        ["a.u. of length", "a?", null, "length", false, false, 5.29177210818182e-11],
-        ["a.u. of mass", "m?", null, "mass", false, false, 9.10938261616162e-31],
-        ["a.u. of time", "?/Eh", null, "time", false, false, 2.41888432650516e-17],
-        ["admiralty knot", "admkn", null, "speed", false, true, 0.514773333],
-        ["ampere", "A", null, "electric_current", true, false, 1],
-        ["ampere per meter", "A/m", null, "magnetic_field_intensity", true, false, 1],
-        ["ångström", "Å", ["ang"], "length", false, true, 1e-10],
-        ["are", "ar", null, "area", false, true, 100],
-        ["astronomical unit", "ua", null, "length", false, false, 1.49597870691667e-11],
-        ["bar", "bar", null, "pressure", false, false, 100000],
-        ["barn", "b", null, "area", false, false, 1e-28],
-        ["becquerel", "Bq", null, "radioactivity", true, false, 1],
-        ["bit", "bit", ["b"], "information", false, true, 1],
-        ["btu", "BTU", ["btu"], "energy", false, true, 1055.05585262],
-        ["byte", "byte", null, "information", false, true, 8],
-        ["candela", "cd", null, "luminous_intensity", true, false, 1],
-        ["candela per square metre", "cd/m?", null, "luminance", true, false, 1],
-        ["coulomb", "C", null, "electric_charge", true, false, 1],
-        ["cubic ångström", "ang3", ["ang^3"], "volume", false, true, 1e-30],
-        ["cubic foot", "ft3", ["ft^3"], "volume", false, true, 0.028316846592],
-        ["cubic inch", "in3", ["in^3"], "volume", false, true, 0.000016387064],
-        ["cubic light-year", "ly3", ["ly^3"], "volume", false, true, 8.46786664623715e-47],
-        ["cubic metre", "m?", null, "volume", true, true, 1],
-        ["cubic mile", "mi3", ["mi^3"], "volume", false, true, 4168181825.44058],
-        ["cubic nautical mile", "Nmi3", ["Nmi^3"], "volume", false, true, 6352182208],
-        ["cubic Pica", "Pica3", ["Picapt3", "Pica^3", "Picapt^3"], "volume", false, true, 7.58660370370369e-8],
-        ["cubic yard", "yd3", ["yd^3"], "volume", false, true, 0.764554857984],
-        ["cup", "cup", null, "volume", false, true, 0.0002365882365],
-        ["dalton", "Da", ["u"], "mass", false, false, 1.66053886282828e-27],
-        ["day", "d", ["day"], "time", false, true, 86400],
-        ["degree", "°", null, "angle", false, false, 0.0174532925199433],
-        ["degrees Rankine", "Rank", null, "temperature", false, true, 0.555555555555556],
-        ["dyne", "dyn", ["dy"], "force", false, true, 0.00001],
-        ["electronvolt", "eV", ["ev"], "energy", false, true, 1.60217656514141],
-        ["ell", "ell", null, "length", false, true, 1.143],
-        ["erg", "erg", ["e"], "energy", false, true, 1e-7],
-        ["farad", "F", null, "electric_capacitance", true, false, 1],
-        ["fluid ounce", "oz", null, "volume", false, true, 0.0000295735295625],
-        ["foot", "ft", null, "length", false, true, 0.3048],
-        ["foot-pound", "flb", null, "energy", false, true, 1.3558179483314],
-        ["gal", "Gal", null, "acceleration", false, false, 0.01],
-        ["gallon", "gal", null, "volume", false, true, 0.003785411784],
-        ["gauss", "G", ["ga"], "magnetic_flux_density", false, true, 1],
-        ["grain", "grain", null, "mass", false, true, 0.0000647989],
-        ["gram", "g", null, "mass", false, true, 0.001],
-        ["gray", "Gy", null, "absorbed_dose", true, false, 1],
-        ["gross registered ton", "GRT", ["regton"], "volume", false, true, 2.8316846592],
-        ["hectare", "ha", null, "area", false, true, 10000],
-        ["henry", "H", null, "inductance", true, false, 1],
-        ["hertz", "Hz", null, "frequency", true, false, 1],
-        ["horsepower", "HP", ["h"], "power", false, true, 745.69987158227],
-        ["horsepower-hour", "HPh", ["hh", "hph"], "energy", false, true, 2684519.538],
-        ["hour", "h", ["hr"], "time", false, true, 3600],
-        ["imperial gallon (U.K.)", "uk_gal", null, "volume", false, true, 0.00454609],
-        ["imperial hundredweight", "lcwt", ["uk_cwt", "hweight"], "mass", false, true, 50.802345],
-        ["imperial quart (U.K)", "uk_qt", null, "volume", false, true, 0.0011365225],
-        ["imperial ton", "brton", ["uk_ton", "LTON"], "mass", false, true, 1016.046909],
-        ["inch", "in", null, "length", false, true, 0.0254],
-        ["international acre", "uk_acre", null, "area", false, true, 4046.8564224],
-        ["IT calorie", "cal", null, "energy", false, true, 4.1868],
-        ["joule", "J", null, "energy", true, true, 1],
-        ["katal", "kat", null, "catalytic_activity", true, false, 1],
-        ["kelvin", "K", ["kel"], "temperature", true, true, 1],
-        ["kilogram", "kg", null, "mass", true, true, 1],
-        ["knot", "kn", null, "speed", false, true, 0.514444444444444],
-        ["light-year", "ly", null, "length", false, true, 9460730472580800],
-        ["litre", "L", ["l", "lt"], "volume", false, true, 0.001],
-        ["lumen", "lm", null, "luminous_flux", true, false, 1],
-        ["lux", "lx", null, "illuminance", true, false, 1],
-        ["maxwell", "Mx", null, "magnetic_flux", false, false, 1e-18],
-        ["measurement ton", "MTON", null, "volume", false, true, 1.13267386368],
-        ["meter per hour", "m/h", ["m/hr"], "speed", false, true, 0.00027777777777778],
-        ["meter per second", "m/s", ["m/sec"], "speed", true, true, 1],
-        ["meter per second squared", "m?s??", null, "acceleration", true, false, 1],
-        ["parsec", "pc", ["parsec"], "length", false, true, 30856775814671900],
-        ["meter squared per second", "m?/s", null, "kinematic_viscosity", true, false, 1],
-        ["metre", "m", null, "length", true, true, 1],
-        ["miles per hour", "mph", null, "speed", false, true, 0.44704],
-        ["millimetre of mercury", "mmHg", null, "pressure", false, false, 133.322],
-        ["minute", "?", null, "angle", false, false, 0.000290888208665722],
-        ["minute", "min", ["mn"], "time", false, true, 60],
-        ["modern teaspoon", "tspm", null, "volume", false, true, 0.000005],
-        ["mole", "mol", null, "amount_of_substance", true, false, 1],
-        ["morgen", "Morgen", null, "area", false, true, 2500],
-        ["n.u. of action", "?", null, "action", false, false, 1.05457168181818e-34],
-        ["n.u. of mass", "m?", null, "mass", false, false, 9.10938261616162e-31],
-        ["n.u. of speed", "c?", null, "speed", false, false, 299792458],
-        ["n.u. of time", "?/(me?c??)", null, "time", false, false, 1.28808866778687e-21],
-        ["nautical mile", "M", ["Nmi"], "length", false, true, 1852],
-        ["newton", "N", null, "force", true, true, 1],
-        ["œrsted", "Oe ", null, "magnetic_field_intensity", false, false, 79.5774715459477],
-        ["ohm", "Ω", null, "electric_resistance", true, false, 1],
-        ["ounce mass", "ozm", null, "mass", false, true, 0.028349523125],
-        ["pascal", "Pa", null, "pressure", true, false, 1],
-        ["pascal second", "Pa?s", null, "dynamic_viscosity", true, false, 1],
-        ["pferdestärke", "PS", null, "power", false, true, 735.49875],
-        ["phot", "ph", null, "illuminance", false, false, 0.0001],
-        ["pica (1/6 inch)", "pica", null, "length", false, true, 0.00035277777777778],
-        ["pica (1/72 inch)", "Pica", ["Picapt"], "length", false, true, 0.00423333333333333],
-        ["poise", "P", null, "dynamic_viscosity", false, false, 0.1],
-        ["pond", "pond", null, "force", false, true, 0.00980665],
-        ["pound force", "lbf", null, "force", false, true, 4.4482216152605],
-        ["pound mass", "lbm", null, "mass", false, true, 0.45359237],
-        ["quart", "qt", null, "volume", false, true, 0.000946352946],
-        ["radian", "rad", null, "angle", true, false, 1],
-        ["second", "?", null, "angle", false, false, 0.00000484813681109536],
-        ["second", "s", ["sec"], "time", true, true, 1],
-        ["short hundredweight", "cwt", ["shweight"], "mass", false, true, 45.359237],
-        ["siemens", "S", null, "electrical_conductance", true, false, 1],
-        ["sievert", "Sv", null, "equivalent_dose", true, false, 1],
-        ["slug", "sg", null, "mass", false, true, 14.59390294],
-        ["square ångström", "ang2", ["ang^2"], "area", false, true, 1e-20],
-        ["square foot", "ft2", ["ft^2"], "area", false, true, 0.09290304],
-        ["square inch", "in2", ["in^2"], "area", false, true, 0.00064516],
-        ["square light-year", "ly2", ["ly^2"], "area", false, true, 8.95054210748189e+31],
-        ["square meter", "m?", null, "area", true, true, 1],
-        ["square mile", "mi2", ["mi^2"], "area", false, true, 2589988.110336],
-        ["square nautical mile", "Nmi2", ["Nmi^2"], "area", false, true, 3429904],
-        ["square Pica", "Pica2", ["Picapt2", "Pica^2", "Picapt^2"], "area", false, true, 0.00001792111111111],
-        ["square yard", "yd2", ["yd^2"], "area", false, true, 0.83612736],
-        ["statute mile", "mi", null, "length", false, true, 1609.344],
-        ["steradian", "sr", null, "solid_angle", true, false, 1],
-        ["stilb", "sb", null, "luminance", false, false, 0.0001],
-        ["stokes", "St", null, "kinematic_viscosity", false, false, 0.0001],
-        ["stone", "stone", null, "mass", false, true, 6.35029318],
-        ["tablespoon", "tbs", null, "volume", false, true, 0.0000147868],
-        ["teaspoon", "tsp", null, "volume", false, true, 0.00000492892],
-        ["tesla", "T", null, "magnetic_flux_density", true, true, 1],
-        ["thermodynamic calorie", "c", null, "energy", false, true, 4.184],
-        ["ton", "ton", null, "mass", false, true, 907.18474],
-        ["tonne", "t", null, "mass", false, false, 1000],
-        ["U.K. pint", "uk_pt", null, "volume", false, true, 0.00056826125],
-        ["U.S. bushel", "bushel", null, "volume", false, true, 0.03523907],
-        ["U.S. oil barrel", "barrel", null, "volume", false, true, 0.158987295],
-        ["U.S. pint", "pt", ["us_pt"], "volume", false, true, 0.000473176473],
-        ["U.S. survey mile", "survey_mi", null, "length", false, true, 1609.347219],
-        ["U.S. survey/statute acre", "us_acre", null, "area", false, true, 4046.87261],
-        ["volt", "V", null, "voltage", true, false, 1],
-        ["watt", "W", null, "power", true, true, 1],
-        ["watt-hour", "Wh", ["wh"], "energy", false, true, 3600],
-        ["weber", "Wb", null, "magnetic_flux", true, false, 1],
-        ["yard", "yd", null, "length", false, true, 0.9144],
-        ["year", "yr", null, "time", false, true, 31557600]
+        ['a.u. of action', '?', null, 'action', false, false, 1.05457168181818e-34],
+        ['a.u. of charge', 'e', null, 'electric_charge', false, false, 1.60217653141414e-19],
+        ['a.u. of energy', 'Eh', null, 'energy', false, false, 4.35974417757576e-18],
+        ['a.u. of length', 'a?', null, 'length', false, false, 5.29177210818182e-11],
+        ['a.u. of mass', 'm?', null, 'mass', false, false, 9.10938261616162e-31],
+        ['a.u. of time', '?/Eh', null, 'time', false, false, 2.41888432650516e-17],
+        ['admiralty knot', 'admkn', null, 'speed', false, true, 0.514773333],
+        ['ampere', 'A', null, 'electric_current', true, false, 1],
+        ['ampere per meter', 'A/m', null, 'magnetic_field_intensity', true, false, 1],
+        ['ångström', 'Å', ['ang'], 'length', false, true, 1e-10],
+        ['are', 'ar', null, 'area', false, true, 100],
+        ['astronomical unit', 'ua', null, 'length', false, false, 1.49597870691667e-11],
+        ['bar', 'bar', null, 'pressure', false, false, 100000],
+        ['barn', 'b', null, 'area', false, false, 1e-28],
+        ['becquerel', 'Bq', null, 'radioactivity', true, false, 1],
+        ['bit', 'bit', ['b'], 'information', false, true, 1],
+        ['btu', 'BTU', ['btu'], 'energy', false, true, 1055.05585262],
+        ['byte', 'byte', null, 'information', false, true, 8],
+        ['candela', 'cd', null, 'luminous_intensity', true, false, 1],
+        ['candela per square metre', 'cd/m?', null, 'luminance', true, false, 1],
+        ['coulomb', 'C', null, 'electric_charge', true, false, 1],
+        ['cubic ångström', 'ang3', ['ang^3'], 'volume', false, true, 1e-30],
+        ['cubic foot', 'ft3', ['ft^3'], 'volume', false, true, 0.028316846592],
+        ['cubic inch', 'in3', ['in^3'], 'volume', false, true, 0.000016387064],
+        ['cubic light-year', 'ly3', ['ly^3'], 'volume', false, true, 8.46786664623715e-47],
+        ['cubic metre', 'm?', null, 'volume', true, true, 1],
+        ['cubic mile', 'mi3', ['mi^3'], 'volume', false, true, 4168181825.44058],
+        ['cubic nautical mile', 'Nmi3', ['Nmi^3'], 'volume', false, true, 6352182208],
+        ['cubic Pica', 'Pica3', ['Picapt3', 'Pica^3', 'Picapt^3'], 'volume', false, true, 7.58660370370369e-8],
+        ['cubic yard', 'yd3', ['yd^3'], 'volume', false, true, 0.764554857984],
+        ['cup', 'cup', null, 'volume', false, true, 0.0002365882365],
+        ['dalton', 'Da', ['u'], 'mass', false, false, 1.66053886282828e-27],
+        ['day', 'd', ['day'], 'time', false, true, 86400],
+        ['degree', '°', null, 'angle', false, false, 0.0174532925199433],
+        ['degrees Rankine', 'Rank', null, 'temperature', false, true, 0.555555555555556],
+        ['dyne', 'dyn', ['dy'], 'force', false, true, 0.00001],
+        ['electronvolt', 'eV', ['ev'], 'energy', false, true, 1.60217656514141],
+        ['ell', 'ell', null, 'length', false, true, 1.143],
+        ['erg', 'erg', ['e'], 'energy', false, true, 1e-7],
+        ['farad', 'F', null, 'electric_capacitance', true, false, 1],
+        ['fluid ounce', 'oz', null, 'volume', false, true, 0.0000295735295625],
+        ['foot', 'ft', null, 'length', false, true, 0.3048],
+        ['foot-pound', 'flb', null, 'energy', false, true, 1.3558179483314],
+        ['gal', 'Gal', null, 'acceleration', false, false, 0.01],
+        ['gallon', 'gal', null, 'volume', false, true, 0.003785411784],
+        ['gauss', 'G', ['ga'], 'magnetic_flux_density', false, true, 1],
+        ['grain', 'grain', null, 'mass', false, true, 0.0000647989],
+        ['gram', 'g', null, 'mass', false, true, 0.001],
+        ['gray', 'Gy', null, 'absorbed_dose', true, false, 1],
+        ['gross registered ton', 'GRT', ['regton'], 'volume', false, true, 2.8316846592],
+        ['hectare', 'ha', null, 'area', false, true, 10000],
+        ['henry', 'H', null, 'inductance', true, false, 1],
+        ['hertz', 'Hz', null, 'frequency', true, false, 1],
+        ['horsepower', 'HP', ['h'], 'power', false, true, 745.69987158227],
+        ['horsepower-hour', 'HPh', ['hh', 'hph'], 'energy', false, true, 2684519.538],
+        ['hour', 'h', ['hr'], 'time', false, true, 3600],
+        ['imperial gallon (U.K.)', 'uk_gal', null, 'volume', false, true, 0.00454609],
+        ['imperial hundredweight', 'lcwt', ['uk_cwt', 'hweight'], 'mass', false, true, 50.802345],
+        ['imperial quart (U.K)', 'uk_qt', null, 'volume', false, true, 0.0011365225],
+        ['imperial ton', 'brton', ['uk_ton', 'LTON'], 'mass', false, true, 1016.046909],
+        ['inch', 'in', null, 'length', false, true, 0.0254],
+        ['international acre', 'uk_acre', null, 'area', false, true, 4046.8564224],
+        ['IT calorie', 'cal', null, 'energy', false, true, 4.1868],
+        ['joule', 'J', null, 'energy', true, true, 1],
+        ['katal', 'kat', null, 'catalytic_activity', true, false, 1],
+        ['kelvin', 'K', ['kel'], 'temperature', true, true, 1],
+        ['kilogram', 'kg', null, 'mass', true, true, 1],
+        ['knot', 'kn', null, 'speed', false, true, 0.514444444444444],
+        ['light-year', 'ly', null, 'length', false, true, 9460730472580800],
+        ['litre', 'L', ['l', 'lt'], 'volume', false, true, 0.001],
+        ['lumen', 'lm', null, 'luminous_flux', true, false, 1],
+        ['lux', 'lx', null, 'illuminance', true, false, 1],
+        ['maxwell', 'Mx', null, 'magnetic_flux', false, false, 1e-18],
+        ['measurement ton', 'MTON', null, 'volume', false, true, 1.13267386368],
+        ['meter per hour', 'm/h', ['m/hr'], 'speed', false, true, 0.00027777777777778],
+        ['meter per second', 'm/s', ['m/sec'], 'speed', true, true, 1],
+        ['meter per second squared', 'm?s??', null, 'acceleration', true, false, 1],
+        ['parsec', 'pc', ['parsec'], 'length', false, true, 30856775814671900],
+        ['meter squared per second', 'm?/s', null, 'kinematic_viscosity', true, false, 1],
+        ['metre', 'm', null, 'length', true, true, 1],
+        ['miles per hour', 'mph', null, 'speed', false, true, 0.44704],
+        ['millimetre of mercury', 'mmHg', null, 'pressure', false, false, 133.322],
+        ['minute', '?', null, 'angle', false, false, 0.000290888208665722],
+        ['minute', 'min', ['mn'], 'time', false, true, 60],
+        ['modern teaspoon', 'tspm', null, 'volume', false, true, 0.000005],
+        ['mole', 'mol', null, 'amount_of_substance', true, false, 1],
+        ['morgen', 'Morgen', null, 'area', false, true, 2500],
+        ['n.u. of action', '?', null, 'action', false, false, 1.05457168181818e-34],
+        ['n.u. of mass', 'm?', null, 'mass', false, false, 9.10938261616162e-31],
+        ['n.u. of speed', 'c?', null, 'speed', false, false, 299792458],
+        ['n.u. of time', '?/(me?c??)', null, 'time', false, false, 1.28808866778687e-21],
+        ['nautical mile', 'M', ['Nmi'], 'length', false, true, 1852],
+        ['newton', 'N', null, 'force', true, true, 1],
+        ['œrsted', 'Oe ', null, 'magnetic_field_intensity', false, false, 79.5774715459477],
+        ['ohm', 'Ω', null, 'electric_resistance', true, false, 1],
+        ['ounce mass', 'ozm', null, 'mass', false, true, 0.028349523125],
+        ['pascal', 'Pa', null, 'pressure', true, false, 1],
+        ['pascal second', 'Pa?s', null, 'dynamic_viscosity', true, false, 1],
+        ['pferdestärke', 'PS', null, 'power', false, true, 735.49875],
+        ['phot', 'ph', null, 'illuminance', false, false, 0.0001],
+        ['pica (1/6 inch)', 'pica', null, 'length', false, true, 0.00035277777777778],
+        ['pica (1/72 inch)', 'Pica', ['Picapt'], 'length', false, true, 0.00423333333333333],
+        ['poise', 'P', null, 'dynamic_viscosity', false, false, 0.1],
+        ['pond', 'pond', null, 'force', false, true, 0.00980665],
+        ['pound force', 'lbf', null, 'force', false, true, 4.4482216152605],
+        ['pound mass', 'lbm', null, 'mass', false, true, 0.45359237],
+        ['quart', 'qt', null, 'volume', false, true, 0.000946352946],
+        ['radian', 'rad', null, 'angle', true, false, 1],
+        ['second', '?', null, 'angle', false, false, 0.00000484813681109536],
+        ['second', 's', ['sec'], 'time', true, true, 1],
+        ['short hundredweight', 'cwt', ['shweight'], 'mass', false, true, 45.359237],
+        ['siemens', 'S', null, 'electrical_conductance', true, false, 1],
+        ['sievert', 'Sv', null, 'equivalent_dose', true, false, 1],
+        ['slug', 'sg', null, 'mass', false, true, 14.59390294],
+        ['square ångström', 'ang2', ['ang^2'], 'area', false, true, 1e-20],
+        ['square foot', 'ft2', ['ft^2'], 'area', false, true, 0.09290304],
+        ['square inch', 'in2', ['in^2'], 'area', false, true, 0.00064516],
+        ['square light-year', 'ly2', ['ly^2'], 'area', false, true, 8.95054210748189e31],
+        ['square meter', 'm?', null, 'area', true, true, 1],
+        ['square mile', 'mi2', ['mi^2'], 'area', false, true, 2589988.110336],
+        ['square nautical mile', 'Nmi2', ['Nmi^2'], 'area', false, true, 3429904],
+        ['square Pica', 'Pica2', ['Picapt2', 'Pica^2', 'Picapt^2'], 'area', false, true, 0.00001792111111111],
+        ['square yard', 'yd2', ['yd^2'], 'area', false, true, 0.83612736],
+        ['statute mile', 'mi', null, 'length', false, true, 1609.344],
+        ['steradian', 'sr', null, 'solid_angle', true, false, 1],
+        ['stilb', 'sb', null, 'luminance', false, false, 0.0001],
+        ['stokes', 'St', null, 'kinematic_viscosity', false, false, 0.0001],
+        ['stone', 'stone', null, 'mass', false, true, 6.35029318],
+        ['tablespoon', 'tbs', null, 'volume', false, true, 0.0000147868],
+        ['teaspoon', 'tsp', null, 'volume', false, true, 0.00000492892],
+        ['tesla', 'T', null, 'magnetic_flux_density', true, true, 1],
+        ['thermodynamic calorie', 'c', null, 'energy', false, true, 4.184],
+        ['ton', 'ton', null, 'mass', false, true, 907.18474],
+        ['tonne', 't', null, 'mass', false, false, 1000],
+        ['U.K. pint', 'uk_pt', null, 'volume', false, true, 0.00056826125],
+        ['U.S. bushel', 'bushel', null, 'volume', false, true, 0.03523907],
+        ['U.S. oil barrel', 'barrel', null, 'volume', false, true, 0.158987295],
+        ['U.S. pint', 'pt', ['us_pt'], 'volume', false, true, 0.000473176473],
+        ['U.S. survey mile', 'survey_mi', null, 'length', false, true, 1609.347219],
+        ['U.S. survey/statute acre', 'us_acre', null, 'area', false, true, 4046.87261],
+        ['volt', 'V', null, 'voltage', true, false, 1],
+        ['watt', 'W', null, 'power', true, true, 1],
+        ['watt-hour', 'Wh', ['wh'], 'energy', false, true, 3600],
+        ['weber', 'Wb', null, 'magnetic_flux', true, false, 1],
+        ['yard', 'yd', null, 'length', false, true, 0.9144],
+        ['year', 'yr', null, 'time', false, true, 31557600],
       ];
 
       // Binary prefixes
       // [Name, Prefix power of 2 value, Previx value, Abbreviation, Derived from]
       var binary_prefixes = {
-        Yi: ["yobi", 80, 1208925819614629174706176, "Yi", "yotta"],
-        Zi: ["zebi", 70, 1180591620717411303424, "Zi", "zetta"],
-        Ei: ["exbi", 60, 1152921504606846976, "Ei", "exa"],
-        Pi: ["pebi", 50, 1125899906842624, "Pi", "peta"],
-        Ti: ["tebi", 40, 1099511627776, "Ti", "tera"],
-        Gi: ["gibi", 30, 1073741824, "Gi", "giga"],
-        Mi: ["mebi", 20, 1048576, "Mi", "mega"],
-        ki: ["kibi", 10, 1024, "ki", "kilo"]
+        Yi: ['yobi', 80, 1208925819614629174706176, 'Yi', 'yotta'],
+        Zi: ['zebi', 70, 1180591620717411303424, 'Zi', 'zetta'],
+        Ei: ['exbi', 60, 1152921504606846976, 'Ei', 'exa'],
+        Pi: ['pebi', 50, 1125899906842624, 'Pi', 'peta'],
+        Ti: ['tebi', 40, 1099511627776, 'Ti', 'tera'],
+        Gi: ['gibi', 30, 1073741824, 'Gi', 'giga'],
+        Mi: ['mebi', 20, 1048576, 'Mi', 'mega'],
+        ki: ['kibi', 10, 1024, 'ki', 'kilo'],
       };
 
       // Unit prefixes
       // [Name, Multiplier, Abbreviation]
       var unit_prefixes = {
-        Y: ["yotta", 1e+24, "Y"],
-        Z: ["zetta", 1e+21, "Z"],
-        E: ["exa", 1e+18, "E"],
-        P: ["peta", 1e+15, "P"],
-        T: ["tera", 1e+12, "T"],
-        G: ["giga", 1e+09, "G"],
-        M: ["mega", 1e+06, "M"],
-        k: ["kilo", 1e+03, "k"],
-        h: ["hecto", 1e+02, "h"],
-        e: ["dekao", 1e+01, "e"],
-        d: ["deci", 1e-01, "d"],
-        c: ["centi", 1e-02, "c"],
-        m: ["milli", 1e-03, "m"],
-        u: ["micro", 1e-06, "u"],
-        n: ["nano", 1e-09, "n"],
-        p: ["pico", 1e-12, "p"],
-        f: ["femto", 1e-15, "f"],
-        a: ["atto", 1e-18, "a"],
-        z: ["zepto", 1e-21, "z"],
-        y: ["yocto", 1e-24, "y"]
+        Y: ['yotta', 1e24, 'Y'],
+        Z: ['zetta', 1e21, 'Z'],
+        E: ['exa', 1e18, 'E'],
+        P: ['peta', 1e15, 'P'],
+        T: ['tera', 1e12, 'T'],
+        G: ['giga', 1e9, 'G'],
+        M: ['mega', 1e6, 'M'],
+        k: ['kilo', 1e3, 'k'],
+        h: ['hecto', 1e2, 'h'],
+        e: ['dekao', 1e1, 'e'],
+        d: ['deci', 1e-1, 'd'],
+        c: ['centi', 1e-2, 'c'],
+        m: ['milli', 1e-3, 'm'],
+        u: ['micro', 1e-6, 'u'],
+        n: ['nano', 1e-9, 'n'],
+        p: ['pico', 1e-12, 'p'],
+        f: ['femto', 1e-15, 'f'],
+        a: ['atto', 1e-18, 'a'],
+        z: ['zepto', 1e-21, 'z'],
+        y: ['yocto', 1e-24, 'y'],
       };
 
       // Initialize units and multipliers
@@ -16567,7 +16138,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup from and to units
       for (var i = 0; i < units.length; i++) {
-        alt = (units[i][2] === null) ? [] : units[i][2];
+        alt = units[i][2] === null ? [] : units[i][2];
         if (units[i][1] === base_from_unit || alt.indexOf(base_from_unit) >= 0) {
           from = units[i];
         }
@@ -16583,7 +16154,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Handle dekao unit prefix (only unit prefix with two characters)
         if (from_unit.substring(0, 2) === 'da') {
-          from_unit_prefix = ["dekao", 1e+01, "da"];
+          from_unit_prefix = ['dekao', 1e1, 'da'];
         }
 
         // Handle binary prefixes first (so that 'Yi' is processed before 'Y')
@@ -16597,7 +16168,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Lookup from unit
         for (var j = 0; j < units.length; j++) {
-          alt = (units[j][2] === null) ? [] : units[j][2];
+          alt = units[j][2] === null ? [] : units[j][2];
           if (units[j][1] === base_from_unit || alt.indexOf(base_from_unit) >= 0) {
             from = units[j];
           }
@@ -16611,7 +16182,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Handle dekao unit prefix (only unit prefix with two characters)
         if (to_unit.substring(0, 2) === 'da') {
-          to_unit_prefix = ["dekao", 1e+01, "da"];
+          to_unit_prefix = ['dekao', 1e1, 'da'];
         }
 
         // Handle binary prefixes first (so that 'Yi' is processed before 'Y')
@@ -16625,7 +16196,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Lookup to unit
         for (var k = 0; k < units.length; k++) {
-          alt = (units[k][2] === null) ? [] : units[k][2];
+          alt = units[k][2] === null ? [] : units[k][2];
           if (units[k][1] === base_to_unit || alt.indexOf(base_to_unit) >= 0) {
             to = units[k];
           }
@@ -16643,7 +16214,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return converted number
-      return number * from[6] * from_multiplier / (to[6] * to_multiplier);
+      return (number * from[6] * from_multiplier) / (to[6] * to_multiplier);
     };
 
     Formula.DEC2BIN = function (number, places) {
@@ -16683,7 +16254,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16724,7 +16295,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16765,13 +16336,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
     Formula.DELTA = function (number1, number2) {
       // Set number2 to zero if undefined
-      number2 = (typeof number2 === 'undefined') ? 0 : number2;
+      number2 = typeof number2 === 'undefined' ? 0 : number2;
 
       // Return error if either number is not a number
       if (isNaN(number1) || isNaN(number2)) {
@@ -16779,12 +16350,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return delta
-      return (number1 === number2) ? 1 : 0;
+      return number1 === number2 ? 1 : 0;
     };
 
     Formula.ERF = function (lower_bound, upper_bound) {
       // Set number2 to zero if undefined
-      upper_bound = (typeof upper_bound === 'undefined') ? 0 : upper_bound;
+      upper_bound = typeof upper_bound === 'undefined' ? 0 : upper_bound;
 
       // Return error if either number is not a number
       if (isNaN(lower_bound) || isNaN(upper_bound)) {
@@ -16815,7 +16386,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.GESTEP = function (number, step) {
       // Set step to zero if undefined
-      step = (typeof step === 'undefined') ? 0 : step;
+      step = typeof step === 'undefined' ? 0 : step;
 
       // Return error if either number is not a number
       if (isNaN(number) || isNaN(step)) {
@@ -16823,21 +16394,20 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return delta
-      return (number >= step) ? 1 : 0;
+      return number >= step ? 1 : 0;
     };
 
     Formula.HEX2BIN = function (number, places) {
-
       // Return error if number is not hexadecimal or contains more than ten characters (10 digits)
       if (!/^[0-9A-Fa-f]{1,10}$/.test(number)) {
         return '#NUM!';
       }
 
       // Check if number is negative
-      var negative = (number.length === 10 && number.substring(0, 1).toLowerCase() === 'f') ? true : false;
+      var negative = number.length === 10 && number.substring(0, 1).toLowerCase() === 'f' ? true : false;
 
       // Convert hexadecimal number to decimal
-      var decimal = (negative) ? parseInt(number, 16) - 1099511627776 : parseInt(number, 16);
+      var decimal = negative ? parseInt(number, 16) - 1099511627776 : parseInt(number, 16);
 
       // Return error if number is lower than -512 or greater than 511
       if (decimal < -512 || decimal > 511) {
@@ -16870,7 +16440,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16884,7 +16454,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var decimal = parseInt(number, 16);
 
       // Return decimal number
-      return (decimal >= 549755813888) ? decimal - 1099511627776 : decimal;
+      return decimal >= 549755813888 ? decimal - 1099511627776 : decimal;
     };
 
     Formula.HEX2OCT = function (number, places) {
@@ -16927,7 +16497,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -16972,7 +16542,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var last = inumber.substring(inumber.length - 1, inumber.length);
-      var unit = (last === 'i' || last === 'j');
+      var unit = last === 'i' || last === 'j';
 
       if (plus >= 0 || minus >= 0) {
         // Return error if imaginary unit is neither i nor j
@@ -16982,19 +16552,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Return imaginary coefficient of complex number
         if (plus >= 0) {
-          return (isNaN(inumber.substring(0, plus)) || isNaN(inumber.substring(plus + 1, inumber.length - 1))) ?
-            '#NUM!' :
-            Number(inumber.substring(plus + 1, inumber.length - 1));
+          return isNaN(inumber.substring(0, plus)) || isNaN(inumber.substring(plus + 1, inumber.length - 1)) ? '#NUM!' : Number(inumber.substring(plus + 1, inumber.length - 1));
         } else {
-          return (isNaN(inumber.substring(0, minus)) || isNaN(inumber.substring(minus + 1, inumber.length - 1))) ?
-            '#NUM!' :
-            -Number(inumber.substring(minus + 1, inumber.length - 1));
+          return isNaN(inumber.substring(0, minus)) || isNaN(inumber.substring(minus + 1, inumber.length - 1)) ? '#NUM!' : -Number(inumber.substring(minus + 1, inumber.length - 1));
         }
       } else {
         if (unit) {
-          return (isNaN(inumber.substring(0, inumber.length - 1))) ? '#NUM!' : inumber.substring(0, inumber.length - 1);
+          return isNaN(inumber.substring(0, inumber.length - 1)) ? '#NUM!' : inumber.substring(0, inumber.length - 1);
         } else {
-          return (isNaN(inumber)) ? '#NUM!' : 0;
+          return isNaN(inumber) ? '#NUM!' : 0;
         }
       }
     };
@@ -17051,7 +16617,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17059,7 +16625,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return conjugate of complex number
-      return (y !== 0) ? Formula.COMPLEX(x, -y, unit) : inumber;
+      return y !== 0 ? Formula.COMPLEX(x, -y, unit) : inumber;
     };
 
     Formula.IMCOS = function (inumber) {
@@ -17074,7 +16640,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17082,7 +16648,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return cosine of complex number
-      return Formula.COMPLEX(Math.cos(x) * (Math.exp(y) + Math.exp(-y)) / 2, -Math.sin(x) * (Math.exp(y) - Math.exp(-y)) / 2, unit);
+      return Formula.COMPLEX((Math.cos(x) * (Math.exp(y) + Math.exp(-y))) / 2, (-Math.sin(x) * (Math.exp(y) - Math.exp(-y))) / 2, unit);
     };
 
     Formula.IMCOSH = function (inumber) {
@@ -17097,7 +16663,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17105,7 +16671,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return hyperbolic cosine of complex number
-      return Formula.COMPLEX(Math.cos(y) * (Math.exp(x) + Math.exp(-x)) / 2, Math.sin(y) * (Math.exp(x) - Math.exp(-x)) / 2, unit);
+      return Formula.COMPLEX((Math.cos(y) * (Math.exp(x) + Math.exp(-x))) / 2, (Math.sin(y) * (Math.exp(x) - Math.exp(-x))) / 2, unit);
     };
 
     Formula.IMCOT = function (inumber) {
@@ -17204,7 +16770,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17223,7 +16789,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17241,7 +16807,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17259,7 +16825,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17282,7 +16848,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17347,7 +16913,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var last = inumber.substring(inumber.length - 1, inumber.length);
-      var unit = (last === 'i' || last === 'j');
+      var unit = last === 'i' || last === 'j';
 
       if (plus >= 0 || minus >= 0) {
         // Return error if imaginary unit is neither i nor j
@@ -17357,19 +16923,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
         // Return real coefficient of complex number
         if (plus >= 0) {
-          return (isNaN(inumber.substring(0, plus)) || isNaN(inumber.substring(plus + 1, inumber.length - 1))) ?
-            '#NUM!' :
-            Number(inumber.substring(0, plus));
+          return isNaN(inumber.substring(0, plus)) || isNaN(inumber.substring(plus + 1, inumber.length - 1)) ? '#NUM!' : Number(inumber.substring(0, plus));
         } else {
-          return (isNaN(inumber.substring(0, minus)) || isNaN(inumber.substring(minus + 1, inumber.length - 1))) ?
-            '#NUM!' :
-            Number(inumber.substring(0, minus));
+          return isNaN(inumber.substring(0, minus)) || isNaN(inumber.substring(minus + 1, inumber.length - 1)) ? '#NUM!' : Number(inumber.substring(0, minus));
         }
       } else {
         if (unit) {
-          return (isNaN(inumber.substring(0, inumber.length - 1))) ? '#NUM!' : 0;
+          return isNaN(inumber.substring(0, inumber.length - 1)) ? '#NUM!' : 0;
         } else {
-          return (isNaN(inumber)) ? '#NUM!' : inumber;
+          return isNaN(inumber) ? '#NUM!' : inumber;
         }
       }
     };
@@ -17424,7 +16986,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17432,7 +16994,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return sine of complex number
-      return Formula.COMPLEX(Math.sin(x) * (Math.exp(y) + Math.exp(-y)) / 2, Math.cos(x) * (Math.exp(y) - Math.exp(-y)) / 2, unit);
+      return Formula.COMPLEX((Math.sin(x) * (Math.exp(y) + Math.exp(-y))) / 2, (Math.cos(x) * (Math.exp(y) - Math.exp(-y))) / 2, unit);
     };
 
     Formula.IMSINH = function (inumber) {
@@ -17447,7 +17009,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17455,7 +17017,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return hyperbolic sine of complex number
-      return Formula.COMPLEX(Math.cos(y) * (Math.exp(x) - Math.exp(-x)) / 2, Math.sin(y) * (Math.exp(x) + Math.exp(-x)) / 2, unit);
+      return Formula.COMPLEX((Math.cos(y) * (Math.exp(x) - Math.exp(-x))) / 2, (Math.sin(y) * (Math.exp(x) + Math.exp(-x))) / 2, unit);
     };
 
     Formula.IMSQRT = function (inumber) {
@@ -17465,7 +17027,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Lookup imaginary unit
       var unit = inumber.substring(inumber.length - 1);
-      unit = (unit === 'i' || unit === 'j') ? unit : 'i';
+      unit = unit === 'i' || unit === 'j' ? unit : 'i';
 
       // Return error if either coefficient is not a number
       if (x === '#NUM!' || y === '#NUM!') {
@@ -17559,10 +17121,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Check if number is negative
-      var negative = (number.length === 10 && number.substring(0, 1) === '7') ? true : false;
+      var negative = number.length === 10 && number.substring(0, 1) === '7' ? true : false;
 
       // Convert octal number to decimal
-      var decimal = (negative) ? parseInt(number, 8) - 1073741824 : parseInt(number, 8);
+      var decimal = negative ? parseInt(number, 8) - 1073741824 : parseInt(number, 8);
 
       // Return error if number is lower than -512 or greater than 511
       if (decimal < -512 || decimal > 511) {
@@ -17595,7 +17157,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
 
@@ -17609,7 +17171,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var decimal = parseInt(number, 8);
 
       // Return decimal number
-      return (decimal >= 536870912) ? decimal - 1073741824 : decimal;
+      return decimal >= 536870912 ? decimal - 1073741824 : decimal;
     };
 
     Formula.OCT2HEX = function (number, places) {
@@ -17647,10 +17209,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
         places = Math.floor(places);
 
         // Pad return value with leading 0s (zeros) if necessary (using Underscore.string)
-        return (places >= result.length) ? _s.repeat('0', places - result.length) + result : '#NUM!';
+        return places >= result.length ? _s.repeat('0', places - result.length) + result : '#NUM!';
       }
     };
-
 
     // Financial functions
 
@@ -17681,9 +17242,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Set default values
-      par = (typeof par === 'undefined') ? 0 : par;
-      basis = (typeof basis === 'undefined') ? 0 : basis;
-      method = (typeof method === 'undefined') ? true : method;
+      par = typeof par === 'undefined' ? 0 : par;
+      basis = typeof basis === 'undefined' ? 0 : basis;
+      method = typeof method === 'undefined' ? true : method;
 
       // Compute accrued interest
       var factor = 0;
@@ -17845,7 +17406,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.DB = function (cost, salvage, life, period, month) {
       // Initialize month
-      month = (typeof month === 'undefined') ? 12 : month;
+      month = typeof month === 'undefined' ? 12 : month;
 
       // Return error if any of the parameters is not a number
       if (isNaN(cost) || isNaN(salvage) || isNaN(life) || isNaN(period) || isNaN(month)) {
@@ -17877,12 +17438,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var rate = (1 - Math.pow(salvage / cost, 1 / life)).toFixed(3);
 
       // Compute initial depreciation
-      var initial = cost * rate * month / 12;
+      var initial = (cost * rate * month) / 12;
 
       // Compute total depreciation
       var total = initial;
       var current = 0;
-      var ceiling = (period === life) ? life - 1 : period;
+      var ceiling = period === life ? life - 1 : period;
       for (var i = 2; i <= ceiling; i++) {
         current = (cost - total) * rate;
         total += current;
@@ -17902,7 +17463,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.DDB = function (cost, salvage, life, period, factor) {
       // Initialize factor
-      factor = (typeof factor === 'undefined') ? 2 : factor;
+      factor = typeof factor === 'undefined' ? 2 : factor;
 
       // Return error if any of the parameters is not a number
       if (isNaN(cost) || isNaN(salvage) || isNaN(life) || isNaN(period) || isNaN(factor)) {
@@ -17928,7 +17489,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var total = 0;
       var current = 0;
       for (var i = 1; i <= period; i++) {
-        current = Math.min((cost - total) * (factor / life), (cost - salvage - total));
+        current = Math.min((cost - total) * (factor / life), cost - salvage - total);
         total += current;
       }
 
@@ -17965,7 +17526,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var result = parseInt(dollar, 10);
 
       // Add decimal part
-      result += (dollar % 1) * Math.pow(10, Math.ceil(Math.log(fraction) / Math.LN10)) / fraction;
+      result += ((dollar % 1) * Math.pow(10, Math.ceil(Math.log(fraction) / Math.LN10))) / fraction;
 
       // Round result
       var power = Math.pow(10, Math.ceil(Math.log(fraction) / Math.LN2) + 1);
@@ -18032,7 +17593,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Credits: algorithm inspired by Apache OpenOffice
 
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
 
       // Evaluate rate (TODO: replace with secure expression evaluator)
       rate = eval(rate);
@@ -18044,9 +17605,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
       } else {
         var term = Math.pow(1 + rate, periods);
         if (type === 1) {
-          result = value * term + payment * (1 + rate) * (term - 1.0) / rate;
+          result = value * term + (payment * (1 + rate) * (term - 1.0)) / rate;
         } else {
-          result = value * term + payment * (term - 1) / rate;
+          result = value * term + (payment * (term - 1)) / rate;
         }
       }
       return -result;
@@ -18079,7 +17640,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Credits: algorithm inspired by Apache OpenOffice
 
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
 
       // Evaluate rate and periods (TODO: replace with secure expression evaluator)
       rate = eval(rate);
@@ -18130,7 +17691,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         var result = 0;
         for (var i = 1; i < values.length; i++) {
           var frac = (dates[i] - dates[0]) / 365;
-          result -= frac * values[i] / Math.pow(r, frac + 1);
+          result -= (frac * values[i]) / Math.pow(r, frac + 1);
         }
         return result;
       };
@@ -18140,7 +17701,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var positive = false;
       var negative = false;
       for (var i = 0; i < values.length; i++) {
-        dates[i] = (i === 0) ? 0 : dates[i - 1] + 365;
+        dates[i] = i === 0 ? 0 : dates[i - 1] + 365;
         if (values[i] > 0) {
           positive = true;
         }
@@ -18155,7 +17716,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Initialize guess and resultRate
-      guess = (typeof guess === 'undefined') ? 0.1 : guess;
+      guess = typeof guess === 'undefined' ? 0.1 : guess;
       var resultRate = guess;
 
       // Set maximum epsilon for end of iteration
@@ -18173,8 +17734,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
         newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
         epsRate = Math.abs(newRate - resultRate);
         resultRate = newRate;
-        contLoop = (epsRate > epsMax) && (Math.abs(resultValue) > epsMax);
-      } while (contLoop && (++iteration < iterMax));
+        contLoop = epsRate > epsMax && Math.abs(resultValue) > epsMax;
+      } while (contLoop && ++iteration < iterMax);
 
       if (contLoop) {
         return '#NUM!';
@@ -18238,17 +17799,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.NPER = function (rate, payment, present, future, type) {
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
 
       // Initialize future value
-      future = (typeof future === 'undefined') ? 0 : future;
+      future = typeof future === 'undefined' ? 0 : future;
 
       // Evaluate rate and periods (TODO: replace with secure expression evaluator)
       rate = eval(rate);
 
       // Return number of periods
       var num = payment * (1 + rate * type) - future * rate;
-      var den = (present * rate + payment * (1 + rate * type));
+      var den = present * rate + payment * (1 + rate * type);
       return Math.log(num / den) / Math.log(1 + rate);
     };
 
@@ -18309,7 +17870,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Credits: algorithm inspired by Apache OpenOffice
 
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
       future = future || 0;
 
       // Evaluate rate and periods (TODO: replace with secure expression evaluator)
@@ -18322,9 +17883,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
       } else {
         var term = Math.pow(1 + rate, periods);
         if (type === 1) {
-          result = (future * rate / (term - 1) + present * rate / (1 - 1 / term)) / (1 + rate);
+          result = ((future * rate) / (term - 1) + (present * rate) / (1 - 1 / term)) / (1 + rate);
         } else {
-          result = future * rate / (term - 1) + present * rate / (1 - 1 / term);
+          result = (future * rate) / (term - 1) + (present * rate) / (1 - 1 / term);
         }
       }
       return -result;
@@ -18348,7 +17909,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.PV = function (rate, periods, payment, future, type) {
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
 
       // Evaluate rate and periods (TODO: replace with secure expression evaluator)
       rate = eval(rate);
@@ -18366,13 +17927,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
       // Credits: rabugento
 
       // Initialize guess
-      guess = (typeof guess === 'undefined') ? 0.01 : guess;
+      guess = typeof guess === 'undefined' ? 0.01 : guess;
 
       // Initialize future
-      future = (typeof future === 'undefined') ? 0 : future;
+      future = typeof future === 'undefined' ? 0 : future;
 
       // Initialize type
-      type = (typeof type === 'undefined') ? 0 : type;
+      type = typeof type === 'undefined' ? 0 : type;
 
       // Evaluate periods (TODO: replace with secure expression evaluator)
       periods = eval(periods);
@@ -18384,7 +17945,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var iterMax = 50;
 
       // Implement Newton's method
-      var y, y0, y1, x0, x1 = 0, f = 0, i = 0;
+      var y,
+        y0,
+        y1,
+        x0,
+        x1 = 0,
+        f = 0,
+        i = 0;
       var rate = guess;
       if (Math.abs(rate) < epsMax) {
         y = present * (1 + periods * rate) + payment * (1 + rate * type) * periods + future;
@@ -18396,7 +17963,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       y1 = present * f + payment * (1 / rate + type) * (f - 1) + future;
       i = x0 = 0;
       x1 = rate;
-      while ((Math.abs(y0 - y1) > epsMax) && (i < iterMax)) {
+      while (Math.abs(y0 - y1) > epsMax && i < iterMax) {
         rate = (y1 * x0 - y0 * x1) / (y1 - y0);
         x0 = x1;
         x1 = rate;
@@ -18467,7 +18034,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       period = parseInt(period, 10);
 
       // Return straight-line depreciation
-      return (cost - salvage) * (life - period + 1) * 2 / (life * (life + 1));
+      return ((cost - salvage) * (life - period + 1) * 2) / (life * (life + 1));
     };
 
     Formula.TBILLEQ = function (settlement, maturity, discount) {
@@ -18517,7 +18084,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return bond-equivalent yield
-      return 100 * (1 - discount * Formula.DAYS360(settlement, maturity) / 360);
+      return 100 * (1 - (discount * Formula.DAYS360(settlement, maturity)) / 360);
     };
 
     Formula.TBILLYIELD = function (settlement, maturity, price) {
@@ -18542,13 +18109,12 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return bond-equivalent yield
-      return (100 - price) * 360 / (price * Formula.DAYS360(settlement, maturity));
+      return ((100 - price) * 360) / (price * Formula.DAYS360(settlement, maturity));
     };
 
     Formula.VDB = function () {
       return;
     };
-
 
     Formula.XIRR = function (values, dates, guess) {
       // Credits: algorithm inspired by Apache OpenOffice
@@ -18569,7 +18135,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         var result = 0;
         for (var i = 1; i < values.length; i++) {
           var frac = moment(dates[i]).diff(moment(dates[0]), 'days') / 365;
-          result -= frac * values[i] / Math.pow(r, frac + 1);
+          result -= (frac * values[i]) / Math.pow(r, frac + 1);
         }
         return result;
       };
@@ -18610,8 +18176,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
         newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
         epsRate = Math.abs(newRate - resultRate);
         resultRate = newRate;
-        contLoop = (epsRate > epsMax) && (Math.abs(resultValue) > epsMax);
-      } while (contLoop && (++iteration < iterMax));
+        contLoop = epsRate > epsMax && Math.abs(resultValue) > epsMax;
+      } while (contLoop && ++iteration < iterMax);
 
       if (contLoop) {
         return '#NUM!';
@@ -18638,16 +18204,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.YIELDMAT = function () {
-	  return;
+      return;
     };
-
 
     // Information functions
 
     Formula.ISNUMBER = function (number) {
-      return (!isNaN(parseFloat(number)) && isFinite(number)) ? true : false;
+      return !isNaN(parseFloat(number)) && isFinite(number) ? true : false;
     };
-
 
     // Logical functions
 
@@ -18667,7 +18231,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.SWITCH = function () {
       var result;
-      if (arguments.length > 0)  {
+      if (arguments.length > 0) {
         var targetValue = arguments[0];
         var argc = arguments.length - 1;
         var switchCount = Math.floor(argc / 2);
@@ -18693,11 +18257,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.IF = function (test, then_value, otherwise_value) {
-      return test?then_value:otherwise_value;
+      return test ? then_value : otherwise_value;
     };
 
     Formula.IFNA = function (value, value_if_na) {
-      return (value === '#N/A') ? value_if_na : value;
+      return value === '#N/A' ? value_if_na : value;
     };
 
     Formula.NOT = function (logical) {
@@ -18725,9 +18289,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
           result++;
         }
       }
-      return (Math.floor(Math.abs(result)) & 1) ? true : false;
+      return Math.floor(Math.abs(result)) & 1 ? true : false;
     };
-
 
     // Lookup and reference functions
 
@@ -18749,7 +18312,6 @@ this.j$ = this.jStat = (function(Math, undefined) {
         return;
       }
     };
-
 
     // Math functions
 
@@ -18846,7 +18408,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
       var r = 0;
       text.replace(/[MDLV]|C[MD]?|X[CL]?|I[XV]?/g, function (i) {
-        r += {M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1}[i];
+        r += { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 }[i];
       });
       return r;
     };
@@ -18872,7 +18434,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.BASE = function (number, radix, min_length) {
-      min_length = (typeof min_length === 'undefined') ? 0 : min_length;
+      min_length = typeof min_length === 'undefined' ? 0 : min_length;
       var result = number.toString(radix);
       return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
     };
@@ -18881,8 +18443,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
       if (significance === 0) {
         return 0;
       }
-      significance = (typeof significance === 'undefined') ? 1 : Math.abs(significance);
-      mode = (typeof mode === 'undefined') ? 0 : mode;
+      significance = typeof significance === 'undefined' ? 1 : Math.abs(significance);
+      mode = typeof mode === 'undefined' ? 0 : mode;
       var precision = -Math.floor(Math.log(significance) / Math.log(10));
       if (number >= 0) {
         return Formula.ROUND(Math.ceil(number / significance) * significance, precision);
@@ -18904,7 +18466,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.COMBINA = function (number, number_chosen) {
-      return (number === 0 && number_chosen === 0) ? 1 : Formula.COMBIN(number + number_chosen - 1, number - 1);
+      return number === 0 && number_chosen === 0 ? 1 : Formula.COMBIN(number + number_chosen - 1, number - 1);
     };
 
     Formula.COS = Math.cos;
@@ -18935,7 +18497,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.DEGREES = function (number) {
-      return number * 180 / Math.PI;
+      return (number * 180) / Math.PI;
     };
 
     Formula.EVEN = function (number) {
@@ -18982,7 +18544,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.FLOORMATH = Formula.FLOOR;
 
-    Formula.FLOORPRECISE = function(number, significance) {
+    Formula.FLOORPRECISE = function (number, significance) {
       if (significance === 0) {
         return 0;
       }
@@ -18997,7 +18559,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.GCD = function () {
       // Credits: Andrew Pociu
-      for (var r, a, i = arguments.length - 1, result = arguments[i]; i;) {
+      for (var r, a, i = arguments.length - 1, result = arguments[i]; i; ) {
         for (a = arguments[--i]; (r = a % result); a = result, result = r) {
           //empty
         }
@@ -19010,29 +18572,29 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.ISEVEN = function (number) {
-      return (Math.floor(Math.abs(number)) & 1) ? false : true;
+      return Math.floor(Math.abs(number)) & 1 ? false : true;
     };
 
     Formula.ISOCEILING = Formula.CEILING;
 
     Formula.ISODD = function (number) {
-      return (Math.floor(Math.abs(number)) & 1) ? true : false;
+      return Math.floor(Math.abs(number)) & 1 ? true : false;
     };
 
     Formula.LCM = function () {
       // Credits: Jonas Raoni Soares Silva
       var o = Formula.ARGSTOARRAY(arguments);
-      for (var i, j, n, d, r = 1; (n = o.pop()) !== undefined;) {
+      for (var i, j, n, d, r = 1; (n = o.pop()) !== undefined; ) {
         while (n > 1) {
           if (n % 2) {
             for (i = 3, j = Math.floor(Math.sqrt(n)); i <= j && n % i; i += 2) {
               //empty
             }
-            d = (i <= j) ? i : n;
+            d = i <= j ? i : n;
           } else {
             d = 2;
           }
-          for (n /= d, r *= d, i = o.length; i; (o[--i] % d) === 0 && (o[i] /= d) === 1 && o.splice(i, 1)) {
+          for (n /= d, r *= d, i = o.length; i; o[--i] % d === 0 && (o[i] /= d) === 1 && o.splice(i, 1)) {
             //empty
           }
         }
@@ -19045,7 +18607,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.LOG = function (number, base) {
-      base = (typeof base === 'undefined') ? 10 : base;
+      base = typeof base === 'undefined' ? 10 : base;
       return Math.log(number) / Math.log(base);
     };
 
@@ -19055,7 +18617,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.MOD = function (dividend, divisor) {
       var modulus = Math.abs(dividend % divisor);
-      return (divisor > 0) ? modulus : -modulus;
+      return divisor > 0 ? modulus : -modulus;
     };
 
     Formula.MROUND = function (number, multiple) {
@@ -19078,8 +18640,8 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.ODD = function (number) {
       var temp = Math.ceil(Math.abs(number));
-      temp = (temp & 1) ? temp : temp + 1;
-      return (number > 0) ? temp : -temp;
+      temp = temp & 1 ? temp : temp + 1;
+      return number > 0 ? temp : -temp;
     };
 
     Formula.E = function () {
@@ -19112,7 +18674,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.RADIANS = function (number) {
-      return number * Math.PI / 180;
+      return (number * Math.PI) / 180;
     };
 
     Formula.RAND = function () {
@@ -19130,13 +18692,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.ROUNDDOWN = function (number, digits) {
-      var sign = (number > 0) ? 1 : -1;
-      return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+      var sign = number > 0 ? 1 : -1;
+      return (sign * Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
     };
 
     Formula.ROUNDUP = function (number, digits) {
-      var sign = (number > 0) ? 1 : -1;
-      return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+      var sign = number > 0 ? 1 : -1;
+      return (sign * Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
     };
 
     Formula.SERIESSUM = function (x, n, m, coefficients) {
@@ -19178,84 +18740,106 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.SUBTOTAL = function (function_code) {
-		var result = [];
-		for (var i = 1; i < arguments.length; i++) {
-			switch (function_code) {
-				case 1:case 101:
-					result[i - 1] = Formula.AVERAGE(arguments[i]);
-					break;
-				case 2:case 102:
-					result[i - 1] = Formula.COUNT(arguments[i]);
-					break;
-				case 3:case 103:
-					result[i - 1] = Formula.COUNTA(arguments[i]);
-					break;
-				case 4:case 104:
-					result[i - 1] = Formula.MAX(arguments[i]);
-					break;
-				case 5:case 105:
-					result[i - 1] = Formula.MIN(arguments[i]);
-					break;
-				case 6:case 106:
-					result[i - 1] = Formula.PRODUCT(arguments[i]);
-					break;
-				case 7:case 107:
-					result[i - 1] = Formula.STDEV(arguments[i]);
-					break;
-				case 8:case 108:
-					result[i - 1] = Formula.STDEVP(arguments[i]);
-					break;
-				case 9:case 109:
-					result[i - 1] = Formula.SUM(arguments[i]);
-					break;
-				case 10:case 110:
-					result[i - 1] = Formula.VAR(arguments[i]);
-					break;
-				case 11:case 111:
-					result[i - 1] = Formula.VARP(arguments[i]);
-					break;
-				default:
-					break;
-			}
-		}
-		switch (function_code) {
-			case 1:case 101:
-				return Formula.AVERAGE(result);
-				break;
-			case 2:case 102:
-				return Formula.COUNT(result);
-				break;
-			case 3:case 103:
-				return Formula.COUNTA(result);
-				break;
-			case 4:case 104:
-				return Formula.MAX(result);
-				break;
-			case 5:case 105:
-				return Formula.MIN(result);
-				break;
-			case 6:case 106:
-				return Formula.PRODUCT(result);
-				break;
-			case 7:case 107:
-				return Formula.STDEV(result);
-				break;
-			case 8:case 108:
-				return Formula.STDEVP(result);
-				break;
-			case 9:case 109:
-				return Formula.SUM(result);
-				break;
-			case 10:case 110:
-				return Formula.VAR(result);
-				break;
-			case 11:case 111:
-				return Formula.VARP(result);
-				break;
-			default:
-				break;
-		}
-		return '#VALUE!';
+      var result = [];
+      for (var i = 1; i < arguments.length; i++) {
+        switch (function_code) {
+          case 1:
+          case 101:
+            result[i - 1] = Formula.AVERAGE(arguments[i]);
+            break;
+          case 2:
+          case 102:
+            result[i - 1] = Formula.COUNT(arguments[i]);
+            break;
+          case 3:
+          case 103:
+            result[i - 1] = Formula.COUNTA(arguments[i]);
+            break;
+          case 4:
+          case 104:
+            result[i - 1] = Formula.MAX(arguments[i]);
+            break;
+          case 5:
+          case 105:
+            result[i - 1] = Formula.MIN(arguments[i]);
+            break;
+          case 6:
+          case 106:
+            result[i - 1] = Formula.PRODUCT(arguments[i]);
+            break;
+          case 7:
+          case 107:
+            result[i - 1] = Formula.STDEV(arguments[i]);
+            break;
+          case 8:
+          case 108:
+            result[i - 1] = Formula.STDEVP(arguments[i]);
+            break;
+          case 9:
+          case 109:
+            result[i - 1] = Formula.SUM(arguments[i]);
+            break;
+          case 10:
+          case 110:
+            result[i - 1] = Formula.VAR(arguments[i]);
+            break;
+          case 11:
+          case 111:
+            result[i - 1] = Formula.VARP(arguments[i]);
+            break;
+          default:
+            break;
+        }
+      }
+      switch (function_code) {
+        case 1:
+        case 101:
+          return Formula.AVERAGE(result);
+          break;
+        case 2:
+        case 102:
+          return Formula.COUNT(result);
+          break;
+        case 3:
+        case 103:
+          return Formula.COUNTA(result);
+          break;
+        case 4:
+        case 104:
+          return Formula.MAX(result);
+          break;
+        case 5:
+        case 105:
+          return Formula.MIN(result);
+          break;
+        case 6:
+        case 106:
+          return Formula.PRODUCT(result);
+          break;
+        case 7:
+        case 107:
+          return Formula.STDEV(result);
+          break;
+        case 8:
+        case 108:
+          return Formula.STDEVP(result);
+          break;
+        case 9:
+        case 109:
+          return Formula.SUM(result);
+          break;
+        case 10:
+        case 110:
+          return Formula.VAR(result);
+          break;
+        case 11:
+        case 111:
+          return Formula.VARP(result);
+          break;
+        default:
+          break;
+      }
+      return '#VALUE!';
       /*var result = [];
       for (var i = 1; i < arguments.length; i++) {
         switch (function_code) {
@@ -19303,10 +18887,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (var i = 0; i < numbers.length; i++) {
         if (numbers[i] instanceof Array) {
           for (var j = 0; j < numbers[i].length; j++) {
-            result += (Formula.ISNUMBER(numbers[i][j])) ? numbers[i][j] : 0;
+            result += Formula.ISNUMBER(numbers[i][j]) ? numbers[i][j] : 0;
           }
         } else {
-          result += (Formula.ISNUMBER(numbers[i])) ? numbers[i] : 0;
+          result += Formula.ISNUMBER(numbers[i]) ? numbers[i] : 0;
         }
       }
 
@@ -19314,41 +18898,41 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.SUMIF = function (range, criteria, sum_range) {
-		// See Google Sheets formulas: https://support.google.com/docs/answer/3093583?hl=en
-		sum_range = sum_range || range;
-		range = Formula.FLATTEN(range);
-		sum_range = Formula.FLATTEN(sum_range);
-		criteria = criteria === null ? '' : criteria;
+      // See Google Sheets formulas: https://support.google.com/docs/answer/3093583?hl=en
+      sum_range = sum_range || range;
+      range = Formula.FLATTEN(range);
+      sum_range = Formula.FLATTEN(sum_range);
+      criteria = criteria === null ? '' : criteria;
 
-		var result = 0;
+      var result = 0;
 
-    if(sum_range != range) {
-      range.length = sum_range.length;
-    }
+      if (sum_range != range) {
+        range.length = sum_range.length;
+      }
 
-		if(range && sum_range && range.length === sum_range.length && (criteria || criteria === '' || criteria === 0)) {
-			if(typeof criteria == 'string') {
-				// string
-				if(!criteria.match(/^[<>=]/g)) {
-					criteria = '==="'+ criteria.replace(/\'/g,"\\'").replace(/\"/g,'\\"')+ '"';
-				} else {
-					if(criteria[0] == '=' && criteria[1] != '=') {
-						criteria = criteria.replace(/^=/, '===');
-					}
-				}
-			} else {
-				// number
-				criteria = '==='+criteria;
-			}
-			for (var i = 0; i < range.length; i++) {
-				range[i] = range[i] === null ? '' : range[i];
-				range[i] = typeof range[i] == 'string' ? '"'+ range[i].replace(/\'/g,"\\'").replace(/\"/g,'\\"')+ '"' : range[i];
-				result += (eval(range[i] + criteria)) ? sum_range[i] : 0;
-			}
-		} else {
-			result = '#N/A'
-		}
-		return result;
+      if (range && sum_range && range.length === sum_range.length && (criteria || criteria === '' || criteria === 0)) {
+        if (typeof criteria == 'string') {
+          // string
+          if (!criteria.match(/^[<>=]/g)) {
+            criteria = '==="' + criteria.replace(/\'/g, "\\'").replace(/\"/g, '\\"') + '"';
+          } else {
+            if (criteria[0] == '=' && criteria[1] != '=') {
+              criteria = criteria.replace(/^=/, '===');
+            }
+          }
+        } else {
+          // number
+          criteria = '===' + criteria;
+        }
+        for (var i = 0; i < range.length; i++) {
+          range[i] = range[i] === null ? '' : range[i];
+          range[i] = typeof range[i] == 'string' ? '"' + range[i].replace(/\'/g, "\\'").replace(/\"/g, '\\"') + '"' : range[i];
+          result += eval(range[i] + criteria) ? sum_range[i] : 0;
+        }
+      } else {
+        result = '#N/A';
+      }
+      return result;
     };
 
     Formula.SUMIFS = function () {
@@ -19357,64 +18941,63 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var result = 0;
 
       for (var j = 0; j < criteria; j++) {
-         var subArray = arguments[2 * j + 1][0];
+        var subArray = arguments[2 * j + 1][0];
 
-         var subArrayLength = (typeof arguments[2 * j + 1][0] !== 'undefined' ) ? arguments[2 * j + 1][0].length : 0;
+        var subArrayLength = typeof arguments[2 * j + 1][0] !== 'undefined' ? arguments[2 * j + 1][0].length : 0;
 
-         var operatorAndValue = arguments[2 * j + 2];
+        var operatorAndValue = arguments[2 * j + 2];
 
-         for (var d = 0; d < subArrayLength; d++) {
+        for (var d = 0; d < subArrayLength; d++) {
+          var operatorAndValueNew = operatorAndValue;
+          var firstChar = operatorAndValueNew.charAt(0);
+          var secondChar = operatorAndValueNew.charAt(1);
+          var operators = ['<', '>', '='];
+          var firstCharExact = operators.indexOf(firstChar);
+          var secondCharExact = operators.indexOf(secondChar);
 
-            var operatorAndValueNew = operatorAndValue;
-            var firstChar = operatorAndValueNew.charAt(0);
-            var secondChar = operatorAndValueNew.charAt(1);
-            var operators = ['<', '>', '='];
-            var firstCharExact = operators.indexOf(firstChar);
-            var secondCharExact = operators.indexOf(secondChar);
+          if (firstCharExact >= 0) {
+            firstChar = operators[firstCharExact];
+            operatorAndValueNew = operatorAndValueNew.substr(1);
+          } else {
+            firstChar = '';
+          }
+          if (secondCharExact >= 0) {
+            secondChar = operators[secondCharExact];
+            operatorAndValueNew = operatorAndValueNew.substr(1);
+          } else {
+            secondChar = '';
+          }
 
-            if (firstCharExact >= 0) {
-               firstChar = operators[firstCharExact];
-               operatorAndValueNew = operatorAndValueNew.substr(1);
-            } else {
-               firstChar = '';
-            }
-            if (secondCharExact >= 0) {
-               secondChar = operators[secondCharExact];
-               operatorAndValueNew = operatorAndValueNew.substr(1);
-            } else {
-               secondChar = '';
-            }
+          var operator = firstChar + secondChar;
 
-            var operator = firstChar + secondChar;
+          if (operator.length == 0) {
+            operator = '=';
+          }
 
-            if (operator.length == 0) {
-               operator = '=';
-            }
-
-            switch (operator) {
-               case '=':
-                  if (subArray[d] == operatorAndValueNew) {
-                    result += range[d];
-                  }
-                  break;
-               case '>':
-                  if (subArray[d] > operatorAndValueNew) {
-                     result += range[d];
-                  }
-                  break;
-               case '<':
-                  if (subArray[d] < operatorAndValueNew) {
-                     result += range[d];
-                  }
-                  break;
-               case '<>':
-                  if (subArray[d] != operatorAndValueNew) {
-                     result += range[d];
-                  }
-                  break;
-               default:
-            }
-         }
+          switch (operator) {
+            case '=':
+              if (subArray[d] == operatorAndValueNew) {
+                result += range[d];
+              }
+              break;
+            case '>':
+              if (subArray[d] > operatorAndValueNew) {
+                result += range[d];
+              }
+              break;
+            case '<':
+              if (subArray[d] < operatorAndValueNew) {
+                result += range[d];
+              }
+              break;
+            case '<>':
+              if (subArray[d] != operatorAndValueNew) {
+                result += range[d];
+              }
+              break;
+            default:
+          }
+        }
       }
 
       return result;
@@ -19439,7 +19022,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var numbers = Formula.FLATTEN(arguments);
       var result = 0;
       for (var i = 0; i < numbers.length; i++) {
-        result += (Formula.ISNUMBER(numbers[i])) ? numbers[i] * numbers[i] : 0;
+        result += Formula.ISNUMBER(numbers[i]) ? numbers[i] * numbers[i] : 0;
       }
       return result;
     };
@@ -19484,11 +19067,10 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.TRUNC = function (number, digits) {
-      digits = (typeof digits === 'undefined') ? 0 : digits;
-      var sign = (number > 0) ? 1 : -1;
-      return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+      digits = typeof digits === 'undefined' ? 0 : digits;
+      var sign = number > 0 ? 1 : -1;
+      return (sign * Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
     };
-
 
     // Statistical functions
     Formula.AVEDEV = function () {
@@ -19529,44 +19111,44 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.AVERAGEIF = function (range, criteria, average_range) {
-		// See Google Sheets formulas: https://support.google.com/docs/answer/3256529?hl=en
-		average_range = average_range || range;
-		range = Formula.FLATTEN(range);
-		average_range = Formula.FLATTEN(average_range);
-		criteria = criteria.toString();
-		var average_count = 0;
-		var result = 0;
+      // See Google Sheets formulas: https://support.google.com/docs/answer/3256529?hl=en
+      average_range = average_range || range;
+      range = Formula.FLATTEN(range);
+      average_range = Formula.FLATTEN(average_range);
+      criteria = criteria.toString();
+      var average_count = 0;
+      var result = 0;
 
-		if(range.length == average_range.length) {
-			for (var i = 0; i < range.length; i++) {
-				var newCriteria = criteria;
+      if (range.length == average_range.length) {
+        for (var i = 0; i < range.length; i++) {
+          var newCriteria = criteria;
 
-				if (!isNaN(range[i]) && range[i] != '') {
-					newCriteria = newCriteria.replace('=', '');
+          if (!isNaN(range[i]) && range[i] != '') {
+            newCriteria = newCriteria.replace('=', '');
 
-					if (!/[<>=!]/.test(newCriteria)) {
-						newCriteria = '=="'+newCriteria+'"';
-					}
-					if (eval(range[i]+newCriteria)) {
-						result += average_range[i];
-						average_count++;
-					}
-				} else {
-					range[i] = range[i].toString().toUpperCase();
+            if (!/[<>=!]/.test(newCriteria)) {
+              newCriteria = '=="' + newCriteria + '"';
+            }
+            if (eval(range[i] + newCriteria)) {
+              result += average_range[i];
+              average_count++;
+            }
+          } else {
+            range[i] = range[i].toString().toUpperCase();
 
-					if (range[i].match(new RegExp('^'+newCriteria+'$'))) {
-						result += average_range[i];
-						average_count++;
-					}
-				}
-			}
-			if(average_count === 0 || isNaN(result)) {
-				return '#DIV/0!';	// сan not divide by 0
-			}
-			return result / average_count;
-		} else {
-			return '#N/A';
-		}
+            if (range[i].match(new RegExp('^' + newCriteria + '$'))) {
+              result += average_range[i];
+              average_count++;
+            }
+          }
+        }
+        if (average_count === 0 || isNaN(result)) {
+          return '#DIV/0!'; // сan not divide by 0
+        }
+        return result / average_count;
+      } else {
+        return '#N/A';
+      }
     };
 
     Formula.AVERAGEIFS = function () {
@@ -19600,24 +19182,24 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.BETADIST = function (x, alpha, beta, cumulative, A, B) {
-      A = (typeof A === 'undefined') ? 0 : A;
-      B = (typeof B === 'undefined') ? 1 : B;
+      A = typeof A === 'undefined' ? 0 : A;
+      B = typeof B === 'undefined' ? 1 : B;
       x = (x - A) / (B - A);
-      return (cumulative) ? jStat.beta.cdf(x, alpha, beta) : jStat.beta.pdf(x, alpha, beta);
+      return cumulative ? jStat.beta.cdf(x, alpha, beta) : jStat.beta.pdf(x, alpha, beta);
     };
 
     Formula.BETAINV = function (probability, alpha, beta, A, B) {
-      A = (typeof A === 'undefined') ? 0 : A;
-      B = (typeof B === 'undefined') ? 1 : B;
+      A = typeof A === 'undefined' ? 0 : A;
+      B = typeof B === 'undefined' ? 1 : B;
       return jStat.beta.inv(probability, alpha, beta) * (B - A) + A;
     };
 
     Formula.BINOMDIST = function (successes, trials, probability, cumulative) {
-      return (cumulative) ? jStat.binomial.cdf(successes, trials, probability) : jStat.binomial.pdf(successes, trials, probability);
+      return cumulative ? jStat.binomial.cdf(successes, trials, probability) : jStat.binomial.pdf(successes, trials, probability);
     };
 
     Formula.BINOMDISTRANGE = function (trials, probability, successes, successes2) {
-      successes2 = (typeof successes2 === 'undefined') ? successes : successes2;
+      successes2 = typeof successes2 === 'undefined' ? successes : successes2;
       var result = 0;
       for (var i = successes; i <= successes2; i++) {
         result += Formula.COMBIN(trials, i) * Math.pow(probability, i) * Math.pow(1 - probability, trials - i);
@@ -19636,7 +19218,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.CHISQDIST = function (x, k, cumulative) {
-      return (cumulative) ? jStat.chisquare.cdf(x, k) : jStat.chisquare.pdf(x, k);
+      return cumulative ? jStat.chisquare.cdf(x, k) : jStat.chisquare.pdf(x, k);
     };
 
     Formula.CHISQDISTRT = function () {
@@ -19673,7 +19255,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.COUNTA = function () {
-      var range = Formula.FLATTEN(arguments)
+      var range = Formula.FLATTEN(arguments);
 
       return range.length - Formula.COUNTBLANK(range);
     };
@@ -19692,49 +19274,49 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.COUNTIF = function (range, criteria) {
-		// See Google Sheets formulas: https://support.google.com/docs/answer/3093480?hl=en
-		var matches = 0;
+      // See Google Sheets formulas: https://support.google.com/docs/answer/3093480?hl=en
+      var matches = 0;
 
-		range = Formula.FLATTEN(range);
-		criteria = criteria.toString();
+      range = Formula.FLATTEN(range);
+      criteria = criteria.toString();
 
-		for (var i = 0; i < range.length; i++) {
-			var newCriteria = criteria;
+      for (var i = 0; i < range.length; i++) {
+        var newCriteria = criteria;
 
-			if(range[i] !== null && range[i] !== undefined) {
-				if (!isNaN(range[i]) && range[i] != '') {
-					// it is number
-					if (!/[<>!]/.test(newCriteria)) {
-						newCriteria = newCriteria.replace('=', '');
-						newCriteria = '=="'+newCriteria+'"';
-					}
-					if (eval(range[i]+newCriteria)) {
-						matches++;
-					}
-				} else {
-					// it is string
-					range[i] = range[i].toString();
-					newCriteria = newCriteria.replace(/\*/g, function(match, contents, offset, s) {
-						if(offset[contents - 1] != '~') {
-							return '.*';
-						}
-						return '*';
-					});
-					newCriteria = newCriteria.replace(/\?/g, function(match, contents, offset, s) {
-						if(offset[contents - 1] != '~') {
-							return '.{1}';
-						}
-						return '?';
-					});
-					newCriteria = newCriteria.replace(/~\*/g, '\\*');
-					newCriteria =  newCriteria.replace(/~\?/g, '\\?');
-					if (range[i].match(new RegExp('^'+newCriteria+'$'), 'i')) {
-						matches++;
-					}
-				}
-			}
-		}
-		return matches;
+        if (range[i] !== null && range[i] !== undefined) {
+          if (!isNaN(range[i]) && range[i] != '') {
+            // it is number
+            if (!/[<>!]/.test(newCriteria)) {
+              newCriteria = newCriteria.replace('=', '');
+              newCriteria = '=="' + newCriteria + '"';
+            }
+            if (eval(range[i] + newCriteria)) {
+              matches++;
+            }
+          } else {
+            // it is string
+            range[i] = range[i].toString();
+            newCriteria = newCriteria.replace(/\*/g, function (match, contents, offset, s) {
+              if (offset[contents - 1] != '~') {
+                return '.*';
+              }
+              return '*';
+            });
+            newCriteria = newCriteria.replace(/\?/g, function (match, contents, offset, s) {
+              if (offset[contents - 1] != '~') {
+                return '.{1}';
+              }
+              return '?';
+            });
+            newCriteria = newCriteria.replace(/~\*/g, '\\*');
+            newCriteria = newCriteria.replace(/~\?/g, '\\?');
+            if (range[i].match(new RegExp('^' + newCriteria + '$'), 'i')) {
+              matches++;
+            }
+          }
+        }
+      }
+      return matches;
     };
 
     Formula.COUNTIFS = function () {
@@ -19748,36 +19330,36 @@ this.j$ = this.jStat = (function(Math, undefined) {
             fit = false;
           }
         }
-        result += (fit) ? 1 : 0;
+        result += fit ? 1 : 0;
       }
       return result;
 
-  //      var args = Formula.ARGSTOARRAY(arguments);
-  //      var results = new Array(Formula.FLATTEN(args[0]).length);
-  //      for (var i = 0; i < results.length; i++) {
-  //        results[i] = true;
-  //      }
-  //      for (i = 0; i < args.length; i += 2) {
-  //        var range = Formula.FLATTEN(args[i]);
-  //        var criteria = args[i + 1];
-  //        if (!/[<>=!]/.test(criteria)) {
-  //          criteria = '=="'+criteria+'"';
-  //        }
-  //        for (var j = 0; j < range.length; j++) {
-  //          if (typeof range[j] !== 'string') {
-  //            results[j] = results[j] && eval(range[j]+criteria);
-  //          } else {
-  //            results[j] = results[j] && eval('"'+range[j]+'"'+criteria);
-  //          }
-  //        }
-  //      }
-  //      var result = 0;
-  //      for (i = 0; i < results.length; i++) {
-  //        if (results[i]) {
-  //          result++;
-  //        }
-  //      }
-  //      return result;
+      //      var args = Formula.ARGSTOARRAY(arguments);
+      //      var results = new Array(Formula.FLATTEN(args[0]).length);
+      //      for (var i = 0; i < results.length; i++) {
+      //        results[i] = true;
+      //      }
+      //      for (i = 0; i < args.length; i += 2) {
+      //        var range = Formula.FLATTEN(args[i]);
+      //        var criteria = args[i + 1];
+      //        if (!/[<>=!]/.test(criteria)) {
+      //          criteria = '=="'+criteria+'"';
+      //        }
+      //        for (var j = 0; j < range.length; j++) {
+      //          if (typeof range[j] !== 'string') {
+      //            results[j] = results[j] && eval(range[j]+criteria);
+      //          } else {
+      //            results[j] = results[j] && eval('"'+range[j]+'"'+criteria);
+      //          }
+      //        }
+      //      }
+      //      var result = 0;
+      //      for (i = 0; i < results.length; i++) {
+      //        if (results[i]) {
+      //          result++;
+      //        }
+      //      }
+      //      return result;
     };
 
     Formula.COUNTUNIQUE = function () {
@@ -19807,17 +19389,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var mean = jStat.mean(range);
       var result = 0;
       for (var i = 0; i < range.length; i++) {
-        result += Math.pow((range[i] - mean), 2);
+        result += Math.pow(range[i] - mean, 2);
       }
       return result;
     };
 
     Formula.EXPONDIST = function (x, lambda, cumulative) {
-      return (cumulative) ? jStat.exponential.cdf(x, lambda) : jStat.exponential.pdf(x, lambda);
+      return cumulative ? jStat.exponential.cdf(x, lambda) : jStat.exponential.pdf(x, lambda);
     };
 
     Formula.FDIST = function (x, d1, d2, cumulative) {
-      return (cumulative) ? jStat.centralF.cdf(x, d1, d2) : jStat.centralF.pdf(x, d1, d2);
+      return cumulative ? jStat.centralF.cdf(x, d1, d2) : jStat.centralF.pdf(x, d1, d2);
     };
 
     Formula.FDISTRT = function () {
@@ -19938,19 +19520,19 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
       // Default values for optional parameters:
       var i;
-      if (typeof(known_x) === 'undefined') {
+      if (typeof known_x === 'undefined') {
         known_x = [];
         for (i = 1; i <= known_y.length; i++) {
           known_x.push(i);
         }
       }
-      if (typeof(new_x) === 'undefined') {
+      if (typeof new_x === 'undefined') {
         new_x = [];
         for (i = 1; i <= known_y.length; i++) {
           new_x.push(i);
         }
       }
-      if (typeof(use_const) === 'undefined') {
+      if (typeof use_const === 'undefined') {
         use_const = true;
       }
 
@@ -20004,7 +19586,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.HYPGEOMDIST = function (x, n, M, N, cumulative) {
       function pdf(x, n, M, N) {
-        return Formula.COMBIN(M, x) * Formula.COMBIN(N - M, n - x) / Formula.COMBIN(N, n);
+        return (Formula.COMBIN(M, x) * Formula.COMBIN(N - M, n - x)) / Formula.COMBIN(N, n);
       }
 
       function cdf(x, n, M, N) {
@@ -20015,7 +19597,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         return result;
       }
 
-      return (cumulative) ? cdf(x, n, M, N) : pdf(x, n, M, N);
+      return cumulative ? cdf(x, n, M, N) : pdf(x, n, M, N);
     };
 
     Formula.INTERCEPT = function (data_y, data_x) {
@@ -20031,7 +19613,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
         sigma += Math.pow(range[i] - mean, 4);
       }
       sigma = sigma / Math.pow(jStat.stdev(range, true), 4);
-      return ((n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3))) * sigma - 3 * (n - 1) * (n - 1) / ((n - 2) * (n - 3));
+      return ((n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3))) * sigma - (3 * (n - 1) * (n - 1)) / ((n - 2) * (n - 3));
     };
 
     Formula.LARGE = function (array, k) {
@@ -20061,7 +19643,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.LOGNORMDIST = function (x, mean, sd, cumulative) {
-      return (cumulative) ? jStat.lognormal.cdf(x, mean, sd) : jStat.lognormal.pdf(x, mean, sd);
+      return cumulative ? jStat.lognormal.cdf(x, mean, sd) : jStat.lognormal.pdf(x, mean, sd);
     };
 
     Formula.LOGNORMINV = function (probability, mean, sd) {
@@ -20070,18 +19652,20 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.MAX = function () {
       var range = Formula.FLATTEN(arguments);
-	  range = range.filter(function(x){ return !isNaN(parseFloat(x)); });
+      range = range.filter(function (x) {
+        return !isNaN(parseFloat(x));
+      });
       var n = range.length;
-      var max = (n > 0) ? range[0] : 0;
+      var max = n > 0 ? range[0] : 0;
       for (var i = 0; i < n; i++) {
-        max = (range[i] > max && (range[i] !== true) && (range[i] !== false)) ? range[i] : max;
+        max = range[i] > max && range[i] !== true && range[i] !== false ? range[i] : max;
       }
       return max;
     };
 
     Formula.MAXA = function () {
       var range = Formula.FLATTEN(arguments);
-      return (range.length > 0) ? Math.max.apply(Math, range) : 0;
+      return range.length > 0 ? Math.max.apply(Math, range) : 0;
     };
 
     Formula.MEDIAN = function () {
@@ -20090,18 +19674,20 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.MIN = function () {
       var range = Formula.FLATTEN(arguments);
-	  range = range.filter(function(x){ return !isNaN(parseFloat(x)); });
+      range = range.filter(function (x) {
+        return !isNaN(parseFloat(x));
+      });
       var n = range.length;
-      var min = (n > 0) ? range[0] : 0;
+      var min = n > 0 ? range[0] : 0;
       for (var i = 0; i < n; i++) {
-        min = (range[i] < min && (range[i] !== true) && (range[i] !== false)) ? range[i] : min;
+        min = range[i] < min && range[i] !== true && range[i] !== false ? range[i] : min;
       }
       return min;
     };
 
     Formula.MINA = function () {
       var range = Formula.FLATTEN(arguments);
-      return (range.length > 0) ? Math.min.apply(Math, range) : 0;
+      return range.length > 0 ? Math.min.apply(Math, range) : 0;
     };
 
     Formula.MODEMULT = function () {
@@ -20133,7 +19719,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.NEGBINOMDIST = function (k, r, p, cumulative) {
-      return (cumulative) ? jStat.negbin.cdf(k, r, p) : jStat.negbin.pdf(k, r, p);
+      return cumulative ? jStat.negbin.cdf(k, r, p) : jStat.negbin.pdf(k, r, p);
     };
 
     Formula.NORMDIST = function (x, mean, sd, cumulative) {
@@ -20146,7 +19732,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
 
       // Return normal distribution computed by jStat [http://jstat.org]
-      return (cumulative) ? jStat.normal.cdf(x, mean, sd) : jStat.normal.pdf(x, mean, sd);
+      return cumulative ? jStat.normal.cdf(x, mean, sd) : jStat.normal.pdf(x, mean, sd);
     };
 
     Formula.NORMINV = function (probability, mean, sd) {
@@ -20154,7 +19740,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.NORMSDIST = function (z, cumulative) {
-      return (cumulative) ? jStat.normal.cdf(z, 0, 1) : jStat.normal.pdf(z, 0, 1);
+      return cumulative ? jStat.normal.cdf(z, 0, 1) : jStat.normal.pdf(z, 0, 1);
     };
 
     Formula.NORMSINV = function (probability) {
@@ -20188,7 +19774,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
       var l = k * (n + 1) - 1;
       var fl = Math.floor(l);
-      return Formula.CLEANFLOAT((l === fl) ? array[l] : array[fl] + (l - fl) * (array[fl + 1] - array[fl]));
+      return Formula.CLEANFLOAT(l === fl ? array[l] : array[fl] + (l - fl) * (array[fl + 1] - array[fl]));
     };
 
     Formula.PERCENTILEINC = function (array, k) {
@@ -20198,7 +19784,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var n = array.length;
       var l = k * (n - 1);
       var fl = Math.floor(l);
-      return Formula.CLEANFLOAT((l === fl) ? array[l] : array[fl] + (l - fl) * (array[fl + 1] - array[fl]));
+      return Formula.CLEANFLOAT(l === fl ? array[l] : array[fl] + (l - fl) * (array[fl + 1] - array[fl]));
     };
 
     Formula.PERCENTRANKEXC = function (array, x, significance) {
@@ -20208,7 +19794,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var uniques = _.uniq(array);
       var n = array.length;
       var m = uniques.length;
-      significance = (typeof significance === 'undefined') ? 3 : significance;
+      significance = typeof significance === 'undefined' ? 3 : significance;
       var power = Math.pow(10, significance);
       var result = 0;
       var match = false;
@@ -20233,7 +19819,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var uniques = _.uniq(array);
       var n = array.length;
       var m = uniques.length;
-      significance = (typeof significance === 'undefined') ? 3 : significance;
+      significance = typeof significance === 'undefined' ? 3 : significance;
       var power = Math.pow(10, significance);
       var result = 0;
       var match = false;
@@ -20264,7 +19850,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.POISSONDIST = function (x, mean, cumulative) {
-      return (cumulative) ? jStat.poisson.cdf(x, mean) : jStat.poisson.pdf(x, mean);
+      return cumulative ? jStat.poisson.cdf(x, mean) : jStat.poisson.pdf(x, mean);
     };
 
     Formula.PROB = function (range, probability, lower, upper) {
@@ -20272,9 +19858,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
         return 0;
       }
 
-      upper = (typeof upper === 'undefined') ? lower : upper;
+      upper = typeof upper === 'undefined' ? lower : upper;
       if (lower === upper) {
-        return (range.indexOf(lower) >= 0) ? probability[range.indexOf(lower)] : 0;
+        return range.indexOf(lower) >= 0 ? probability[range.indexOf(lower)] : 0;
       }
 
       var sorted = range.sort(function (a, b) {
@@ -20316,31 +19902,35 @@ this.j$ = this.jStat = (function(Math, undefined) {
       }
     };
 
-	Formula.RANK = function (number, range, order) {
-	  return Formula.RANKEQ(number, range, order);
-	};
+    Formula.RANK = function (number, range, order) {
+      return Formula.RANKEQ(number, range, order);
+    };
 
-	Formula.RANKAVG = function (number, range, order) {
-	  range = Formula.FLATTEN(range);
-      order = (typeof order === 'undefined') ? false : order;
-      var sort = (order) ? function (a, b) {
-        return a - b;
-      } : function (a, b) {
-        return b - a;
-      };
+    Formula.RANKAVG = function (number, range, order) {
+      range = Formula.FLATTEN(range);
+      order = typeof order === 'undefined' ? false : order;
+      var sort = order
+        ? function (a, b) {
+            return a - b;
+          }
+        : function (a, b) {
+            return b - a;
+          };
       range = range.sort(sort);
       var count = Formula.COUNTIN(range, number);
-      return (count > 1) ? (2 * range.indexOf(number) + count + 1) / 2 : range.indexOf(number) + 1;
+      return count > 1 ? (2 * range.indexOf(number) + count + 1) / 2 : range.indexOf(number) + 1;
     };
 
     Formula.RANKEQ = function (number, range, order) {
-	  range = Formula.FLATTEN(range);
-      order = (typeof order === 'undefined') ? false : order;
-      var sort = (order) ? function (a, b) {
-        return a - b;
-      } : function (a, b) {
-        return b - a;
-      };
+      range = Formula.FLATTEN(range);
+      order = typeof order === 'undefined' ? false : order;
+      var sort = order
+        ? function (a, b) {
+            return a - b;
+          }
+        : function (a, b) {
+            return b - a;
+          };
       range = range.sort(sort);
       return range.indexOf(number) + 1;
     };
@@ -20357,7 +19947,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
       for (var i = 0; i < n; i++) {
         sigma += Math.pow(range[i] - mean, 3);
       }
-      return n * sigma / ((n - 1) * (n - 2) * Math.pow(jStat.stdev(range, true), 3));
+      return (n * sigma) / ((n - 1) * (n - 2) * Math.pow(jStat.stdev(range, true), 3));
     };
 
     Formula.SKEWP = function () {
@@ -20462,11 +20052,11 @@ this.j$ = this.jStat = (function(Math, undefined) {
         num += (data_x[i] - xmean) * (data_y[i] - ymean);
         den += Math.pow(data_x[i] - xmean, 2);
       }
-      return Math.sqrt((lft - num * num / den) / (n - 2));
+      return Math.sqrt((lft - (num * num) / den) / (n - 2));
     };
 
     Formula.TDIST = function (x, df, cumulative) {
-      return (cumulative) ? jStat.studentt.cdf(x, df) : jStat.studentt.pdf(x, df);
+      return cumulative ? jStat.studentt.cdf(x, df) : jStat.studentt.pdf(x, df);
     };
 
     //TODO
@@ -20502,9 +20092,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
     Formula.TRIMMEAN = function (range, percent) {
       range = Formula.FLATTEN(range);
       var trim = Formula.FLOOR(range.length * percent, 2) / 2;
-      return jStat.mean(_.initial(_.rest(range.sort(function (a, b) {
-        return a - b;
-      }), trim), trim));
+      return jStat.mean(
+        _.initial(
+          _.rest(
+            range.sort(function (a, b) {
+              return a - b;
+            }),
+            trim
+          ),
+          trim
+        )
+      );
     };
 
     Formula.VARA = function () {
@@ -20582,15 +20180,14 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.WEIBULLDIST = function (x, alpha, beta, cumulative) {
-      return (cumulative) ? 1 - Math.exp(-Math.pow(x / beta, alpha)) : Math.pow(x, alpha - 1) * Math.exp(-Math.pow(x / beta, alpha)) * alpha / Math.pow(beta, alpha);
+      return cumulative ? 1 - Math.exp(-Math.pow(x / beta, alpha)) : (Math.pow(x, alpha - 1) * Math.exp(-Math.pow(x / beta, alpha)) * alpha) / Math.pow(beta, alpha);
     };
 
     Formula.ZTEST = function (range, x, sigma) {
       var n = range.length;
-      var sd = (typeof sigma === 'undefined') ? Formula.STDEVS(range) : sigma;
+      var sd = typeof sigma === 'undefined' ? Formula.STDEVS(range) : sigma;
       return 1 - Formula.NORMSDIST((Formula.AVERAGE(range) - x) / (sd / Math.sqrt(n)), Formula.TRUE);
     };
-
 
     // Text functions
 
@@ -20599,7 +20196,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.CLEAN = function (text) {
-      return text.replace(/[\0-\x1F]/g, "");
+      return text.replace(/[\0-\x1F]/g, '');
     };
 
     Formula.CODE = function (text) {
@@ -20618,7 +20215,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.DOLLAR = function (number, decimals) {
-      decimals = (typeof decimals === 'undefined') ? 2 : decimals;
+      decimals = typeof decimals === 'undefined' ? 2 : decimals;
       var format = '';
       if (decimals <= 0) {
         number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
@@ -20634,13 +20231,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.FIND = function (find_text, within_text, position) {
-      position = (typeof position === 'undefined') ? 0 : position;
+      position = typeof position === 'undefined' ? 0 : position;
       return within_text ? within_text.indexOf(find_text, position - 1) + 1 : null;
     };
 
     Formula.FIXED = function (number, decimals, no_commas) {
-      decimals = (typeof decimals === 'undefined') ? 2 : decimals;
-      no_commas = (typeof no_commas === 'undefined') ? false : no_commas;
+      decimals = typeof decimals === 'undefined' ? 2 : decimals;
+      no_commas = typeof no_commas === 'undefined' ? false : no_commas;
       var format = no_commas ? '0' : '0,0';
       if (decimals <= 0) {
         number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
@@ -20659,7 +20256,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
             if (result !== '') {
               result += '\n';
             }
-            result += (line.replace(/<(?:.|\n)*?>/gm, ''));
+            result += line.replace(/<(?:.|\n)*?>/gm, '');
           });
         } else {
           result = value.replace(/<(?:.|\n)*?>/gm, '');
@@ -20673,9 +20270,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
       if (value instanceof Date) {
         var dvalue = moment(value);
         if (dvalue.hours() || dvalue.minutes() || dvalue.seconds()) {
-          return dvalue.format("dddd, MMMM Do YYYY, h:mm:ss");
+          return dvalue.format('dddd, MMMM Do YYYY, h:mm:ss');
         } else {
-          return dvalue.format("dddd, MMMM Do YYYY");
+          return dvalue.format('dddd, MMMM Do YYYY');
         }
       }
 
@@ -20687,7 +20284,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.LEFT = function (text, number) {
-      number = (typeof number === 'undefined') ? 1 : number;
+      number = typeof number === 'undefined' ? 1 : number;
       return text ? text.substring(0, number) : null;
     };
 
@@ -20700,15 +20297,15 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.MID = function (text, start, number) {
-	  /*supsystic*/
-	  text = text.toString();
-	  /*****/
+      /*supsystic*/
+      text = text.toString();
+      /*****/
       return text.substr(start - 1, number);
     };
 
     Formula.NUMBERVALUE = function (text, decimal_separator, group_separator) {
-      decimal_separator = (typeof decimal_separator === 'undefined') ? '.' : decimal_separator;
-      group_separator = (typeof group_separator === 'undefined') ? ',' : group_separator;
+      decimal_separator = typeof decimal_separator === 'undefined' ? '.' : decimal_separator;
+      group_separator = typeof group_separator === 'undefined' ? ',' : group_separator;
       return Number(text.replace(decimal_separator, '.').replace(group_separator, ''));
     };
 
@@ -20720,7 +20317,9 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.PROPER = function (text) {
-      if (!text) { return; }
+      if (!text) {
+        return;
+      }
       return text.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
@@ -20728,7 +20327,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     Formula.REGEXEXTRACT = function (text, regular_expression) {
       var match = text.match(new RegExp(regular_expression));
-      return match ? (match[match.length > 1 ? match.length - 1 : 0]) : null;
+      return match ? match[match.length > 1 ? match.length - 1 : 0] : null;
     };
 
     Formula.REGEXMATCH = function (text, regular_expression, full) {
@@ -20749,7 +20348,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.RIGHT = function (text, number) {
-      number = (typeof number === 'undefined') ? 1 : number;
+      number = typeof number === 'undefined' ? 1 : number;
       return text ? text.substring(text.length - number) : null;
     };
 
@@ -20761,13 +20360,13 @@ this.j$ = this.jStat = (function(Math, undefined) {
       var roman = '';
       var i = 3;
       while (i--) {
-        roman = (key[+digits.pop() + (i * 10)] || '') + roman;
+        roman = (key[+digits.pop() + i * 10] || '') + roman;
       }
       return new Array(+digits.join('') + 1).join('M') + roman;
     };
 
     Formula.SEARCH = function (find_text, within_text, position) {
-      position = (typeof position === 'undefined') ? 0 : position;
+      position = typeof position === 'undefined' ? 0 : position;
       return within_text.toLowerCase().indexOf(find_text.toLowerCase(), position - 1) + 1;
     };
 
@@ -20776,33 +20375,37 @@ this.j$ = this.jStat = (function(Math, undefined) {
     };
 
     Formula.SUBSTITUTE = function (text, old_text, new_text, occurrence) {
-		if (typeof text === 'undefined' || typeof old_text === 'undefined' || typeof new_text === 'undefined') {
-			return text;
-		} else {
-			old_text = String(old_text);
-			new_text = String(new_text);
-			if (typeof occurrence !== 'undefined') {
-				var index = 0;
-				var i = 0;
-				while (i < text.length && text.indexOf(old_text, index) > 0) {
-					index = text.indexOf(old_text, index + 1);
-					i++;
-					if (i === occurrence && index > 0) {
-						return text.substring(0, index) + new_text + text.substring(index + old_text.length);
-					}
-				}
-			}
-			return text.replace(new RegExp(old_text, 'g'), new_text);
-		}
+      if (typeof text === 'undefined' || typeof old_text === 'undefined' || typeof new_text === 'undefined') {
+        return text;
+      } else {
+        old_text = String(old_text);
+        new_text = String(new_text);
+        if (typeof occurrence !== 'undefined') {
+          var index = 0;
+          var i = 0;
+          while (i < text.length && text.indexOf(old_text, index) > 0) {
+            index = text.indexOf(old_text, index + 1);
+            i++;
+            if (i === occurrence && index > 0) {
+              return text.substring(0, index) + new_text + text.substring(index + old_text.length);
+            }
+          }
+        }
+        return text.replace(new RegExp(old_text, 'g'), new_text);
+      }
     };
 
     Formula.T = function (value) {
-      return (typeof value === "string") ? value : null;
+      return typeof value === 'string' ? value : null;
     };
 
     Formula.TEXT = function (value, format) {
-      if (!value) { return ''; }
-	  if (!format) { return value; }
+      if (!value) {
+        return '';
+      }
+      if (!format) {
+        return value;
+      }
 
       if (value instanceof Object) {
         try {
@@ -20813,12 +20416,17 @@ this.j$ = this.jStat = (function(Math, undefined) {
         }
       }
       if (typeof value === 'string') {
-        return (format.indexOf('0') >= 0) ? numeral(value).format(format) : moment(new Date(value)).format(format);
+        return format.indexOf('0') >= 0 ? numeral(value).format(format) : moment(new Date(value)).format(format);
       }
-	  if (typeof value === 'number') {	// number or time in milliseconds since January 1, 1970, 00:00:00 UTC
-		// moment needs time in seconds as it is
-		return (format.indexOf('0') >= 0) ? numeral(value).format(format) : moment(new Date(value*86400*1000)).utc().format(format);
-	  }
+      if (typeof value === 'number') {
+        // number or time in milliseconds since January 1, 1970, 00:00:00 UTC
+        // moment needs time in seconds as it is
+        return format.indexOf('0') >= 0
+          ? numeral(value).format(format)
+          : moment(new Date(value * 86400 * 1000))
+              .utc()
+              .format(format);
+      }
       if (value.toString && typeof value.toString === 'function') {
         return value.toString();
       }
@@ -20852,7 +20460,7 @@ this.j$ = this.jStat = (function(Math, undefined) {
 
     // Excel Error Handling
     Formula.ISERR = function (value) {
-      return (['#DIV/0!', '#NAME?', '#NUM!', '#NULL!', '#REF!', '#VALUE!'].indexOf(value) >= 0 ) ? true : false;
+      return ['#DIV/0!', '#NAME?', '#NUM!', '#NULL!', '#REF!', '#VALUE!'].indexOf(value) >= 0 ? true : false;
     };
 
     Formula.ISERROR = function (value) {
@@ -20867,153 +20475,149 @@ this.j$ = this.jStat = (function(Math, undefined) {
       return value;
     };
 
-	  // Custom supsystic formulas
-	  Formula.HYPERLINK = function(url, linkLabel) {
-		  linkLabel = linkLabel ? linkLabel : url;
-		  window.supsystic.Tables._hyperlinkUrl = url;	// to collect correct calculate value during table saving
+    // Custom supsystic formulas
+    Formula.HYPERLINK = function (url, linkLabel) {
+      linkLabel = linkLabel ? linkLabel : url;
+      window.supsystic.Tables._hyperlinkUrl = url; // to collect correct calculate value during table saving
 
-		  var res = linkLabel,
-			  protocols = ['http', 'https', 'mailto', 'aim:', 'ftp', 'gopher', 'telnet'],
-			  linkArr = url.split(':'),
-			  protocolChecked = false;
+      var res = linkLabel,
+        protocols = ['http', 'https', 'mailto', 'aim:', 'ftp', 'gopher', 'telnet'],
+        linkArr = url.split(':'),
+        protocolChecked = false;
 
-		  if(linkArr && linkArr.length > 0) {
-			  if(linkArr.length === 1) {
-				  url = 'http://'+ url;
-				  protocolChecked = true;
-			  }
-			  if(protocols.indexOf(linkArr[0]) !== -1 || protocolChecked) {
-				  res = '<a href="'+ url+ '" target="_blank">'+ linkLabel+ '</a>';
-			  }
-		  }
-		  return res;
-	  };
-	  Formula.INDEX = function(arrayValues, rowNum, colNum) {
-		  if ((rowNum < 0) || (colNum < 0)) {
-			  return '#VALUE!';
-		  }
-		  if (!arrayValues) {
-			  return '#REF!';
-		  }
-		  /*if(typeof colNum == 'undefined' && typeof rowNum != 'undefined') {
+      if (linkArr && linkArr.length > 0) {
+        if (linkArr.length === 1) {
+          url = 'http://' + url;
+          protocolChecked = true;
+        }
+        if (protocols.indexOf(linkArr[0]) !== -1 || protocolChecked) {
+          res = '<a href="' + url + '" target="_blank">' + linkLabel + '</a>';
+        }
+      }
+      return res;
+    };
+    Formula.INDEX = function (arrayValues, rowNum, colNum) {
+      if (rowNum < 0 || colNum < 0) {
+        return '#VALUE!';
+      }
+      if (!arrayValues) {
+        return '#REF!';
+      }
+      /*if(typeof colNum == 'undefined' && typeof rowNum != 'undefined') {
 			  colNum = rowNum;
 			  rowNum = 1;
 		  }*/
-		  rowNum = typeof rowNum != 'undefined' && rowNum > 0 ? rowNum : 1;
-		  colNum = typeof colNum != 'undefined' && colNum > 0 ? colNum : 1;
-		  arrayValues = Formula.FLATTEN(arrayValues);
+      rowNum = typeof rowNum != 'undefined' && rowNum > 0 ? rowNum : 1;
+      colNum = typeof colNum != 'undefined' && colNum > 0 ? colNum : 1;
+      arrayValues = Formula.FLATTEN(arrayValues);
 
-		  var chunkArr = Formula._CHUNK(arrayValues);	// it is transposed array - array of arrays of columns values, not rows
+      var chunkArr = Formula._CHUNK(arrayValues); // it is transposed array - array of arrays of columns values, not rows
 
-		  if(chunkArr && !Formula.ISERROR(chunkArr)) {
-			  var chunkArrColsCount = chunkArr.length,
-				  chunkArrRowsCount = typeof chunkArr[0] != 'undefined' ? chunkArr[0].length : 0;
-			  if (rowNum > chunkArrRowsCount) {
-				  if(chunkArrRowsCount == 1) {
-					  colNum = rowNum;
-					  rowNum = chunkArrRowsCount;
-				  } else {
-					  return '#NUM!';
-				  }
-			  }
-			  if (colNum > chunkArrColsCount) {
-				  return '#NUM!';
-			  }
-			  return chunkArr[colNum - 1][rowNum - 1];
-		  }
-		  return chunkArr;
-	  };
-	  Formula.MATCH = function(lookupValue, lookupArray, matchType) {
-		  matchType = typeof matchType != 'undefined' && matchType != null ? Formula.FLATTENSINGLE(matchType) : 1;
-		  lookupArray = Formula.FLATTEN(lookupArray);
-		  lookupValue = Formula.FLATTENSINGLE(lookupValue);
+      if (chunkArr && !Formula.ISERROR(chunkArr)) {
+        var chunkArrColsCount = chunkArr.length,
+          chunkArrRowsCount = typeof chunkArr[0] != 'undefined' ? chunkArr[0].length : 0;
+        if (rowNum > chunkArrRowsCount) {
+          if (chunkArrRowsCount == 1) {
+            colNum = rowNum;
+            rowNum = chunkArrRowsCount;
+          } else {
+            return '#NUM!';
+          }
+        }
+        if (colNum > chunkArrColsCount) {
+          return '#NUM!';
+        }
+        return chunkArr[colNum - 1][rowNum - 1];
+      }
+      return chunkArr;
+    };
+    Formula.MATCH = function (lookupValue, lookupArray, matchType) {
+      matchType = typeof matchType != 'undefined' && matchType != null ? Formula.FLATTENSINGLE(matchType) : 1;
+      lookupArray = Formula.FLATTEN(lookupArray);
+      lookupValue = Formula.FLATTENSINGLE(lookupValue);
 
-		  // unsuccessful in finding a match, return #N/A error lookupValue
-		  var res = '#N/A';
+      // unsuccessful in finding a match, return #N/A error lookupValue
+      var res = '#N/A';
 
-		  // MATCH is not case sensitive
-		  lookupValue = lookupValue.toString().toLowerCase();
+      // MATCH is not case sensitive
+      lookupValue = lookupValue.toString().toLowerCase();
 
-		  // lookupValue type has to be number, text, or logical lookupValues
-		  if (typeof lookupValue != 'number' && typeof lookupValue != 'string' && typeof lookupValue != 'boolean') {
-			  return res;
-		  }
-		  // matchType is 0, 1 or -1
-		  if (matchType !== 0 && matchType !== -1 && matchType !== 1) {
-			  return res;
-		  }
-		  // lookupArray should not be empty
-		  if (!lookupArray.length) {
-			  return res;
-		  }
-		  // lookupArray should contain only number, text, or logical lookupValues, or empty (null) cells
-		  for(var i in lookupArray) {
-			  // check the type of the lookupValue
-			  if(typeof lookupArray[i] != 'number'
-				  && typeof lookupArray[i] != 'string'
-				  && typeof lookupArray[i] != 'boolean'
-				  && lookupArray[i] != null
-			  ) {
-				  return res;
-			  }
-			  // convert strings to lowercase for case-insensitive testing
-			  if (typeof lookupArray[i] == 'string' ) {
-				  lookupArray[i] = lookupArray[i].toLowerCase();
-			  }
-			  if (lookupArray[i] == null && (matchType == 1 || matchType == -1)) {
-				  lookupArray = lookupArray.slice(0, i - 1);
-			  }
-		  }
-		  // if match_type is 1 or -1, the list has to be ordered
-		  if (matchType == 1) {
-			  lookupArray = lookupArray.sort();
-		  } else if (matchType == -1) {
-			  lookupArray = lookupArray.sort();
-			  lookupArray = lookupArray.reverse();
-		  }
-		  // find the match
-		  for(var j in lookupArray) {
-			  if (matchType == 0 && lookupArray[j] == lookupValue) {
-				  // exactly match
-				  res = ++j;
-			  } else if (matchType == -1 && lookupArray[j] >= lookupValue) {
-				  // if matchType is -1 <=> find the smallest value that is greater than or equal to lookupValue
-				  res = ++j;
-			  } else if (matchType == 1 && lookupArray[j] <= lookupValue) {
-				  // if matchType is 1 <=> find the largest value that is less than or equal to lookupValue
-				  res = ++j;
-			  }
-		  }
-		  return res;
-	  };
+      // lookupValue type has to be number, text, or logical lookupValues
+      if (typeof lookupValue != 'number' && typeof lookupValue != 'string' && typeof lookupValue != 'boolean') {
+        return res;
+      }
+      // matchType is 0, 1 or -1
+      if (matchType !== 0 && matchType !== -1 && matchType !== 1) {
+        return res;
+      }
+      // lookupArray should not be empty
+      if (!lookupArray.length) {
+        return res;
+      }
+      // lookupArray should contain only number, text, or logical lookupValues, or empty (null) cells
+      for (var i in lookupArray) {
+        // check the type of the lookupValue
+        if (typeof lookupArray[i] != 'number' && typeof lookupArray[i] != 'string' && typeof lookupArray[i] != 'boolean' && lookupArray[i] != null) {
+          return res;
+        }
+        // convert strings to lowercase for case-insensitive testing
+        if (typeof lookupArray[i] == 'string') {
+          lookupArray[i] = lookupArray[i].toLowerCase();
+        }
+        if (lookupArray[i] == null && (matchType == 1 || matchType == -1)) {
+          lookupArray = lookupArray.slice(0, i - 1);
+        }
+      }
+      // if match_type is 1 or -1, the list has to be ordered
+      if (matchType == 1) {
+        lookupArray = lookupArray.sort();
+      } else if (matchType == -1) {
+        lookupArray = lookupArray.sort();
+        lookupArray = lookupArray.reverse();
+      }
+      // find the match
+      for (var j in lookupArray) {
+        if (matchType == 0 && lookupArray[j] == lookupValue) {
+          // exactly match
+          res = ++j;
+        } else if (matchType == -1 && lookupArray[j] >= lookupValue) {
+          // if matchType is -1 <=> find the smallest value that is greater than or equal to lookupValue
+          res = ++j;
+        } else if (matchType == 1 && lookupArray[j] <= lookupValue) {
+          // if matchType is 1 <=> find the largest value that is less than or equal to lookupValue
+          res = ++j;
+        }
+      }
+      return res;
+    };
 
-	  // Additional formulas (not for users)
-	  Formula._CHUNK = function(array) {
-		  var formula = window.supsystic.Tables._currentFormula;
+    // Additional formulas (not for users)
+    Formula._CHUNK = function (array) {
+      var formula = window.supsystic.Tables._currentFormula;
 
-		  if(formula) {
-			  var regexp = new RegExp(/([a-z]+([0-9]+)):?([a-z]+([0-9]+))?/, 'gi'),
-				  rangeData = regexp.exec(formula),
-				  start = rangeData && typeof rangeData[2] != 'undefined' ? rangeData[2] : 0,
-				  end = rangeData && typeof rangeData[4] != 'undefined' ? rangeData[4] : start,
-				  chunkStep = end - start + 1;
-			  if(chunkStep < 1) {
-				  return '#REF!';
-			  }
-			  return Formula._GETCHUNKARRAY(array, chunkStep);
-		  }
-		  return array;
-	  };
-	  Formula._GETCHUNKARRAY = function(arr, len) {
-		  var chunks = [],
-			  i = 0,
-			  n = arr.length;
+      if (formula) {
+        var regexp = new RegExp(/([a-z]+([0-9]+)):?([a-z]+([0-9]+))?/, 'gi'),
+          rangeData = regexp.exec(formula),
+          start = rangeData && typeof rangeData[2] != 'undefined' ? rangeData[2] : 0,
+          end = rangeData && typeof rangeData[4] != 'undefined' ? rangeData[4] : start,
+          chunkStep = end - start + 1;
+        if (chunkStep < 1) {
+          return '#REF!';
+        }
+        return Formula._GETCHUNKARRAY(array, chunkStep);
+      }
+      return array;
+    };
+    Formula._GETCHUNKARRAY = function (arr, len) {
+      var chunks = [],
+        i = 0,
+        n = arr.length;
 
-		  while (i < n) {
-			  chunks.push(arr.slice(i, i += len));
-		  }
-		  return chunks;
-	  };
+      while (i < n) {
+        chunks.push(arr.slice(i, (i += len)));
+      }
+      return chunks;
+    };
     return Formula;
   }
 }).call(this);

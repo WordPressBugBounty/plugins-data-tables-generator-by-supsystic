@@ -20,12 +20,8 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Test_Null extends Twig_SupTwgDtgs_Node_Expression_Test
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->raw('(null === ')
-            ->subcompile($this->getNode('node'))
-            ->raw(')')
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('(null === ')->subcompile($this->getNode('node'))->raw(')');
+  }
 }

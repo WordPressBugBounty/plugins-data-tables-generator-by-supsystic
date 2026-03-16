@@ -18,17 +18,17 @@
  */
 interface Twig_SupTwgDtgs_CompilerInterface
 {
-    /**
-     * Compiles a node.
-     *
-     * @return $this
-     */
-    public function compile(Twig_SupTwgDtgs_NodeInterface $node);
+  /**
+   * Compiles a node.
+   *
+   * @return $this
+   */
+  public function compile(Twig_SupTwgDtgs_NodeInterface $node);
 
-    /**
-     * Gets the current PHP code after compilation.
-     *
-     * @return string The PHP code
-     */
-    public function getSource();
+  /**
+   * Gets the current PHP code after compilation.
+   *
+   * @return string The PHP code
+   */
+  public function getSource();
 }

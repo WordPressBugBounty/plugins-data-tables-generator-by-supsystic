@@ -10,17 +10,13 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_TempName extends Twig_SupTwgDtgs_Node_Expression
 {
-    public function __construct($name, $lineno)
-    {
-        parent::__construct(array(), array('name' => $name), $lineno);
-    }
+  public function __construct($name, $lineno)
+  {
+    parent::__construct([], ['name' => $name], $lineno);
+  }
 
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->raw('$_')
-            ->raw($this->getAttribute('name'))
-            ->raw('_')
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('$_')->raw($this->getAttribute('name'))->raw('_');
+  }
 }

@@ -16,24 +16,24 @@
  */
 interface Twig_SupTwgDtgs_TokenParserInterface
 {
-    /**
-     * Sets the parser associated with this token parser.
-     */
-    public function setParser(Twig_SupTwgDtgs_Parser $parser);
+  /**
+   * Sets the parser associated with this token parser.
+   */
+  public function setParser(Twig_SupTwgDtgs_Parser $parser);
 
-    /**
-     * Parses a token and returns a node.
-     *
-     * @return Twig_SupTwgDtgs_NodeInterface
-     *
-     * @throws Twig_SupTwgDtgs_Error_Syntax
-     */
-    public function parse(Twig_SupTwgDtgs_Token $token);
+  /**
+   * Parses a token and returns a node.
+   *
+   * @return Twig_SupTwgDtgs_NodeInterface
+   *
+   * @throws Twig_SupTwgDtgs_Error_Syntax
+   */
+  public function parse(Twig_SupTwgDtgs_Token $token);
 
-    /**
-     * Gets the tag name associated with this token parser.
-     *
-     * @return string The tag name
-     */
-    public function getTag();
+  /**
+   * Gets the tag name associated with this token parser.
+   *
+   * @return string The tag name
+   */
+  public function getTag();
 }

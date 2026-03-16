@@ -21,29 +21,24 @@
  */
 class Twig_SupTwgDtgs_Node_SandboxedPrint extends Twig_SupTwgDtgs_Node_Print
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write('echo $this->env->getExtension(\'Twig_SupTwgDtgs_Extension_Sandbox\')->ensureToStringAllowed(')
-            ->subcompile($this->getNode('expr'))
-            ->raw(");\n")
-        ;
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write('echo $this->env->getExtension(\'Twig_SupTwgDtgs_Extension_Sandbox\')->ensureToStringAllowed(')->subcompile($this->getNode('expr'))->raw(");\n");
+  }
+
+  /**
+   * Removes node filters.
+   *
+   * This is mostly needed when another visitor adds filters (like the escaper one).
+   *
+   * @return Twig_SupTwgDtgs_Node
+   */
+  protected function removeNodeFilter(Twig_SupTwgDtgs_Node $node)
+  {
+    if ($node instanceof Twig_SupTwgDtgs_Node_Expression_Filter) {
+      return $this->removeNodeFilter($node->getNode('node'));
     }
 
-    /**
-     * Removes node filters.
-     *
-     * This is mostly needed when another visitor adds filters (like the escaper one).
-     *
-     * @return Twig_SupTwgDtgs_Node
-     */
-    protected function removeNodeFilter(Twig_SupTwgDtgs_Node $node)
-    {
-        if ($node instanceof Twig_SupTwgDtgs_Node_Expression_Filter) {
-            return $this->removeNodeFilter($node->getNode('node'));
-        }
-
-        return $node;
-    }
+    return $node;
+  }
 }

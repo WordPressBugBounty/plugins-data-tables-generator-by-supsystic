@@ -16,14 +16,13 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Test_Sameas extends Twig_SupTwgDtgs_Node_Expression_Test
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->raw('(')
-            ->subcompile($this->getNode('node'))
-            ->raw(' === ')
-            ->subcompile($this->getNode('arguments')->getNode(0))
-            ->raw(')')
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler
+      ->raw('(')
+      ->subcompile($this->getNode('node'))
+      ->raw(' === ')
+      ->subcompile($this->getNode('arguments')->getNode(0))
+      ->raw(')');
+  }
 }

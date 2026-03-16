@@ -34,53 +34,43 @@
  *    } );
  */
 
-
 // UMD
-(function( factory ) {
-	"use strict";
+(function (factory) {
+  'use strict';
 
-	if ( typeof define === 'function' && define.amd ) {
-		// AMD
-		define( ['jquery'], function ( $ ) {
-			return factory( jQuery, window, document );
-		} );
-	}
-	else if ( typeof exports === 'object' ) {
-		// CommonJS
-		module.exports = function (root, jQuery) {
-			if ( ! root ) {
-				root = window;
-			}
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(['jquery'], function ($) {
+      return factory(jQuery, window, document);
+    });
+  } else if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = function (root, jQuery) {
+      if (!root) {
+        root = window;
+      }
 
-			if ( ! jQuery ) {
-				jQuery = typeof window !== 'undefined' ?
-					require('jquery') :
-					require('jquery')( root );
-			}
+      if (!jQuery) {
+        jQuery = typeof window !== 'undefined' ? require('jquery') : require('jquery')(root);
+      }
 
-			return factory( jQuery, root, root.document );
-		};
-	}
-	else {
-		// Browser
-		factory( jQuery, window, document );
-	}
-}
-(function( jQuery, window, document ) {
+      return factory(jQuery, root, root.document);
+    };
+  } else {
+    // Browser
+    factory(jQuery, window, document);
+  }
+})(function (jQuery, window, document) {
+  jQuery.fn.dataTable.ext.order.intl = function (locales, options) {
+    if (window.Intl) {
+      var collator = new Intl.Collator(locales, options);
+      var types = jQuery.fn.dataTable.ext.type;
 
-
-jQuery.fn.dataTable.ext.order.intl = function ( locales, options ) {
-	if ( window.Intl ) {
-		var collator = new Intl.Collator( locales, options );
-		var types = jQuery.fn.dataTable.ext.type;
-
-		delete types.order['string-pre'];
-		types.order['string-asc'] = collator.compare;
-		types.order['string-desc'] = function ( a, b ) {
-			return collator.compare( a, b ) * -1;
-		};
-	}
-};
-
-
-}));
+      delete types.order['string-pre'];
+      types.order['string-asc'] = collator.compare;
+      types.order['string-desc'] = function (a, b) {
+        return collator.compare(a, b) * -1;
+      };
+    }
+  };
+});

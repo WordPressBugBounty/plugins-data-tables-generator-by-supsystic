@@ -21,57 +21,48 @@
  */
 
 (function (factory) {
-	if (typeof define === "function" && define.amd) {
-		define(["jquery", "moment", "datatables.net"], factory);
-	} else {
-		factory(jQuery, moment);
-	}
-}(function (jQuery, moment) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery', 'moment', 'datatables.net'], factory);
+  } else {
+    factory(jQuery, moment);
+  }
+})(function (jQuery, moment) {
+  jQuery.fn.dataTable.moment = function (format, locale, reverseEmpties) {
+    var types = jQuery.fn.dataTable.ext.type;
 
-jQuery.fn.dataTable.moment = function ( format, locale, reverseEmpties ) {
-	var types = jQuery.fn.dataTable.ext.type;
+    // Add type detection
+    types.detect.unshift(function (d) {
+      if (d) {
+        // Strip HTML tags and newline characters if possible
+        if (d.replace) {
+          d = d.replace(/(<.*?>)|(\r?\n|\r)/g, '');
+        }
 
-	// Add type detection
-	types.detect.unshift( function ( d ) {
-		if ( d ) {
-			// Strip HTML tags and newline characters if possible
-			if ( d.replace ) {
-				d = d.replace(/(<.*?>)|(\r?\n|\r)/g, '');
-			}
+        // Strip out surrounding white space
+        d = jQuery.trim(d);
+      }
 
-			// Strip out surrounding white space
-			d = jQuery.trim( d );
-		}
+      // Null and empty values are acceptable
+      if (d === '' || d === null) {
+        return 'moment-' + format;
+      }
 
-		// Null and empty values are acceptable
-		if ( d === '' || d === null ) {
-			return 'moment-'+format;
-		}
+      return moment(d, format, locale, true).isValid() ? 'moment-' + format : null;
+    });
 
+    // Add sorting method - use an integer for the sorting
+    types.order['moment-' + format + '-pre'] = function (d) {
+      if (d) {
+        // Strip HTML tags and newline characters if possible
+        if (d.replace) {
+          d = d.replace(/(<.*?>)|(\r?\n|\r)/g, '');
+        }
 
+        // Strip out surrounding white space
+        d = jQuery.trim(d);
+      }
 
-		return moment( d, format, locale, true ).isValid() ?
-			'moment-'+format :
-			null;
-	} );
-
-
-	// Add sorting method - use an integer for the sorting
-	types.order[ 'moment-'+format+'-pre' ] = function ( d ) {
-		if ( d ) {
-			// Strip HTML tags and newline characters if possible
-			if ( d.replace ) {
-				d = d.replace(/(<.*?>)|(\r?\n|\r)/g, '');
-			}
-
-			// Strip out surrounding white space
-			d = jQuery.trim( d );
-		}
-
-		return !moment(d, format, locale, true).isValid() ?
-			(reverseEmpties ? -Infinity : Infinity) :
-			parseInt( moment( d, format, locale, true ).format( 'x' ), 10 );
-	};
-};
-
-}));
+      return !moment(d, format, locale, true).isValid() ? (reverseEmpties ? -Infinity : Infinity) : parseInt(moment(d, format, locale, true).format('x'), 10);
+    };
+  };
+});

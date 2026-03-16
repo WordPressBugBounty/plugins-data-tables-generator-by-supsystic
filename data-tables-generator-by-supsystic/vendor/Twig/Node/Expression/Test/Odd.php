@@ -20,13 +20,8 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Test_Odd extends Twig_SupTwgDtgs_Node_Expression_Test
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->raw('(')
-            ->subcompile($this->getNode('node'))
-            ->raw(' % 2 == 1')
-            ->raw(')')
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('(')->subcompile($this->getNode('node'))->raw(' % 2 == 1')->raw(')');
+  }
 }

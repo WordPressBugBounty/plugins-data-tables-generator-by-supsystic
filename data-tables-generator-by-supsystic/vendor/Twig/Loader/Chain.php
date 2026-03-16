@@ -18,132 +18,132 @@
  */
 class Twig_SupTwgDtgs_Loader_Chain implements Twig_SupTwgDtgs_LoaderInterface, Twig_SupTwgDtgs_ExistsLoaderInterface, Twig_SupTwgDtgs_SourceContextLoaderInterface
 {
-    private $hasSourceCache = array();
-    protected $loaders = array();
+  private $hasSourceCache = [];
+  protected $loaders = [];
 
-    /**
-     * @param Twig_SupTwgDtgs_LoaderInterface[] $loaders
-     */
-    public function __construct(array $loaders = array())
-    {
-        foreach ($loaders as $loader) {
-            $this->addLoader($loader);
-        }
+  /**
+   * @param Twig_SupTwgDtgs_LoaderInterface[] $loaders
+   */
+  public function __construct(array $loaders = [])
+  {
+    foreach ($loaders as $loader) {
+      $this->addLoader($loader);
+    }
+  }
+
+  public function addLoader(Twig_SupTwgDtgs_LoaderInterface $loader)
+  {
+    $this->loaders[] = $loader;
+    $this->hasSourceCache = [];
+  }
+
+  public function getSource($name)
+  {
+    //@trigger_error(sprintf('Calling "getSource" on "%s" is deprecated since 1.27. Use getSourceContext() instead.', get_class($this)), E_USER_DEPRECATED);
+
+    $exceptions = [];
+    foreach ($this->loaders as $loader) {
+      if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
+        continue;
+      }
+
+      try {
+        return $loader->getSource($name);
+      } catch (Twig_SupTwgDtgs_Error_Loader $e) {
+        $exceptions[] = $e->getMessage();
+      }
     }
 
-    public function addLoader(Twig_SupTwgDtgs_LoaderInterface $loader)
-    {
-        $this->loaders[] = $loader;
-        $this->hasSourceCache = array();
-    }
+    throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' (' . implode(', ', $exceptions) . ')' : ''));
+  }
 
-    public function getSource($name)
-    {
-        //@trigger_error(sprintf('Calling "getSource" on "%s" is deprecated since 1.27. Use getSourceContext() instead.', get_class($this)), E_USER_DEPRECATED);
+  public function getSourceContext($name)
+  {
+    $exceptions = [];
+    foreach ($this->loaders as $loader) {
+      if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
+        continue;
+      }
 
-        $exceptions = array();
-        foreach ($this->loaders as $loader) {
-            if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
-                continue;
-            }
-
-            try {
-                return $loader->getSource($name);
-            } catch (Twig_SupTwgDtgs_Error_Loader $e) {
-                $exceptions[] = $e->getMessage();
-            }
+      try {
+        if ($loader instanceof Twig_SupTwgDtgs_SourceContextLoaderInterface) {
+          return $loader->getSourceContext($name);
         }
 
-        throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' ('.implode(', ', $exceptions).')' : ''));
+        return new Twig_SupTwgDtgs_Source($loader->getSource($name), $name);
+      } catch (Twig_SupTwgDtgs_Error_Loader $e) {
+        $exceptions[] = $e->getMessage();
+      }
     }
 
-    public function getSourceContext($name)
-    {
-        $exceptions = array();
-        foreach ($this->loaders as $loader) {
-            if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
-                continue;
-            }
+    throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' (' . implode(', ', $exceptions) . ')' : ''));
+  }
 
-            try {
-                if ($loader instanceof Twig_SupTwgDtgs_SourceContextLoaderInterface) {
-                    return $loader->getSourceContext($name);
-                }
+  public function exists($name)
+  {
+    $name = (string) $name;
 
-                return new Twig_SupTwgDtgs_Source($loader->getSource($name), $name);
-            } catch (Twig_SupTwgDtgs_Error_Loader $e) {
-                $exceptions[] = $e->getMessage();
-            }
-        }
-
-        throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' ('.implode(', ', $exceptions).')' : ''));
+    if (isset($this->hasSourceCache[$name])) {
+      return $this->hasSourceCache[$name];
     }
 
-    public function exists($name)
-    {
-        $name = (string) $name;
-
-        if (isset($this->hasSourceCache[$name])) {
-            return $this->hasSourceCache[$name];
+    foreach ($this->loaders as $loader) {
+      if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface) {
+        if ($loader->exists($name)) {
+          return $this->hasSourceCache[$name] = true;
         }
 
-        foreach ($this->loaders as $loader) {
-            if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface) {
-                if ($loader->exists($name)) {
-                    return $this->hasSourceCache[$name] = true;
-                }
+        continue;
+      }
 
-                continue;
-            }
-
-            try {
-                if ($loader instanceof Twig_SupTwgDtgs_SourceContextLoaderInterface) {
-                    $loader->getSourceContext($name);
-                } else {
-                    $loader->getSource($name);
-                }
-
-                return $this->hasSourceCache[$name] = true;
-            } catch (Twig_SupTwgDtgs_Error_Loader $e) {
-            }
+      try {
+        if ($loader instanceof Twig_SupTwgDtgs_SourceContextLoaderInterface) {
+          $loader->getSourceContext($name);
+        } else {
+          $loader->getSource($name);
         }
 
-        return $this->hasSourceCache[$name] = false;
+        return $this->hasSourceCache[$name] = true;
+      } catch (Twig_SupTwgDtgs_Error_Loader $e) {
+      }
     }
 
-    public function getCacheKey($name)
-    {
-        $exceptions = array();
-        foreach ($this->loaders as $loader) {
-            if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
-                continue;
-            }
+    return $this->hasSourceCache[$name] = false;
+  }
 
-            try {
-                return $loader->getCacheKey($name);
-            } catch (Twig_SupTwgDtgs_Error_Loader $e) {
-                $exceptions[] = get_class($loader).': '.$e->getMessage();
-            }
-        }
+  public function getCacheKey($name)
+  {
+    $exceptions = [];
+    foreach ($this->loaders as $loader) {
+      if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
+        continue;
+      }
 
-        throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' ('.implode(', ', $exceptions).')' : ''));
+      try {
+        return $loader->getCacheKey($name);
+      } catch (Twig_SupTwgDtgs_Error_Loader $e) {
+        $exceptions[] = get_class($loader) . ': ' . $e->getMessage();
+      }
     }
 
-    public function isFresh($name, $time)
-    {
-        $exceptions = array();
-        foreach ($this->loaders as $loader) {
-            if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
-                continue;
-            }
+    throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' (' . implode(', ', $exceptions) . ')' : ''));
+  }
 
-            try {
-                return $loader->isFresh($name, $time);
-            } catch (Twig_SupTwgDtgs_Error_Loader $e) {
-                $exceptions[] = get_class($loader).': '.$e->getMessage();
-            }
-        }
+  public function isFresh($name, $time)
+  {
+    $exceptions = [];
+    foreach ($this->loaders as $loader) {
+      if ($loader instanceof Twig_SupTwgDtgs_ExistsLoaderInterface && !$loader->exists($name)) {
+        continue;
+      }
 
-        throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' ('.implode(', ', $exceptions).')' : ''));
+      try {
+        return $loader->isFresh($name, $time);
+      } catch (Twig_SupTwgDtgs_Error_Loader $e) {
+        $exceptions[] = get_class($loader) . ': ' . $e->getMessage();
+      }
     }
+
+    throw new Twig_SupTwgDtgs_Error_Loader(sprintf('Template "%s" is not defined%s.', $name, $exceptions ? ' (' . implode(', ', $exceptions) . ')' : ''));
+  }
 }

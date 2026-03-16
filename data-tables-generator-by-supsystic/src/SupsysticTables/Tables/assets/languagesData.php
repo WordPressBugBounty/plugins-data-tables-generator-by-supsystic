@@ -1,6 +1,6 @@
 <?php
-return array(
-	'Afrikaans' => '{
+return [
+  'Afrikaans' => '{
 	"sEmptyTable":     "Geen data beskikbaar in tabel",
 	"sInfo":           "uitstalling _START_ to _END_ of _TOTAL_ inskrywings",
 	"sInfoEmpty":      "uitstalling 0 to 0 of 0 inskrywings",
@@ -23,7 +23,7 @@ return array(
 		"sSortDescending": ": aktiveer kolom orde te sorteer"
 	}
 }',
-	'Albanian' => '{
+  'Albanian' => '{
    "sEmptyTable":     "Nuk ka asnjë të dhënë në tabele",
    "sInfo":           "Duke treguar _START_ deri _END_ prej _TOTAL_ reshtave",
    "sInfoEmpty":      "Duke treguar 0 deri 0 prej 0 reshtave",
@@ -46,7 +46,7 @@ return array(
        "sSortDescending": ": aktivizo për të sortuar kolumnin me vlera në zbritje"
    }
 }',
-	'Amharic' => '
+  'Amharic' => '
 {
     "sEmptyTable":     "ባዶ ሰንጠረዥ",
     "sInfo":           "ከጠቅላላው _TOTAL_ ዝርዝሮች ውስጥ ከ _START_ እስከ _END_ ያሉት ዝርዝር",
@@ -70,7 +70,7 @@ return array(
         "sSortDescending": ": ከመጨረሻ ወደ መጀመሪያ(ወራጅ) አደራደር"
     }
 }',
-	'Arabic' => '{
+  'Arabic' => '{
 	"sProcessing":   "جارٍ التحميل...",
 	"sLengthMenu":   "أظهر _MENU_ مدخلات",
 	"sZeroRecords":  "لم يعثر على أية سجلات",
@@ -87,7 +87,7 @@ return array(
 		"sLast":     "الأخير"
 	}
 }',
-	'Armenian' => '{
+  'Armenian' => '{
   "sEmptyTable": "Տվյալները բացակայում են",
   "sProcessing": "Կատարվում է...",
   "sInfoThousands":  ",",
@@ -110,7 +110,7 @@ return array(
       "sSortDescending": ": ակտիվացրեք նվազման կարգով դասավորելու համար"
   }
 }',
-	'Azerbaijan' => '{
+  'Azerbaijan' => '{
 	"sEmptyTable":     "Cədvəldə heç bir məlumat yoxdur",
 	"sInfo":           " _TOTAL_ Nəticədən _START_ - _END_ Arası Nəticələr",
 	"sInfoEmpty":      "Nəticə Yoxdur",
@@ -133,7 +133,7 @@ return array(
 		"sSortDescending": ": sütunu azalma sırası üzərə aktiv etmək"
 	}
 }',
-	'Bangla' => '{
+  'Bangla' => '{
 	"sProcessing":   "প্রসেসিং হচ্ছে...",
 	"sLengthMenu":   "_MENU_ টা এন্ট্রি দেখাও",
 	"sZeroRecords":  "আপনি যা অনুসন্ধান করেছেন তার সাথে মিলে যাওয়া কোন রেকর্ড খুঁজে পাওয়া যায় নাই",
@@ -150,7 +150,7 @@ return array(
 		"sLast":     "শেষেরটা"
 	}
 }',
-	'Basque' => '{
+  'Basque' => '{
 	"sProcessing":     "Prozesatzen...",
 	"sLengthMenu":     "Erakutsi _MENU_ erregistro",
 	"sZeroRecords":    "Ez da emaitzarik aurkitu",
@@ -174,7 +174,7 @@ return array(
 		"sSortDescending": ": Zutabea beheranzko eran ordenatzeko aktibatu"
 	}
 }',
-	'Belarusian' => '{
+  'Belarusian' => '{
 	"sProcessing":   "Пачакайце...",
 	"sLengthMenu":   "Паказваць _MENU_ запісаў",
 	"sZeroRecords":  "Запісы адсутнічаюць.",
@@ -195,7 +195,7 @@ return array(
 		"sSortDescending": ": актываваць для сартавання слупка па змяншэнні"
 	}
 }',
-	'Bulgarian' => '{
+  'Bulgarian' => '{
 	"sProcessing":   "Обработка на резултатите...",
 	"sLengthMenu":   "Показване на _MENU_ резултата",
 	"sZeroRecords":  "Няма намерени резултати",
@@ -212,7 +212,7 @@ return array(
 		"sLast":     "Последна"
 	}
 }',
-	'Catalan' => '{
+  'Catalan' => '{
 	"sProcessing":   "Processant...",
 	"sLengthMenu":   "Mostra _MENU_ registres",
 	"sZeroRecords":  "No s\'han trobat registres.",
@@ -229,7 +229,7 @@ return array(
 		"sLast":     "Últim"
 	}
 }',
-	'Chinese-traditional' => '{
+  'Chinese-traditional' => '{
 	"processing":   "處理中...",
 	"loadingRecords": "載入中...",
 	"lengthMenu":   "顯示 _MENU_ 項結果",
@@ -250,7 +250,7 @@ return array(
 		"sortDescending": ": 降冪排列"
 	}
 }',
-	'Chinese' => '{
+  'Chinese' => '{
 	"sProcessing":   "处理中...",
 	"sLengthMenu":   "显示 _MENU_ 项结果",
 	"sZeroRecords":  "没有匹配结果",
@@ -274,7 +274,7 @@ return array(
 		"sSortDescending": ": 以降序排列此列"
 	}
 }',
-	'Croatian' => '{
+  'Croatian' => '{
     "sEmptyTable":      "Nema podataka u tablici",
     "sInfo":            "Prikazano _START_ do _END_ od _TOTAL_ rezultata",
     "sInfoEmpty":       "Prikazano 0 do 0 od 0 rezultata",
@@ -297,7 +297,7 @@ return array(
         "sSortDescending": ": aktiviraj za padajući poredak"
     }
 }',
-	'Czech' => '{
+  'Czech' => '{
 	"sEmptyTable":     "Tabulka neobsahuje žádná data",
 	"sInfo":           "Zobrazuji _START_ až _END_ z celkem _TOTAL_ záznamů",
 	"sInfoEmpty":      "Zobrazuji 0 až 0 z 0 záznamů",
@@ -320,7 +320,7 @@ return array(
 		"sSortDescending": ": aktivujte pro řazení sloupce sestupně"
 	}
 }',
-	'Danish' => '{
+  'Danish' => '{
 	"sProcessing":   "Henter...",
 	"sLengthMenu":   "Vis _MENU_ linjer",
 	"sZeroRecords":  "Ingen linjer matcher s&oslash;gningen",
@@ -337,7 +337,7 @@ return array(
 	    "sLast":     "Sidste"
 	}
 }',
-	'Dutch' => '{
+  'Dutch' => '{
     "sProcessing": "Bezig...",
     "sLengthMenu": "_MENU_ resultaten weergeven",
     "sZeroRecords": "Geen resultaten gevonden",
@@ -360,7 +360,7 @@ return array(
         "sSortDescending": ": activeer om kolom aflopend te sorteren"
     }
 }',
-	'Estonian' => '{
+  'Estonian' => '{
 	"sProcessing":   "Palun oodake, koostan kuvamiseks nimekirja!",
 	"sLengthMenu":   "N&auml;ita kirjeid _MENU_ kaupa",
 	"sZeroRecords":  "Otsitavat vastet ei leitud.",
@@ -376,7 +376,7 @@ return array(
 		"sLast":       "Viimane"
 	}
 }',
-	'Filipino' => '{
+  'Filipino' => '{
 	"sProcessing":   "Pagproseso...",
 	"sLengthMenu":   "Ipakita _MENU_ entries",
 	"sZeroRecords":  "Walang katugmang  mga talaan  na natagpuan",
@@ -393,7 +393,7 @@ return array(
 		"sLast":     "Huli"
 	}
 }',
-	'Finnish' => '{
+  'Finnish' => '{
 	"sEmptyTable":   "Ei näytettäviä tuloksia.",
 	"sInfo":         "Näytetään rivit _START_ - _END_ (yhteensä _TOTAL_ )",
 	"sInfoEmpty":    "Näytetään 0 - 0 (yhteensä 0)",
@@ -431,7 +431,7 @@ return array(
 		"copyKeys": "Paina <i>ctrl</i> tai <i>\u2318</i> + <i>C</i> kopioidaksesi taulukon arvot<br>järjestelmäsi leikepöydälle. <br><br>Peruuttaaksesi paina tätä viestiä tai Esc."
 	}
 }',
-	'French' => '{
+  'French' => '{
 	"sProcessing":     "Traitement en cours...",
 	"sSearch":         "Rechercher&nbsp;:",
     "sLengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
@@ -453,7 +453,7 @@ return array(
 		"sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
 	}
 }',
-	'Galician' => '{
+  'Galician' => '{
 	"sProcessing":     "Procesando...",
 	"sLengthMenu":     "Mostrar _MENU_ rexistros",
 	"sZeroRecords":    "Non se atoparon resultados",
@@ -477,7 +477,7 @@ return array(
 		"sSortDescending": ": Activar para ordenar a columna de maneira descendente"
 	}
 }',
-	'Georgian' => '{
+  'Georgian' => '{
 	"sEmptyTable":     "ცხრილში არ არის მონაცემები",
 	"sInfo":           "ნაჩვენებია ჩანაწერები _START_–დან _END_–მდე, _TOTAL_ ჩანაწერიდან",
 	"sInfoEmpty":      "ნაჩვენებია ჩანაწერები 0–დან 0–მდე, 0 ჩანაწერიდან",
@@ -500,7 +500,7 @@ return array(
 		"sSortDescending": ": სვეტის დალაგება კლების მიხედვით"
 	}
 }',
-	'German' => '{
+  'German' => '{
 	"sEmptyTable":   	"Keine Daten in der Tabelle vorhanden",
 	"sInfo":         	"_START_ bis _END_ von _TOTAL_ Einträgen",
 	"sInfoEmpty":    	"0 bis 0 von 0 Einträgen",
@@ -530,7 +530,7 @@ return array(
 	    	}
 	}
 }',
-	'Greek' => '{
+  'Greek' => '{
 	"sDecimal":           ",",
 	"sEmptyTable":        "Δεν υπάρχουν δεδομένα στον πίνακα",
 	"sInfo":              "Εμφανίζονται _START_ έως _END_ από _TOTAL_ εγγραφές",
@@ -557,7 +557,7 @@ return array(
 		"sSortDescending": ": ενεργοποιήστε για φθίνουσα ταξινόμηση της στήλης"
 	}
 }',
-	'Gujarati' => '{
+  'Gujarati' => '{
 	"sEmptyTable":     "કોષ્ટકમાં કોઈ ડેટા ઉપલબ્ધ નથી",
 	"sInfo":           "કુલ_પ્રવેશો_અંત_પ્રારંભ_દર્શાવે_છે",
 	"sInfoEmpty":      "0 પ્રવેશો 0 0 બતાવી રહ્યું છે",
@@ -580,7 +580,7 @@ return array(
 		"sSortDescending": ": કૉલમ ઉતરતા ક્રમમાં ગોઠવવા માટે સક્રિય"
 	}
 }',
-	'Hebrew' => '{
+  'Hebrew' => '{
     "processing":   "מעבד...",
     "lengthMenu":   "הצג _MENU_ פריטים",
     "zeroRecords":  "לא נמצאו רשומות מתאימות",
@@ -598,7 +598,7 @@ return array(
         "last":     "אחרון"
     }
 }',
-	'Hindi' => '{
+  'Hindi' => '{
 	"sProcessing":   "प्रगति पे हैं ...",
 	"sLengthMenu":   " _MENU_ प्रविष्टियां दिखाएं ",
 	"sZeroRecords":  "रिकॉर्ड्स का मेल नहीं मिला",
@@ -615,7 +615,7 @@ return array(
 		"sLast":     "अंतिम"
 	}
 }',
-	'Hungarian' => '{
+  'Hungarian' => '{
    "sEmptyTable":     "Nincs rendelkezésre álló adat",
    "sInfo":           "Találatok: _START_ - _END_ Összesen: _TOTAL_",
    "sInfoEmpty":      "Nulla találat",
@@ -638,7 +638,7 @@ return array(
        "sSortDescending": ": aktiválja a csökkenő rendezéshez"
    }
 }',
-	'Icelandic' => '{
+  'Icelandic' => '{
 	"sEmptyTable":     "Engin gögn eru í þessari töflu",
 	"sInfo":           "Sýni _START_ til _END_ af _TOTAL_ færslum",
 	"sInfoEmpty":      "Sýni 0 til 0 af 0 færslum",
@@ -661,7 +661,7 @@ return array(
 		"sSortDescending": ": virkja til að raða dálki lækkandi í röð"
 	}
 }',
-	'Indonesian-Alternative' => '{
+  'Indonesian-Alternative' => '{
    "sProcessing":   "Sedang proses...",
    "sLengthMenu":   "Tampilan _MENU_ entri",
    "sZeroRecords":  "Tidak ditemukan data yang sesuai",
@@ -678,7 +678,7 @@ return array(
        "sLast":     "Akhir"
    }
 }',
-	'Indonesian' => '{
+  'Indonesian' => '{
 	"sProcessing":   "Sedang memproses...",
 	"sLengthMenu":   "Tampilkan _MENU_ entri",
 	"sZeroRecords":  "Tidak ditemukan data yang sesuai",
@@ -695,7 +695,7 @@ return array(
 		"sLast":     "Terakhir"
 	}
 }',
-	'Irish' => '{
+  'Irish' => '{
 	"sProcessing":   "Próiseáil...",
 	"sLengthMenu":   "Taispeáin iontrálacha _MENU_",
 	"sZeroRecords":  "Gan aon taifead meaitseáil aimsithe",
@@ -712,7 +712,7 @@ return array(
 		"sLast":     "Last"
 	}
 }',
-	'Italian' => '{
+  'Italian' => '{
 	"sEmptyTable":     "Nessun dato presente nella tabella",
 	"sInfo":           "Vista da _START_ a _END_ di _TOTAL_ elementi",
 	"sInfoEmpty":      "Vista da 0 a 0 di 0 elementi",
@@ -735,7 +735,7 @@ return array(
 		"sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
 	}
 }',
-	'Japanese' => '{
+  'Japanese' => '{
   "sEmptyTable":     "テーブルにデータがありません",
   "sInfo":           " _TOTAL_ 件中 _START_ から _END_ まで表示",
 	"sInfoEmpty":      " 0 件中 0 から 0 まで表示",
@@ -758,7 +758,7 @@ return array(
 		"sSortDescending": ": 列を降順に並べ替えるにはアクティブにする"
 	}
 }',
-	'Kazakh' => '{
+  'Kazakh' => '{
   "processing": "Күте тұрыңыз...",
   "search": "Іздеу:",
   "lengthMenu": "Жазбалар  _MENU_ көрсету",
@@ -780,7 +780,7 @@ return array(
     "sortDescending": ": кемуі бойынша бағанды сұрыптау үшін активациялау"
   }
 }',
-	'Korean' => '{
+  'Korean' => '{
    "sEmptyTable":     "데이터가 없습니다",
    "sInfo":           "_START_ - _END_ / _TOTAL_",
    "sInfoEmpty":      "0 - 0 / 0",
@@ -803,7 +803,7 @@ return array(
        "sSortDescending": ": 내림차순 정렬"
    }
 }',
-	'Kyrgyz' => '{
+  'Kyrgyz' => '{
 	"sEmptyTable":     "Таблицада эч кандай берилиш жок",
 	"sInfo":           "Жалпы _TOTAL_ саптын ичинен _START_-саптан _END_-сапка чейинкилер",
 	"sInfoEmpty":      "Жалпы 0 саптын ичинен 0-саптан 0-сапка чейинкилер",
@@ -826,7 +826,7 @@ return array(
 		"sSortDescending": ": тескери иретте"
 	}
 }',
-	'Latvian' => '{
+  'Latvian' => '{
 	"processing": "Uzgaidiet...",
 	"search": "Meklēt:",
 	"lengthMenu": "Rādīt _MENU_ ierakstus",
@@ -848,7 +848,7 @@ return array(
 		"sortDescending": ": aktivizēt kolonnu, lai kārtotu dilstošā"
 	}
 }',
-	'Lithuanian' => '{
+  'Lithuanian' => '{
     "sEmptyTable": "No data in the table",
     "sInfo": "Showing entries from _START_ to _END_ of _TOTAL_ entries",
     "sInfoEmpty": "Showing entries 0 to 0 of 0",
@@ -870,7 +870,7 @@ return array(
         "sLast": "Last"
     }
 }',
-	'Macedonian' => '{
+  'Macedonian' => '{
 	"sProcessing":     "Процесирање...",
 	"sLengthMenu":     "Прикажи _MENU_ записи",
 	"sZeroRecords":    "Не се пронајдени записи",
@@ -889,7 +889,7 @@ return array(
 		"sLast":       "Последна"
 	}
 }',
-	'Malay' => '{
+  'Malay' => '{
 	"sEmptyTable":		"Tiada data",
 	"sInfo":         	"Paparan dari _START_ hingga _END_ dari _TOTAL_ rekod",
 	"sInfoEmpty":    	"Paparan 0 hingga 0 dari 0 rekod",
@@ -912,7 +912,7 @@ return array(
        "sSortDescending": ": diaktifkan kepada susunan lajur menurun"
    }
 }',
-	'Mongolian' => '{
+  'Mongolian' => '{
 	"sEmptyTable":     "Хүснэгт хоосон байна",
         "sInfo":           "Нийт _TOTAL_ бичлэгээс _START_ - _END_ харуулж байна",
         "sInfoEmpty":      "Тохирох үр дүн алга",
@@ -935,7 +935,7 @@ return array(
                 "sSortDescending": ": цагаан толгойн эсрэг дарааллаар эрэмбэлэх"
         }
 }',
-	'Nepali' => '{
+  'Nepali' => '{
 	"sEmptyTable":	 "टेबलमा डाटा उपलब्ध भएन",
 	"sInfo":         "_TOTAL_ रेकर्ड मध्य _START_ देखि _END_ रेकर्ड देखाउंदै",
 	"sInfoEmpty":    "0 मध्य 0 देखि 0 रेकर्ड देखाउंदै",
@@ -959,7 +959,7 @@ return array(
 		"sSortDescending": ": पछाडिबाट अक्षरात्मक रूपमा क्रमबद्ध गराउने"
 	}
 }',
-	'Norwegian-Bokmal' => '{
+  'Norwegian-Bokmal' => '{
 	"sEmptyTable": "Ingen data tilgjengelig i tabellen",
 	"sInfo": "Viser _START_ til _END_ av _TOTAL_ linjer",
 	"sInfoEmpty": "Viser 0 til 0 av 0 linjer",
@@ -984,7 +984,7 @@ return array(
 		"sSortDescending": ": aktiver for å sortere kolonnen synkende"
 	}
 }',
-	'Norwegian-Nynorsk' => '{
+  'Norwegian-Nynorsk' => '{
     "sEmptyTable": "Inga data tilgjengeleg i tabellen",
     "sInfo": "Syner _START_ til _END_ av _TOTAL_ linjer",
     "sInfoEmpty": "Syner 0 til 0 av 0 linjer",
@@ -1009,7 +1009,7 @@ return array(
         "sSortDescending": ": aktiver for å sortere kolonna synkande"
     }
 }',
-	'Pashto' => '{
+  'Pashto' => '{
 	"sEmptyTable":     "جدول خالي دی",
 	"sInfo":           "د _START_ څخه تر _END_ پوري، له ټولو _TOTAL_ څخه",
 	"sInfoEmpty":      "د 0 څخه تر 0 پوري، له ټولو 0 څخه",
@@ -1032,7 +1032,7 @@ return array(
 		"sSortDescending": ": په نزولي ډول مرتبول"
 	}
 }',
-	'Persian' => '{
+  'Persian' => '{
 	"sEmptyTable":     "هیچ داده ای در جدول وجود ندارد",
 	"sInfo":           "نمایش _START_ تا _END_ از _TOTAL_ رکورد",
 	"sInfoEmpty":      "نمایش 0 تا 0 از 0 رکورد",
@@ -1055,7 +1055,7 @@ return array(
 		"sSortDescending": ": فعال سازی نمایش به صورت نزولی"
 	}
 }',
-	'Polish' => '{
+  'Polish' => '{
 	"processing":     "Przetwarzanie...",
 	"search":         "Szukaj:",
 	"lengthMenu":     "Pokaż _MENU_ pozycji",
@@ -1077,7 +1077,7 @@ return array(
 		"sortDescending": ": aktywuj, by posortować kolumnę malejąco"
 	}
 }',
-	'Portuguese-Brasil' => '{
+  'Portuguese-Brasil' => '{
     "sEmptyTable": "Nenhum registro encontrado",
     "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
     "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
@@ -1100,7 +1100,7 @@ return array(
         "sSortDescending": ": Ordenar colunas de forma descendente"
     }
 }',
-	'Portuguese' => '{
+  'Portuguese' => '{
 	"sProcessing":   "A processar...",
 	"sLengthMenu":   "Mostrar _MENU_ registos",
 	"sZeroRecords":  "Não foram encontrados resultados",
@@ -1117,7 +1117,7 @@ return array(
 	    "sLast":     "Último"
 	}
 }',
-	'Romanian' => '{
+  'Romanian' => '{
 	"sProcessing":   "Procesează...",
 	"sLengthMenu":   "Afișează _MENU_ înregistrări pe pagină",
 	"sZeroRecords":  "Nu am găsit nimic - ne pare rău",
@@ -1134,7 +1134,7 @@ return array(
 		"sLast":     "Ultima"
 	}
 }',
-	'Russian' => '{
+  'Russian' => '{
   "processing": "Подождите...",
   "search": "Поиск:",
   "lengthMenu": "Показать _MENU_ записей",
@@ -1156,7 +1156,7 @@ return array(
     "sortDescending": ": активировать для сортировки столбца по убыванию"
   }
 }',
-	'Serbian' => '{
+  'Serbian' => '{
     "sProcessing":   "Procesiranje u toku...",
     "sLengthMenu":   "Prikaži _MENU_ elemenata",
     "sZeroRecords":  "Nije pronađen nijedan rezultat",
@@ -1173,7 +1173,7 @@ return array(
         "sLast":     "Poslednja"
     }
 }',
-	'Sinhala' => '{
+  'Sinhala' => '{
 	"sEmptyTable":     "වගුවේ දත්ත කිසිවක් නොමැත",
 	"sInfo":           "_TOTAL_ න් _START_ සිට _END_ දක්වා",
 	"sInfoEmpty":      "0 න් 0 සිට 0 දක්වා",
@@ -1196,7 +1196,7 @@ return array(
 		"sSortDescending": ": තීරුව අවරෝහනව තෝරන්න"
 	}
 }',
-	'Slovak' => '{
+  'Slovak' => '{
 	"sEmptyTable":     "Nie sú k dispozícii žiadne dáta",
 	"sInfo":           "Záznamy _START_ až _END_ z celkom _TOTAL_",
 	"sInfoEmpty":      "Záznamy 0 až 0 z celkom 0 ",
@@ -1219,7 +1219,7 @@ return array(
 		"sSortDescending": ": aktivujte na zoradenie stĺpca zostupne"
 	}
 }',
-	'Slovenian' => '{
+  'Slovenian' => '{
 	"sEmptyTable": "Nobenih podatkov ni na voljo",
 	"sInfo": "Prikazujem _START_ do _END_ od _TOTAL_ zapisov",
 	"sInfoEmpty": "Prikazujem 0 do 0 od 0 zapisov",
@@ -1242,7 +1242,7 @@ return array(
 		"sSortDescending": ": vključite za padajoči sort"
 	}
 }',
-	'Spanish' => '{
+  'Spanish' => '{
 	"sProcessing":     "Procesando...",
 	"sLengthMenu":     "Mostrar _MENU_ registros",
 	"sZeroRecords":    "No se encontraron resultados",
@@ -1266,7 +1266,7 @@ return array(
 		"sSortDescending": ": Activar para ordenar la columna de manera descendente"
 	}
 }',
-	'Swahili' => '{
+  'Swahili' => '{
 	"sEmptyTable":     "Hakuna data iliyo patikana",
 	"sInfo":           "Inaonyesha _START_ mpaka _END_ ya matokeo _TOTAL_",
 	"sInfoEmpty":      "Inaonyesha 0 hadi 0 ya matokeo 0",
@@ -1289,7 +1289,7 @@ return array(
 		"sSortDescending": ": seti kulainisha sanjari kwa mtindo wa mteremko"
 	}
 }',
-	'Swedish' => '{
+  'Swedish' => '{
   "sEmptyTable": "Tabellen innehåller ingen data",
   "sInfo": "Visar _START_ till _END_ av totalt _TOTAL_ rader",
   "sInfoEmpty": "Visar 0 till 0 av totalt 0 rader",
@@ -1312,7 +1312,7 @@ return array(
     "sSortDescending": ": aktivera för att sortera kolumnen i fallande ordning"
   }
 }',
-	'Tamil' => '{
+  'Tamil' => '{
 	"sEmptyTable":     "அட்டவணையில் தரவு கிடைக்கவில்லை",
 	"sInfo":           "உள்ளீடுகளை் _START_ முதல _END_ உள்ள _TOTAL_ காட்டும்",
 	"sInfoEmpty":      "0 உள்ளீடுகளை 0 0 காட்டும்",
@@ -1335,7 +1335,7 @@ return array(
 		"sSortDescending": ": நிரலை இறங்கு வரிசைப்படுத்த செயல்படுத்த"
 	}
 }',
-	'telugu' => '{
+  'telugu' => '{
     "sEmptyTable": "పట్టికలో డేటా లేదు.",
     "sInfo": "మొత్తం _TOTAL_ ఎంట్రీలులో _START_ నుండి _END_ వరకు చూపిస్తున్నాం",
     "sInfoEmpty": "చూపిస్తున్నాం 0 నుండి 0 వరకు 0 ఎంట్రీలు లో",
@@ -1358,7 +1358,7 @@ return array(
         "sSortDescending": ": నిలువరుసను అవరోహణ క్రమం అమర్చండి"
     }
 }',
-	'Thai' => '{
+  'Thai' => '{
 	"sProcessing":   "กำลังดำเนินการ...",
 	"sLengthMenu":   "แสดง _MENU_ แถว",
 	"sZeroRecords":  "ไม่พบข้อมูล",
@@ -1375,7 +1375,7 @@ return array(
 		"sLast":     "หน้าสุดท้าย"
 	}
 }',
-	'Turkish' => '{
+  'Turkish' => '{
 	"sDecimal":        ",",
 	"sEmptyTable":     "Tabloda herhangi bir veri mevcut değil",
 	"sInfo":           "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
@@ -1399,7 +1399,7 @@ return array(
 		"sSortDescending": ": azalan sütun sıralamasını aktifleştir"
 	}
 }',
-	'Ukrainian' => '{
+  'Ukrainian' => '{
 	"sProcessing":   "Зачекайте...",
 	"sLengthMenu":   "Показати _MENU_ записів",
 	"sZeroRecords":  "Записи відсутні.",
@@ -1420,7 +1420,7 @@ return array(
 		"sSortDescending": ": активувати для сортування стовпців за спаданням"
 	}
 }',
-	'Urdu' => '{
+  'Urdu' => '{
 	"sProcessing":   "ہے جاري عملدرامد...",
 	"sLengthMenu":   "دکہائين شقيں کي (_MENU_) فہرست",
 	"sZeroRecords":  "ملے نہيں مفروضات جلتے ملتے کوئ",
@@ -1437,7 +1437,7 @@ return array(
 		"sLast":     "آخري"
 	}
 }',
-	'Uzbek' => '{
+  'Uzbek' => '{
 	"sEmptyTable":   	"Ma\'lumot yo\'q",
 	"sInfo":         	"Umumiy _TOTAL_ yozuvlarlardan _START_ dan _END_ gachasi ko\'rsatilmoqda",
 	"sInfoEmpty":    	"Umumiy 0 yozuvlardan 0 dan 0 gachasi ko\'rsatilmoqda",
@@ -1459,7 +1459,7 @@ return array(
 		"sSortDescending": ": teskari tartiblash"
 	}
 }',
-	'Vietnamese' => '{
+  'Vietnamese' => '{
 	"sProcessing":   "Đang xử lý...",
 	"sLengthMenu":   "Xem _MENU_ mục",
 	"sZeroRecords":  "Không tìm thấy dòng nào phù hợp",
@@ -1476,7 +1476,7 @@ return array(
 		"sLast":     "Cuối"
 	}
 }',
-	'Welsh' => '{
+  'Welsh' => '{
 	"sEmptyTable":     "Dim data ar gael yn y tabl",
 	"sInfo":           "Dangos _START_ i _END_ o _TOTAL_ cofnod",
 	"sInfoEmpty":      "Dangos 0 i 0 o 0 cofnod",
@@ -1499,4 +1499,4 @@ return array(
 		"sSortDescending": ": rhoi ar waith i drefnu colofnau o\'r mwyaf i\'r lleiaf"
 	}
 }',
-);
+];

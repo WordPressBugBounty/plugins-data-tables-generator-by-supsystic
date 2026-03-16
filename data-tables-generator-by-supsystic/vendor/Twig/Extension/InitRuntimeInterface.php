@@ -17,6 +17,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface Twig_SupTwgDtgs_Extension_InitRuntimeInterface
-{
-}
+interface Twig_SupTwgDtgs_Extension_InitRuntimeInterface {}

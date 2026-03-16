@@ -11,8 +11,8 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Unary_Neg extends Twig_SupTwgDtgs_Node_Expression_Unary
 {
-    public function operator(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler->raw('-');
-    }
+  public function operator(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('-');
+  }
 }

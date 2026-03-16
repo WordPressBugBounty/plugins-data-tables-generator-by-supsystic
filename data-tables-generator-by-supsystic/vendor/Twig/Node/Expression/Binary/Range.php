@@ -10,19 +10,13 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Binary_Range extends Twig_SupTwgDtgs_Node_Expression_Binary
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->raw('range(')
-            ->subcompile($this->getNode('left'))
-            ->raw(', ')
-            ->subcompile($this->getNode('right'))
-            ->raw(')')
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('range(')->subcompile($this->getNode('left'))->raw(', ')->subcompile($this->getNode('right'))->raw(')');
+  }
 
-    public function operator(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        return $compiler->raw('..');
-    }
+  public function operator(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    return $compiler->raw('..');
+  }
 }

@@ -1,90 +1,91 @@
-(function($, app) {
+(function ($, app) {
+  $(document).ready(function () {
+    $('a[href="admin.php?page=supsystic-tables#add"]').attr('href', '#add');
 
-	$(document).ready(function () {
+    var $createBtn = $('.create-table'),
+      $error = $('#formError'),
+      $input = $('#dtgAddDialog_title'),
+      $cols = $('#dtgAddDialog_cols'),
+      $rows = $('#dtgAddDialog_rows'),
+      $dialog = $('#dtgAddDialog').dialog({
+        width: 480,
+        modal: true,
+        autoOpen: false,
+        close: function () {
+          window.location.hash = '';
+        },
+        buttons: {
+          Cancel: function () {
+            $dialog.dialog('close');
+          },
+          Create: function (event) {
+            var $button = $(event.target);
+            if ($button.is('span')) $button = $button.parent();
 
-		$('a[href="admin.php?page=supsystic-tables#add"]').attr('href', '#add');
+            if ($input.val().length == 0 || $input.val().length > 255) {
+              $error.find('p').text("Title can't be empty or more than 255 characters");
+              $error.fadeIn();
+              return;
+            }
 
-		var $createBtn = $('.create-table'),
-			$error = $('#formError'),
-			$input = $('#dtgAddDialog_title'),
-			$cols = $('#dtgAddDialog_cols'),
-			$rows = $('#dtgAddDialog_rows'),
-			$dialog = $('#dtgAddDialog').dialog({
-				width: 480,
-				modal: true,
-				autoOpen: false,
-				close: function () {
-					window.location.hash = '';
-				},
-				buttons: {
-					Cancel: function () {
-						$dialog.dialog('close');
-					},
-					Create: function (event) {
-						var $button = $(event.target);
-						if($button.is('span')) $button = $button.parent();
+            if (isNaN($cols.val()) || !$cols.val().length || isNaN($rows.val()) || !$rows.val().length) {
+              $error.find('p').text('Columns and rows value must be a numbers and not empty.');
+              $error.fadeIn();
 
-						if ($input.val().length == 0 || $input.val().length > 255) {
-							$error.find('p').text('Title can\'t be empty or more than 255 characters');
-							$error.fadeIn();
-							return;
-						}
+              return;
+            }
 
-						if ((isNaN($cols.val()) || !$cols.val().length ) || (isNaN($rows.val()) || !$rows.val().length)) {
-							$error.find('p').text('Columns and rows value must be a numbers and not empty.');
-							$error.fadeIn();
+            if (parseInt($cols.val()) < $cols.attr('min')) {
+              $error.find('p').text("Columns value can't be less then " + $cols.attr('min') + '.');
+              $error.fadeIn();
 
-							return;
-						}
+              return;
+            }
 
-						if (parseInt($cols.val()) < $cols.attr('min')) {
-							$error.find('p').text('Columns value can\'t be less then ' + $cols.attr('min') + '.');
-							$error.fadeIn();
+            if (parseInt($rows.val()) < $rows.attr('min')) {
+              $error.find('p').text("Rows value can't be less then " + $rows.attr('min') + '.');
+              $error.fadeIn();
 
-							return;
-						}
+              return;
+            }
+            $button.attr('disabled', true);
+            $button.html(app.createSpinner());
 
-						if (parseInt($rows.val()) < $rows.attr('min')) {
-							$error.find('p').text('Rows value can\'t be less then ' + $rows.attr('min') + '.');
-							$error.fadeIn();
+            $error.fadeOut();
 
-							return;
-						}
-						$button.attr('disabled', true);
-						$button.html(app.createSpinner());
+            app
+              .request({ module: 'tables', action: 'create', nonce: DTGS_NONCE }, { title: $input.val(), rows: $rows.val(), cols: $cols.val() })
+              .done(function (response) {
+                window.location.href = response.url + '&new=1&cols=' + $cols.val() + '&rows=' + $rows.val();
+              })
+              .fail(function (message) {
+                $error.find('p').text(message);
+                $error.fadeIn();
+              });
+          },
+        },
+      });
 
-						$error.fadeOut();
+    $input.on('focus', function () {
+      $error.fadeOut();
+    });
 
-						app.request({ module: 'tables', action: 'create', nonce: DTGS_NONCE}, { title: $input.val(), rows: $rows.val(), cols: $cols.val() })
-							.done(function (response) {
-								window.location.href = response.url + '&new=1&cols=' + $cols.val() + '&rows=' + $rows.val();
-							}).fail(function (message) {
-								$error.find('p').text(message);
-								$error.fadeIn();
-							});
-					}
-				}
-			});
+    $createBtn.on('click', function () {
+      $dialog.dialog('open');
+    });
 
-		$input.on('focus', function () {
-			$error.fadeOut();
-		});
-
-		$createBtn.on('click', function () {
-			$dialog.dialog('open');
-		});
-
-		$(window).on('hashchange', function () {
-			if (window.location.hash === '#add') {
-				// To prevent error if data not loaded completely
-				setTimeout(function() {
-					if(typeof(window.editor) != 'undefined') {
-						window.editor.deselectCell();
-					}
-					$dialog.dialog('open');
-				}, 500);
-			}
-		}).trigger('hashchange');
-	});
-
+    $(window)
+      .on('hashchange', function () {
+        if (window.location.hash === '#add') {
+          // To prevent error if data not loaded completely
+          setTimeout(function () {
+            if (typeof window.editor != 'undefined') {
+              window.editor.deselectCell();
+            }
+            $dialog.dialog('open');
+          }, 500);
+        }
+      })
+      .trigger('hashchange');
+  });
 })(jQuery, window.supsystic.Tables);

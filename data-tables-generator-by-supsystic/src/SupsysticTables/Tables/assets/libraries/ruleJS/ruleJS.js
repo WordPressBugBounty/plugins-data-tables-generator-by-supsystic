@@ -1,4 +1,4 @@
-var ruleJS = (function (root) {
+var ruleJS = function (root) {
   'use strict';
 
   /**
@@ -23,7 +23,7 @@ var ruleJS = (function (root) {
    */
   var parser = {};
 
-  var FormulaParser = function(handler) {
+  var FormulaParser = function (handler) {
     var formulaLexer = function () {};
     formulaLexer.prototype = Parser.lexer;
 
@@ -33,27 +33,27 @@ var ruleJS = (function (root) {
     };
 
     formulaParser.prototype = Parser;
-    var newParser = new formulaParser;
-    newParser.setObj = function(obj) {
+    var newParser = new formulaParser();
+    newParser.setObj = function (obj) {
       newParser.yy.obj = obj;
     };
 
     newParser.yy.parseError = function (str, hash) {
-    //      if (!((hash.expected && hash.expected.indexOf("';'") >= 0) &&
-    //        (hash.token === "}" || hash.token === "EOF" ||
-    //          parser.newLine || parser.wasNewLine)))
-    //      {
-    //        throw new SyntaxError(hash);
-    //      }
-          throw {
-            name: 'Parser error',
-            message: str,
-            prop: hash
-          };
+      //      if (!((hash.expected && hash.expected.indexOf("';'") >= 0) &&
+      //        (hash.token === "}" || hash.token === "EOF" ||
+      //          parser.newLine || parser.wasNewLine)))
+      //      {
+      //        throw new SyntaxError(hash);
+      //      }
+      throw {
+        name: 'Parser error',
+        message: str,
+        prop: hash,
+      };
     };
-        newParser.yy.handler = handler;
+    newParser.yy.handler = handler;
 
-        return newParser;
+    return newParser;
   };
 
   /**
@@ -65,15 +65,15 @@ var ruleJS = (function (root) {
      * error types
      */
     errors: [
-      {type: 'NULL', output: '#NULL'},
-      {type: 'DIV_ZERO', output: '#DIV/0!'},
-      {type: 'VALUE', output: '#VALUE!'},
-      {type: 'REF', output: '#REF!'},
-      {type: 'NAME', output: '#NAME?'},
-      {type: 'NUM', output: '#NUM!'},
-      {type: 'NOT_AVAILABLE', output: '#N/A!'},
-      {type: 'ERROR', output: '#ERROR'},
-      {type: 'NEED_UPDATE', output: '#NEED_UPDATE'}
+      { type: 'NULL', output: '#NULL' },
+      { type: 'DIV_ZERO', output: '#DIV/0!' },
+      { type: 'VALUE', output: '#VALUE!' },
+      { type: 'REF', output: '#REF!' },
+      { type: 'NAME', output: '#NAME?' },
+      { type: 'NUM', output: '#NUM!' },
+      { type: 'NOT_AVAILABLE', output: '#N/A!' },
+      { type: 'ERROR', output: '#ERROR' },
+      { type: 'NEED_UPDATE', output: '#NEED_UPDATE' },
     ],
     /**
      * get error by type
@@ -86,14 +86,13 @@ var ruleJS = (function (root) {
       })[0];
 
       return error ? error.output : null;
-    }
+    },
   };
 
   /**
    * matrix collection for each form, contains cache of all form element
    */
   var Matrix = function () {
-
     /**
      * single item (cell) object
      * @type {{id: string, formula: string, value: string, error: string, deps: Array, formulaEdit: boolean}}
@@ -104,7 +103,7 @@ var ruleJS = (function (root) {
       value: '',
       error: '',
       deps: [],
-      formulaEdit: false
+      formulaEdit: false,
     };
 
     /**
@@ -122,8 +121,8 @@ var ruleJS = (function (root) {
     var listen = function () {
       if (document.activeElement && document.activeElement !== document.body) {
         document.activeElement.blur();
-      }
-      else if (!document.activeElement) { //IE
+      } else if (!document.activeElement) {
+        //IE
         document.body.focus();
       }
     };
@@ -142,7 +141,7 @@ var ruleJS = (function (root) {
     this.needRecalc = function () {
       var need = false;
       jQuery.each(instance.matrix.data, function (i, item) {
-        if(item.needUpdate || item.error === '#NEED_UPDATE') {
+        if (item.needUpdate || item.error === '#NEED_UPDATE') {
           need = true;
           return false;
         }
@@ -177,7 +176,7 @@ var ruleJS = (function (root) {
     this.removeItemsInRow = function (row) {
       instance.matrix.data = instance.matrix.data.filter(function (item) {
         return item.row !== row;
-      })
+      });
     };
 
     /**
@@ -197,7 +196,7 @@ var ruleJS = (function (root) {
     this.removeItemsBelowRow = function (row) {
       instance.matrix.data = instance.matrix.data.filter(function (item) {
         return item.row < row;
-      })
+      });
     };
 
     /**
@@ -220,7 +219,6 @@ var ruleJS = (function (root) {
                 }
               });
             } else {
-
               if (item[p].indexOf(props[p]) === -1) {
                 item[p].push(props[p]);
               }
@@ -238,7 +236,7 @@ var ruleJS = (function (root) {
      */
     this.addItem = function (item) {
       var cellId = item.id,
-          coords = instance.utils.cellCoords(cellId);
+        coords = instance.utils.cellCoords(cellId);
 
       item.row = coords.row;
       item.col = coords.col;
@@ -271,7 +269,6 @@ var ruleJS = (function (root) {
       instance.matrix.data.forEach(function (item) {
         if (item.deps) {
           var deps = item.deps.filter(function (cell) {
-
             var alpha = instance.utils.getCellAlphaNum(cell).alpha,
               num = instance.utils.toNum(alpha);
 
@@ -317,7 +314,7 @@ var ruleJS = (function (root) {
      */
     this.updateElementItem = function (element, props) {
       var id = element.getAttribute('data-cell-id'),
-          item = instance.matrix.getItem(id);
+        item = instance.matrix.getItem(id);
       instance.matrix.updateItem(item, props);
     };
 
@@ -392,7 +389,7 @@ var ruleJS = (function (root) {
      */
     var recalculateElementDependencies = function (element) {
       var allDependencies = instance.matrix.getElementDependencies(element),
-          id = element.getAttribute('id');
+        id = element.getAttribute('id');
 
       allDependencies.forEach(function (refId) {
         var item = instance.matrix.getItem(refId);
@@ -412,9 +409,9 @@ var ruleJS = (function (root) {
     var calculateElementFormula = function (formula, element) {
       // to avoid double translate formulas, update item data in parser
       var parsed = parse(formula, element),
-          value = parsed.result,
-          error = parsed.error,
-          nodeName = element.nodeName.toUpperCase();
+        value = parsed.result,
+        error = parsed.error,
+        nodeName = element.nodeName.toUpperCase();
 
       if (parsed.error && formula.indexOf('IFERROR') > -1) {
         var matches = formula.match(/\((\(*.*\)*),(\(*.*\)*)\)$/);
@@ -427,7 +424,7 @@ var ruleJS = (function (root) {
         }
       }
 
-      instance.matrix.updateElementItem(element, {value: value, error: error});
+      instance.matrix.updateElementItem(element, { value: value, error: error });
 
       if (error === '#VALUE!') {
         error = 0;
@@ -450,17 +447,17 @@ var ruleJS = (function (root) {
         }
         var renderedResult = renderedValue || error;
         if (element.innerText) {
-          if(renderedResult != element.innerText) instance.isEdited = true;
+          if (renderedResult != element.innerText) instance.isEdited = true;
           element.innerText = renderedResult;
         } else {
-          if(renderedResult != element.textContent) instance.isEdited = true;
+          if (renderedResult != element.textContent) instance.isEdited = true;
           element.textContent = renderedResult;
         }
         /* */
       }
 
       var parseResult = value || error;
-      if(parseResult != element.value) instance.isEdited = true;
+      if (parseResult != element.value) instance.isEdited = true;
       element.value = parseResult;
 
       return parsed;
@@ -473,18 +470,17 @@ var ruleJS = (function (root) {
      */
     var registerElementInMatrix = function (element) {
       var id = element.getAttribute('data-cell-id'),
-          formula = element.getAttribute('data-formula');
+        formula = element.getAttribute('data-formula');
 
       if (formula) {
         // add item with basic properties to data array
         instance.matrix.addItem({
           id: id,
-          formula: formula
+          formula: formula,
         });
 
         calculateElementFormula(formula, element);
       }
-
     };
 
     /**
@@ -546,9 +542,8 @@ var ruleJS = (function (root) {
     };
 
     this.depsInFormula = function (item) {
-
       var formula = item.formula,
-          deps = item.deps;
+        deps = item.deps;
 
       if (deps) {
         deps = deps.filter(function (id) {
@@ -659,12 +654,12 @@ var ruleJS = (function (root) {
      */
     getCellAlphaNum: function (cell) {
       var num = cell.match(/\d+$/),
-          alpha = cell.replace(num, '');
+        alpha = cell.replace(num, '');
 
       return {
         alpha: alpha,
-        num: parseInt(num[0], 10)
-      }
+        num: parseInt(num[0], 10),
+      };
     },
 
     /**
@@ -675,9 +670,9 @@ var ruleJS = (function (root) {
      */
     changeRowIndex: function (cell, counter) {
       var alphaNum = instance.utils.getCellAlphaNum(cell),
-          alpha = alphaNum.alpha,
-          col = alpha,
-          row = parseInt(alphaNum.num + counter, 10);
+        alpha = alphaNum.alpha,
+        col = alpha,
+        row = parseInt(alphaNum.num + counter, 10);
 
       if (row < 1) {
         row = 1;
@@ -694,23 +689,22 @@ var ruleJS = (function (root) {
      */
     changeColIndex: function (cell, counter) {
       var alphaNum = instance.utils.getCellAlphaNum(cell),
-          alpha = alphaNum.alpha,
-          col = instance.utils.toChar(parseInt(instance.utils.toNum(alpha) + counter, 10)),
-          row = alphaNum.num;
+        alpha = alphaNum.alpha,
+        col = instance.utils.toChar(parseInt(instance.utils.toNum(alpha) + counter, 10)),
+        row = alphaNum.num;
 
       if (!col || col.length === 0) {
         col = 'A';
       }
 
       var fixedCol = alpha[0] === '$' || false,
-          fixedRow = alpha[alpha.length - 1] === '$' || false;
+        fixedRow = alpha[alpha.length - 1] === '$' || false;
 
       col = (fixedCol ? '$' : '') + col;
       row = (fixedRow ? '$' : '') + row;
 
       return col + '' + row;
     },
-
 
     changeFormula: function (formula, delta, change) {
       if (!delta) {
@@ -719,8 +713,8 @@ var ruleJS = (function (root) {
 
       return formula.replace(/(\$?[A-Za-z]+\$?[0-9]+)/g, function (match) {
         var alphaNum = instance.utils.getCellAlphaNum(match),
-            alpha = alphaNum.alpha,
-            num = alphaNum.num;
+          alpha = alphaNum.alpha,
+          num = alphaNum.num;
 
         if (instance.utils.isNumber(change.col)) {
           num = instance.utils.toNum(alpha);
@@ -748,30 +742,28 @@ var ruleJS = (function (root) {
      * @returns {String}
      */
     updateFormula: function (formula, direction, delta) {
-      var type,
-          counter;
+      var type, counter;
 
       // left, right -> col
       if (['left', 'right'].indexOf(direction) !== -1) {
         type = 'col';
       } else if (['up', 'down'].indexOf(direction) !== -1) {
-        type = 'row'
+        type = 'row';
       }
 
       // down, up -> row
       if (['down', 'right'].indexOf(direction) !== -1) {
         counter = delta * 1;
-      } else if(['up', 'left'].indexOf(direction) !== -1) {
-        counter = delta * (-1);
+      } else if (['up', 'left'].indexOf(direction) !== -1) {
+        counter = delta * -1;
       }
 
       if (type && counter) {
         return formula.replace(/(\$?[A-Za-z]+\$?[0-9]+)/g, function (match) {
-
           var alpha = instance.utils.getCellAlphaNum(match).alpha;
 
           var fixedCol = alpha[0] === '$' || false,
-              fixedRow = alpha[alpha.length - 1] === '$' || false;
+            fixedRow = alpha[alpha.length - 1] === '$' || false;
 
           if (type === 'row' && fixedRow) {
             return match;
@@ -781,7 +773,7 @@ var ruleJS = (function (root) {
             return match;
           }
 
-          return (type === 'row' ? instance.utils.changeRowIndex(match, counter) : instance.utils.changeColIndex(match, counter));
+          return type === 'row' ? instance.utils.changeRowIndex(match, counter) : instance.utils.changeColIndex(match, counter);
         });
       }
 
@@ -794,28 +786,33 @@ var ruleJS = (function (root) {
      * @returns {Number}
      */
     toNum: function (chr) {
-//      chr = instance.utils.clearFormula(chr).split('');
-//
-//      var base = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
-//          i, j, result = 0;
-//
-//      for (i = 0, j = chr.length - 1; i < chr.length; i += 1, j -= 1) {
-//        result += Math.pow(base.length, j) * (base.indexOf(chr[i]));
-//      }
-//
-//      return result;
+      //      chr = instance.utils.clearFormula(chr).split('');
+      //
+      //      var base = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+      //          i, j, result = 0;
+      //
+      //      for (i = 0, j = chr.length - 1; i < chr.length; i += 1, j -= 1) {
+      //        result += Math.pow(base.length, j) * (base.indexOf(chr[i]));
+      //      }
+      //
+      //      return result;
 
       chr = instance.utils.clearFormula(chr);
-      var baseUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', baseLowercase = baseUppercase.toLowerCase(), base, i, j, result = 0;
+      var baseUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        baseLowercase = baseUppercase.toLowerCase(),
+        base,
+        i,
+        j,
+        result = 0;
 
       for (i = 0, j = chr.length - 1; i < chr.length; i += 1, j -= 1) {
-		  // Fix for using lovercase cell coords in formulas - supsystic
-		  if(baseLowercase.indexOf(chr[i]) === -1) {
-			  base = baseUppercase;
-		  } else {
-			  base = baseLowercase;
-		  }
-		  result += Math.pow(base.length, j) * (base.indexOf(chr[i]) + 1);
+        // Fix for using lovercase cell coords in formulas - supsystic
+        if (baseLowercase.indexOf(chr[i]) === -1) {
+          base = baseUppercase;
+        } else {
+          base = baseLowercase;
+        }
+        result += Math.pow(base.length, j) * (base.indexOf(chr[i]) + 1);
       }
 
       if (result) {
@@ -834,7 +831,7 @@ var ruleJS = (function (root) {
       var s = '';
 
       while (num >= 0) {
-        s = String.fromCharCode(num % 26 + 97) + s;
+        s = String.fromCharCode((num % 26) + 97) + s;
         num = Math.floor(num / 26) - 1;
       }
 
@@ -848,11 +845,11 @@ var ruleJS = (function (root) {
      */
     cellCoords: function (cell) {
       var num = cell.match(/\d+$/),
-          alpha = cell.replace(num, '');
+        alpha = cell.replace(num, '');
 
       return {
         row: parseInt(num[0], 10) - 1,
-        col: instance.utils.toNum(alpha)
+        col: instance.utils.toNum(alpha),
       };
     },
 
@@ -884,47 +881,47 @@ var ruleJS = (function (root) {
     iterateCells: function (startCell, endCell, callback) {
       var result = {
         index: [], // list of cell index: A1, A2, A3
-        value: []  // list of cell value
+        value: [], // list of cell value
       };
 
       var cols = {
         start: 0,
-        end: 0
+        end: 0,
       };
 
       if (endCell.col >= startCell.col) {
         cols = {
           start: startCell.col,
-          end: endCell.col
+          end: endCell.col,
         };
       } else {
         cols = {
           start: endCell.col,
-          end: startCell.col
+          end: startCell.col,
         };
       }
 
       var rows = {
         start: 0,
-        end: 0
+        end: 0,
       };
 
       if (endCell.row >= startCell.row) {
         rows = {
           start: startCell.row,
-          end: endCell.row
+          end: endCell.row,
         };
       } else {
         rows = {
           start: endCell.row,
-          end: startCell.row
+          end: startCell.row,
         };
       }
 
       for (var column = cols.start; column <= cols.end; column++) {
         for (var row = rows.start; row <= rows.end; row++) {
           var cellIndex = instance.utils.toChar(column) + (row + 1),
-              cellValue = instance.helper.cellValue.call(this, cellIndex);
+            cellValue = instance.helper.cellValue.call(this, cellIndex);
 
           result.index.push(cellIndex);
           result.value.push(cellValue);
@@ -940,9 +937,9 @@ var ruleJS = (function (root) {
 
     sort: function (rev) {
       return function (a, b) {
-        return ((a < b) ? -1 : ((a > b) ? 1 : 0)) * (rev ? -1 : 1);
-      }
-    }
+        return (a < b ? -1 : a > b ? 1 : 0) * (rev ? -1 : 1);
+      };
+    },
   };
 
   /**
@@ -954,117 +951,381 @@ var ruleJS = (function (root) {
      * list of supported formulas
      */
     SUPPORTED_FORMULAS: [
-		"UNIQUE",
-		"FLATTEN", "FUNCTION",
-		"MOMENT", "MOMENTADD", "MOMENTDIFF", "MOMENTSUB", "MOMENTUTC", "MOMENTUTCADD", "MOMENTUTCDIFF", "MOMENTUTCSUB", "MOMENTUNIX", "MOMENTFORMAT", "MOMENTISLEAPYEAR", "MOMENTISDST", "MOMENTSTARTOF", "MOMENTENDOF", "MOMENTISAFTER", "MOMENTISBEFORE",
-		"INDEX", "INTERVAL",
-		"ARGSCONCAT", "ARGSTOARRAY",
-		"CLEANFLOAT", "COUNTIN",
-		"FINDFIELD", "FINDRESULTINDEX",
-		"DAVERAGE", "DCOUNT", "DCOUNTA", "DGET", "DMAX", "DMIN", "DPRODUCT", "DSTDEV", "DSTDEVP", "DSUM", "DVAR", "DVARP", "GETJSON", "DATE", "DATEVALUE", "DAY", "DAYS", "DAYS360",
-		"EDATE", "EOMONTH",
-		"FROMNOW",
-		"HOUR",
-		"MINUTE", "MATCH",
-		"ISOWEEKNUM",
-		"MONTH",
-		"NETWORKDAYS", "NETWORKDAYSINTL", "NOW",
-		"SECOND",
-		"TIME", "TIMEVALUE", "TODAY",
-		"WEEKDAY", "WEEKNUM", "WORKDAY", "WORKDAYINTL",
-		"YEAR", "YEARFRAC",
-		"BESSELI", "BESSELJ", "BESSELK", "BESSELY", "VALIDBIN", "BIN2DEC", "BIN2HEX", "BIN2OCT", "BITAND", "BITLSHIFT", "BITOR", "BITRSHIFT", "BITXOR",
-		"COMPLEX", "CONVERT",
-		"DEC2BIN", "DEC2HEX", "DEC2OCT", "DELTA",
-		"ERF", "ERFC", /*"ERFCPRECISE",*/ /*"ERFPRECISE",*/
-		"GESTEP",
-		"HEX2BIN", "HEX2DEC", "HEX2OCT",
-		"IMABS", "IMAGINARY", "IMARGUMENT", "IMCONJUGATE", "IMCOS", "IMCOSH", "IMCOT", "IMCSC", "IMCSCH", "IMDIV", "IMEXP", "IMLN", "IMLOG10", "IMLOG2", "IMPOWER", "IMPRODUCT", "IMREAL", "IMSEC", "IMSECH", "IMSIN", "IMSINH", "IMSQRT", "IMSUB", "IMSUM", "IMTAN",
-		"OCT2BIN", "OCT2DEC", "OCT2HEX",
-		"ACCRINT", /*"ACCRINTM", "AMORDEGRC", "AMORLINC",
-		"COUPDAYBS", "COUPDAYS", "COUPDAYSNC", "COUPNCD", "COUPNUM", "COUPPCD",*/ "CUMIPMT", "CUMPRINC",
-		"DB", "DDB", /*"DISC",*/ "DOLLARDE", "DOLLARFR", /*"DURATION",*/
-		"EFFECT",
-		"FV", "FVSCHEDULE",
-		/*"INTRATE",*/ "IPMT", "IRR", "ISPMT",
-		/*"MDURATION",*/ "MIRR",
-		"NOMINAL", "NPER", "NPV",
-		/*"ODDFPRICE", "ODDFYIELD", "ODDLPRICE", "ODDLYIELD",*/
-		"PDURATION", "PMT", "PPMT", /*"PRICE", "PRICEDISC", "PRICEMAT",*/ "PV",
-		"RATE", /*"RECEIVED",*/ "RRI",
-		"SLN", "SYD",
-		"TBILLEQ", "TBILLPRICE", "TBILLYIELD",
-		/*"VDB",*/
-		"XIRR", "XNPV",
-		/*"YIELD", "YIELDDISC", "YIELDMAT",*/
-		"ISNUMBER",
-		"AND",
-		"FALSE",
-		"SWITCH",
-		"IF", "IFNA",
-		"NOT",
-		"OR",
-		"TRUE",
-		"XOR",
-		"REFERENCE",
-		"ABS", "ACOS", "ACOSH", "ACOT", "ACOTH", "AGGREGATE", "ARABIC", "ASIN", "ASINH", "ATAN", "ATAN2", "ATANH",
-		"BASE",
-		"CEILING", "CEILINGMATH", "CEILINGPRECISE", "COMBIN", "COMBINA", "COS", "COSH", "COT", "COTH", "CSC", "CSCH",
-		"DECIMAL", "DEGREES",
-		"EVEN", "EXP",
-		"FACT", "FACTDOUBLE", "FLOOR", "FLOORMATH", "FLOORPRECISE",
-		"GCD",
-		"INT", "ISEVEN", "ISOCEILING", "ISODD",
-		"LCM", "LN", "LOG", "LOG10", "MOD", "MROUND", "MULTINOMIAL",
-		"ODD",
-		"E",
-		"PI", "POWER", "PRODUCT",
-		"QUOTIENT",
-		"RADIANS", "RAND", "RANDBETWEEN", "ROUND", "ROUNDDOWN", "ROUNDUP",
-		"SERIESSUM", "SEC", "SECH", "SIGN", "SIN", "SINH", "SQRT", "SQRTPI", "SUBTOTAL", "SUM", "SUMIF", "SUMIFS", "SUMPRODUCT", "SUMSQ", "SUMX2MY2", "SUMX2PY2", "SUMXMY2",
-		"TAN", "TANH", "TRUNC",
-		"AVEDEV", "AVERAGE", "AVERAGEA", "AVERAGEIF", "AVERAGEIFS",
-		"BETADIST", "BETAINV", "BINOMDIST", "BINOMDISTRANGE", "BINOMINV",
-		"CHISQDIST", /*"CHISQDISTRT", "CHISQINV", "CHISQINVRT", "CHISQTEST",*/ "CONFIDENCENORM", "CONFIDENCET", "CORREL", "COUNT", "COUNTA", "COUNTBLANK", "COUNTIF", "COUNTIFS", "COUNTUNIQUE", "COVARIANCEP", "COVARIANCES",
-		"DEVSQ",
-		"EXPONDIST",
-		"FDIST", /*"FDISTRT",*/ "FINV", /*"FINVRT", "FTEST",*/ "FISHER", "FISHERINV", "FORECAST", "FREQUENCY",
-		"GAMMA", /*"GAMMADIST", "GAMMAINV",*/ "GAMMALN", /*"GAMMALNPRECISE",*/ "GAUSS", "GEOMEAN", "GROWTH", "HARMEAN", "HYPGEOMDIST",
-		"INTERCEPT",
-		"KURT",
-		"LARGE", "LINEST", /*"LOGEST",*/ "LOGNORMDIST", "LOGNORMINV",
-		"MAX", "MAXA", "MEDIAN", "MIN", "MINA", "MODEMULT", "MODESNGL",
-		"NEGBINOMDIST", "NORMDIST", "NORMINV", "NORMSDIST", "NORMSINV",
-		"PEARSON", "PERCENTILEEXC", "PERCENTILEINC", "PERCENTRANKEXC", "PERCENTRANKINC", "PERMUT", "PERMUTATIONA", "PHI", "POISSONDIST", "PROB",
-		"QUARTILEEXC", "QUARTILEINC",
-		"RANK", "RANKAVG", "RANKEQ", "RSQ",
-		"SKEW", "SKEWP", "SLOPE", "SMALL", "STANDARDIZE", "STDEVA", "STDEVP", "STDEVPA", "STDEVS", "STEYX",
-		"TDIST", /*"TDIST2T", "TDISTRT",*/ "TINV", /*"TINV2T", "TTEST", "TREND",*/ "TRIMMEAN",
-		"VARA", "VARP", "VARPA", "VARS",
-		"WEIBULLDIST",
-		"ZTEST",
-		"CHAR", "CLEAN", "CODE", "CONCATENATE",
-		"DOLLAR",
-		"EXACT",
-		"FIND", "FIXED",
-		"HTML2TEXT", "HUMANIZE", "HYPERLINK",
-		"JOIN",
-		"LEFT", "LEN", "LOWER",
-		"MID",
-		"NUMBERVALUE", "NUMBERS",
-		"PROPER",
-		"REGEXEXTRACT", "REGEXMATCH", "REGEXREPLACE",
-		"REPLACE", "REPT", "RIGHT", "ROMAN",
-		"SEARCH", "SPLIT", "SUBSTITUTE",
-		"T", "TEXT", "TRIM",
-		"UNICHAR", "UNICODE", "UPPER",
-		"VALUE",
-		"MD5",
-		"NUMERAL",
-		"ISERR", "ISERROR", "IFERROR",
-		"POISSON",
-		"LOOKUP",
-		"VLOOKUP"
+      'UNIQUE',
+      'FLATTEN',
+      'FUNCTION',
+      'MOMENT',
+      'MOMENTADD',
+      'MOMENTDIFF',
+      'MOMENTSUB',
+      'MOMENTUTC',
+      'MOMENTUTCADD',
+      'MOMENTUTCDIFF',
+      'MOMENTUTCSUB',
+      'MOMENTUNIX',
+      'MOMENTFORMAT',
+      'MOMENTISLEAPYEAR',
+      'MOMENTISDST',
+      'MOMENTSTARTOF',
+      'MOMENTENDOF',
+      'MOMENTISAFTER',
+      'MOMENTISBEFORE',
+      'INDEX',
+      'INTERVAL',
+      'ARGSCONCAT',
+      'ARGSTOARRAY',
+      'CLEANFLOAT',
+      'COUNTIN',
+      'FINDFIELD',
+      'FINDRESULTINDEX',
+      'DAVERAGE',
+      'DCOUNT',
+      'DCOUNTA',
+      'DGET',
+      'DMAX',
+      'DMIN',
+      'DPRODUCT',
+      'DSTDEV',
+      'DSTDEVP',
+      'DSUM',
+      'DVAR',
+      'DVARP',
+      'GETJSON',
+      'DATE',
+      'DATEVALUE',
+      'DAY',
+      'DAYS',
+      'DAYS360',
+      'EDATE',
+      'EOMONTH',
+      'FROMNOW',
+      'HOUR',
+      'MINUTE',
+      'MATCH',
+      'ISOWEEKNUM',
+      'MONTH',
+      'NETWORKDAYS',
+      'NETWORKDAYSINTL',
+      'NOW',
+      'SECOND',
+      'TIME',
+      'TIMEVALUE',
+      'TODAY',
+      'WEEKDAY',
+      'WEEKNUM',
+      'WORKDAY',
+      'WORKDAYINTL',
+      'YEAR',
+      'YEARFRAC',
+      'BESSELI',
+      'BESSELJ',
+      'BESSELK',
+      'BESSELY',
+      'VALIDBIN',
+      'BIN2DEC',
+      'BIN2HEX',
+      'BIN2OCT',
+      'BITAND',
+      'BITLSHIFT',
+      'BITOR',
+      'BITRSHIFT',
+      'BITXOR',
+      'COMPLEX',
+      'CONVERT',
+      'DEC2BIN',
+      'DEC2HEX',
+      'DEC2OCT',
+      'DELTA',
+      'ERF',
+      'ERFC' /*"ERFCPRECISE",*/ /*"ERFPRECISE",*/,
+      'GESTEP',
+      'HEX2BIN',
+      'HEX2DEC',
+      'HEX2OCT',
+      'IMABS',
+      'IMAGINARY',
+      'IMARGUMENT',
+      'IMCONJUGATE',
+      'IMCOS',
+      'IMCOSH',
+      'IMCOT',
+      'IMCSC',
+      'IMCSCH',
+      'IMDIV',
+      'IMEXP',
+      'IMLN',
+      'IMLOG10',
+      'IMLOG2',
+      'IMPOWER',
+      'IMPRODUCT',
+      'IMREAL',
+      'IMSEC',
+      'IMSECH',
+      'IMSIN',
+      'IMSINH',
+      'IMSQRT',
+      'IMSUB',
+      'IMSUM',
+      'IMTAN',
+      'OCT2BIN',
+      'OCT2DEC',
+      'OCT2HEX',
+      'ACCRINT',
+      /*"ACCRINTM", "AMORDEGRC", "AMORLINC",
+		"COUPDAYBS", "COUPDAYS", "COUPDAYSNC", "COUPNCD", "COUPNUM", "COUPPCD",*/ 'CUMIPMT',
+      'CUMPRINC',
+      'DB',
+      'DDB',
+      /*"DISC",*/ 'DOLLARDE',
+      'DOLLARFR' /*"DURATION",*/,
+      'EFFECT',
+      'FV',
+      'FVSCHEDULE',
+      /*"INTRATE",*/ 'IPMT',
+      'IRR',
+      'ISPMT',
+      /*"MDURATION",*/ 'MIRR',
+      'NOMINAL',
+      'NPER',
+      'NPV',
+      /*"ODDFPRICE", "ODDFYIELD", "ODDLPRICE", "ODDLYIELD",*/
+      'PDURATION',
+      'PMT',
+      'PPMT',
+      /*"PRICE", "PRICEDISC", "PRICEMAT",*/ 'PV',
+      'RATE',
+      /*"RECEIVED",*/ 'RRI',
+      'SLN',
+      'SYD',
+      'TBILLEQ',
+      'TBILLPRICE',
+      'TBILLYIELD',
+      /*"VDB",*/
+      'XIRR',
+      'XNPV',
+      /*"YIELD", "YIELDDISC", "YIELDMAT",*/
+      'ISNUMBER',
+      'AND',
+      'FALSE',
+      'SWITCH',
+      'IF',
+      'IFNA',
+      'NOT',
+      'OR',
+      'TRUE',
+      'XOR',
+      'REFERENCE',
+      'ABS',
+      'ACOS',
+      'ACOSH',
+      'ACOT',
+      'ACOTH',
+      'AGGREGATE',
+      'ARABIC',
+      'ASIN',
+      'ASINH',
+      'ATAN',
+      'ATAN2',
+      'ATANH',
+      'BASE',
+      'CEILING',
+      'CEILINGMATH',
+      'CEILINGPRECISE',
+      'COMBIN',
+      'COMBINA',
+      'COS',
+      'COSH',
+      'COT',
+      'COTH',
+      'CSC',
+      'CSCH',
+      'DECIMAL',
+      'DEGREES',
+      'EVEN',
+      'EXP',
+      'FACT',
+      'FACTDOUBLE',
+      'FLOOR',
+      'FLOORMATH',
+      'FLOORPRECISE',
+      'GCD',
+      'INT',
+      'ISEVEN',
+      'ISOCEILING',
+      'ISODD',
+      'LCM',
+      'LN',
+      'LOG',
+      'LOG10',
+      'MOD',
+      'MROUND',
+      'MULTINOMIAL',
+      'ODD',
+      'E',
+      'PI',
+      'POWER',
+      'PRODUCT',
+      'QUOTIENT',
+      'RADIANS',
+      'RAND',
+      'RANDBETWEEN',
+      'ROUND',
+      'ROUNDDOWN',
+      'ROUNDUP',
+      'SERIESSUM',
+      'SEC',
+      'SECH',
+      'SIGN',
+      'SIN',
+      'SINH',
+      'SQRT',
+      'SQRTPI',
+      'SUBTOTAL',
+      'SUM',
+      'SUMIF',
+      'SUMIFS',
+      'SUMPRODUCT',
+      'SUMSQ',
+      'SUMX2MY2',
+      'SUMX2PY2',
+      'SUMXMY2',
+      'TAN',
+      'TANH',
+      'TRUNC',
+      'AVEDEV',
+      'AVERAGE',
+      'AVERAGEA',
+      'AVERAGEIF',
+      'AVERAGEIFS',
+      'BETADIST',
+      'BETAINV',
+      'BINOMDIST',
+      'BINOMDISTRANGE',
+      'BINOMINV',
+      'CHISQDIST',
+      /*"CHISQDISTRT", "CHISQINV", "CHISQINVRT", "CHISQTEST",*/ 'CONFIDENCENORM',
+      'CONFIDENCET',
+      'CORREL',
+      'COUNT',
+      'COUNTA',
+      'COUNTBLANK',
+      'COUNTIF',
+      'COUNTIFS',
+      'COUNTUNIQUE',
+      'COVARIANCEP',
+      'COVARIANCES',
+      'DEVSQ',
+      'EXPONDIST',
+      'FDIST',
+      /*"FDISTRT",*/ 'FINV',
+      /*"FINVRT", "FTEST",*/ 'FISHER',
+      'FISHERINV',
+      'FORECAST',
+      'FREQUENCY',
+      'GAMMA',
+      /*"GAMMADIST", "GAMMAINV",*/ 'GAMMALN',
+      /*"GAMMALNPRECISE",*/ 'GAUSS',
+      'GEOMEAN',
+      'GROWTH',
+      'HARMEAN',
+      'HYPGEOMDIST',
+      'INTERCEPT',
+      'KURT',
+      'LARGE',
+      'LINEST',
+      /*"LOGEST",*/ 'LOGNORMDIST',
+      'LOGNORMINV',
+      'MAX',
+      'MAXA',
+      'MEDIAN',
+      'MIN',
+      'MINA',
+      'MODEMULT',
+      'MODESNGL',
+      'NEGBINOMDIST',
+      'NORMDIST',
+      'NORMINV',
+      'NORMSDIST',
+      'NORMSINV',
+      'PEARSON',
+      'PERCENTILEEXC',
+      'PERCENTILEINC',
+      'PERCENTRANKEXC',
+      'PERCENTRANKINC',
+      'PERMUT',
+      'PERMUTATIONA',
+      'PHI',
+      'POISSONDIST',
+      'PROB',
+      'QUARTILEEXC',
+      'QUARTILEINC',
+      'RANK',
+      'RANKAVG',
+      'RANKEQ',
+      'RSQ',
+      'SKEW',
+      'SKEWP',
+      'SLOPE',
+      'SMALL',
+      'STANDARDIZE',
+      'STDEVA',
+      'STDEVP',
+      'STDEVPA',
+      'STDEVS',
+      'STEYX',
+      'TDIST',
+      /*"TDIST2T", "TDISTRT",*/ 'TINV',
+      /*"TINV2T", "TTEST", "TREND",*/ 'TRIMMEAN',
+      'VARA',
+      'VARP',
+      'VARPA',
+      'VARS',
+      'WEIBULLDIST',
+      'ZTEST',
+      'CHAR',
+      'CLEAN',
+      'CODE',
+      'CONCATENATE',
+      'DOLLAR',
+      'EXACT',
+      'FIND',
+      'FIXED',
+      'HTML2TEXT',
+      'HUMANIZE',
+      'HYPERLINK',
+      'JOIN',
+      'LEFT',
+      'LEN',
+      'LOWER',
+      'MID',
+      'NUMBERVALUE',
+      'NUMBERS',
+      'PROPER',
+      'REGEXEXTRACT',
+      'REGEXMATCH',
+      'REGEXREPLACE',
+      'REPLACE',
+      'REPT',
+      'RIGHT',
+      'ROMAN',
+      'SEARCH',
+      'SPLIT',
+      'SUBSTITUTE',
+      'T',
+      'TEXT',
+      'TRIM',
+      'UNICHAR',
+      'UNICODE',
+      'UPPER',
+      'VALUE',
+      'MD5',
+      'NUMERAL',
+      'ISERR',
+      'ISERROR',
+      'IFERROR',
+      'POISSON',
+      'LOOKUP',
+      'VLOOKUP',
     ],
 
     /**
@@ -1080,9 +1341,9 @@ var ruleJS = (function (root) {
           if (!isNaN(num)) {
             return num.indexOf('.') > -1 ? parseFloat(num) : parseInt(num, 10);
           }
-		  if (!num) {
-			return 0;
-		  }
+          if (!num) {
+            return 0;
+          }
       }
 
       return num;
@@ -1103,7 +1364,7 @@ var ruleJS = (function (root) {
      * @returns {Number}
      */
     numberInverted: function (num) {
-      return this.number(num) * (-1);
+      return this.number(num) * -1;
     },
 
     /**
@@ -1136,31 +1397,31 @@ var ruleJS = (function (root) {
 
       switch (type) {
         case '=':
-          result = (exp1 === exp2);
+          result = exp1 === exp2;
           break;
 
         case '@MORE@':
-          result = (exp1 > exp2);
+          result = exp1 > exp2;
           break;
 
         case '@LESS@':
-          result = (exp1 < exp2);
+          result = exp1 < exp2;
           break;
 
         case '@MORE@=':
-          result = (exp1 >= exp2);
+          result = exp1 >= exp2;
           break;
 
         case '@LESS@=':
-          result = (exp1 <= exp2);
+          result = exp1 <= exp2;
           break;
 
         case '@LESS@@MORE@':
-          result = (exp1 != exp2);
+          result = exp1 != exp2;
           break;
 
         case 'NOT':
-          result = (exp1 != exp2);
+          result = exp1 != exp2;
           break;
       }
 
@@ -1176,84 +1437,83 @@ var ruleJS = (function (root) {
      */
     mathMatch: function (type, number1, number2) {
       var result;
-	  var moment1 = null;
-	  var moment2 = null;
+      var moment1 = null;
+      var moment2 = null;
 
       number1 = helper.number(number1);
       number2 = helper.number(number2);
       if (isNaN(number1) || isNaN(number2)) {
-
         if (number1[0] === '=' || number2[0] === '=') {
           throw Error('NEED_UPDATE');
         }
 
-		if (isNaN(number1)) {
-			moment1 = moment(number1, window.supsystic.Tables._dateFormat);
-			if(moment1 && moment1._pf && moment1._pf.empty) {
-				moment1 = null;
-				number1 = 0;
-			}
+        if (isNaN(number1)) {
+          moment1 = moment(number1, window.supsystic.Tables._dateFormat);
+          if (moment1 && moment1._pf && moment1._pf.empty) {
+            moment1 = null;
+            number1 = 0;
+          }
         }
         if (isNaN(number2)) {
-			moment2 = moment(number2, window.supsystic.Tables._dateFormat);
-			if(moment2 && moment2._pf && moment2._pf.empty) {
-				moment2 = null;
-				number2 = 0;
-			}
+          moment2 = moment(number2, window.supsystic.Tables._dateFormat);
+          if (moment2 && moment2._pf && moment2._pf.empty) {
+            moment2 = null;
+            number2 = 0;
+          }
         }
       }
       switch (type) {
         case '+':
-			if(moment1 || moment2) {
-				if(moment1 && moment2) {
-					throw Error('VALUE');
-				} else if(moment1 && !moment2) {
-					result = moment1.add(number2, 'days').format(window.supsystic.Tables._dateFormat);
-				} else if(!moment1 && moment2) {
-					result = moment2.add(number1, 'days').format(window.supsystic.Tables._dateFormat);
-				}
-			} else {
-				result = number1 + number2;
-			}
+          if (moment1 || moment2) {
+            if (moment1 && moment2) {
+              throw Error('VALUE');
+            } else if (moment1 && !moment2) {
+              result = moment1.add(number2, 'days').format(window.supsystic.Tables._dateFormat);
+            } else if (!moment1 && moment2) {
+              result = moment2.add(number1, 'days').format(window.supsystic.Tables._dateFormat);
+            }
+          } else {
+            result = number1 + number2;
+          }
           break;
         case '-':
-			if(moment1 || moment2) {
-				if(moment1 && moment2) {
-					result = moment1.diff(moment2, 'days');
-				} else if(moment1 && !moment2) {
-					result = moment1.add(-number2, 'days').format(window.supsystic.Tables._dateFormat);
-				} else if(!moment1 && moment2) {
-					throw Error('VALUE');
-				}
-			} else {
-				result = number1 - number2;
-			}
+          if (moment1 || moment2) {
+            if (moment1 && moment2) {
+              result = moment1.diff(moment2, 'days');
+            } else if (moment1 && !moment2) {
+              result = moment1.add(-number2, 'days').format(window.supsystic.Tables._dateFormat);
+            } else if (!moment1 && moment2) {
+              throw Error('VALUE');
+            }
+          } else {
+            result = number1 - number2;
+          }
           break;
         case '/':
-			if(moment1 || moment2) {
-				throw Error('VALUE');
-			} else {
-				result = number1 / number2;
-				if (result == Infinity) {
-					throw Error('DIV_ZERO');
-				} else if (isNaN(result)) {
-					throw Error('VALUE');
-				}
-			}
+          if (moment1 || moment2) {
+            throw Error('VALUE');
+          } else {
+            result = number1 / number2;
+            if (result == Infinity) {
+              throw Error('DIV_ZERO');
+            } else if (isNaN(result)) {
+              throw Error('VALUE');
+            }
+          }
           break;
         case '*':
-			if(moment1 || moment2) {
-				throw Error('VALUE');
-			} else {
-				result = number1 * number2;
-			}
+          if (moment1 || moment2) {
+            throw Error('VALUE');
+          } else {
+            result = number1 * number2;
+          }
           break;
         case '^':
-			if(moment1 || moment2) {
-				throw Error('VALUE');
-			} else {
-				result = Math.pow(number1, number2);
-			}
+          if (moment1 || moment2) {
+            throw Error('VALUE');
+          } else {
+            result = Math.pow(number1, number2);
+          }
           break;
       }
 
@@ -1291,7 +1551,7 @@ var ruleJS = (function (root) {
       if (str) {
         str = str.toUpperCase();
         if (instance.formulas[str]) {
-          return ((typeof instance.formulas[str] === 'function') ? instance.formulas[str].apply(this, args) : instance.formulas[str]);
+          return typeof instance.formulas[str] === 'function' ? instance.formulas[str].apply(this, args) : instance.formulas[str];
         }
       }
 
@@ -1305,19 +1565,18 @@ var ruleJS = (function (root) {
      */
     cellValue: function (cell) {
       var isEditorPagination = typeof g_stbPagination != 'undefined' && g_stbPagination && !(this instanceof HTMLElement),
-		  value,
-          fnCellValue = instance.custom.cellValue,
-          element = this,
-		  cellCoords = instance.utils.cellCoords(cell),
-		  item = instance.matrix.getItem(isEditorPagination ? instance.utils.translateCellCoords({row: cellCoords.row - window.editor.pageStart, col: cellCoords.col}) : cell);
+        value,
+        fnCellValue = instance.custom.cellValue,
+        element = this,
+        cellCoords = instance.utils.cellCoords(cell),
+        item = instance.matrix.getItem(isEditorPagination ? instance.utils.translateCellCoords({ row: cellCoords.row - window.editor.pageStart, col: cellCoords.col }) : cell);
 
       // check if custom cellValue fn exists
       if (instance.utils.isFunction(fnCellValue)) {
-
-        var cellId = instance.utils.translateCellCoords({row: element.row, col: element.col});
+        var cellId = instance.utils.translateCellCoords({ row: element.row, col: element.col });
 
         // get value
-        value = item ? item.value : (isEditorPagination ? window.editor.getCellValuePagination(cellCoords.row, cellCoords.col) : fnCellValue(cellCoords.row, cellCoords.col));
+        value = item ? item.value : isEditorPagination ? window.editor.getCellValuePagination(cellCoords.row, cellCoords.col) : fnCellValue(cellCoords.row, cellCoords.col);
 
         if (instance.utils.isNull(value)) {
           value = 0;
@@ -1325,9 +1584,8 @@ var ruleJS = (function (root) {
 
         if (cellId) {
           //update dependencies
-          instance.matrix.updateItem(cellId, {deps: [cell]});
+          instance.matrix.updateItem(cellId, { deps: [cell] });
         }
-
       } else {
         // get value
         if (item) {
@@ -1343,7 +1601,10 @@ var ruleJS = (function (root) {
         if (!value) {
           element = rootElement.querySelector('[data-cell-id=' + cell + ']');
           if (!element && instance.instanceTable) {
-            element = instance.instanceTable.api().cell('[data-cell-id="'+cell+'"]').node();
+            element = instance.instanceTable
+              .api()
+              .cell('[data-cell-id="' + cell + '"]')
+              .node();
           }
 
           var originalValue = element.getAttribute('data-original-value');
@@ -1355,7 +1616,7 @@ var ruleJS = (function (root) {
         }
 
         //update dependencies
-        instance.matrix.updateElementItem(element, {deps: [cell]});
+        instance.matrix.updateElementItem(element, { deps: [cell] });
       }
 
       // check references error
@@ -1389,26 +1650,23 @@ var ruleJS = (function (root) {
      */
     cellRangeValue: function (start, end) {
       var fnCellValue = instance.custom.cellValue,
-          coordsStart = instance.utils.cellCoords(start),
-          coordsEnd = instance.utils.cellCoords(end),
-          element = this;
+        coordsStart = instance.utils.cellCoords(start),
+        coordsEnd = instance.utils.cellCoords(end),
+        element = this;
 
       // iterate cells to get values and indexes
       var cells = instance.utils.iterateCells.call(this, coordsStart, coordsEnd),
-          result = [];
+        result = [];
 
       // check if custom cellValue fn exists
       if (instance.utils.isFunction(fnCellValue)) {
-
-        var cellId = instance.utils.translateCellCoords({row: element.row, col: element.col});
+        var cellId = instance.utils.translateCellCoords({ row: element.row, col: element.col });
 
         //update dependencies
-        instance.matrix.updateItem(cellId, {deps: cells.index});
-
+        instance.matrix.updateItem(cellId, { deps: cells.index });
       } else {
-
         //update dependencies
-        instance.matrix.updateElementItem(element, {deps: cells.index});
+        instance.matrix.updateElementItem(element, { deps: cells.index });
       }
 
       result.push(cells.value);
@@ -1438,19 +1696,24 @@ var ruleJS = (function (root) {
       return instance.helper.cellRangeValue.call(this, start, end);
     },
 
-	/**
-	 * Unescape HTML in the selectsd cells for formulas result.
-	 * @param $table
-	 */
-	unescapeHTML: function($table) {
-		$table = $table instanceof jQuery ? $table : jQuery($table);
-		$table.find('.unescapeHTML').each(function() {
-			var cell = jQuery(this),
-				cellContent = cell.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+    /**
+     * Unescape HTML in the selectsd cells for formulas result.
+     * @param $table
+     */
+    unescapeHTML: function ($table) {
+      $table = $table instanceof jQuery ? $table : jQuery($table);
+      $table.find('.unescapeHTML').each(function () {
+        var cell = jQuery(this),
+          cellContent = cell
+            .html()
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&');
 
-			cell.html(cellContent);
-		});
-	}
+        cell.html(cellContent);
+      });
+    },
   };
 
   /**
@@ -1460,29 +1723,25 @@ var ruleJS = (function (root) {
    * @param element
    */
   var parse = function (formula, element) {
-	formula = window.supsystic.Tables.prepareFormulaToParse(formula);	// fix of case sensitive for cells' indexes and formulas' names
-	window.supsystic.Tables._currentFormula = formula;					// to calculate custom supsystic formulas
-	window.supsystic.Tables._dateFormat = '';
-	window.supsystic.Tables._timeFormat = '';
+    formula = window.supsystic.Tables.prepareFormulaToParse(formula); // fix of case sensitive for cells' indexes and formulas' names
+    window.supsystic.Tables._currentFormula = formula; // to calculate custom supsystic formulas
+    window.supsystic.Tables._dateFormat = '';
+    window.supsystic.Tables._timeFormat = '';
 
-	if(SDT_DATA && SDT_DATA.isAdmin && typeof element.row != 'undefined' && typeof element.col != 'undefined') {
-		var cellMeta = window.editor.getCellMeta(element.row, element.col);
+    if (SDT_DATA && SDT_DATA.isAdmin && typeof element.row != 'undefined' && typeof element.col != 'undefined') {
+      var cellMeta = window.editor.getCellMeta(element.row, element.col);
 
-		window.supsystic.Tables._dateFormat = cellMeta && cellMeta.dateFormat
-			? cellMeta.dateFormat
-			: jQuery('#editor-set-date-format').val();
-		window.supsystic.Tables._timeFormat = cellMeta && cellMeta.formatType == "time_duration"
-			? cellMeta.format
-			: jQuery('#editor-set-time-duration-format').val();
-	} else {
-		var elem = jQuery(element);
+      window.supsystic.Tables._dateFormat = cellMeta && cellMeta.dateFormat ? cellMeta.dateFormat : jQuery('#editor-set-date-format').val();
+      window.supsystic.Tables._timeFormat = cellMeta && cellMeta.formatType == 'time_duration' ? cellMeta.format : jQuery('#editor-set-time-duration-format').val();
+    } else {
+      var elem = jQuery(element);
 
-		window.supsystic.Tables._dateFormat = elem.data('cell-format') || elem.parents('.supsystic-table:first').data('date-format');
-		window.supsystic.Tables._timeFormat = elem.data('cell-format') || elem.parents('.supsystic-table:first').data('time-format');
-	}
+      window.supsystic.Tables._dateFormat = elem.data('cell-format') || elem.parents('.supsystic-table:first').data('date-format');
+      window.supsystic.Tables._timeFormat = elem.data('cell-format') || elem.parents('.supsystic-table:first').data('time-format');
+    }
 
     var result = null,
-        error = null;
+      error = null;
 
     try {
       if (element instanceof HTMLElement) {
@@ -1497,35 +1756,32 @@ var ruleJS = (function (root) {
       result = parser.parse(formula);
       var id;
 
-
-
       var deps = instance.matrix.getDependencies(id),
-        isFrontend = (typeof instance.isFrontend != 'undefined' || instance.isFrontend);
+        isFrontend = typeof instance.isFrontend != 'undefined' || instance.isFrontend;
 
       if (!isFrontend && deps.indexOf(id) !== -1) {
         result = null;
 
         deps.forEach(function (id) {
-          instance.matrix.updateItem(id, {value: null, error: Exception.get('REF')});
+          instance.matrix.updateItem(id, { value: null, error: Exception.get('REF') });
         });
 
         throw Error('REF');
       }
 
-      if(!error && result === 0) {
-        result = "0";
+      if (!error && result === 0) {
+        result = '0';
       }
 
-      if(!isFrontend && curItem && curItem.value != result) {
+      if (!isFrontend && curItem && curItem.value != result) {
         deps.forEach(function (id) {
-          instance.matrix.updateItem(id, {value: null, needUpdate: true});
+          instance.matrix.updateItem(id, { value: null, needUpdate: true });
         });
       }
-
     } catch (ex) {
-	  // Errors debugging
-	  //console.log(ex);
-	  var message = Exception.get(ex.message);
+      // Errors debugging
+      //console.log(ex);
+      var message = Exception.get(ex.message);
 
       if (message) {
         error = message;
@@ -1541,8 +1797,8 @@ var ruleJS = (function (root) {
 
     return {
       error: error,
-      result: result
-    }
+      result: result,
+    };
   };
 
   /**
@@ -1553,127 +1809,131 @@ var ruleJS = (function (root) {
     parser = new FormulaParser(instance);
 
     instance.formulas = Formula;
-	instance.formulas.POISSON = function(x, mean, cumulative) {
-		return instance.formulas.POISSONDIST(x, mean, cumulative);
-	};
-	instance.formulas.LOOKUP = function(lookup_value, lookup_vector, result_vector) {
-		var lookupRows, lookupColumns, l,r,k, resultRows, resultColumns, key1, key2, dataValue1, dataValue2;
+    instance.formulas.POISSON = function (x, mean, cumulative) {
+      return instance.formulas.POISSONDIST(x, mean, cumulative);
+    };
+    instance.formulas.LOOKUP = function (lookup_value, lookup_vector, result_vector) {
+      var lookupRows, lookupColumns, l, r, k, resultRows, resultColumns, key1, key2, dataValue1, dataValue2;
 
-		result_vector = (typeof(result_vector[0]) == 'object' ? result_vector[0] : result_vector) || null;
-		lookup_vector = typeof(lookup_vector[0]) == 'object' ? lookup_vector[0] : lookup_vector;
-		lookup_value = supsysticFlattenSingleValue(lookup_value);
+      result_vector = (typeof result_vector[0] == 'object' ? result_vector[0] : result_vector) || null;
+      lookup_vector = typeof lookup_vector[0] == 'object' ? lookup_vector[0] : lookup_vector;
+      lookup_value = supsysticFlattenSingleValue(lookup_value);
 
-		if (typeof(lookup_vector) != 'object') {
-			return Exception.get('NOT_AVAILABLE');
-		}
+      if (typeof lookup_vector != 'object') {
+        return Exception.get('NOT_AVAILABLE');
+      }
 
-		lookupRows = lookup_vector.length;
-		l = Object.keys(lookup_vector);
-		l = l.shift();
-		lookupColumns = lookup_vector[l].length;
+      lookupRows = lookup_vector.length;
+      l = Object.keys(lookup_vector);
+      l = l.shift();
+      lookupColumns = lookup_vector[l].length;
 
-		if (((lookupRows == 1) && (lookupColumns > 1)) || ((lookupRows == 2) && (lookupColumns != 2))) {
-			lookup_vector = supsysticTranspose(lookup_vector);
-			lookupRows = lookup_vector.length;
-			l = Object.keys(lookup_vector);
-			lookupColumns = lookup_vector[l.shift()].length;
-		}
-		if (result_vector == null) {
-			result_vector = lookup_vector;
-		}
+      if ((lookupRows == 1 && lookupColumns > 1) || (lookupRows == 2 && lookupColumns != 2)) {
+        lookup_vector = supsysticTranspose(lookup_vector);
+        lookupRows = lookup_vector.length;
+        l = Object.keys(lookup_vector);
+        lookupColumns = lookup_vector[l.shift()].length;
+      }
+      if (result_vector == null) {
+        result_vector = lookup_vector;
+      }
 
-		resultRows = result_vector.length;
-		l = Object.keys(result_vector);
-		l = l.shift();
-		resultColumns = result_vector[l].length;
+      resultRows = result_vector.length;
+      l = Object.keys(result_vector);
+      l = l.shift();
+      resultColumns = result_vector[l].length;
 
-		if (((resultRows == 1) && (resultColumns > 1)) || ((resultRows == 2) && (resultColumns != 2))) {
-			result_vector = supsysticTranspose(result_vector);
-			resultRows = result_vector.length;
-			r = Object.keys(result_vector);
-			resultColumns = result_vector[r.shift()].length;
-		}
-		if (lookupRows == 2) {
-			result_vector = lookup_vector.pop();
-			lookup_vector = lookup_vector.shift();
-		}
-		if (lookupColumns != 2) {
-			for(var v in lookup_vector) {
-				if (typeof(lookup_vector[v]) == 'object') {
-					k = Object.keys(lookup_vector[v]);
-					key1 = key2 = k.shift();
-					key2++;
-					dataValue1 = lookup_vector[v][key1];
-				} else {
-					key1 = 0;
-					key2 = 1;
-					dataValue1 = lookup_vector[v];
-				}
-				dataValue2 = result_vector.shift();
+      if ((resultRows == 1 && resultColumns > 1) || (resultRows == 2 && resultColumns != 2)) {
+        result_vector = supsysticTranspose(result_vector);
+        resultRows = result_vector.length;
+        r = Object.keys(result_vector);
+        resultColumns = result_vector[r.shift()].length;
+      }
+      if (lookupRows == 2) {
+        result_vector = lookup_vector.pop();
+        lookup_vector = lookup_vector.shift();
+      }
+      if (lookupColumns != 2) {
+        for (var v in lookup_vector) {
+          if (typeof lookup_vector[v] == 'object') {
+            k = Object.keys(lookup_vector[v]);
+            key1 = key2 = k.shift();
+            key2++;
+            dataValue1 = lookup_vector[v][key1];
+          } else {
+            key1 = 0;
+            key2 = 1;
+            dataValue1 = lookup_vector[v];
+          }
+          dataValue2 = result_vector.shift();
 
-				if (typeof(dataValue2) == 'object') {
-					dataValue2 = dataValue2.shift();
-				}
-				lookup_vector[v] = {};
-				lookup_vector[v][key1] = dataValue1;
-				lookup_vector[v][key2] = dataValue2;
-			}
-		}
+          if (typeof dataValue2 == 'object') {
+            dataValue2 = dataValue2.shift();
+          }
+          lookup_vector[v] = {};
+          lookup_vector[v][key1] = dataValue1;
+          lookup_vector[v][key2] = dataValue2;
+        }
+      }
 
-		return instance.formulas.VLOOKUP(lookup_value, lookup_vector, 2, false);
-	};
-	instance.formulas.VLOOKUP = function(lookup_value, lookup_array, index_number, not_exact_match) {
-		var f, firstRow, firstColumn, returnColumn, columnKeys, rowNumber = false, rowValue = false;
+      return instance.formulas.VLOOKUP(lookup_value, lookup_vector, 2, false);
+    };
+    instance.formulas.VLOOKUP = function (lookup_value, lookup_array, index_number, not_exact_match) {
+      var f,
+        firstRow,
+        firstColumn,
+        returnColumn,
+        columnKeys,
+        rowNumber = false,
+        rowValue = false;
 
-		not_exact_match = typeof(not_exact_match) != 'undefined' ? not_exact_match : true;
-		lookup_value = supsysticFlattenSingleValue(lookup_value);
-		index_number = supsysticFlattenSingleValue(index_number);
-		not_exact_match = supsysticFlattenSingleValue(not_exact_match);
+      not_exact_match = typeof not_exact_match != 'undefined' ? not_exact_match : true;
+      lookup_value = supsysticFlattenSingleValue(lookup_value);
+      index_number = supsysticFlattenSingleValue(index_number);
+      not_exact_match = supsysticFlattenSingleValue(not_exact_match);
 
-		// index_number must be greater than or equal to 1
-		if (index_number < 1) {
-			return Exception.get('VALUE');
-		}
+      // index_number must be greater than or equal to 1
+      if (index_number < 1) {
+        return Exception.get('VALUE');
+      }
 
-		// index_number must be less than or equal to the number of columns in lookup_array
-		if (typeof(lookup_array) != 'object' || !lookup_array.length) {
-			return Exception.get('REF');
-		} else {
-			f = Object.keys(lookup_array);
-			firstRow = f.pop();
+      // index_number must be less than or equal to the number of columns in lookup_array
+      if (typeof lookup_array != 'object' || !lookup_array.length) {
+        return Exception.get('REF');
+      } else {
+        f = Object.keys(lookup_array);
+        firstRow = f.pop();
 
-			if (typeof(lookup_array[firstRow]) != 'object' || index_number > lookup_array[firstRow].length) {
-				return Exception.get('REF');
-			} else {
-				columnKeys = Object.keys(lookup_array[firstRow]);
-				returnColumn = columnKeys[--index_number];
-				firstColumn = columnKeys.shift();
-			}
-		}
-		if (!not_exact_match) {
-			lookup_array.sort(supsysticVlookupSort);
-		}
-		for(var i in lookup_array) {
-			if ((!isNaN(lookup_value) && !isNaN(lookup_array[i][firstColumn]) && lookup_array[i][firstColumn] > lookup_value)
-				|| (isNaN(lookup_value) && isNaN(lookup_array[i][firstColumn]) && lookup_array[i][firstColumn].toLowerCase() > lookup_value.toLowerCase())
-			) {
-				break;
-			}
-			rowNumber = i;
-			rowValue = lookup_array[i][firstColumn];
-		}
-		if (rowNumber !== false) {
-			if (!not_exact_match && rowValue != lookup_value) {
-				// if an exact match is required, we have what we need to return an appropriate response
-				return Exception.get('NOT_AVAILABLE');
-			} else {
-				// otherwise return the appropriate value
-				return lookup_array[rowNumber][returnColumn];
-			}
-		}
+        if (typeof lookup_array[firstRow] != 'object' || index_number > lookup_array[firstRow].length) {
+          return Exception.get('REF');
+        } else {
+          columnKeys = Object.keys(lookup_array[firstRow]);
+          returnColumn = columnKeys[--index_number];
+          firstColumn = columnKeys.shift();
+        }
+      }
+      if (!not_exact_match) {
+        lookup_array.sort(supsysticVlookupSort);
+      }
+      for (var i in lookup_array) {
+        if ((!isNaN(lookup_value) && !isNaN(lookup_array[i][firstColumn]) && lookup_array[i][firstColumn] > lookup_value) || (isNaN(lookup_value) && isNaN(lookup_array[i][firstColumn]) && lookup_array[i][firstColumn].toLowerCase() > lookup_value.toLowerCase())) {
+          break;
+        }
+        rowNumber = i;
+        rowValue = lookup_array[i][firstColumn];
+      }
+      if (rowNumber !== false) {
+        if (!not_exact_match && rowValue != lookup_value) {
+          // if an exact match is required, we have what we need to return an appropriate response
+          return Exception.get('NOT_AVAILABLE');
+        } else {
+          // otherwise return the appropriate value
+          return lookup_array[rowNumber][returnColumn];
+        }
+      }
 
-		return Exception.get('NOT_AVAILABLE');
-	};
+      return Exception.get('NOT_AVAILABLE');
+    };
     instance.matrix = new Matrix();
 
     instance.custom = {};
@@ -1685,10 +1945,10 @@ var ruleJS = (function (root) {
         instance.isEdited = false;
         instance.matrix.scan();
         recalcLimit--;
-      } while(instance.isEdited && recalcLimit > 0);
+      } while (instance.isEdited && recalcLimit > 0);
 
       //instance.matrix.scan();
-	  helper.unescapeHTML(rootElement);
+      helper.unescapeHTML(rootElement);
     }
   };
 
@@ -1697,48 +1957,47 @@ var ruleJS = (function (root) {
     version: version,
     utils: utils,
     helper: helper,
-    parse: parse
+    parse: parse,
   };
-
-});
+};
 
 // Transpose the matrix
 function supsysticTranspose(matrixData) {
-	var returnMatrix = [],
-		column = 0;
+  var returnMatrix = [],
+    column = 0;
 
-	if (typeof(matrixData) != 'object') {
-		matrixData = [[matrixData]];
-	}
+  if (typeof matrixData != 'object') {
+    matrixData = [[matrixData]];
+  }
 
-	for(var i in matrixData) {
-		var row = 0;
+  for (var i in matrixData) {
+    var row = 0;
 
-		for(var j in matrixData[i]) {
-			returnMatrix[row] = returnMatrix[row] ? returnMatrix[row] : [];
-			returnMatrix[row][column] = matrixData[i][j];
-			++row;
-		}
-		++column;
-	}
-	return returnMatrix;
+    for (var j in matrixData[i]) {
+      returnMatrix[row] = returnMatrix[row] ? returnMatrix[row] : [];
+      returnMatrix[row][column] = matrixData[i][j];
+      ++row;
+    }
+    ++column;
+  }
+  return returnMatrix;
 }
 
 function supsysticFlattenSingleValue(value) {
-	value = value ? value : '';
+  value = value ? value : '';
 
-	while(typeof(value) == 'object') {
-		value = value.pop();
-	}
+  while (typeof value == 'object') {
+    value = value.pop();
+  }
 
-	return value;
+  return value;
 }
 
 function supsysticVlookupSort(a, b) {
-	var aLower, bLower;
+  var aLower, bLower;
 
-	if ((aLower = a[0].toString().toLowerCase()) == (bLower = b[0].toString().toLowerCase())) {
-		return 0;
-	}
-	return (aLower < bLower) ? -1 : 1;
+  if ((aLower = a[0].toString().toLowerCase()) == (bLower = b[0].toString().toLowerCase())) {
+    return 0;
+  }
+  return aLower < bLower ? -1 : 1;
 }

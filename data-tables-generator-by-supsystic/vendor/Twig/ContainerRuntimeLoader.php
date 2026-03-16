@@ -21,17 +21,17 @@ use Psr\Container\ContainerInterface;
  */
 class Twig_SupTwgDtgs_ContainerRuntimeLoader implements Twig_SupTwgDtgs_RuntimeLoaderInterface
 {
-    private $container;
+  private $container;
 
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
+  public function __construct(ContainerInterface $container)
+  {
+    $this->container = $container;
+  }
 
-    public function load($class)
-    {
-        if ($this->container->has($class)) {
-            return $this->container->get($class);
-        }
+  public function load($class)
+  {
+    if ($this->container->has($class)) {
+      return $this->container->get($class);
     }
+  }
 }

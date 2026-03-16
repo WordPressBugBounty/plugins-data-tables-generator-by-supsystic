@@ -18,18 +18,13 @@
  */
 class Twig_SupTwgDtgs_Node_Spaceless extends Twig_SupTwgDtgs_Node
 {
-    public function __construct(Twig_SupTwgDtgs_NodeInterface $body, $lineno, $tag = 'spaceless')
-    {
-        parent::__construct(array('body' => $body), array(), $lineno, $tag);
-    }
+  public function __construct(Twig_SupTwgDtgs_NodeInterface $body, $lineno, $tag = 'spaceless')
+  {
+    parent::__construct(['body' => $body], [], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write("ob_start();\n")
-            ->subcompile($this->getNode('body'))
-            ->write("echo trim(preg_replace('/>\s+</', '><', ob_get_clean()));\n")
-        ;
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write("ob_start();\n")->subcompile($this->getNode('body'))->write("echo trim(preg_replace('/>\s+</', '><', ob_get_clean()));\n");
+  }
 }

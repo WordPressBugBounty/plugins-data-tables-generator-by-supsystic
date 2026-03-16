@@ -20,5 +20,5 @@
  */
 interface Twig_SupTwgDtgs_FilterCallableInterface
 {
-    public function getCallable();
+  public function getCallable();
 }

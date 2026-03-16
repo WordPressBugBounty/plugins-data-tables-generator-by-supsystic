@@ -14,6 +14,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface Twig_SupTwgDtgs_NodeCaptureInterface
-{
-}
+interface Twig_SupTwgDtgs_NodeCaptureInterface {}

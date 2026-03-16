@@ -10,15 +10,15 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Binary_FloorDiv extends Twig_SupTwgDtgs_Node_Expression_Binary
 {
-    public function compile(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        $compiler->raw('(int) floor(');
-        parent::compile($compiler);
-        $compiler->raw(')');
-    }
+  public function compile(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    $compiler->raw('(int) floor(');
+    parent::compile($compiler);
+    $compiler->raw(')');
+  }
 
-    public function operator(Twig_SupTwgDtgs_Compiler $compiler)
-    {
-        return $compiler->raw('/');
-    }
+  public function operator(Twig_SupTwgDtgs_Compiler $compiler)
+  {
+    return $compiler->raw('/');
+  }
 }

@@ -45,6 +45,14 @@
                                 </a>
                             </li>
                         {% endif %}
+                        {% if environment.getModule('licenseai') != null %}
+                            <li {% if environment.isModule('licenseai') %} class="active"{% endif %}>
+                                <a id="menuItem_tables" href="{{ environment.generateUrl('licenseai') }}">
+                                    <i class="fa fa-fw fa-laptop "></i>
+                                    <span>{{ environment.translate('License AI') }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endblock %}
                 </ul>
                 <div class="clear"></div>
