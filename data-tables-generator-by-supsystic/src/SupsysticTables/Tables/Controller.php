@@ -656,13 +656,17 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       case 'stars':
         $optionname = 'reviewNotice';
         break;
-    }
+      case 'ai':
+        $optionname = 'aiNotice';
+        break;
+    }    
 
     $option = $this->getConfig()->get('db_prefix') . $optionname;
 
     if ($responseCode === 'later') {
+      $laterDays = ($responseType === 'ai') ? 1 : 2;
       update_option($option, [
-        'time' => time() + 60 * 60 * 24 * 2,
+        'time' => time() + 60 * 60 * 24 * $laterDays,
         'shown' => false,
       ]);
     } else {

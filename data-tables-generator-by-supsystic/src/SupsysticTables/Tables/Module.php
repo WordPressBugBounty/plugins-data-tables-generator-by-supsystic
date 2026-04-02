@@ -51,6 +51,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
     if ($this->isPluginPage()) {
       $this->reviewNoticeCheck();
+      $this->aiNoticeCheck();
       // $this->wooProAddonAds();
     }
     add_action('template_redirect', [$this, 'getDataTablesInPosts']);
@@ -2112,6 +2113,26 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
   public function showReviewNotice()
   {
     print wp_kses_post($this->getTwig()->render('@tables/notice/review.twig'));
+  }
+
+  public function aiNoticeCheck()
+  {
+    $option = $this->config('db_prefix') . 'aiNotice';
+    $notice = get_option($option);
+    if (!$notice) {
+      update_option($option, [
+        'time' => time(),
+        'shown' => false,
+      ]);
+      add_action('admin_notices', [$this, 'showAiNotice']);
+    } elseif ($notice['shown'] === false && time() > $notice['time']) {
+      add_action('admin_notices', [$this, 'showAiNotice']);
+    }
+  }
+
+  public function showAiNotice()
+  {
+    print wp_kses_post($this->getTwig()->render('@tables/notice/ai.twig'));
   }
 
   public function wooProAddonAds()

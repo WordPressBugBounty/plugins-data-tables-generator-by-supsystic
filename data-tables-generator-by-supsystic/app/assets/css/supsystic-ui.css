@@ -933,3 +933,11 @@ h3.nav-tab-wrapper {
 .supsystic-navigation ul li.active a i {
   color: #4ae8ea;
 }
+.noticeAiBgCell {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(180, 200, 220, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 200, 220, 0.1) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  opacity: .3;
+}

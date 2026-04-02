@@ -6,7 +6,7 @@ Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: table, tables, datatable, table-builder, table-plugin
 License: GNU General Public License v2.0 or later
 Tested up to: 6.9
-Stable tag: 1.10.49
+Stable tag: 1.11.0
 
 
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
@@ -208,6 +208,13 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 [Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
 
 == Changelog ==
+1.11.0 / 02.04.2026 =
+ * Add support WP 6.9.4
+ * Add AI option
+ * Some design improvements
+ * Fixed vulnerabilities
+ * Fixed license issue
+
 1.10.49 / 31.03.2026 =
  * Add support WP 6.9.4
  * Add AI option

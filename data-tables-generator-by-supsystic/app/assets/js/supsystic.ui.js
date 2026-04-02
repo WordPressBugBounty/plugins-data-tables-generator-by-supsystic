@@ -10,7 +10,9 @@
     var responseCode = jQuery(this).data('response-code') || 'hide';
     var responseType = jQuery(this).data('response-type');
 
-    jQuery('.supsystic-admin-notice .notice-dismiss').trigger('click');
+    jQuery(this).closest('.supsystic-admin-notice').slideUp(200, function () {
+      jQuery(this).remove();
+    });
 
     window.supsystic.Tables.request(
       {
