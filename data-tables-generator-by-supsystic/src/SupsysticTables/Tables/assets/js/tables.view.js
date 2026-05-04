@@ -722,8 +722,10 @@ var g_stbCopyPasteColsCount = [];
       isParentEnabled = typeof isParentEnabled != 'undefined' ? isParentEnabled : true;
       if ($(this).is(':checked') && isParentEnabled) {
         $('select[name="searching[columnSearchPosition]"]').parents('.setting-wrapper:first').fadeIn(300);
+        $('input[name="searching[columnSearchShowLabel]"]').parents('.setting-wrapper:first').fadeIn(300);
       } else {
         $('select[name="searching[columnSearchPosition]"]').parents('.setting-wrapper:first').fadeOut(300);
+        $('input[name="searching[columnSearchShowLabel]"]').parents('.setting-wrapper:first').fadeOut(300);
       }
     });
 

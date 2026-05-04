@@ -835,7 +835,20 @@ var g_stbServerSideProcessingIsActive = false;
         }
         if (searchingSettings.columnSearch) {
           var inputTop = searchingSettings.columnSearchPosition && searchingSettings.columnSearchPosition == 'top',
-            tPosition = inputTop ? 'thead' : 'tfoot';
+            tPosition = inputTop ? 'thead' : 'tfoot',
+            showColumnLabel = searchingSettings.columnSearchShowLabel && searchingSettings.columnSearchShowLabel == 'on',
+            hasHeader = !!$table.data('head'),
+            escapeHtml = function (text) {
+              return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            };
+          if (inputTop && hasHeader) {
+            showColumnLabel = false;
+          }
           if (!$table.find('.stbColumnsSearchWrapper').length) {
             var headerRow = $table.find('thead tr:first').find('th');
             if (headerRow.length) {
@@ -851,7 +864,22 @@ var g_stbServerSideProcessingIsActive = false;
                 if (cellItem.hasClass('invisibleCell')) {
                   cellClass = ' class="invisibleCell"';
                 }
-                searchRow += '<th ' + cellClass + cellStyle + '><input class="search-column" type="text" data-column-num="' + i + '"/></th>';
+                var columnTitle = jQuery.trim(cellItem.text()).replace(/\s+/g, ' '),
+                  escapedColumnTitle = escapeHtml(columnTitle),
+                  columnLabel = showColumnLabel && columnTitle ? '<span class="stbColumnSearchLabel">' + escapedColumnTitle + '</span>' : '',
+                  inputPlaceholder = columnTitle ? ' placeholder="' + escapedColumnTitle + '"' : '';
+
+                searchRow +=
+                  '<th ' +
+                  cellClass +
+                  cellStyle +
+                  '><div class="stbColumnSearchField">' +
+                  columnLabel +
+                  '<input class="search-column" type="text" data-column-num="' +
+                  i +
+                  '"' +
+                  inputPlaceholder +
+                  '/></div></th>';
               }
               searchRow += '</tr>';
               if ($table.find(tPosition).length == 0) {
@@ -861,7 +889,7 @@ var g_stbServerSideProcessingIsActive = false;
             }
           }
           if ($table.data('auto-index') !== 'off') {
-            jQuery('.stbColumnsSearchWrapper th:first-child input').css({
+            jQuery('.stbColumnsSearchWrapper th:first-child .stbColumnSearchField').css({
               visibility: 'hidden',
             });
           }

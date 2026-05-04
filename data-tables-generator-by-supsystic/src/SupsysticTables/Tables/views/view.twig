@@ -784,6 +784,25 @@
                                     </div>
                                 </div>
                                 <div class="setting-wrapper searching-options setting-suboption"
+                                        {% if table.settings.features.searching is not defined
+                                            or (table.settings.features.searching is defined and table.settings.searching.columnSearch is not defined)
+                                        %}
+                                            style="display:none"
+                                        {% endif %}
+                                        >
+                                    <div class="setting-label">
+                                        <label for="features-search-by-column-labels">
+                                            {{ environment.translate('Show Column Titles Above Search Fields') }}
+                                            {{ tooltip.icon(environment.translate('Displays the column header text above each column search field to make filters easier to understand.')) }}
+                                        </label>
+                                    </div>
+                                    <div class="setting-check">
+                                        <input type="checkbox" name="searching[columnSearchShowLabel]" id="features-search-by-column-labels"
+                                                {{ checkbox.checked(table.settings.searching.columnSearchShowLabel) }}
+                                                >
+                                    </div>
+                                </div>
+                                <div class="setting-wrapper searching-options setting-suboption"
                                         {% if table.settings.features.searching is not defined %}
                                             style="display:none"
                                         {% endif %}

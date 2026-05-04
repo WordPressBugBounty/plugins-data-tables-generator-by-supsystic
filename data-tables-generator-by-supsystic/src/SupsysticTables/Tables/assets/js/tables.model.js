@@ -612,7 +612,7 @@ var g_stbPreviewTimeoutSet = false;
               if (metaClasses !== undefined) {
                 $.each(metaClasses.split(' '), function (index, element) {
                   if (element.length) {
-                    if (toeInArray(element, ['datefield', 'tooltipCell', 'collapsibleCell']) != -1 && !requiredAssets[element]) {
+                    if (toeInArray(element, ['datefield', 'tooltipCell', 'collapsibleCell', 'collapsibleRow']) != -1 && !requiredAssets[element]) {
                       requiredAssets[element] = true;
                     }
                     classes.push($.trim(element));
