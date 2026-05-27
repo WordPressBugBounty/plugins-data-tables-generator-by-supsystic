@@ -2078,10 +2078,15 @@ var g_stbServerSideProcessingIsActive = false;
     };
 
     vendor[appName].prepareFormulaToParse = function (value) {
-      var stringsInFormula = value.match(/".+?"|'.+?'/g);
+      value = value
+        .replace(/&apos;|&#0*39;|&#x0*27;/gi, "'")
+        .replace(/&quot;|&#0*34;|&#x0*22;/gi, '"');
+
+      var formulaStringPattern = /"(?:[^"]|"")*"|'(?:[^']|'')*'/g,
+        stringsInFormula = value.match(formulaStringPattern);
 
       if (stringsInFormula && stringsInFormula.length) {
-        var clearValue = value.replace(/".+?"|'.+?'/g, '%STR%'),
+        var clearValue = value.replace(formulaStringPattern, '%STR%'),
           index = 0;
 
         clearValue = clearValue.toUpperCase();

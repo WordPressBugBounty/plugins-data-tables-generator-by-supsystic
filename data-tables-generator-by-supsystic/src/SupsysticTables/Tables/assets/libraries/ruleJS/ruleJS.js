@@ -445,8 +445,13 @@ var ruleJS = function (root) {
             }
           }
         }
-        var renderedResult = renderedValue || error;
-        if (element.innerText) {
+        var renderedResult = renderedValue || error,
+          isHyperlinkFormula = formula && formula.toUpperCase().indexOf('HYPERLINK(') === 0;
+
+        if (isHyperlinkFormula) {
+          if (renderedResult != element.innerHTML) instance.isEdited = true;
+          element.innerHTML = renderedResult;
+        } else if (element.innerText) {
           if (renderedResult != element.innerText) instance.isEdited = true;
           element.innerText = renderedResult;
         } else {
@@ -468,7 +473,7 @@ var ruleJS = function (root) {
      * @param {Element} element
      * @returns {Object}
      */
-    var registerElementInMatrix = function (element) {
+    var registerElementInMatrix = function (element, skipCalculation) {
       var id = element.getAttribute('data-cell-id'),
         formula = element.getAttribute('data-formula');
 
@@ -479,7 +484,9 @@ var ruleJS = function (root) {
           formula: formula,
         });
 
-        calculateElementFormula(formula, element);
+        if (!skipCalculation) {
+          calculateElementFormula(formula, element);
+        }
       }
     };
 
@@ -562,10 +569,20 @@ var ruleJS = function (root) {
     this.scan = function () {
       var $totalElements = instance.instanceTable ? instance.instanceTable.api().cells().nodes() : rootElement.querySelectorAll(formElements);
       //var $totalElements = rootElement.querySelectorAll(formElements);
+      var formulaElements = [];
+
       // iterate through elements contains specified attributes
       [].slice.call($totalElements).forEach(function ($item) {
-        registerElementInMatrix($item);
+        registerElementInMatrix($item, true);
         registerElementEvents($item);
+
+        if ($item.getAttribute('data-formula')) {
+          formulaElements.push($item);
+        }
+      });
+
+      formulaElements.forEach(function ($item) {
+        calculateElementFormula($item.getAttribute('data-formula'), $item);
       });
     };
   };

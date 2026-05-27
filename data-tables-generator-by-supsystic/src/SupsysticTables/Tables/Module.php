@@ -312,7 +312,14 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $table->meta = $tables->getMeta($id);
     }
     if (!$table->isPageRows) {
-      $table->rows = $tables->getNeededRows($id, $table->settings, $table->isSSP, $this->shortAttributes);
+      try {
+        $table->rows = $tables->getNeededRows($id, $table->settings, $table->isSSP, $this->shortAttributes);
+      } catch (Exception $e) {
+        $this->isSingleCell = $this->isTablePart = $this->isFromHistory = $this->historyData = [];
+        $this->checkSpreadsheet = false;
+        $this->shortAttributes = [];
+        return sprintf($this->translate('Failed to get table rows: %s'), $e->getMessage());
+      }
       $this->shortAttributes = [];
 
       if (isset($table->meta['columnsWidth'])) {
@@ -535,11 +542,11 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
   public function getMirrorFooter($table)
   {
-    $footer = [];
-
-    if (!in_array('customFooter', $table->settings)) {
-      $headerRowsCount = !empty($table->settings['headerRowsCount']) ? $table->settings['headerRowsCount'] : 1;
-      $footer = array_slice($table->rows, 0, $headerRowsCount);
+      $footer = [];
+  
+      if (!in_array('customFooter', $table->settings)) {
+          $headerRowsCount = !empty($table->settings['headerRowsCount']) ? (int)$table->settings['headerRowsCount'] : 1;
+          $footer = array_slice($table->rows, 0, $headerRowsCount);
 
       foreach ($footer as $key => $row) {
         foreach ($row['cells'] as $index => $cell) {
