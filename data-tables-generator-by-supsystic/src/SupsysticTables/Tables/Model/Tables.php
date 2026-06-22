@@ -43,17 +43,22 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function getListTbl($params)
   {
     global $wpdb;
-    $dbTable = $this->db->prefix . 'supsystic_tbl_tables';
     $textLike = !empty($params['search']['text_like']) ? sanitize_text_field($params['search']['text_like']) : '';
-    $orderBy = !empty($params['orderBy']) ? sanitize_text_field($params['orderBy']) : '';
-    $sortOrder = !empty($params['sortOrder']) ? sanitize_text_field($params['sortOrder']) : '';
-    $rowsLimit = !empty($params['rowsLimit']) ? sanitize_text_field($params['rowsLimit']) : '';
-    $limitStart = !empty($params['limitStart']) ? sanitize_text_field($params['limitStart']) : 0;
+    $requestedOrderBy = !empty($params['orderBy']) ? sanitize_key($params['orderBy']) : 'id';
+    $allowedOrderBy = [
+      'id' => 'id',
+      'title' => 'title',
+      'created_at' => 'created_at',
+    ];
+    $orderBy = isset($allowedOrderBy[$requestedOrderBy]) ? $allowedOrderBy[$requestedOrderBy] : 'id';
+    $sortOrder = !empty($params['sortOrder']) && strtoupper($params['sortOrder']) === 'ASC' ? 'ASC' : 'DESC';
+    $rowsLimit = !empty($params['rowsLimit']) ? min(100, max(1, absint($params['rowsLimit']))) : 20;
+    $limitStart = !empty($params['limitStart']) ? max(0, absint($params['limitStart'])) : 0;
 
     $wild = '%';
     $textLike = $wild . $wpdb->esc_like($textLike) . $wild;
 
-    $prepare = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s ORDER BY %s ASC LIMIT %d OFFSET %d", $textLike, $textLike, $orderBy, (int) $rowsLimit, (int) $limitStart);
+    $prepare = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $rowsLimit, $limitStart);
     $results = $wpdb->get_results($prepare, ARRAY_A);
     return $results;
   }
@@ -990,7 +995,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
     if (count($rows) > 0) {
       foreach ($rows as $index => $row) {
-        $rows[$index] = @unserialize($row->data);
+        $rows[$index] = @unserialize($row->data, ['allowed_classes' => false]);
       }
     }
 
@@ -1024,7 +1029,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $rows = [];
     if (count($result) > 0) {
       foreach ($result as $index => $row) {
-        $rows[$row->id] = @unserialize($row->data);
+        $rows[$row->id] = @unserialize($row->data, ['allowed_classes' => false]);
       }
     }
     if (!$raw) {
@@ -1048,10 +1053,19 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       $dbTableModel = $core->getModelsFactory()->get('DBTables', 'tables');
       return $dbTableModel->getRowsData($settings, false, $attributes);
     }
-    if ($this->environment->isWooPro()) {
+    if ($this->environment->isWoo() && $this->environment->getModule('woocommerce') !== null) {
       $table = $this->getWooSettings($id);
-      $tableSettings = unserialize($table);
-      if (!empty($tableSettings['woocommerce']['enable']) && $tableSettings['woocommerce']['enable'] === 'on') {
+      $tableSettings = is_string($table) ? @unserialize($table, ['allowed_classes' => false]) : [];
+      $tableType = !empty($settings['tableType']) ? sanitize_key($settings['tableType']) : 'default';
+      if ($tableType !== 'woo_product_table') {
+        $dbTableType = $this->getTableType($id);
+        if ($dbTableType === 'woo_product_table') {
+          $tableType = $dbTableType;
+        }
+      }
+
+      if ($tableType === 'woo_product_table' || $this->isWooSettingsEnabled($tableSettings)) {
+        $settings['tableType'] = 'woo_product_table';
         if ($this->environment->getModule('woocommerce')->getController()) {
           return $this->environment->getModule('woocommerce')->getController()->getRows($id, $settings, false, false, false, $export);
         }
@@ -1104,7 +1118,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       }
 
       foreach ($results as $i => $row) {
-        $data = @unserialize($row->data);
+        $data = @unserialize($row->data, ['allowed_classes' => false]);
         $index = array_search($data['cells'][0]['y'], $ids);
         if ($index !== false) {
           $rows[$index] = $this->prepareRowsData($data, false);
@@ -1148,7 +1162,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $search = sizeof($searchCols) > 0 || $searchAll !== false;
     $isWord = isset($searchParams['strictMatching']) && $searchParams['strictMatching'] == 'on';
     if ($isWord) {
-      $searchAll = '~\b' . $searchAll . '~i';
+      $searchAll = '~\b' . preg_quote($searchAll, '~') . '~i';
     }
 
     $rawData = !$sort && !$search;
@@ -1185,7 +1199,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
         }
 
         foreach ($rows as $i => $row) {
-          $values = $this->prepareRowsData(@unserialize($row->data), false);
+          $values = $this->prepareRowsData(@unserialize($row->data, ['allowed_classes' => false]), false);
 
           $cells = $values['cells'];
           $filterCols = true;
@@ -1254,7 +1268,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $num = 0;
     $data = [];
     foreach ($rows as $i => $row) {
-      $values = $this->prepareRowsData(@unserialize($row->data), false);
+      $values = $this->prepareRowsData(@unserialize($row->data, ['allowed_classes' => false]), false);
 
       $rowId = $row->id;
       $n = $sort ? $sorter[$rowId] : $num++;
@@ -1372,7 +1386,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       }
 
       foreach ($rows as $i => $row) {
-        $values = @unserialize($row->data);
+        $values = @unserialize($row->data, ['allowed_classes' => false]);
         array_splice($values['cells'], $from);
         $this->updateRow($row->id, $values);
       }
@@ -1485,17 +1499,21 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     }
 
     $table->view_id = $table->id . '_' . mt_rand(1, 99999);
+    $table->table_type = !empty($table->table_type) ? sanitize_key($table->table_type) : 'default';
     $table->columns = $this->getColumns($table->id);
 
     $table->settings = htmlspecialchars_decode((string) $table->settings, ENT_QUOTES);
     $table->settings = $this->fixIncorrectSerialize($table->settings);
-    $table->settings = unserialize($table->settings);
+    $table->settings = unserialize($table->settings, ['allowed_classes' => false]);
+    if (is_array($table->settings) && (empty($table->settings['tableType']) || ($table->table_type !== 'default' && $table->settings['tableType'] !== $table->table_type))) {
+      $table->settings['tableType'] = $table->table_type;
+    }
 
     // rev 41
     if (property_exists($table, 'meta')) {
       $table->meta = htmlspecialchars_decode((string) $table->meta, ENT_QUOTES);
       $table->meta = $this->fixIncorrectSerialize($table->meta);
-      $table->meta = unserialize($table->meta);
+      $table->meta = unserialize($table->meta, ['allowed_classes' => false]);
     }
 
     return $table;
@@ -1511,15 +1529,30 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     if (!empty($table->history_settings)) {
       $table->historySettings = htmlspecialchars_decode((string) $table->history_settings);
       $table->historySettings = $this->fixIncorrectSerialize($table->historySettings);
-      $table->historySettings = unserialize($table->historySettings);
+      $table->historySettings = unserialize($table->historySettings, ['allowed_classes' => false]);
     }
     if (!empty($table->woo_settings)) {
       $table->woo_settings = htmlspecialchars_decode((string) $table->woo_settings);
       $table->woo_settings = $this->fixIncorrectSerialize($table->woo_settings);
-      $table->woo_settings = unserialize($table->woo_settings);
+      $table->woo_settings = unserialize($table->woo_settings, ['allowed_classes' => false]);
+      if ($this->isWooSettingsEnabled($table->woo_settings)) {
+        $table->table_type = 'woo_product_table';
+        if (is_array($table->settings)) {
+          $table->settings['tableType'] = 'woo_product_table';
+        }
+      }
     }
 
     return $table;
+  }
+
+  private function isWooSettingsEnabled($wooSettings)
+  {
+    if (!is_array($wooSettings) || empty($wooSettings['woocommerce']) || !is_array($wooSettings['woocommerce']) || empty($wooSettings['woocommerce']['enable'])) {
+      return false;
+    }
+
+    return in_array($wooSettings['woocommerce']['enable'], ['on', '1', 1, true], true);
   }
 
   /**
@@ -1579,7 +1612,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function fixIncorrectSerialize($string)
   {
     // at first, check if "fixing" is really needed at all. After that, security checkup.
-    if (@!unserialize($string) && preg_match('/^[aOs]:/', $string)) {
+    if (@!unserialize($string, ['allowed_classes' => false]) && preg_match('/^[aOs]:/', $string)) {
       $string = preg_replace_callback(
         '/s\:(\d+)\:\"(.*?)\";/s',
         function ($matches) {
@@ -1603,7 +1636,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       $result = $result[0]->settings;
       $resultWithSlashes = htmlspecialchars_decode((string) $result, ENT_QUOTES);
       $resultWithSlashes = $this->fixIncorrectSerialize($resultWithSlashes);
-      $result = unserialize($resultWithSlashes);
+      $result = unserialize($resultWithSlashes, ['allowed_classes' => false]);
     }
     return $result;
   }
@@ -1621,7 +1654,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       $result = $result[0]->meta;
       $resultWithSlashes = htmlspecialchars_decode((string) $result, ENT_QUOTES);
       $resultWithSlashes = $this->fixIncorrectSerialize($resultWithSlashes);
-      $result = unserialize($resultWithSlashes);
+      $result = unserialize($resultWithSlashes, ['allowed_classes' => false]);
     }
 
     return $result;
@@ -1672,9 +1705,11 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
    */
   public function getTableIdsBySearchTokens($tokens)
   {
+    global $wpdb;
     $tempIds = [];
     $step = 0;
     foreach ($tokens as $token) {
+      $token = $wpdb->esc_like(sanitize_text_field($token));
       $step++;
       $query = $this->getQueryBuilder()
         ->select('DISTINCT table_id')
@@ -1712,7 +1747,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
    */
   public function getRowsLike($id, $tokens)
   {
-    $firstToken = array_shift($tokens);
+    global $wpdb;
+
+    $firstToken = $wpdb->esc_like(sanitize_text_field(array_shift($tokens)));
     $query = $this->getQueryBuilder()
       ->select($this->getField('rows', '*'))
       ->from($this->getTable('rows'))
@@ -1720,7 +1757,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       ->orderBy($this->getField('rows', 'id'));
 
     foreach ($tokens as $token) {
-      $token = trim($token);
+      $token = $wpdb->esc_like(sanitize_text_field(trim($token)));
       $query->orWhere('data', 'LIKE', "%{$token}%");
     }
     $query->andWhere('table_id', '=', (int) $id);
@@ -1788,5 +1825,13 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
     $rows = $this->db->get_var($query->build());
     return $rows;
+  }
+
+  public function getTableType($id)
+  {
+    $query = $this->getQueryBuilder()->select($this->getField('tables', 'table_type'))->from($this->getTable('tables'))->where('id', '=', (int) $id);
+    $type = $this->db->get_var($query->build());
+
+    return !empty($type) ? sanitize_key($type) : 'default';
   }
 }

@@ -20,6 +20,11 @@ class SupsysticTables_Migrationfree_Model_Exporter extends SupsysticTables_Core_
     $delimEOL = PHP_EOL . $delim . PHP_EOL;
 
     foreach ($ids as $i => $id) {
+      $id = absint($id);
+      if (!$id) {
+        continue;
+      }
+
       $tableName = $this->getTable('tables');
       $fields = $this->selectFields($tableName);
 
@@ -74,7 +79,7 @@ class SupsysticTables_Migrationfree_Model_Exporter extends SupsysticTables_Core_
     foreach ($results as $i => $row) {
       $value = $pre;
       foreach ($row as $f => $val) {
-        $value .= "'" . $val . "',";
+        $value .= null === $val ? 'NULL,' : "'" . esc_sql($val) . "',";
       }
       $values .= '(' . substr($value, 0, -1) . '),';
     }
@@ -94,7 +99,7 @@ class SupsysticTables_Migrationfree_Model_Exporter extends SupsysticTables_Core_
     $fields = '';
     foreach ($columns as $i => $field) {
       $name = $field[0];
-      if (class_exists('SupsysticTablesWooPro_Woocommerce_Module')) {
+      if (class_exists('SupsysticTables_Woocommerce_Module') || class_exists('SupsysticTablesWooPro_Woocommerce_Module')) {
         if ($name != 'id' && $name != 'table_id') {
           $fields .= '`' . $field[0] . '`,';
         }

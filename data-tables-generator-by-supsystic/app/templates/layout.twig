@@ -65,29 +65,59 @@
                 <div class="clear"></div>
                 {% block content %}{% endblock %}
                 <div class="clear"></div>
-                <div id="dtgAddDialog" style="display: none;" title="{{ environment.translate('Add new table') }}" style="min-height: 70px;">
+                <div id="dtgAddDialog" style="display: none; min-height: 70px;" title="{{ environment.translate('Add new table') }}">
                     <form id="tableForm">
-                        <div class="supRow">
+                        <div class="dtgs-create-wizard">
                             <div class="supXs12">
                                 <label for="dtgAddDialog_title">
                                     {{ environment.translate('Table title') }}
                                 </label>
                                 <input id="dtgAddDialog_title" class="supsystic-text" type="text" style="width:100%;"/>
                             </div>
-                            <div class="supXs6">
-                                <label for="dtgAddDialog_cols">
-                                    {{ environment.translate('Columns') }}
-                                </label>
-                                <input id="dtgAddDialog_cols" class="supsystic-text" type="number" value="5" min="1" max="100" style="width: 100%"/>
+                            <div id="dtgsWizardProgress" class="dtgs-create-progress"></div>
+                            <div class="dtgs-create-step dtgs-wizard-step" data-wizard-step="1">
+                                <h4>{{ environment.translate('Step 1: Choose Table Type') }}</h4>
+                                <div class="dtgs-create-options">
+                                    <label class="dtgs-create-option">
+                                        <input type="radio" name="dtgs_table_type" value="data" checked="checked">
+                                        <strong>{{ environment.translate('Data Table') }}</strong>
+                                        <span>{{ environment.translate('Classic editable rows and columns table.') }}</span>
+                                    </label>
+
+                                    <label class="dtgs-create-option{% if not environment.isWoo() %} is-disabled{% endif %}"{% if not environment.isWoo() %} data-disabled-reason="woocommerce"{% endif %}>
+                                        <input type="radio" name="dtgs_table_type" value="woocommerce"{% if not environment.isWoo() %} disabled="disabled"{% endif %}>
+                                        <strong>{{ environment.translate('WooCommerce Product Table') }}</strong>
+                                        <span>
+                                            {{ environment.translate('Create a product table powered by WooCommerce products.') }}
+                                            {% if not environment.isWoo() %}
+                                                {{ environment.translate('WooCommerce must be installed and activated first.') }}
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
-                            <div class="supXs6">
-                                <label for="dtgAddDialog_rows">
-                                    {{ environment.translate('Rows') }}
-                                </label>
-                                <input id="dtgAddDialog_rows" class="supsystic-text" type="number" value="5" min="1" max="100" style="width: 100%"/>
+                            <div class="dtgs-create-step dtgs-wizard-step" data-wizard-step="2">
+                                <h4 id="dtgsWizardStepTwoTitle">{{ environment.translate('Step 2: Rows x Columns') }}</h4>
+                                <div id="dtgsWizardDataSize" class="supRow">
+                                    <div class="supXs6">
+                                        <label for="dtgAddDialog_cols">
+                                            {{ environment.translate('Columns') }}
+                                        </label>
+                                        <input id="dtgAddDialog_cols" class="supsystic-text" type="number" value="5" min="1" max="100" style="width: 100%"/>
+                                    </div>
+                                    <div class="supXs6">
+                                        <label for="dtgAddDialog_rows">
+                                            {{ environment.translate('Rows') }}
+                                        </label>
+                                        <input id="dtgAddDialog_rows" class="supsystic-text" type="number" value="5" min="1" max="100" style="width: 100%"/>
+                                    </div>
+                                    <div class="supXs12" style="padding-top: 5px;">{{ environment.translate('You can change number of Columns and Rows later') }}</div>
+                                </div>
+                                <div id="dtgsWizardWooReady" class="dtgs-create-note" style="display:none;">
+                                    {{ environment.translate('WooCommerce Product Table will be created immediately after you click Create. You will configure columns, products, and catalog settings on the next screen.') }}
+                                </div>
                             </div>
                         </div>
-                        <div style="padding-top: 5px;">{{ environment.translate('You can change number of Columns and Rows later') }}</div>
                     </form>
                     <div id="formError" style="color: red; display: none; float: left;">
                         <p></p>

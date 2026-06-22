@@ -17,9 +17,17 @@
 
     {% import _self as checkbox %}
     {% import '@ui/tooltip.twig' as tooltip %}
+    {% set isWooProductTable = table.table_type|default('default') == 'woo_product_table' %}
+    {% set wooEditorBlocked = isWooProductTable and not wooAvailable|default(false) %}
     {% set shortcodeOptions = environment.getModule('tables').getShortcodesList() %}
+    {% if isWooProductTable %}
+        {% set shortcodeOptions = {
+            'shortcode': shortcodeOptions.shortcode,
+            'php_code': shortcodeOptions.php_code
+        } %}
+    {% endif %}
 
-    <div class="supsystic-item tables-view">
+    <div class="supsystic-item tables-view" data-table-type="{{ table.table_type|default('default') }}">
         <div class="supContainer-fluid">
             <div class="supRow">
                 <div class="stbCopyTextCodeSelectionShell supLg6 supMd12 supSm12 supXs12">
@@ -32,7 +40,11 @@
                             </select>
                         </div>
                         <div class="supMd1 supSm1 supXs2 stbTooltipInfo">
+                            {% if isWooProductTable %}
+                            {{ tooltip.icon("<b>Table Shortcode:</b> lets display the WooCommerce product table in the site content.<br /><br /><b>Table PHP code:</b> lets display the WooCommerce product table through themes/plugins files.", 'top', true) }}
+                            {% else %}
                             {{ tooltip.icon("<b>Table Shortcode:</b> lets display the table in the site content.<br /><br /><b>Table Part Shortcode:</b> lets display just a part of table in the site content. You can display several rows or cols, for example, 'row=1,2,3', or set diapazone: 'row=1-3' or 'row=1-3,6'.<br /><br /><b>Value Shortcode:</b> lets display a value of single table cell in the site content.<br /><br /><b>Cell Shortcode:</b> lets display a table with single cell in the site content.<br /><br /><b>History Shortcode:</b> lets display an individual table data for each autorized user. Users can change the table data through editable fields on frontend. All user tables can be shown on Table History tab.<br /><br /><b>SQL Shortcode:</b> lets build a table using SQL-query with variables. SQL-query you can set on Settings->Source Tab.<br /><br /><b>Table PHP code:</b> lets display the table through themes/plugins files (for example in the site footer). You can use any shortcode in this way.", 'top', true) }}
+                            {% endif %}
                         </div>
                         {% for index, option in shortcodeOptions %}
                             <div class="supMd8 supSm6 supXs10 stbCopyTextCodeShowBlock ShortCodeFirstBlock" data-for="{{ index }}" style="display: none;">
@@ -68,24 +80,28 @@
                         {{ environment.getDispatcher().dispatch('tables-view-buttons-left') }}
                         <li>
                             <button id="export"
-                                    class="button {% if environment.isPro() == false %} pro-notify{% endif %}"
+                                    class="button{% if not isWooProductTable and environment.isPro() == false %} pro-notify{% endif %}"
+                                    {% if not isWooProductTable %}
                                     data-dialog="#import_exportProFeatureDialog"
                                     data-dtitle="{{ environment.translate('Import / Export') }}"
                                     data-dwidth="480"
+                                    {% endif %}
                                     >
                                 <i class="fa fa-fw fa-upload"></i>
-                                <span>{{ environment.translate('Export') }}</span>
+                                <span>{{ isWooProductTable ? environment.translate('Export Settings') : environment.translate('Export') }}</span>
                             </button>
                         </li>
                         <li>
                             <button id="import"
-                                    class="button {% if environment.isPro() == false %} pro-notify{% endif %}"
+                                    class="button{% if not isWooProductTable and environment.isPro() == false %} pro-notify{% endif %}"
+                                    {% if not isWooProductTable %}
                                     data-dialog="#import_exportProFeatureDialog"
                                     data-dtitle="{{ environment.translate('Import / Export') }}"
                                     data-dwidth="480"
+                                    {% endif %}
                                     >
                                 <i class="fa fa-fw fa-download"></i>
-                                <span>{{ environment.translate('Import') }}</span>
+                                <span>{{ isWooProductTable ? environment.translate('Import Settings') : environment.translate('Import') }}</span>
                             </button>
                         </li>
                         {{ environment.getDispatcher().dispatch('tables-view-buttons-right') }}
@@ -105,6 +121,15 @@
                 </div>
             </div>
 
+            {% if wooEditorBlocked %}
+            <div class="supRow">
+                <div class="supXs12">
+                    <div class="notice notice-error">
+                        <p>{{ environment.translate('Please install and activate WooCommerce to edit this WooCommerce product table.') }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
             <div class="supRow">
                 <div class="supXs12">
                     <ul class="subsubsub tabs-wrapper">
@@ -115,6 +140,7 @@
                                 <i class="fa fa-fw fa-pencil"></i>
                             </span>
                         </li>
+                        {% if not isWooProductTable %}
                         <li>
                             <a href="#row-tab-settings" class="button">
                                 <i class="fa fa-fw fa-wrench"></i>
@@ -133,12 +159,14 @@
                                 {{ environment.translate('CSS') }}
                             </a>
                         </li>
+                        {% endif %}
                         {{ environment.getDispatcher().dispatch('tabs_rendered', [table]) }}
                     </ul>
                     <span id="stbTableTitleEditMsg"></span>
                 </div>
             </div>
 
+            {% if not isWooProductTable %}
             <div class="supRow row-tab" id="row-tab-settings">
             <section class="settings-section">
                 <div class="stb-wraper-anchor-nav-links">
@@ -2247,6 +2275,10 @@ for example:
                 <div id="css-editor">{% if table.meta.css | length > 0 %}{{ table.meta.css }}{% else %}{{ defaultCss }}{% endif %}</div>
             </div>
             {{ environment.getDispatcher().dispatch('tabs_content_rendered', [table]) }}
+            {% else %}
+            {{ environment.getDispatcher().dispatch('tabs_content_rendered', [table]) }}
+            {% endif %}
+            {% endif %}
         </div>
         <!-- /.container-fluid -->
         {{ environment.getDispatcher().dispatch('tables-view-footer', [table]) }}
@@ -2258,6 +2290,7 @@ for example:
             </div>
         </div>
 
+        {% if not isWooProductTable %}
         <div id="setColumnWidthDialog" style="display: none;" title="{{ environment.translate('Resize Column') }}">
             <p style="margin-top: 0;">{{ environment.translate('Set column width for selected columns in pixels or percents. Press "Clear Fixed Width" to clear fixed columns width for all table columns. All changes will be applied after table saving. It’s better to use values in px, if you want width to be exactly the same as you’ve established – because the percentages can be re-calculated by browser in a specific way.') }}</p>
             <div class="input-group">
@@ -2486,6 +2519,7 @@ for example:
                 {% endif %}
             {% endif %}
         </div>
+        {% endif %}
     </div>
     <!-- /.supsystic-item -->
     <div style="clear: both;"></div>

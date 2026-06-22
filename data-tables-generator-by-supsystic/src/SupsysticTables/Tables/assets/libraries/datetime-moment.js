@@ -24,6 +24,9 @@
   if (typeof define === 'function' && define.amd) {
     define(['jquery', 'moment', 'datatables.net'], factory);
   } else {
+    if (typeof jQuery === 'undefined' || typeof moment === 'undefined' || !jQuery.fn || !jQuery.fn.dataTable) {
+      return;
+    }
     factory(jQuery, moment);
   }
 })(function (jQuery, moment) {

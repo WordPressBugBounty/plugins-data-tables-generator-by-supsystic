@@ -1,0 +1,1496 @@
+{% macro checked(option) %}
+    {% if option is defined and option == 'on' %}
+        checked="checked"
+    {% endif %}
+{% endmacro %}
+{% macro radio_checked(option, value) %}
+    {% if option is defined and option == value %}
+        checked="checked"
+    {% endif %}
+{% endmacro %}
+{% import _self as checkbox %}
+{% import '@ui/tooltip.twig' as tooltip %}
+{% set wooAdvancedAllowed = wooAdvancedAllowed|default(false) %}
+{% set isWooProductTable = table.table_type|default('default') == 'woo_product_table' %}
+{% set wooDesign = table.woo_settings.woocommerce.design|default({}) %}
+{% set wooTranslations = table.woo_settings.woocommerce.translations|default({}) %}
+{% set excludedProducts = excludedProducts|default([]) %}
+{% set wooHiddenClass = 'stHidden' %}
+{% if isWooProductTable or table.woo_settings.woocommerce.enable == 'on' %}
+    {% set wooHiddenClass = '' %}
+{% endif %}
+<div class="supRow row-tab" id="row-tab-woocommerce">
+<section class="supRow-settings-block">
+    <form id="woocommerce-settings" class="supRow woo-settings-form">
+        <input type="hidden" name="woocommerce[enable]" value="on" />
+        <input type="hidden" name="headerRowsCount" value="{{ table.settings.headerRowsCount|default(1) }}" />
+        <input type="hidden" name="tableLoader[iconName]" value="{{ table.settings.tableLoader.iconName|default('default') }}" />
+        <input type="hidden" name="tableLoader[iconItems]" value="{{ table.settings.tableLoader.iconItems|default('0') }}" />
+        <div class="woo-settings-layout">
+            <div class="settings-section woo-settings-sidebar">
+                <div class="woo-settings-sidebar-inner">
+                    <div class="stb-wraper-anchor-nav-links">
+                        <a href="#stb-anl-main" class="stb-anchor-nav-links active">{{ environment.translate('Main') }}</a>
+                        <a href="#stb-anl-features" class="stb-anchor-nav-links">{{ environment.translate('Features') }}</a>
+                        <a href="#stb-anl-appearance" class="stb-anchor-nav-links">{{ environment.translate('Appearance') }}</a>
+                        <a href="#stb-anl-text" class="stb-anchor-nav-links">{{ environment.translate('Catalog') }}</a>
+                        <a href="#stb-anl-design" class="stb-anchor-nav-links">{{ environment.translate('Design') }}</a>
+                        <a href="#stb-anl-translate" class="stb-anchor-nav-links">{{ environment.translate('Translate') }}</a>
+                    </div>
+                    <input type="hidden" id="slimScrollStartPos" value="0" />
+                    <div class="settings-wrap woo-settings-scroll">
+                        <section class="settings-blocks">
+                        <section class="supRow-settings-block" id="stb-anl-main">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-tachometer"></i> {{ environment.translate('Main Settings') }}</h3>
+                            </div>
+                            <div class="setting-title">
+                                <h3>{{ environment.translate('Table Elements') }}</h3>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-description-text">{{ environment.translate('Description Text') }}</label>
+                                </div>
+                                <div class="setting-input">
+                                    <textarea id="woo-description-text" name="elements[descriptionText]">{{ table.settings.elements.descriptionText|default('') }}</textarea>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-signature-text">{{ environment.translate('Signature Text') }}</label>
+                                </div>
+                                <div class="setting-input">
+                                    <textarea id="woo-signature-text" name="elements[signatureText]">{{ table.settings.elements.signatureText|default('') }}</textarea>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-table-elements-head">
+                                        {{ environment.translate('Header') }}
+                                        {{ tooltip.icon('<img src="http://supsystic.com/_assets/tables/tooltip/Header.jpg"/>', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="elements[head]" id="woo-table-elements-head" {{ checkbox.checked(table.settings.elements.head) }} />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block" id="stb-anl-features">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-cogs"></i> {{ environment.translate('Features') }}</h3>
+                            </div>
+                            <div class="setting-wrapper setting-wrapper-inline">
+                                <div class="setting-label">
+                                    <label for="woo-features-responsive-mode">
+                                        {{ environment.translate('Responsive Mode') }}
+                                        {{ tooltip.icon(
+                                            environment.translate('Standard Responsive mode - in this mode if table content doesn\'t fit all columns become under each other with one cell per row') ~ '<br><br>' ~
+                                            environment.translate('Automatic column hiding - in this mode table columns will collapse from right to left if content does not fit to parent container width') ~ '<br><br>' ~
+                                            environment.translate('Horizontal scroll - in this mode scroll bar will be added if table overflows parent container width') ~ '<br><br>' ~
+                                            environment.translate('Disable Responsivity - default table fluid layout <a href="https://supsystic.com/example/data-table-responsive-modes/" target="_blank">Read more.</a>')
+                                        ) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="responsiveMode" id="woo-features-responsive-mode">
+                                        <option value="0" {% if table.settings.responsiveMode|default(0) == '0' or table.settings.responsiveMode|default(0) == 0 %}selected="selected"{% endif %}>{{ environment.translate('Standard Responsive mode') }}</option>
+                                        <option value="1" {% if table.settings.responsiveMode|default(1) == '1' or table.settings.responsiveMode|default(1) == 1 %}selected="selected"{% endif %}>{{ environment.translate('Automatic column hiding') }}</option>
+                                        <option value="2" {% if table.settings.responsiveMode|default(0) == '2' or table.settings.responsiveMode|default(0) == 2 %}selected="selected"{% endif %}>{{ environment.translate('Horizontal scroll') }}</option>
+                                        <option value="3" {% if table.settings.responsiveMode|default(0) == '3' or table.settings.responsiveMode|default(0) == 3 %}selected="selected"{% endif %}>{{ environment.translate('Disable Responsivity') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-features-info">
+                                        {{ environment.translate('Table Information') }}
+                                        {{ tooltip.icon(environment.translate('Table information display field. %s') | format('<img src="http://supsystic.com/_assets/tables/tooltip/info.jpg"/>') | raw, 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="features[info]" id="woo-features-info" {{ checkbox.checked(table.settings.features.info) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-features-ordering">
+                                        {{ environment.translate('Sorting') }}
+                                        {{ tooltip.icon('<p style="width:227px; padding:5px margin:0">To allow dynamic sorting with arrows you must enable Header option.</p><p style="width:227px; padding:5px margin:0;color:red">Note that if there are merged cells in the table sorting will be disabled.</p><img src="http://supsystic.com/_assets/tables/tooltip/Ordrering.jpg"/>', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="features[ordering]" id="woo-features-ordering" {{ checkbox.checked(table.settings.features.ordering) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-sorting-options setting-suboption" {% if table.settings.features.ordering is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-features-sorting-order">
+                                        {{ environment.translate('Sorting Order') }}
+                                        {{ tooltip.icon(environment.translate('Set sort order by default')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="sortingOrder" id="woo-features-sorting-order">
+                                        <option value="asc" {% if table.settings.sortingOrder|default('asc') == 'asc' %}selected="selected"{% endif %}>{{ environment.translate('Ascending') }}</option>
+                                        <option value="desc" {% if table.settings.sortingOrder|default('asc') == 'desc' %}selected="selected"{% endif %}>{{ environment.translate('Descending') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-sorting-options setting-suboption" {% if table.settings.features.ordering is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-sorting-order-column">
+                                        {{ environment.translate('Sorting Column') }}
+                                        {{ tooltip.icon(environment.translate('Number of column to apply sort order. Set no value to disable table sorting by default.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input name="sortingOrderColumn" id="woo-sorting-order-column" type="text" value="{{ table.settings.sortingOrderColumn|default(1) }}">
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-features-pagination">
+                                        {{ environment.translate('Pagination') }}
+                                        {{ tooltip.icon('<img src="http://supsystic.com/_assets/tables/tooltip/Pagination.jpg"/>', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="features[paging]" id="woo-features-pagination" {{ checkbox.checked(table.settings.features.paging) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-pagination-options setting-suboption" {% if table.settings.features.paging is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-pagination-length">
+                                        {{ environment.translate('Pagination List Content') }}
+                                        {{ tooltip.icon('Here you can set the number of rows to display on one Pagination page. Establish several numbers separated by comma to let users choose it personally. First number will be displayed by default. Since that the number of Pagination Pages will be recounted also.', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" name="paginationMenuLength" value="{{ table.settings.paginationMenuLength|default('50,100,All') }}" id="woo-pagination-length" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-pagination-options setting-suboption" {% if table.settings.features.paging is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-pagination-size">{{ environment.translate('Pagination Size') }}</label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="paginationSize" id="woo-pagination-size">
+                                        <option value="pagination-large" {% if table.settings.paginationSize|default('pagination-large') == 'pagination-large' %}selected="selected"{% endif %}>{{ environment.translate('Large') }}</option>
+                                        <option value="pagination-medium" {% if table.settings.paginationSize|default('pagination-large') == 'pagination-medium' %}selected="selected"{% endif %}>{{ environment.translate('Medium') }}</option>
+                                        <option value="pagination-small" {% if table.settings.paginationSize|default('pagination-large') == 'pagination-small' %}selected="selected"{% endif %}>{{ environment.translate('Small') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-pagination-options setting-suboption" {% if table.settings.features.paging is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-scroll-top-by-pagination">
+                                        {{ environment.translate('Scroll top by pagination') }}
+                                        {{ tooltip.icon(environment.translate('Scroll to table top for pagination change.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="scrollTopByPagination" id="woo-scroll-top-by-pagination" {{ checkbox.checked(table.settings.scrollTopByPagination) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-pagination-options setting-suboption" {% if table.settings.features.paging is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-server-side-processing">
+                                        {{ environment.translate('Server-side Processing') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('This option is recommended for a large tables that cannot be processed in conventional way. The table will be sequentially loaded by ajax on a per page basis, all filtering, ordering and search clauses is server-side implemented too.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="serverSideProcessing" id="woo-server-side-processing" {{ checkbox.checked(table.settings.serverSideProcessing) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-features-searching">
+                                        {{ environment.translate('Searching') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('<b>Search field:</b> enables the main table search input for Woo product tables.<br /><br /><b>Search by Columns:</b> adds separate search inputs for each column. You can use a semicolon to match any of several values.<br /><br /><b>Column Search Position:</b> places those column filters above or below the table.<br /><br /><b>Show Labels:</b> shows the column title near each column search field to make filters easier to understand.<br /><br /><b>Search by Hidden Fields:</b> lets the search include columns hidden on the frontend, including Woo columns marked as hidden.<br /><br /><b>Result Only:</b> hides the table by default and shows it only when the search returns matching products.<br /><br /><b>Show Table:</b> keeps the table visible when Result Only mode is enabled, but leaves it empty until the visitor enters a search query.<br /><br /><b>Strict Matching:</b> matches only values that begin with the typed characters at the start of words.<br /><br /><b>Min Chars:</b> sets the minimum number of typed characters required before search starts. Use 0 to search immediately.'), 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="features[searching]" id="woo-features-searching" {{ checkbox.checked(table.settings.features.searching) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-options setting-suboption" {% if table.settings.features.searching is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-features-search-by-column">
+                                        {{ environment.translate('Search by Columns') }}
+                                        {{ tooltip.icon(environment.translate('Add search by table columns. Use a semicolon as separator for select any of the values.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[columnSearch]" id="woo-features-search-by-column" {{ checkbox.checked(table.settings.searching.columnSearch) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-column-options setting-suboption" {% if table.settings.features.searching is not defined or table.settings.searching.columnSearch is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-features-search-by-column-position">
+                                        {{ environment.translate('Location of Search Fields') }}
+                                        {{ tooltip.icon(environment.translate('Here you can choose where the column search fields will be: at the top or bottom of the table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="searching[columnSearchPosition]" id="woo-features-search-by-column-position" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                                        <option value="bottom" {% if table.settings.searching.columnSearchPosition|default('bottom') == 'bottom' %}selected="selected"{% endif %}>{{ environment.translate('Bottom') }}</option>
+                                        <option value="top" {% if table.settings.searching.columnSearchPosition|default('bottom') == 'top' %}selected="selected"{% endif %}>{{ environment.translate('Top') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-column-options setting-suboption" {% if table.settings.features.searching is not defined or table.settings.searching.columnSearch is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-features-search-by-column-labels">
+                                        {{ environment.translate('Show Labels') }}
+                                        {{ tooltip.icon(environment.translate('Displays the column header text above each column search field to make filters easier to understand.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[columnSearchShowLabel]" id="woo-features-search-by-column-labels" {{ checkbox.checked(table.settings.searching.columnSearchShowLabel) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-options setting-suboption" {% if table.settings.features.searching is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-search-by-hidden-fields">
+                                        {{ environment.translate('Search by Hidden Fields') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Lets make search by fields, marked as hidden (see appropriate button on editor toolbar)')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[searchByHiddenField]" id="woo-search-by-hidden-fields" {{ checkbox.checked(table.settings.searching.searchByHiddenField) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-options setting-suboption" {% if table.settings.features.searching is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-searching-result-only">
+                                        {{ environment.translate('Show Search Results Only') }}
+                                        {{ tooltip.icon(environment.translate('Hide table by default and show only if search has a result.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[resultOnly]" id="woo-searching-result-only" {{ checkbox.checked(table.settings.searching.resultOnly) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-result-options setting-suboption" {% if table.settings.features.searching is not defined or table.settings.searching.resultOnly is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-searching-show-table">
+                                        {{ environment.translate('Show Empty Table') }}
+                                        {{ tooltip.icon(environment.translate('Table will not be hidden by default , but will be empty.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[showTable]" id="woo-searching-show-table" {{ checkbox.checked(table.settings.searching.showTable) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-options setting-suboption" {% if table.settings.features.searching is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-searching-strict-matching">
+                                        {{ environment.translate('Strict Matching') }}
+                                        {{ tooltip.icon(environment.translate('Display only entries with matching characters in the beginning of words')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="searching[strictMatching]" id="woo-searching-strict-matching" {{ checkbox.checked(table.settings.searching.strictMatching) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-searching-options setting-suboption" {% if table.settings.features.searching is not defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-searching-min-chars">
+                                        {{ environment.translate('Minimum Characters') }}
+                                        {{ tooltip.icon(environment.translate('Set minimum count of characters to start search in Search field. Set 0 to make search in any case.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" name="searching[minChars]" id="woo-searching-min-chars" value="{{ table.settings.searching.minChars|default('') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block" id="stb-anl-appearance">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-desktop"></i> {{ environment.translate('Appearance') }}</h3>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-features-auto-width">
+                                        {{ environment.translate('Auto Table Width') }}
+                                        {{ tooltip.icon(environment.translate('If checked - width of table columns will be calculated automatically for table width 100%.<br /><br />Otherwise - you can set table width manually: columns width will be get from Fixed Table Width option (toolbar on Editor tab) or calculated depending on the columns width in the table editor.<br /><br />If you do not want to apply columns width at all - you should uncheck "Auto Table Width" option, set "Fixed Table Width" option to "auto" and check "Compact Table" option.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="features[auto_width]" id="woo-features-auto-width" {{ checkbox.checked(table.settings.features.auto_width) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-width-options setting-suboption" {% if table.settings.features.auto_width is defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-fixed-table-width">
+                                        {{ environment.translate('Fixed Table Width') }}
+                                        {{ tooltip.icon(environment.translate('Set fixed table width in px or %. Choose &quot;disable&quot; to make table width adjust by table content.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline">
+                                    {% if table.settings.tableWidthType == 'auto' %}
+                                        {% set tableWidthTypeDefault = 'auto' %}
+                                    {% else %}
+                                        {% set tableWidthTypeDefault = '%' %}
+                                    {% endif %}
+                                    <input type="text" name="tableWidth" value="{{ table.settings.tableWidth|default('100') }}" id="woo-fixed-table-width" class="sub-input woo-table-width-input" {% if table.settings.tableWidthType|default(tableWidthTypeDefault) == 'auto' %}style="display:none"{% endif %} />
+                                    <label for="woo-fixed-table-width-type-percent" class="sub-label">
+                                        <input type="radio" name="tableWidthType" id="woo-fixed-table-width-type-percent" value="%" {{ checkbox.radio_checked(table.settings.tableWidthType|default(tableWidthTypeDefault), '%') }} />
+                                        <span>%</span>
+                                    </label>
+                                    <label for="woo-fixed-table-width-type-pixels" class="sub-label">
+                                        <input type="radio" name="tableWidthType" id="woo-fixed-table-width-type-pixels" value="px" {{ checkbox.radio_checked(table.settings.tableWidthType|default(tableWidthTypeDefault), 'px') }} />
+                                        <span>px</span>
+                                    </label>
+                                    <label for="woo-fixed-table-width-type-auto" class="sub-label">
+                                        <input type="radio" name="tableWidthType" id="woo-fixed-table-width-type-auto" value="auto" {{ checkbox.radio_checked(table.settings.tableWidthType|default(tableWidthTypeDefault), 'auto') }} />
+                                        <span>{{ environment.translate('disable') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-width-options setting-suboption" {% if table.settings.features.auto_width is defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-fixed-table-width-mobile">
+                                        {{ environment.translate('Fixed Table Width (mobile)') }}
+                                        {{ tooltip.icon(environment.translate('Set fixed table width in px or %. Choose &quot;disable&quot; to make table width adjust by table content.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline">
+                                    {% if table.settings.tableWidthMobileType == 'auto' %}
+                                        {% set tableWidthMobileTypeDefault = 'auto' %}
+                                    {% else %}
+                                        {% set tableWidthMobileTypeDefault = '%' %}
+                                    {% endif %}
+                                    <input type="text" name="tableWidthMobile" value="{{ table.settings.tableWidthMobile|default('100') }}" id="woo-fixed-table-width-mobile" class="sub-input woo-table-width-mobile-input" {% if table.settings.tableWidthMobileType|default(tableWidthMobileTypeDefault) == 'auto' %}style="display:none"{% endif %} />
+                                    <label for="woo-fixed-table-width-mobile-type-percent" class="sub-label">
+                                        <input type="radio" name="tableWidthMobileType" id="woo-fixed-table-width-mobile-type-percent" value="%" {{ checkbox.radio_checked(table.settings.tableWidthMobileType|default(tableWidthMobileTypeDefault), '%') }} />
+                                        <span>%</span>
+                                    </label>
+                                    <label for="woo-fixed-table-width-mobile-type-pixels" class="sub-label">
+                                        <input type="radio" name="tableWidthMobileType" id="woo-fixed-table-width-mobile-type-pixels" value="px" {{ checkbox.radio_checked(table.settings.tableWidthMobileType|default(tableWidthMobileTypeDefault), 'px') }} />
+                                        <span>px</span>
+                                    </label>
+                                    <label for="woo-fixed-table-width-mobile-type-auto" class="sub-label">
+                                        <input type="radio" name="tableWidthMobileType" id="woo-fixed-table-width-mobile-type-auto" value="auto" {{ checkbox.radio_checked(table.settings.tableWidthMobileType|default(tableWidthMobileTypeDefault), 'auto') }} />
+                                        <span>{{ environment.translate('disable') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-align-by-first-table">
+                                        {{ environment.translate('Align by First Table') }}
+                                        {{ tooltip.icon(environment.translate('If checked - this table will be resized by first supsystic table on page. Important! This option makes sense only if table is not on responsive mode or responsive mode is disabled. Also if the first table has different count of columns or different settings, their sizes may not be equal.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="alignByFirstTable" id="woo-align-by-first-table" {{ checkbox.checked(table.settings.alignByFirstTable) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-lfixed">
+                                        {{ environment.translate('Fixed Table Layout') }}
+                                        {{ tooltip.icon(environment.translate('Check it if you use "Resize Column" option.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[lfixed]" id="woo-styling-lfixed" {{ checkbox.checked(attribute(table.settings.styling, 'lfixed')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-compact">
+                                        {{ environment.translate('Compact Table') }}
+                                        {{ tooltip.icon(environment.translate('Decrease the amount of whitespace in the table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[compact]" id="woo-styling-compact" {{ checkbox.checked(attribute(table.settings.styling, 'compact')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-nowrap">
+                                        {{ environment.translate('Disable Wrapping') }}
+                                        {{ tooltip.icon(environment.translate('Disable wrapping of content in the table, so every word in the cells will be in one single line.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[nowrap]" id="woo-styling-nowrap" {{ checkbox.checked(attribute(table.settings.styling, 'nowrap')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-paragraph-mode">
+                                        {{ environment.translate('Paragraph Mode') }}
+                                        {{ tooltip.icon(environment.translate('This mode allows you to separate the content into paragraphs. To move to a new line in the cell - please press CTRL + Enter.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[paragraphMode]" id="woo-paragraph-mode" {{ checkbox.checked(attribute(table.settings.styling, 'paragraphMode')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper setting-wrapper-inline">
+                                <div class="setting-label">
+                                    <label for="woo-styling-border">
+                                        {{ environment.translate('Borders') }}
+                                        {{ tooltip.icon(environment.translate('Cell - adds border around all four sides of each cell, Row - adds border only over and under each row. (i.e. only for the rows).')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="styling[border]" id="woo-styling-border">
+                                        <option value="cell-border" {% if table.settings.styling.border|default('cell-border') == 'cell-border' %}selected="selected"{% endif %}>{{ environment.translate('Cell') }}</option>
+                                        <option value="row-border" {% if table.settings.styling.border|default('cell-border') == 'row-border' %}selected="selected"{% endif %}>{{ environment.translate('Row') }}</option>
+                                        <option value="no-border" {% if table.settings.styling.border|default('cell-border') == 'no-border' %}selected="selected"{% endif %}>{{ environment.translate('None') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-stripe">
+                                        {{ environment.translate('Row Striping') }}
+                                        {{ tooltip.icon(environment.translate('Add automatic highlight for table odd rows')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[stripe]" id="woo-styling-stripe" {{ checkbox.checked(attribute(table.settings.styling, 'stripe')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-hover">
+                                        {{ environment.translate('Highlighting by Mousehover') }}
+                                        {{ tooltip.icon(environment.translate('Row highlighting by mouse hover.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[hover]" id="woo-styling-hover" {{ checkbox.checked(attribute(table.settings.styling, 'hover')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-styling-order-column">
+                                        {{ environment.translate('Highlight the Order Column') }}
+                                        {{ tooltip.icon(environment.translate('If checked - the current sorted column will be highlighted')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="styling[order-column]" id="woo-styling-order-column" {{ checkbox.checked(attribute(table.settings.styling, 'order-column')) }} />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-hide-table-loader">
+                                        {{ environment.translate('Hide Table Loader') }}
+                                        {{ tooltip.icon(environment.translate('Enable / disable table loader icon before table will be completely loaded.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="tableLoader[disable]" id="woo-hide-table-loader" {{ checkbox.checked(table.settings.tableLoader.disable) }} />
+                                </div>
+                            </div>
+                            {% set tblLoaderIconName = table.settings.tableLoader.iconName | default('default') %}
+                            {% set tblLoaderIconItems = table.settings.tableLoader.iconItems | default('0') %}
+                            {% set tblLoaderColor = table.settings.tableLoader.color | default('#000000') %}
+                            <div class="setting-wrapper woo-loader-options setting-suboption" {% if table.settings.tableLoader.disable is defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-table-loader-icon">
+                                        {{ environment.translate('Table Loader Icon') }}
+                                        {{ tooltip.icon(environment.translate('Choose icon for loader')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <button type="button" class="button selectTableLoaderIcon" id="woo-table-loader-icon">{{ environment.translate('Choose Icon') }}</button>
+                                    <div id="tableLoaderIconPreview">
+                                        {% set loaderClass = 'supsystic-table-loader' %}
+                                        {% if tblLoaderIconName == 'default' %}
+                                            <div class="{{ loaderClass }} spinner" style="background-color: {{ tblLoaderColor }}"></div>
+                                        {% else %}
+                                            <div class="{{ loaderClass }} la-{{ tblLoaderIconName }} la-2x" style="color: {{ tblLoaderColor }}">
+                                                {% for i in 1..tblLoaderIconItems %}
+                                                    <div></div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-loader-options setting-suboption" {% if table.settings.tableLoader.disable is defined %}style="display:none"{% endif %}>
+                                <div class="setting-label">
+                                    <label for="woo-table-loader-color">
+                                        {{ environment.translate('Table Loader Color') }}
+                                        {{ tooltip.icon(environment.translate('Choose color for loader')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="color" id="woo-table-loader-color" name="tableLoader[color]" value="{{ tblLoaderColor }}" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block" id="stb-anl-text">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-shopping-cart"></i> {{ environment.translate('Catalog Settings') }}</h3>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-thumbnail-size">
+                                        {{ environment.translate('Thumbnail size') }}
+                                        {{ tooltip.icon('Chouse thumbnail size in frontend.', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select name="woocommerce[thumbnail_size]" id="woocommerce-thumbnail-size">
+                                        {% for value, title in thumbSize %}
+                                            <option value="{{ value }}"
+                                                {% if table.woo_settings.woocommerce.thumbnail_size == value %} selected="selected" {% endif %}>
+                                                {{ title }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% set wooThumbSizeHidden = wooHiddenClass %}
+                            {% if table.woo_settings.woocommerce.thumbnail_size != 'set_size' %}
+                                {% set wooThumbSizeHidden = 'stHidden' %}
+                            {% endif %}
+                            <div class="setting-wrapper woo-thumb-size setting-suboption{% if wooThumbSizeHidden %} {{ wooThumbSizeHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-thumbnail-width">
+                                        {{ environment.translate('Custom image size') }}
+                                        {{ tooltip.icon('Set width and height values in pixels (in that order).', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline">
+                                    <input class="sub-input" id="woocommerce-thumbnail-width" name="woocommerce[thumbnail_width]" type="text" value="{{ table.woo_settings.woocommerce.thumbnail_width | default() }}">
+                                    <label class="sub-label"><span>x</span></label>
+                                    <input class="sub-input" id="woocommerce-thumbnail-height" name="woocommerce[thumbnail_height]" type="text" value="{{ table.woo_settings.woocommerce.thumbnail_height | default() }}">
+                                </div>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-multiple-add-cart">
+                                        {{ environment.translate('Multiple add to cart') }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[multiple_add_cart]"
+                                        {{ table.woo_settings.woocommerce.multiple_add_cart == 'on' ? 'checked' : '' }}
+                                        id="woocommerce-multiple-add-cart"
+                                    />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-hide-card-link">
+                                        {{ environment.translate('Hide view cart link') }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[view_cart_hide]"
+                                        {{ table.woo_settings.woocommerce.view_cart_hide == 'on' ? 'checked' : '' }}
+                                        id="woocommerce-hide-card-link"
+                                    />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-show-private">
+                                        {{ environment.translate('Show private products') }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[show_private]"
+                                        {{ table.woo_settings.woocommerce.show_private == 'on' ? 'checked' : '' }}
+                                        id="woocommerce-show-private"
+                                    />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-hide-out-of-stock">
+                                        {{ environment.translate('Hide out of stock items') }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[hide_out_of_stock]"
+                                        {{ table.woo_settings.woocommerce.hide_out_of_stock == 'on' ? 'checked' : '' }}
+                                        id="woocommerce-hide-out-of-stock"
+                                    />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-filter-attribute">
+                                        {{ environment.translate('Attribute filter') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon('Works only with enabled attribute columns..', 'top', true) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[filter_attribute]"
+                                        {{ table.woo_settings.woocommerce.filter_attribute == 'on' ? 'checked' : '' }}
+                                        id="woocommerce-filter-attribute"
+                                        {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}
+                                    />
+                                </div>
+                            </div>
+                            {% set wooFilterAttrHidden = wooHiddenClass %}
+                            {% if table.woo_settings.woocommerce.filter_attribute != 'on' and wooAdvancedAllowed %}
+                                {% set wooFilterAttrHidden = 'stHidden' %}
+                            {% endif %}
+                            <div class="setting-wrapper woo-filter-attributes setting-suboption{% if wooFilterAttrHidden %} {{ wooFilterAttrHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woocommerce-filter-attribute-selected">
+                                        {{ environment.translate('Select attributes') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Select attributes to filtering.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <select multiple="multiple" style="width:100%;" name="woocommerce[filter_attribute_selected][]" id="woocommerce-filter-attribute-selected" data-placeholder="{{ environment.translate('Select attributes')}}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                                        {% for attrId, title in wooAttributes %}
+                                            <option value="{{ attrId }}"{% if attrId in table.woo_settings.woocommerce.filter_attribute_selected %} selected="selected"{% endif %}>{{ title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if not wooAdvancedAllowed %}
+                                        <a target="_blank" class="supsystic-pro-feature woo-pro-feature-note" href="{{ build_pro_url({ 'utm_medium': 'woo_attribute_filter' }) }}">{{ environment.translate('PRO option') }}</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block" id="stb-anl-design">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-paint-brush"></i> {{ environment.translate('Design') }}</h3>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-design-enabled">
+                                        {{ environment.translate('Enable custom design') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Apply custom WooCommerce product table colors without affecting standard data tables. Works on the frontend only.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-check">
+                                    <input type="checkbox" name="woocommerce[design][enabled]" id="woo-design-enabled" {{ checkbox.checked(wooDesign.enabled|default('')) }} />
+                                </div>
+                            </div>
+                            {% set wooDesignHidden = wooDesign.enabled|default('') == 'on' and wooAdvancedAllowed ? '' : 'stHidden' %}
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-preset">
+                                        {{ environment.translate('Style Preset') }}
+                                        {{ tooltip.icon(environment.translate('Apply a ready-made storefront preset. Presets update table colors, typography, pagination, and the basic WooCommerce catalog UI below the table controls.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-preset-inline">
+                                    <select id="woo-design-preset" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                                        <option value="user_default">{{ environment.translate('Default User') }}</option>
+                                        <option value="warm_contrast">{{ environment.translate('Warm Contrast') }}</option>
+                                        <option value="mono_slate">{{ environment.translate('Mono Slate') }}</option>
+                                        <option value="sage_market">{{ environment.translate('Sage Market') }}</option>
+                                        <option value="midnight_glow">{{ environment.translate('Midnight Glow') }}</option>
+                                        <option value="sandstone_shop">{{ environment.translate('Sandstone Shop') }}</option>
+                                        <option value="berry_editorial">{{ environment.translate('Berry Editorial') }}</option>
+                                        <option value="ocean_breeze">{{ environment.translate('Ocean Breeze') }}</option>
+                                        <option value="forest_merchant">{{ environment.translate('Forest Merchant') }}</option>
+                                        <option value="rose_clay">{{ environment.translate('Rose Clay') }}</option>
+                                        <option value="lux_gold">{{ environment.translate('Lux Gold') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-header-text">
+                                        {{ environment.translate('Header') }}
+                                        {{ tooltip.icon(environment.translate('Header cell text and background colors.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-header-text" data-design-key="header_text" name="woocommerce[design][header_text]" value="{{ wooDesign.header_text|default('#1f2933') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="header_bg" name="woocommerce[design][header_bg]" value="{{ wooDesign.header_bg|default('#f8fafc') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-header-font-size">
+                                        {{ environment.translate('Header Typography') }}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for table header cells.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-header-font-size" data-design-key="header_font_size" name="woocommerce[design][header_font_size]" value="{{ wooDesign.header_font_size|default(14) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="header_font_weight" name="woocommerce[design][header_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.header_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.header_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.header_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.header_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.header_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.header_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-body-text">
+                                        {{ environment.translate('Body') }}
+                                        {{ tooltip.icon(environment.translate('Default text and background colors for table cells.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-body-text" data-design-key="body_text" name="woocommerce[design][body_text]" value="{{ wooDesign.body_text|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="body_bg" name="woocommerce[design][body_bg]" value="{{ wooDesign.body_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-body-font-size">
+                                        {{ environment.translate('Body Typography') }}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for table body cells.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-body-font-size" data-design-key="body_font_size" name="woocommerce[design][body_font_size]" value="{{ wooDesign.body_font_size|default(14) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="body_font_weight" name="woocommerce[design][body_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.body_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.body_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.body_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.body_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.body_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.body_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-input-text">
+                                        {{ environment.translate('Inputs') }}
+                                        {{ tooltip.icon(environment.translate('Search fields and quantity input colors.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-input-text" data-design-key="input_text" name="woocommerce[design][input_text]" value="{{ wooDesign.input_text|default('#1f2933') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="input_bg" name="woocommerce[design][input_bg]" value="{{ wooDesign.input_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-select-text">
+                                        {{ environment.translate('Selects') }}
+                                        {{ tooltip.icon(environment.translate('Dropdown filters, variations, and table length select colors.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-select-text" data-design-key="select_text" name="woocommerce[design][select_text]" value="{{ wooDesign.select_text|default('#1f2933') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="select_bg" name="woocommerce[design][select_bg]" value="{{ wooDesign.select_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-length-color">
+                                        {{ environment.translate('Length Menu Text') }}
+                                        {{ tooltip.icon(environment.translate('Styles the "Show _MENU_ entries" text on the top left, including typography around the entries selector.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Color') }}</span><input type="color" id="woo-design-length-color" data-design-key="length_color" name="woocommerce[design][length_color]" value="{{ wooDesign.length_color|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" data-design-key="length_font_size" name="woocommerce[design][length_font_size]" value="{{ wooDesign.length_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="length_font_weight" name="woocommerce[design][length_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.length_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.length_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.length_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.length_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.length_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.length_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-info-color">
+                                        {{ environment.translate('Info Text') }}
+                                        {{ tooltip.icon(environment.translate('Styles the bottom-left "Showing _START_ to _END_ of _TOTAL_ entries" information text.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Color') }}</span><input type="color" id="woo-design-info-color" data-design-key="info_color" name="woocommerce[design][info_color]" value="{{ wooDesign.info_color|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" data-design-key="info_font_size" name="woocommerce[design][info_font_size]" value="{{ wooDesign.info_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="info_font_weight" name="woocommerce[design][info_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.info_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.info_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.info_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.info_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.info_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.info_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-description-color">
+                                        {{ environment.translate('Description Text') }}
+                                        {{ tooltip.icon(environment.translate('Styles the text shown between the table title area and the table itself when Description Text is filled.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Color') }}</span><input type="color" id="woo-design-description-color" data-design-key="description_color" name="woocommerce[design][description_color]" value="{{ wooDesign.description_color|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" data-design-key="description_font_size" name="woocommerce[design][description_font_size]" value="{{ wooDesign.description_font_size|default(14) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="description_font_weight" name="woocommerce[design][description_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.description_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.description_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.description_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.description_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.description_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.description_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-signature-color">
+                                        {{ environment.translate('Signature Text') }}
+                                        {{ tooltip.icon(environment.translate('Styles the table signature text shown below the table when Signature Text is filled.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Color') }}</span><input type="color" id="woo-design-signature-color" data-design-key="signature_color" name="woocommerce[design][signature_color]" value="{{ wooDesign.signature_color|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" data-design-key="signature_font_size" name="woocommerce[design][signature_font_size]" value="{{ wooDesign.signature_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="signature_font_weight" name="woocommerce[design][signature_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.signature_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.signature_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.signature_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.signature_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.signature_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.signature_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-processing-bg">
+                                        {{ environment.translate('Processing Loader') }}
+                                        {{ tooltip.icon(environment.translate('Colors for the custom loading icon shown while Woo product tables are processing server-side requests or preview redraws.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Icon') }}</span><input type="color" id="woo-design-processing-color" data-design-key="processing_color" name="woocommerce[design][processing_color]" value="{{ wooDesign.processing_color|default('#000000') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" id="woo-design-processing-bg" data-design-key="processing_bg" name="woocommerce[design][processing_bg]" value="{{ wooDesign.processing_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-button-text">
+                                        {{ environment.translate('Add to Cart Buttons') }}
+                                        {{ tooltip.icon(environment.translate('Primary add to cart buttons and multi-add action colors.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-button-text" data-design-key="button_text" name="woocommerce[design][button_text]" value="{{ wooDesign.button_text|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="button_bg" name="woocommerce[design][button_bg]" value="{{ wooDesign.button_bg|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-button-font-size">
+                                        {{ environment.translate('Button Typography') }}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for Add to cart buttons and related action links.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-button-font-size" data-design-key="button_font_size" name="woocommerce[design][button_font_size]" value="{{ wooDesign.button_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="button_font_weight" name="woocommerce[design][button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-button-hover-text">
+                                        {{ environment.translate('Button Hover') }}
+                                        {{ tooltip.icon(environment.translate('Hover and focus colors for add to cart buttons and view cart links.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-button-hover-text" data-design-key="button_hover_text" name="woocommerce[design][button_hover_text]" value="{{ wooDesign.button_hover_text|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="button_hover_bg" name="woocommerce[design][button_hover_bg]" value="{{ wooDesign.button_hover_bg|default('#135e96') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-checkout-button-text">
+                                        {{ environment.translate('Checkout Button') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Styles the View Checkout button shown next to the multi-add action above Woo product tables.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-checkout-button-text" data-design-key="checkout_button_text" name="woocommerce[design][checkout_button_text]" value="{{ wooDesign.checkout_button_text|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="checkout_button_bg" name="woocommerce[design][checkout_button_bg]" value="{{ wooDesign.checkout_button_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-checkout-button-font-size">
+                                        {{ environment.translate('Checkout Button Typography') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for the View Checkout button.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-checkout-button-font-size" data-design-key="checkout_button_font_size" name="woocommerce[design][checkout_button_font_size]" value="{{ wooDesign.checkout_button_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="checkout_button_font_weight" name="woocommerce[design][checkout_button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.checkout_button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.checkout_button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.checkout_button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.checkout_button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.checkout_button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.checkout_button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-checkout-button-hover-text">
+                                        {{ environment.translate('Checkout Button Hover') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Hover and focus colors for the View Checkout button.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-checkout-button-hover-text" data-design-key="checkout_button_hover_text" name="woocommerce[design][checkout_button_hover_text]" value="{{ wooDesign.checkout_button_hover_text|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="checkout_button_hover_bg" name="woocommerce[design][checkout_button_hover_bg]" value="{{ wooDesign.checkout_button_hover_bg|default('#135e96') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-reset-button-text">
+                                        {{ environment.translate('Reset Filters Button') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Styles the Reset Filter(s) button shown near Woo filters above the table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-reset-button-text" data-design-key="reset_button_text" name="woocommerce[design][reset_button_text]" value="{{ wooDesign.reset_button_text|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="reset_button_bg" name="woocommerce[design][reset_button_bg]" value="{{ wooDesign.reset_button_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-reset-button-font-size">
+                                        {{ environment.translate('Reset Filters Typography') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for the Reset Filter(s) button.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-reset-button-font-size" data-design-key="reset_button_font_size" name="woocommerce[design][reset_button_font_size]" value="{{ wooDesign.reset_button_font_size|default(13) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="reset_button_font_weight" name="woocommerce[design][reset_button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.reset_button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.reset_button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.reset_button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.reset_button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.reset_button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.reset_button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-reset-button-hover-text">
+                                        {{ environment.translate('Reset Filters Hover') }}
+                                        {% if not wooAdvancedAllowed %}
+                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                        {% endif %}
+                                        {{ tooltip.icon(environment.translate('Hover and focus colors for the Reset Filter(s) button.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-reset-button-hover-text" data-design-key="reset_button_hover_text" name="woocommerce[design][reset_button_hover_text]" value="{{ wooDesign.reset_button_hover_text|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="reset_button_hover_bg" name="woocommerce[design][reset_button_hover_bg]" value="{{ wooDesign.reset_button_hover_bg|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-price-text">
+                                        {{ environment.translate('Price') }}
+                                        {{ tooltip.icon(environment.translate('WooCommerce price text color. Background stays transparent for cleaner storefront styling.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field woo-design-color-field-single"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-price-text" data-design-key="price_text" name="woocommerce[design][price_text]" value="{{ wooDesign.price_text|default('#111827') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-price-font-size">
+                                        {{ environment.translate('Price Typography') }}
+                                        {{ tooltip.icon(environment.translate('Font size and font weight for WooCommerce prices, including variation prices inside the table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Size') }}</span><input type="number" min="10" max="48" step="1" id="woo-design-price-font-size" data-design-key="price_font_size" name="woocommerce[design][price_font_size]" value="{{ wooDesign.price_font_size|default(16) }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="price_font_weight" name="woocommerce[design][price_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.price_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.price_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.price_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.price_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.price_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.price_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-stripe-text">
+                                        {{ environment.translate('Striping') }}
+                                        {{ tooltip.icon(environment.translate('Odd row text and background colors when Row Striping is enabled.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-stripe-text" data-design-key="stripe_text" name="woocommerce[design][stripe_text]" value="{{ wooDesign.stripe_text|default('#334155') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="stripe_bg" name="woocommerce[design][stripe_bg]" value="{{ wooDesign.stripe_bg|default('#f8fafc') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-hover-text">
+                                        {{ environment.translate('Hover') }}
+                                        {{ tooltip.icon(environment.translate('Row text and background colors when mouse hover highlighting is enabled.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-hover-text" data-design-key="hover_text" name="woocommerce[design][hover_text]" value="{{ wooDesign.hover_text|default('#111827') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                    <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="hover_bg" name="woocommerce[design][hover_bg]" value="{{ wooDesign.hover_bg|default('#eef2f7') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                                <div class="setting-label">
+                                    <label for="woo-design-border-color">
+                                        {{ environment.translate('Borders') }}
+                                        {{ tooltip.icon(environment.translate('Shared border color for table cells, search fields, quantity inputs, and select controls.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input setting-input-inline woo-design-inline-colors">
+                                    <label class="woo-design-color-field woo-design-color-field-single"><span>{{ environment.translate('Color') }}</span><input type="color" id="woo-design-border-color" data-design-key="border_color" name="woocommerce[design][border_color]" value="{{ wooDesign.border_color|default('#d7dce1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
+                                </div>
+                            </div>
+                            {% if not wooAdvancedAllowed %}
+                                <div class="setting-wrapper woo-design-options setting-suboption woo-design-pro-note">
+                                    <div class="setting-input">
+                                        <a target="_blank" class="supsystic-pro-feature woo-pro-feature-note" href="{{ build_pro_url({ 'utm_medium': 'woo_design' }) }}">{{ environment.translate('PRO option') }}</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </section>
+                        <section class="supRow-settings-block" id="stb-anl-translate">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-language"></i> {{ environment.translate('Translate / Placeholders') }}</h3>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-length-menu">
+                                        {{ environment.translate('Show entries text') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the DataTables length menu text. Use _MENU_ where the entries selector should appear. Example: Show _MENU_ entries')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-length-menu" name="woocommerce[translations][length_menu]" value="{{ wooTranslations.length_menu|default('') }}" placeholder="Show _MENU_ entries" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-info">
+                                        {{ environment.translate('Showing entries text') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the table info text. Available placeholders: _START_, _END_, _TOTAL_. Example: Showing _START_ to _END_ of _TOTAL_ entries')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-info" name="woocommerce[translations][info]" value="{{ wooTranslations.info|default('') }}" placeholder="Showing _START_ to _END_ of _TOTAL_ entries" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-previous">
+                                        {{ environment.translate('Previous button') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the pagination Previous button text.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-previous" name="woocommerce[translations][previous]" value="{{ wooTranslations.previous|default('') }}" placeholder="Previous" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-next">
+                                        {{ environment.translate('Next button') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the pagination Next button text.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-next" name="woocommerce[translations][next]" value="{{ wooTranslations.next|default('') }}" placeholder="Next" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-filters">
+                                        {{ environment.translate('Filters label') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the Woo filters label shown above the table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-filters" name="woocommerce[translations][filters]" value="{{ wooTranslations.filters|default('') }}" placeholder="Filters" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-reset">
+                                        {{ environment.translate('Reset filters button') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the Woo filters reset button text.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-reset" name="woocommerce[translations][reset]" value="{{ wooTranslations.reset|default('') }}" placeholder="Reset" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-view-checkout">
+                                        {{ environment.translate('View checkout button') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the View Checkout button shown near the multi-add action above the Woo product table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-view-checkout" name="woocommerce[translations][view_checkout]" value="{{ wooTranslations.view_checkout|default('') }}" placeholder="View Checkout" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-add-selected">
+                                        {{ environment.translate('Add selected to cart') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the multi-add button above the Woo product table.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-add-selected" name="woocommerce[translations][add_selected_to_cart]" value="{{ wooTranslations.add_selected_to_cart|default('') }}" placeholder="Add selected to cart" />
+                                </div>
+                            </div>
+                            <div class="setting-wrapper">
+                                <div class="setting-label">
+                                    <label for="woo-translate-add-to-cart">
+                                        {{ environment.translate('Add to cart button') }}
+                                        {{ tooltip.icon(environment.translate('Frontend override for the Add to cart button inside Woo product rows.')) }}
+                                    </label>
+                                </div>
+                                <div class="setting-input">
+                                    <input type="text" id="woo-translate-add-to-cart" name="woocommerce[translations][add_to_cart]" value="{{ wooTranslations.add_to_cart|default('') }}" placeholder="Add to cart" />
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div class="woo-settings-panel">
+            <div class="woo-catalog-workspace woo-wrapper supLg12 supMd12 supSm12 supXs12{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+            <div class="supLg12 supMd12 supSm12 supXs12">
+                <!-- Save post id's -->
+                <input type="hidden" name="woocommerce[productids]" value="{{ table.woo_settings.woocommerce.productids | default('') }}" />
+
+                <!-- Save show elements name like columns order in content table -->
+                <input type="hidden" name="woocommerce[order]" value="{{ table.woo_settings.woocommerce.order | default('') }}" />
+
+                <h3 class="stHeaders">{{ environment.translate('Table Columns') }}</h3>
+                <label style="padding-bottom: 25px; font-weight: 500;">{{ environment.translate('Select properties to add to the table') }}
+                    <select id="chooseColumns">
+                        {% set defaultOrder = ['2','4','5','6','11'] %}
+                        {% if colNumbOrder is defined and colNumbOrder is not empty %}
+                            {% set defaultOrder = colNumbOrder %}
+                        {% endif %}
+                        {% for col in woocolumns %}
+                            <option{% if col.id in defaultOrder %} style="display:none;"{% endif %} value="{{ col.id }}" data-name="{{ col.name }}" data-slug="{{ col.slug }}">
+                                {% if col.sub %} &nbsp;-&nbsp; {% endif %} {{ col.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <button id="stAddButton" class="button active" style="height: 28px; line-height: 26px;"><span>{{ environment.translate('Add') }}</span></button>
+
+                <div class="stPropertiesWrapp">
+                    {% set columns = woocolumns %}
+                    {% if orders is defined  %}
+                        {% set columns = orders %}
+                    {% endif %}
+
+                    {% for col in columns %}
+                        {% if col.id in defaultOrder %}
+                            {% if( orders is defined ) %}
+                                {% set dataName = col.original_name|default(col.name)|default('') %}
+
+                                {% set dataNNDisplay = col.show_display_name|default(0) %}
+
+                                {% set dataNN = col.display_name|default('') %}
+                                {% set dataMaxWidth = col.max_width|default('') %}
+                                {% set dataSlug = col.slug|default('') %}
+                                {% set dataHideColumn = col.hide_column|default(0) %}
+                                {% set dataHideResponsiveColumn = col.hide_responsive|default(0) %}
+
+                                {% if dataNNDisplay in [1, '1'] and dataNN is not empty %}
+                                    {% set contentName = dataNN %}
+                                {% else %}
+                                    {% set contentName = dataName %}
+                                {% endif %}
+                            {% else %}
+                                {% set dataName = col.name %}
+                                {% set dataNNDisplay = '' %}
+                                {% set dataNN = '' %}
+                                {% set dataMaxWidth = '' %}
+                                {% set dataSlug = col.slug %}
+                                {% set dataHideColumn = '' %}
+                                {% set dataHideResponsiveColumn = '' %}
+                                {% set contentName = col.name %}
+                            {% endif %}
+
+
+                            <div class="stOptions"
+                                 data-id="{{ col.id }}"
+                                 data-name="{{ dataName }}"
+                                 data-nice-name-display="{{ dataNNDisplay }}"
+                                 data-nice-name="{{ dataNN }}"
+                                 data-max-width="{{ dataMaxWidth }}"
+                                 data-hide-column="{{ dataHideColumn }}"
+                                 data-hide-responsive-column="{{ dataHideResponsiveColumn }}"
+                                 data-slug="{{ dataSlug }}"
+                            >
+                                <div class="content">{{ contentName }}</div>
+                                <div class="stOptionHandlers">
+                                    <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
+                                    <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
+                                    <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <h3 class="stHeaders">{{ environment.translate('Products') }}</h3>
+                <div class="woo-products-pro-panel">
+                    <div class="woo-products-pro-panel-header">
+                        <span class="woo-products-pro-panel-title">{{ environment.translate('Catalog Rules') }}</span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="woo-products-pro-grid">
+                        <div class="woo-products-pro-item" id="stbAutoAddProductsWrapper">
+                            <div class="woo-products-pro-item-label">
+                                <label for="woocommerce-auto-categories-enable">
+                                    {{ environment.translate('Add products automatically') }}
+                                    {{ tooltip.icon(environment.translate('Use selected WooCommerce categories as a dynamic catalog source. Matching products will be loaded automatically on the frontend, while excluded product IDs will still be respected. The Table Content list below continues to show only products that were added manually.')) }}
+                                </label>
+                                {% if not wooAdvancedAllowed %}
+                                    <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="woo-products-pro-item-controls">
+                                <input type="checkbox" name="woocommerce[auto_categories_enable]"
+                                    {{ table.woo_settings.woocommerce.auto_categories_enable == 'on' ? 'checked' : '' }}
+                                    id="woocommerce-auto-categories-enable"
+                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}
+                                />
+                                <input type="hidden" name="woocommerce[auto_categories_list]" value="{{ table.woo_settings.woocommerce.auto_categories_list | default() }}" />
+                                <select id="stbAutoCategoriesList"
+                                    data-placeholder="{{ environment.translate('Select category') }}..."
+                                    data-all-selected="{{ environment.translate('All selected') }}"
+                                    data-select-all-text="{{ environment.translate('Select all') }}"
+                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                                    {% for name, category in wooCategories %}
+                                        <option data-parent="{{ category.parent }}" value="{{ category.value }}">{{ category.title | raw }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="woo-products-pro-item woo-products-pro-item-exclude">
+                            <div class="woo-products-pro-item-label">
+                                <label for="woocommerce-exclude-product-search">
+                                    {{ environment.translate('Exclude Product ID(s)') }}
+                                    {{ tooltip.icon(environment.translate('Exclude products or individual product variations from the frontend catalog. Search by product title, SKU, or exact product ID. This is especially useful when Show variations is used and you want to hide only one specific variation instead of the whole product family.')) }}
+                                </label>
+                                {% if not wooAdvancedAllowed %}
+                                    <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                {% endif %}
+                            </div>
+                            <input type="hidden" name="woocommerce[exclude_productids]" id="woocommerce-exclude-productids" value="{{ table.woo_settings.woocommerce.exclude_productids|default('') }}" />
+                            <div class="woo-exclude-search-wrap{% if not wooAdvancedAllowed %} is-disabled{% endif %}">
+                                <input type="text" id="woocommerce-exclude-product-search" class="regular-text" placeholder="{{ environment.translate('Search by title, SKU, or product ID') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                <div class="woo-exclude-search-results stHidden"></div>
+                            </div>
+                            <div class="woo-excluded-products-list{% if excludedProducts is empty %} is-empty{% endif %}" data-empty-text="{{ environment.translate('No excluded products selected yet.') }}">
+                                {% for excludedProduct in excludedProducts %}
+                                    <div class="woo-excluded-product-card" data-product-id="{{ excludedProduct.id }}"
+                                         data-title="{{ excludedProduct.title|e('html_attr') }}"
+                                         data-variation="{{ excludedProduct.variation|default('')|e('html_attr') }}"
+                                         data-meta="{{ excludedProduct.meta|default('')|e('html_attr') }}"
+                                         data-thumbnail="{{ excludedProduct.thumbnail|default('')|e('html_attr') }}">
+                                        <div class="woo-excluded-product-body">
+                                            <div class="woo-excluded-product-summary">
+                                                <span class="woo-excluded-product-title">{{ excludedProduct.title }}</span>
+                                                {% if excludedProduct.variation is not empty %}
+                                                    <span class="woo-excluded-product-variation">{{ excludedProduct.variation }}</span>
+                                                {% endif %}
+                                            </div>
+                                            {% if excludedProduct.meta is not empty %}
+                                                <div class="woo-excluded-product-meta">{{ excludedProduct.meta }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <button type="button" class="button-link-delete woo-excluded-product-remove" aria-label="{{ environment.translate('Remove excluded product') }}">&times;</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="woo-manual-products-toggle is-expanded" aria-expanded="true" aria-controls="woo-manual-products-content">
+                    <span class="woo-manual-products-toggle-title">{{ environment.translate('Manual Added Products') }}</span>
+                    <span class="woo-manual-products-toggle-icon"><i class="fa fa-chevron-up" aria-hidden="true"></i></span>
+                </button>
+                <div id="woo-manual-products-content" class="woo-manual-products-content">
+                    <table id="stSearchTable" class="stSearchTable">
+                        <thead>
+                        <tr>
+                           <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                           <th>{{ environment.translate('Title') }}</th>
+                           <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                           <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                           <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                           <th>{{ environment.translate('Price') }}</th>
+                           <th>{{ environment.translate('Date') }}</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                           <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                           <th>{{ environment.translate('Title') }}</th>
+                           <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                           <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                           <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                           <th>{{ environment.translate('Price') }}</th>
+                           <th>{{ environment.translate('Date') }}</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="stPropertiesChangeNameWrapp stHidden">
+                        <label class="stPropertiesToggleLabel"><input type="checkbox"/>{{ environment.translate('Show text') }} {{ tooltip.icon(environment.translate('Shows the custom column title in the frontend table. This works only when the Header option is enabled for the Woo product table.')) }}</label>
+                        <input type="text" class="stColumnTitleInput" />
+                        <label class="stPropertiesHideColumnLabel" for="st-column-hide-column">
+                            <span class="stPropertiesLabelRow">
+                                <span class="stPropertiesLabelText">
+                                    {{ environment.translate('Hide column') }}
+                                    {{ tooltip.icon(environment.translate('Hide this column on the frontend while optionally keeping it searchable through the global search when Search by Hidden Fields is enabled.')) }}
+                                </span>
+                                {% if not wooAdvancedAllowed %}
+                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                                {% endif %}
+                            </span>
+                        </label>
+                        <input type="checkbox" id="st-column-hide-column" class="stColumnHideColumnInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                        <label class="stPropertiesHideColumnLabel stPropertiesHideResponsiveLabel">
+                            <span class="stPropertiesLabelRow">
+                                <span class="stPropertiesLabelText">
+                                    {{ environment.translate('Hide this column (responsive)') }}
+                                    {{ tooltip.icon(environment.translate('When Automatic column hiding is enabled, columns with this option checked will be hidden first. If several columns are marked, responsive mode will still collapse them from right to left.')) }}
+                                </span>
+                                {% if not wooAdvancedAllowed %}
+                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                                {% endif %}
+                            </span>
+                        </label>
+                        <input type="checkbox" class="stColumnHideResponsiveInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                        <label class="stPropertiesFieldLabel" for="st-column-max-width">
+                            <span class="stPropertiesLabelRow">
+                                <span class="stPropertiesLabelText">
+                                    {{ environment.translate('Max width (px)') }}
+                                    {{ tooltip.icon(environment.translate('Limit the maximum visual width of this column on the frontend. Leave empty to let the column size automatically.')) }}
+                                </span>
+                                {% if not wooAdvancedAllowed %}
+                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                                {% endif %}
+                            </span>
+                        </label>
+                        <input type="number" min="1" step="1" id="st-column-max-width" class="stColumnMaxWidthInput" placeholder="{{ environment.translate('Leave empty for automatic width') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    </div>
+
+                    <div class="stOptions stOptionsEmpty stHidden">
+                        <div class="content"></div>
+                        <div class="stOptionHandlers">
+                            <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
+                            <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
+                            <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="dt-buttons dt-buttons-add-template stHidden">
+                        <button class="dt-button button stAddProducts" tabindex="0" aria-controls="stSearchTable">
+                           <span><i class="fa fa-plus"></i>{{ environment.translate('Add selected products to the table') }}</span>
+                        </button>
+                        <div class="stSearchParams">
+                            <input type="checkbox" name="show_variations" value="1"><label>{{ tooltip.icon(environment.translate('Displays all variations as separate items, which can then be added to the table.')) }} show variations</label>
+                        </div>
+                        <div class="stSearchParams">
+                            <input type="checkbox" name="show_private" value="1" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><label>show private{% if not wooAdvancedAllowed %} (PRO){% endif %}</label>
+                        </div>
+                    </div>
+                    <div class="dt-buttons dt-buttons-remove-template stHidden">
+                        <button class="dt-button button stRemoveProducts" tabindex="0" aria-controls="stContentTable">
+                            <span><i class="fa fa-minus"></i>{{ environment.translate('Remove Selected Products') }}</span>
+                        </button>
+                    </div>
+
+                    <div id="stSortTableContent">
+                        <h3 class="stHeaders">{{ environment.translate('Table Content') }}</h3>
+                        <table id="stContentTable" class="stContentAdmTable" style="width:100%;">
+                            <thead>
+                            <tr>
+                                <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                <th>{{ environment.translate('Title') }}</th>
+                                <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                <th>{{ environment.translate('Price') }}</th>
+                                <th>{{ environment.translate('Date') }}</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                <th>{{ environment.translate('Title') }}</th>
+                                <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                <th>{{ environment.translate('Price') }}</th>
+                                <th>{{ environment.translate('Date') }}</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="tableLoaderIconDialog" title="{{ environment.translate('Choose icon') }}" style="display: none;">
+            {% set loaderClass = 'supsystic-table-loader' %}
+            {% set preIcons = {
+            'default': 0,
+            'timer': 1,
+            'ball-beat': 3,
+            'ball-circus': 5,
+            'ball-atom': 4,
+            'ball-spin-clockwise-fade-rotating': 8,
+            'line-scale': 5,
+            'ball-climbing-dot': 4,
+            'square-jelly-box': 2,
+            'ball-rotate': 1,
+            'ball-clip-rotate-multiple': 2,
+            'cube-transition': 2,
+            'square-loader': 1,
+            'ball-8bits': 16,
+            'ball-newton-cradle': 4,
+            'ball-pulse-rise': 5,
+            'triangle-skew-spin': 1,
+            'fire': 3,
+            'ball-zig-zag-deflect': 2
+            } %}
+
+            <div class="items items-list">
+                {% for name, items in preIcons %}
+                    <div class="item">
+                        <div class="item-inner">
+                            <div class="item-loader-container">
+                                <div class="{% if name != 'default' %}{{ ("%s la-%s la-2x ") | format(loaderClass, name) }}{% endif %}preicon_img" data-name="{{ name }}" data-items="{{ items }}">
+                                {% if name == 'default' %}
+                                    <div class="{{ loaderClass }} spinner"></div>
+                                {% else %}
+                                    {% for i in 1..items %}
+                                        <div></div>
+                                    {% endfor %}
+                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-title">{{ name }}</div>
+                    </div>
+                {% endfor %}
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+        </div>
+    </form>
+</section>
+</div>

@@ -17,8 +17,8 @@ class SupsysticTables
     add_action('init', [$this, 'addShortcodeButton']);
 
     $menuSlug = 'supsystic-tables';
-    $pluginPath = dirname(dirname(__FILE__));
-    $environment = new RscDtgs_Environment('st', '1.11.2', $pluginPath);
+    $pluginPath = dirname(dirname(__FILE__)); 
+    $environment = new RscDtgs_Environment('st', '1.12.0', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -49,7 +49,7 @@ class SupsysticTables
       'admin_url' => admin_url(),
       'plugin_db_update' => true,
       'revision_key' => '_supsystic_tables_rev',
-      'revision' => 61,
+      'revision' => 65,
       'welcome_page_was_showed' => get_option('supsystic_tbl_welcome_page_was_showed'),
       'promo_controller' => 'SupsysticTables_Promo_Controller',
     ]);
@@ -71,26 +71,23 @@ class SupsysticTables
   public function db_table_exist($table)
   {
     global $wpdb;
-    switch ($table) {
-      case 'supsystic_tbl_tables':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_tbl_tables'");
-        break;
-      case 'supsystic_tbl_columns':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_tbl_columns'");
-        break;
-      case 'supsystic_tbl_conditions':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_tbl_conditions'");
-        break;
-      case 'supsystic_tbl_rows':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_tbl_rows'");
-        break;
-      case 'supsystic_tbl_diagrams':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_tbl_diagrams'");
-        break;
-      case 'supsystic_rows_history':
-        $res = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}supsystic_rows_history'");
-        break;
+    $allowedTables = [
+      'supsystic_tbl_tables' => 'supsystic_tbl_tables',
+      'supsystic_tbl_columns' => 'supsystic_tbl_columns',
+      'supsystic_tbl_conditions' => 'supsystic_tbl_conditions',
+      'supsystic_tbl_rows' => 'supsystic_tbl_rows',
+      'supsystic_tbl_diagrams' => 'supsystic_tbl_diagrams',
+      'supsystic_tbl_rows_history' => 'supsystic_tbl_rows_history',
+      'supsystic_tbl_woo_columns' => 'supsystic_tbl_woo_columns',
+    ];
+
+    if (!isset($allowedTables[$table])) {
+      return false;
     }
+
+    $tableName = $wpdb->prefix . $allowedTables[$table];
+    $res = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($tableName)));
+
     return !empty($res);
   }
 
@@ -115,8 +112,10 @@ class SupsysticTables
       $sql = "CREATE TABLE IF NOT EXISTS $table_name (
           	`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
           	`title` VARCHAR(255) NOT NULL,
+            `table_type` VARCHAR(64) NOT NULL DEFAULT 'default',
           	`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
           	`settings` TEXT NOT NULL,
+            `woo_settings` TEXT NULL DEFAULT NULL,
             `history_settings` TEXT NULL DEFAULT NULL,
           	`meta` TEXT NULL,
           	PRIMARY KEY (`id`)
@@ -192,10 +191,84 @@ class SupsysticTables
       dbDelta($sql);
     }
 
+    $this->createWooSchema();
+
     $wpdb->query('SET FOREIGN_KEY_CHECKS=1;');
 
     $wpdb->show_errors = true;
     update_option('stbl' . '_installed', 1);
+  }
+
+  protected function createWooSchema()
+  {
+    global $wpdb;
+
+    $charset_collate = $wpdb->get_charset_collate();
+    $tablesTable = $wpdb->prefix . 'supsystic_tbl_tables';
+    $wooColumnsTable = $wpdb->prefix . 'supsystic_tbl_woo_columns';
+
+    if (!$this->db_table_exist('supsystic_tbl_woo_columns')) {
+      $sql = "CREATE TABLE IF NOT EXISTS $wooColumnsTable (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `columns_name` VARCHAR(128) NULL DEFAULT NULL,
+            `columns_nice_name` VARCHAR(128) NULL DEFAULT NULL,
+            PRIMARY KEY (`id`)
+          ) $charset_collate";
+      dbDelta($sql);
+    }
+
+    $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
+    if (is_array($columns) && !in_array('woo_settings', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+    }
+    if (is_array($columns) && !in_array('table_type', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+    }
+    $wpdb->query(
+      "UPDATE {$tablesTable}
+       SET `table_type` = 'woo_product_table'
+       WHERE `table_type` = 'default'
+         AND `woo_settings` IS NOT NULL
+         AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'",
+    );
+
+    $this->seedWooColumns($wooColumnsTable);
+    update_option('supsystic_tbl_woo_schema_version', 1);
+    update_option('supsystic_tbl_tables_schema_version', 2);
+  }
+
+  protected function seedWooColumns($tableName)
+  {
+    global $wpdb;
+
+    if ((int) $wpdb->get_var("SELECT COUNT(*) FROM {$tableName}") > 0) {
+      return;
+    }
+
+    $columns = [
+      ['id', 'ID'],
+      ['product_title', 'Name'],
+      ['sku', 'SKU'],
+      ['thumbnail', 'Thumbnail'],
+      ['categories', 'Categories'],
+      ['price', 'Price'],
+      ['attribute', 'Attribute'],
+      ['description', 'Summary'],
+      ['add_to_cart', 'Buy'],
+      ['reviews', 'Reviews'],
+      ['date', 'Date'],
+    ];
+
+    foreach ($columns as $column) {
+      $wpdb->insert(
+        $tableName,
+        [
+          'columns_name' => $column[0],
+          'columns_nice_name' => $column[1],
+        ],
+        ['%s', '%s'],
+      );
+    }
   }
 
   public function dropOptions()

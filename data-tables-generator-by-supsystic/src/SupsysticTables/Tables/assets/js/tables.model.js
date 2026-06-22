@@ -3,6 +3,10 @@ var g_stbDoPreview = false;
 var g_stbNeedPreview = false;
 var g_stbMobilePreview = false;
 var g_stbPreviewTimeoutSet = false;
+window.g_stbAnimationSpeed = window.g_stbAnimationSpeed || 300;
+window.g_stbIsDataEdited = window.g_stbIsDataEdited || { settings: false, source: false, history: false, woocommerce: false, data: false };
+var g_stbAnimationSpeed = window.g_stbAnimationSpeed;
+var g_stbIsDataEdited = window.g_stbIsDataEdited;
 //var g_stbPreviewTable = null;
 (function ($, app) {
   var TablesModel = (function () {
@@ -444,13 +448,18 @@ var g_stbPreviewTimeoutSet = false;
       preview = typeof preview != 'undefined' ? preview : false;
       rerender = typeof rerender != 'undefined' ? rerender : false;
       var self = this,
-        editor = self.getEditor(),
         id = app.getParameterByName('id'),
-        toolbar = app.Editor.Tb,
-        svlFormatsClass = toolbar.getSvlFormatClass(),
-        formatClasses = toolbar.getFormatClasses(),
-        pagination = g_stbPagination,
+        isWooProductTable = $('.tables-view').data('table-type') === 'woo_product_table',
+        editor = isWooProductTable ? null : self.getEditor(),
+        toolbar = isWooProductTable ? null : app.Editor.Tb,
+        svlFormatsClass = isWooProductTable ? '' : toolbar.getSvlFormatClass(),
+        formatClasses = isWooProductTable ? [] : toolbar.getFormatClasses(),
+        pagination = isWooProductTable ? false : g_stbPagination,
         lastSave = false;
+
+      if (isWooProductTable && !preview) {
+        lastSave = 'woocommerce';
+      }
 
       if (pagination) {
         editor.copyInBuffer();
@@ -492,8 +501,8 @@ var g_stbPreviewTimeoutSet = false;
         g_stbDoSaving = true;
         app.createSpinner($('#buttonSave'));
 
-        var formData = this.prepareSettingsForm($('form#settings'), id),
-          sourceData = $('form#source-settings'),
+        var formData = isWooProductTable ? $() : this.prepareSettingsForm($('form#settings'), id),
+          sourceData = isWooProductTable ? $() : $('form#source-settings'),
           byPart = true,
           metaData = [],
           mergeData = [],
@@ -502,7 +511,7 @@ var g_stbPreviewTimeoutSet = false;
           rowCounter = 0,
           requiredAssets = {};
 
-        if (!preview || g_stbIsDataEdited['data']) {
+        if (!isWooProductTable && (!preview || g_stbIsDataEdited['data'])) {
           $.each(pagination ? bufferData : editor.getData(), function (x, row) {
             var currentRow = { cells: [] };
             rowCounter++;
@@ -676,7 +685,7 @@ var g_stbPreviewTimeoutSet = false;
 
         // Request to save settings, meta and rows
         var ajaxPromise = new $.Deferred().resolve();
-        if (!preview || g_stbIsDataEdited['settings'] || g_stbIsDataEdited['source']) {
+        if (!isWooProductTable && (!preview || g_stbIsDataEdited['settings'] || g_stbIsDataEdited['source'])) {
           if (sourceData.length) {
             sourceData.find('input[name="source[dbSQL]"]').val(sourceData.find('#source-db-sql').val());
           }
@@ -691,7 +700,7 @@ var g_stbPreviewTimeoutSet = false;
             });
           }
         }
-        if (!preview || g_stbIsDataEdited['history']) {
+        if (!isWooProductTable && (!preview || g_stbIsDataEdited['history'])) {
           ajaxPromise = ajaxPromise.then(function () {
             return self.setHistorySettings(id, $('form#history-settings'));
           });
@@ -702,10 +711,10 @@ var g_stbPreviewTimeoutSet = false;
             });
           }
         }
-        if (!preview || g_stbIsDataEdited['woocommerce']) {
+        if (!preview || g_stbIsDataEdited['woocommerce'] || isWooProductTable) {
           ajaxPromise = ajaxPromise.then(function () {
             try {
-              if (SDT_DATA.isWooPro) {
+              if (SDT_DATA.isWooCatalogEnabled || SDT_DATA.isWooPro) {
                 return self.setWooSettings(id, $('form#woocommerce-settings'));
               }
             } catch (e) {
@@ -719,7 +728,7 @@ var g_stbPreviewTimeoutSet = false;
             });
           }
         }
-        if (!preview || g_stbIsDataEdited['data']) {
+        if (!isWooProductTable && (!preview || g_stbIsDataEdited['data'])) {
           ajaxPromise = ajaxPromise.then(function () {
             return self.setMeta(id, metaData);
           });

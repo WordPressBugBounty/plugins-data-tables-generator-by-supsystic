@@ -61,7 +61,9 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     ];
     if (is_admin()) {
       $jsData['isPro'] = $environment->isPro();
-      $jsData['isWooPro'] = $environment->isWooPro();
+      $jsData['isWooCatalogEnabled'] = $environment->isWoo() && $environment->getModule('woocommerce') !== null;
+      $jsData['isWooAdvanced'] = $environment->isPro();
+      $jsData['isWooPro'] = $jsData['isWooCatalogEnabled'];
     }
     wp_localize_script('jquery', 'SDT_DATA', $jsData);
   }
@@ -294,16 +296,23 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $isDebug = defined('WP_DEBUG') && WP_DEBUG;
     $isError = false;
 
+    if (!is_array($route)) {
+      $isError = true;
+      $message = $environment->translate('Invalid route specified.');
+      $this->throwHandleMainRequestError($message, $isAjax, $isDebug);
+      return;
+    }
     if (!array_key_exists('module', $route)) {
       $isError = true;
       $message = $environment->translate('Invalid route specified: missing "module" key.');
       $this->throwHandleMainRequestError($message, $isAjax, $isDebug);
+      return;
     }
-    $moduleName = $route['module'];
+    $moduleName = sanitize_key($route['module']);
     $actionName = $isAjax ? 'indexAction' : '';
 
     if (array_key_exists('action', $route)) {
-      $actionName = $route['action'] . 'Action';
+      $actionName = sanitize_key($route['action']) . 'Action';
     }
 
     $module = $environment->getModule($moduleName);
@@ -312,11 +321,13 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       $isError = true;
       $message = sprintf($environment->translate('You are requested to the non-existing module "%s".'), $moduleName);
       $this->throwHandleMainRequestError($message, $isAjax, $isDebug);
+      return;
     }
     if (!method_exists($module->getController(), $actionName)) {
       $isError = true;
       $message = sprintf($environment->translate('You are requested to the non-existing route: %s::%s'), $moduleName, $actionName);
       $this->throwHandleMainRequestError($message, $isAjax, $isDebug);
+      return;
     }
     if ($isAjax) {
       $request->headers->add('X_REQUESTED_WITH', 'XMLHttpRequest');
@@ -391,7 +402,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $isFrontendPost = false;
 
     // Ajax handler (for backend and frontend)
-    if (!empty($route) && !empty($ajaxFrontendMethods)) {
+    if (is_array($route) && !empty($route) && !empty($ajaxFrontendMethods)) {
       foreach ($ajaxFrontendMethods as $module => $actions) {
         if (isset($route['module']) && $module == $route['module']) {
           if (isset($route['action']) && in_array($route['action'], $actions)) {
@@ -406,7 +417,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     add_action($action_name, [$this, 'handleAjaxRequest']);
 
     // Post handler (for frontend only)
-    if ($action == $config['plugin_menu']['menu_slug'] && !empty($route) && !empty($postFrontendMethods)) {
+    if ($action == $config['plugin_menu']['menu_slug'] && is_array($route) && !empty($route) && !empty($postFrontendMethods)) {
       foreach ($postFrontendMethods as $module => $actions) {
         if (isset($route['module']) && $module == $route['module']) {
           if (isset($route['action']) && in_array($route['action'], $actions)) {
@@ -427,6 +438,8 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
   {
     $environment = $this->getEnvironment();
     $config = $environment->getConfig();
+
+    $this->ensureTablesSchema();
 
     $optionName = $config->get('hooks_prefix') . 'plugin_version';
     $currentVersion = $config->get('plugin_version');
@@ -500,6 +513,107 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     }
 
     update_option($config->get('revision_key'), $revision['current']);
+  }
+
+  private function ensureTablesSchema()
+  {
+    if (!function_exists('dbDelta')) {
+      require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    }
+
+    if (function_exists('is_multisite') && is_multisite()) {
+      global $wpdb;
+      $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+      foreach ($blog_id as $id) {
+        if (switch_to_blog($id)) {
+          $this->ensureTablesSchemaForCurrentBlog();
+          restore_current_blog();
+        }
+      }
+    } else {
+      $this->ensureTablesSchemaForCurrentBlog();
+    }
+  }
+
+  private function ensureTablesSchemaForCurrentBlog()
+  {
+    global $wpdb;
+
+    $dbPrefix = $this->getEnvironment()->getConfig()->get('db_prefix');
+    $tablesTable = $wpdb->prefix . $dbPrefix . 'tables';
+    $wooColumnsTable = $wpdb->prefix . $dbPrefix . 'woo_columns';
+    $schemaOption = $dbPrefix . 'tables_schema_version';
+
+    if ((int) get_option($schemaOption) >= 2) {
+      return;
+    }
+
+    if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($tablesTable))) !== $tablesTable) {
+      return;
+    }
+
+    $charsetCollate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $wooColumnsTable (
+      `id` INT(11) NOT NULL AUTO_INCREMENT,
+      `columns_name` VARCHAR(128) NULL DEFAULT NULL,
+      `columns_nice_name` VARCHAR(128) NULL DEFAULT NULL,
+      PRIMARY KEY (`id`)
+    ) $charsetCollate";
+    dbDelta($sql);
+
+    $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
+    if (is_array($columns) && !in_array('table_type', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $columns[] = 'table_type';
+    }
+    if (is_array($columns) && !in_array('woo_settings', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $columns[] = 'woo_settings';
+    }
+
+    if (in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
+      $wpdb->query(
+        "UPDATE {$tablesTable}
+         SET `table_type` = 'woo_product_table'
+         WHERE `table_type` = 'default'
+           AND `woo_settings` IS NOT NULL
+           AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'",
+      );
+    }
+
+    if ((int) $wpdb->get_var("SELECT COUNT(*) FROM {$wooColumnsTable}") > 0) {
+      update_option($dbPrefix . 'woo_schema_version', 1);
+      update_option($schemaOption, 2);
+      return;
+    }
+
+    $wooColumns = [
+      ['id', 'ID'],
+      ['product_title', 'Name'],
+      ['sku', 'SKU'],
+      ['thumbnail', 'Thumbnail'],
+      ['categories', 'Categories'],
+      ['price', 'Price'],
+      ['attribute', 'Attribute'],
+      ['description', 'Summary'],
+      ['add_to_cart', 'Buy'],
+      ['reviews', 'Reviews'],
+      ['date', 'Date'],
+    ];
+
+    foreach ($wooColumns as $wooColumn) {
+      $wpdb->insert(
+        $wooColumnsTable,
+        [
+          'columns_name' => $wooColumn[0],
+          'columns_nice_name' => $wooColumn[1],
+        ],
+        ['%s', '%s'],
+      );
+    }
+
+    update_option($dbPrefix . 'woo_schema_version', 1);
+    update_option($schemaOption, 2);
   }
 
   public function getPluginDirectoryUrl($path)

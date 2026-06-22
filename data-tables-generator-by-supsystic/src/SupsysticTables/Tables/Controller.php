@@ -31,8 +31,42 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       die();
     }
     $title = sanitize_text_field(trim($request->post->get('title')));
-    $rowsCount = (int) $request->post->get('rows');
-    $colsCount = (int) $request->post->get('cols');
+    $rowsCount = max(1, (int) $request->post->get('rows'));
+    $colsCount = max(1, (int) $request->post->get('cols'));
+    $tableType = $this->normalizeWizardValue($request->post->get('table_type'), ['data', 'woocommerce', 'pricing', 'comparison'], 'data');
+    $sourceType = $this->normalizeWizardValue($request->post->get('source_type'), ['manual', 'woocommerce', 'csv_excel', 'google_sheets', 'sql_query'], 'manual');
+    $updateMode = $this->normalizeWizardValue($request->post->get('update_mode'), ['manual', 'auto'], 'manual');
+    $designMode = $this->normalizeWizardValue($request->post->get('design_mode'), ['default', 'custom', 'templates'], 'default');
+    $wooAvailable = class_exists('WooCommerce');
+
+    if ($tableType === 'woocommerce' && !$wooAvailable) {
+      $tableType = 'data';
+      $sourceType = 'manual';
+    }
+
+    if ($tableType === 'woocommerce') {
+      $sourceType = 'woocommerce';
+      $rowsCount = 1;
+      $colsCount = 1;
+    }
+
+    if ($tableType === 'pricing' || $tableType === 'comparison') {
+      $sourceType = 'manual';
+      $rowsCount = $tableType === 'pricing' ? max(3, $rowsCount) : max(4, $rowsCount);
+      $colsCount = $tableType === 'pricing' ? max(3, $colsCount) : max(4, $colsCount);
+    }
+
+    if ($updateMode === 'auto' && !$this->getEnvironment()->isPro()) {
+      $updateMode = 'manual';
+    }
+
+    if ($designMode === 'templates' && !$this->getEnvironment()->isPro()) {
+      $designMode = 'default';
+    }
+    if (in_array($sourceType, ['google_sheets', 'sql_query'], true) && !$this->getEnvironment()->isPro()) {
+      $sourceType = 'manual';
+    }
+    $dbTableType = $this->getDbTableTypeFromWizard($tableType);
 
     try {
       if (!$this->isValidTitle($title)) {
@@ -40,7 +74,27 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       }
       $this->getEnvironment()->getModule('tables')->setIniLimits();
       // Add base settings
-      $tableId = $this->getModel('tables')->add(['title' => $title, 'settings' => serialize([])]);
+      $settings = [
+        'tableType' => $dbTableType,
+        'sourceType' => $sourceType,
+        'updateMode' => $updateMode,
+        'designMode' => $designMode,
+        'builderPlaceholder' => in_array($tableType, ['pricing', 'comparison'], true),
+      ];
+      $tableData = ['title' => $title, 'table_type' => $dbTableType, 'settings' => serialize($settings)];
+
+      if ($tableType === 'woocommerce') {
+        $tableData['woo_settings'] = serialize([
+          'woocommerce' => [
+            'enable' => 'on',
+            'thumbnail_size' => 'thumbnail',
+            'productids' => '',
+            'order' => '',
+          ],
+        ]);
+      }
+
+      $tableId = $this->getModel('tables')->add($tableData);
 
       if ($tableId) {
         $rows = [];
@@ -131,6 +185,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     $contactFormList = $contactFormIsInstalled && method_exists($contactForm->getModel(), 'getAllForms') ? $contactForm->getModel()->getAllForms() : [];
     return $this->response('@tables/view.twig', [
       'table' => $table,
+      'wooAvailable' => class_exists('WooCommerce'),
       'attributes' => [
         'cols' => $request->query->get('cols', 5),
         'rows' => $request->query->get('rows', 5),
@@ -213,7 +268,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         $searchAll['value'] = $searchValue;
       }
       $searchCols = [];
-      if ($table->settings['autoIndex'] == 'new' && $this->getEnvironment()->isPro() && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on') {
+      if (isset($table->settings['autoIndex']) && $table->settings['autoIndex'] == 'new' && $this->getEnvironment()->isPro() && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on') {
         $columns = array_slice($columns, 1);
       }
       if (!empty($columns)) {
@@ -235,8 +290,18 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $header = (int) $request->post->get('header');
       $footer = (int) $request->post->get('footer');
 
-      if ($this->getEnvironment()->isWooPro() && isset($table->woo_settings) && isset($table->woo_settings['woocommerce']['enable']) && $table->woo_settings['woocommerce']['enable'] === 'on') {
-        $rows = $this->getEnvironment()->getModule('woocommerce')->getController()->getRowsByPart($id, [], $start, $length, $searchAll['value']);
+      if ($this->isWooCatalogTable($table)) {
+        $rows = $this->getEnvironment()->getModule('woocommerce')->getController()->getRowsByPart(
+          $id,
+          $table->settings,
+          $start,
+          $length,
+          $searchAll['value'] == '' ? false : $searchAll['value'],
+          $searchCols,
+          $orderCol,
+          $orderAsc,
+          $searchParams
+        );
       } elseif ($this->getEnvironment()->isPro() && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on') {
         $core = $this->getEnvironment()->getModule('core');
         $dbTableModel = $core->getModelsFactory()->get('DBTables', 'tables');
@@ -531,6 +596,46 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     return is_string($title) && ($title !== '' && strlen($title) < 255);
   }
 
+  protected function normalizeWizardValue($value, array $allowed, $default)
+  {
+    $value = sanitize_key((string) $value);
+    return in_array($value, $allowed, true) ? $value : $default;
+  }
+
+  protected function getDbTableTypeFromWizard($tableType)
+  {
+    switch ($tableType) {
+      case 'woocommerce':
+        return 'woo_product_table';
+      case 'pricing':
+        return 'pricing_table';
+      case 'comparison':
+        return 'comparison_table';
+      case 'data':
+      default:
+        return 'default';
+    }
+  }
+
+  protected function isWooCatalogTable($table)
+  {
+    if (!$this->getEnvironment()->isWoo() || $this->getEnvironment()->getModule('woocommerce') === null || !is_object($table)) {
+      return false;
+    }
+    if (!empty($table->table_type) && $table->table_type === 'woo_product_table') {
+      return true;
+    }
+    if (!empty($table->settings) && is_array($table->settings) && !empty($table->settings['tableType']) && $table->settings['tableType'] === 'woo_product_table') {
+      return true;
+    }
+
+    if (empty($table->woo_settings) || !is_array($table->woo_settings) || empty($table->woo_settings['woocommerce']) || !is_array($table->woo_settings['woocommerce']) || empty($table->woo_settings['woocommerce']['enable'])) {
+      return false;
+    }
+
+    return in_array($table->woo_settings['woocommerce']['enable'], ['on', '1', 1, true], true);
+  }
+
   public function sendUsageStat($state)
   {
     $apiUrl = 'http://updates.supsystic.com';
@@ -620,10 +725,11 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       }
       $tableData = [
         'title' => $title,
+        'table_type' => !empty($clonedTable->table_type) ? sanitize_key($clonedTable->table_type) : 'default',
         'settings' => serialize($clonedTable->settings),
         'meta' => serialize($clonedTable->meta),
       ];
-      if ($this->getEnvironment()->isWooPro()) {
+      if (!empty($clonedTable->woo_settings)) {
         $wooSettings = $tablesModel->getWooSettings($id);
         $tableData['woo_settings'] = $wooSettings;
       }
@@ -706,12 +812,13 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       die();
     }
     $data = $request->post->get('data');
+    $data = is_array($data) ? $data : [];
 
-    $page = $data['page'];
-    $rowsLimit = $data['rows'];
-    $orderBy = $data['sidx'];
-    $sortOrder = $data['sord'];
-    $search = $data['search'];
+    $page = !empty($data['page']) ? max(1, absint($data['page'])) : 1;
+    $rowsLimit = !empty($data['rows']) ? min(100, max(1, absint($data['rows']))) : 20;
+    $orderBy = !empty($data['sidx']) ? sanitize_key($data['sidx']) : 'id';
+    $sortOrder = !empty($data['sord']) ? sanitize_text_field($data['sord']) : 'DESC';
+    $search = !empty($data['search']) && is_array($data['search']) ? $data['search'] : [];
 
     $core = $this->getEnvironment()->getModule('core');
     $model = $core->getModelsFactory()->get('tables');
@@ -758,7 +865,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $shortcode = '[' . esc_attr($tableShortcode) . ' id=' . esc_attr($id) . ']';
       $shortcodePhp = sprintf('<?php echo supsystic_tables_get("%s"); ?>', esc_attr($id)); //ESCAPING OK
       $phpcode = htmlspecialchars($shortcodePhp);
-      $titleUrl = '<a href=' . $this->generateUrl('tables', 'view', ['id' => $id, 'nonce' => wp_create_nonce('dtgs_nonce')]) . '>' . $row['title'] . " <i class='fa fa-fw fa-pencil'></i></a>";
+      $titleUrl = '<a href="' . esc_url($this->generateUrl('tables', 'view', ['id' => $id, 'nonce' => wp_create_nonce('dtgs_nonce')])) . '">' . esc_html($row['title']) . " <i class='fa fa-fw fa-pencil'></i></a>";
       $data[$key]['shortcode'] = $shortcode;
       $data[$key]['phpcode'] = $phpcode;
       $data[$key]['title'] = $titleUrl;

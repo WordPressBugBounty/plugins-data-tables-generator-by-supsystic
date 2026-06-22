@@ -1,0 +1,122 @@
+.stAddToCartButWrapp {
+  white-space: nowrap;
+}
+.stDateWrapp {
+  white-space: nowrap;
+}
+.supsystic-tables-wrap .supsystic-table ins {
+  display: block;
+}
+.stAddToCartWrapper .quantity input {
+  max-width: 65px;
+}
+.stAddToCartWrapper {
+  width: max-content;
+  width: -moz-max-content;
+  display: flex;
+  align-items: center;
+}
+
+.stAddToCartWrapper .quantity,
+.stAddToCartWrapper .stAddToCart {
+  margin-right: 5px;
+}
+.stAddToCartWrapper .stAddMulty {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.stAddToCartWrapper .quantity {
+  display: inline-flex;
+}
+.stAddToCartButWrapp {
+  display: inline-block;
+}
+.stHidden {
+  display: none;
+}
+.s-notify .woocommerce-error {
+  margin-bottom: 0;
+}
+.stVarAttributes {
+  margin-bottom: 10px;
+  text-align: left;
+}
+.stVarAttributes select {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  height: 30px;
+}
+.stVarPrices {
+  min-height: 25px;
+}
+.supsystic-tables-wrap .supsystic-table .stVarPrice ins {
+  display: inline;
+}
+.stb-before-woo {
+  display: block;
+  margin-bottom: 5px;
+}
+.stb-before-woo div {
+  display: inline-block;
+  padding-right: 20px;
+}
+.stb-before-woo select {
+  margin-left: 10px;
+}
+.stb-before-woo .stAddMultyWrapper {
+  float: right;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 0;
+  margin-bottom: 10px;
+}
+.stb-before-woo .stAddMultyWrapper .button {
+  margin: 0;
+}
+.stbResetWooFilters i {
+    font-size: 14px;
+    padding-right: 5px;
+}
+.stbResetWooFilters {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    line-height: 1.2;
+    text-decoration: none;
+    background-image: none;
+    box-shadow: none;
+}
+.stbResetWooFilters:hover,
+.stbResetWooFilters:focus {
+    text-decoration: none;
+    background-image: none;
+    box-shadow: none;
+}
+.supsystic-tables-wrap .dataTables_wrapper .dataTables_processing {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  transform: translate(-50%, -50%);
+}
+.supsystic-tables-wrap .stb-processing-loader-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  min-height: 68px;
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}

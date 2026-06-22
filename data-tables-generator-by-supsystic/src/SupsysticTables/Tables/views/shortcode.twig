@@ -17,6 +17,11 @@
             {% set data = data | raw | nl2br %}
         {% endif %}
 
+        {% set inlineStyle = '' %}
+        {% if 'invisibleCell' in cell.meta  %}
+            {% set inlineStyle = inlineStyle ~ 'display:none; visibility:hidden; font-size:0px; color:transparent; text-indent: -99999999px;' %}
+        {% endif %}
+
         <{{tag}}
         data-cell-id="{{ context.cols[context.countIter] ~ context.cols[context.cellIter] ~ cellY }}"
         
@@ -24,6 +29,10 @@
         data-y="{{ cellY }}"
         data-db-index="{{ cellDbIndex }}"
         class="{{ cell.meta | join(' ') | trim }}"
+
+        {% if tag == 'th' and cell.responsivePriority is defined and cell.responsivePriority is not empty %}
+            data-priority="{{ cell.responsivePriority }}"
+        {% endif %}
 
         {% if 'invisibleCell' in cell.meta  %}
          data-hidden-cell="true"
@@ -35,10 +44,6 @@
 
         {% if cell.type is not empty %}
             data-cell-type="{{ cell.type }}"
-        {% endif %}
-
-        {% if 'invisibleCell' in cell.meta  %}
-          style="display:none; visibility:hidden; font-size:0px; color:transparent; text-indent: -99999999px;"
         {% endif %}
 
         {% if cell.formatType is not empty %}
@@ -81,20 +86,28 @@
             and context.table.meta.columnsFixedWidth[cellIndex] is defined
             and context.table.meta.columnsFixedWidth[cellIndex] is not empty
             %}
-                style="min-width: {{ context.table.meta.columnsFixedWidth[cellIndex] }}; width: {{ context.table.meta.columnsFixedWidth[cellIndex] }};"
+                {% set inlineStyle = inlineStyle ~ 'min-width: ' ~ context.table.meta.columnsFixedWidth[cellIndex] ~ '; width: ' ~ context.table.meta.columnsFixedWidth[cellIndex] ~ ';' %}
             {% elseif context.table.meta.columnsWidth is defined
                 and context.table.meta.columnsWidth[cellIndex] is defined
                 and context.table.meta.columnsWidth[cellIndex] is not empty
             %}
                 {#style="min-width: {{ context.table.meta.columnsWidth[cellIndex] }}%; width: {{ context.table.meta.columnsWidth[cellIndex] }}%;"#}
                 {% if context.table.settings.responsiveMode == 2 %}
-                    style="min-width: {{ context.table.meta.columnsWidth[cellIndex] }}%; width: {{ context.table.meta.columnsWidth[cellIndex] }}%;"
+                    {% set inlineStyle = inlineStyle ~ 'min-width: ' ~ context.table.meta.columnsWidth[cellIndex] ~ '%; width: ' ~ context.table.meta.columnsWidth[cellIndex] ~ '%;' %}
                 {% else %}
-                    style="min-width: {{ context.table.meta.columnsWidth[cellIndex] }}%; "
+                    {% set inlineStyle = inlineStyle ~ 'min-width: ' ~ context.table.meta.columnsWidth[cellIndex] ~ '%;' %}
                 {% endif %}
-            {% else %}
-                style="width: {{ cell.width }}px"
+            {% elseif cell.width is defined and cell.width is not empty %}
+                {% set inlineStyle = inlineStyle ~ 'width: ' ~ cell.width ~ 'px;' %}
             {% endif %}
+        {% endif %}
+
+        {% if cell.maxWidth is defined and cell.maxWidth is not empty %}
+            {% set inlineStyle = inlineStyle ~ 'max-width: ' ~ cell.maxWidth ~ 'px;' %}
+        {% endif %}
+
+        {% if inlineStyle is not empty %}
+            style="{{ inlineStyle|trim }}"
         {% endif %}
 
         {# cell.hidden is true if this cell was merged with another cell #}
@@ -149,7 +162,23 @@
     {% set isPageRows = table.isPageRows | default(false) %}
     {% set isDB = table.isDB | default(false) %}
     {% set settingsKeys = table.settings | keys %}
-    {% set isCaption = table.settings.elements.caption is defined or (table.settings.elements.description is defined and table.settings.elements.descriptionText is defined) %}
+    {% set languageOverride = table.settings.language|default({}) %}
+    {% set wooTextOverrides = table.woo_settings.woocommerce.translations|default({}) %}
+    {% if wooTextOverrides.length_menu|default('') %}
+        {% set languageOverride = languageOverride|merge({'lengthMenu': wooTextOverrides.length_menu}) %}
+    {% endif %}
+    {% if wooTextOverrides.info|default('') %}
+        {% set languageOverride = languageOverride|merge({'info': wooTextOverrides.info}) %}
+    {% endif %}
+    {% if wooTextOverrides.previous|default('') %}
+        {% set languageOverride = languageOverride|merge({'previous': wooTextOverrides.previous}) %}
+    {% endif %}
+    {% if wooTextOverrides.next|default('') %}
+        {% set languageOverride = languageOverride|merge({'next': wooTextOverrides.next}) %}
+    {% endif %}
+    {% set hasDescriptionText = table.settings.elements.descriptionText is defined and table.settings.elements.descriptionText|trim != '' %}
+    {% set hasSignatureText = table.settings.elements.signatureText is defined and table.settings.elements.signatureText|trim != '' %}
+    {% set isCaption = table.settings.elements.caption is defined or hasDescriptionText %}
     {% set fixedRowsCols = 'fixedFooter' in settingsKeys or 'fixedHeader' in settingsKeys or 'fixedColumns' in settingsKeys %}
 
 {% set widthForAll = false %}
@@ -207,12 +236,12 @@
                  >
     {% block before_table %}{% endblock %}
     {% block caption_fixed %}
-        {% if fixedRowsCols == true and isCaption %}
+        {% if isCaption %}
             <div class="supsystic-table-caption">
                 {% if table.settings.elements.caption is defined %}
                     <div class="table-title">{{ table.title }}</div>
                 {% endif %}
-                {% if table.settings.elements.description is defined and table.settings.elements.descriptionText is defined %}
+                {% if hasDescriptionText %}
                     <div class="table-desc">{{ table.settings.elements.descriptionText | raw }}</div>
                 {% endif %}
             </div>
@@ -234,6 +263,11 @@
             data-time-format="{{ table.settings.timeFormat | default('HH:mm') }}"
             data-features="{{ table.settings.features | keys | json_encode | e }}"
             data-search-value="{{ table.search_value }}"
+            data-loader-icon-name="{{ table.settings.tableLoader.iconName | default('default') }}"
+            data-loader-icon-items="{{ table.settings.tableLoader.iconItems | default('0') }}"
+            data-loader-color="{{ table.settings.tableLoader.color | default('#000000') }}"
+            data-processing-bg="{{ table.woo_settings.woocommerce.design.processing_bg | default('#ffffff') }}"
+            data-processing-color="{{ table.woo_settings.woocommerce.design.processing_color | default('#000000') }}"
             {% if table.settings.styling.lfixed is defined %}
             data-lfixed="{{ 1 }}"
             {% endif %}
@@ -303,8 +337,8 @@
                 data-after-table-loaded-script="{{ table.settings.features.after_table_loaded_script | json_encode | e }}"
             {% endif %}
             data-lang="{{ table.settings.language.file | default('default') }}"
-            {% if 'language' in settingsKeys %}
-                data-override="{{ table.settings.language | json_encode | e }}"
+            {% if ('language' in settingsKeys) or wooTextOverrides.length_menu|default('') or wooTextOverrides.info|default('') or wooTextOverrides.previous|default('') or wooTextOverrides.next|default('') %}
+                data-override="{{ languageOverride | json_encode | e }}"
             {% endif %}
             {% if 'translation' in settingsKeys %}
                 data-translation="{{ table.settings.translation | e }}" {# it is already json string #}
@@ -403,10 +437,10 @@
                                     {% set fakeCellClass = 'invisibleCell' %}
                                 {% endif %}
                                 {% if table.meta.columnsFixedWidth is not null %}
-                                <th class="{{ fakeCellClass }}" style="width:{{ table.meta.columnsFixedWidth[cellIndex] }}; padding: 0 !important;"></th>
+                                <th class="{{ fakeCellClass }}"{% if cell.responsivePriority is defined and cell.responsivePriority is not empty %} data-priority="{{ cell.responsivePriority }}"{% endif %} style="width:{{ table.meta.columnsFixedWidth[cellIndex] }}; padding: 0 !important;"></th>
                                 {% endif %}
                                 {% if table.meta.columnsFixedWidth is null %}
-                                <th class="{{ fakeCellClass }}" style="padding: 0 !important;"></th>
+                                <th class="{{ fakeCellClass }}"{% if cell.responsivePriority is defined and cell.responsivePriority is not empty %} data-priority="{{ cell.responsivePriority }}"{% endif %} style="padding: 0 !important;"></th>
                                 {% endif %}
                             {% endif %}
                         {% endif %}
@@ -528,7 +562,7 @@
     <!-- /#supsystic-table-{{ table.id }}.supsystic-table -->
 
     {% block signature %}
-        {% if table.settings.elements.signature is defined and table.settings.elements.signatureText is defined %}
+        {% if hasSignatureText %}
             <div class="table-signature">{{ table.settings.elements.signatureText | raw }}</div>
         {% endif %}
     {% endblock %}

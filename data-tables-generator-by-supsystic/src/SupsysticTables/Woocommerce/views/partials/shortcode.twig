@@ -1,0 +1,43 @@
+<div class="supsystic-tables-addon"
+    data-woocommerce-table="on"
+    {% if table.woo_settings.woocommerce.view_cart_hide =='on' %}
+        data-view-cart-hide="on"
+    {% endif %}
+    {% if table.woo_settings.woocommerce.multiple_add_cart =='on' %}
+        data-multiple-add-cart="on"
+    {% endif %}
+>
+    {% set wooTranslations = table.woo_settings.woocommerce.translations|default({}) %}
+    <div class="stb-before-woo">
+        {% if filters|length %}
+            <div class="stbWooFilterWrapper">
+            <label>{{ wooTranslations.filters|default('') is not empty ? wooTranslations.filters : environment.translate('Filters') }}:</label>
+            {% if filters['attributes'] != false %}
+                <div class="stWooFilterAttributes">
+                    {% for i, attrData in filters['attributes'] %}
+                        <select data-type="attribute" data-column-keys="{{ attrData['keys'] }}">
+                            <option value="">{{ attrData['label'] }}</option>
+                            {% for id, title in attrData['options'] %}
+                                <option value="{{ id }}">{{ title }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endfor %}
+                </div>
+                <a href="#" class="stbResetWooFilters"><i class="fa fa-fw fa-undo"></i>{{ wooTranslations.reset|default('') is not empty ? wooTranslations.reset : environment.translate('Reset') }}</a>
+            {% endif %}
+            </div>
+        {% endif %}
+        {% if table.woo_settings.woocommerce.multiple_add_cart == 'on' %}
+            <div class="stAddMultyWrapper">
+                {% if checkoutUrl is defined and checkoutUrl %}
+                    <a href="{{ checkoutUrl }}" class="button stViewCheckoutButton">
+                        <span>{{ wooTranslations.view_checkout|default('') is not empty ? wooTranslations.view_checkout : environment.translate('View Checkout') }}</span>
+                    </a>
+                {% endif %}
+                <button class="button stAddMultyButton" data-table-id="{{ table.id }}">
+                    <span>{{ table.woo_settings.woocommerce.translations.add_selected_to_cart|default('') is not empty ? table.woo_settings.woocommerce.translations.add_selected_to_cart : environment.translate('Add selected to cart') }}</span>
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>

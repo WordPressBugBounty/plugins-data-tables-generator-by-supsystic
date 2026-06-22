@@ -87,24 +87,25 @@ var g_stbCopyPasteColsCount = [];
 
     // Initialize Sub Tabs
     var linksOyPositions = [],
-      settingsSection = $('.settings-section');
-    offsetTop2 = Math.floor($('#stb-anl-main').offset().top);
-    linksOyPositions.push({
-      id: '#stb-anl-main',
-      offset: 0,
-    });
-    linksOyPositions.push({
-      id: '#stb-anl-features',
-      offset: Math.abs(Math.floor($('#stb-anl-features').offset().top) - offsetTop2 - 40),
-    });
-    linksOyPositions.push({
-      id: '#stb-anl-appearance',
-      offset: Math.abs(Math.floor($('#stb-anl-appearance').offset().top) - offsetTop2 - 40),
-    });
-    linksOyPositions.push({
-      id: '#stb-anl-text',
-      offset: Math.abs(Math.floor($('#stb-anl-text').offset().top) - offsetTop2 - 40),
-    });
+      settingsSection = $('.settings-section'),
+      $anchorLinks = settingsSection.find('.stb-anchor-nav-links'),
+      $topAnchor = $('#stb-anl-main');
+    if ($topAnchor.length) {
+      var offsetTop2 = Math.floor($topAnchor.offset().top);
+      $anchorLinks.each(function (index) {
+        var id = $(this).attr('href'),
+          $target = $(id);
+
+        if (!$target.length) {
+          return;
+        }
+
+        linksOyPositions.push({
+          id: id,
+          offset: index === 0 ? 0 : Math.abs(Math.floor($target.offset().top) - offsetTop2 - 40),
+        });
+      });
+    }
 
     $('.settings-wrap')
       .slimScroll({ height: g_stbWindowHeight + 'px' })
@@ -122,7 +123,7 @@ var g_stbCopyPasteColsCount = [];
             ind1++;
           }
           // if current position at last anchor
-          if (isFind == false && ind1 == 3) {
+          if (isFind == false && e.data.oy.length) {
             isFind = ind1;
           }
           //check curr active item

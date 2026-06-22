@@ -681,6 +681,40 @@ var g_stbServerSideProcessingIsActive = false;
         responsiveMode = $table.data('responsive-mode'),
         searchingSettings = $table.data('searching-settings'),
         tableInstance = {},
+        buildProcessingLoaderHtml = function ($currentTable) {
+          var iconName = $currentTable.data('loader-icon-name') || 'default',
+            iconItems = parseInt($currentTable.data('loader-icon-items'), 10),
+            processingColor = $currentTable.data('processing-color') || $currentTable.data('loader-color') || '#000000',
+            processingBg = $currentTable.data('processing-bg') || '#ffffff',
+            itemsHtml = '',
+            i = 0;
+
+          iconItems = isNaN(iconItems) || iconItems < 0 ? 0 : iconItems;
+          if (iconName === 'default') {
+            return '<div class="stb-processing-loader-wrap" style="background-color:' + processingBg + ';"><div class="supsystic-table-loader spinner" style="background-color:' + processingColor + ';"></div></div>';
+          }
+
+          for (i = 0; i < iconItems; i++) {
+            itemsHtml += '<div></div>';
+          }
+
+          return '<div class="stb-processing-loader-wrap" style="background-color:' + processingBg + ';"><div class="supsystic-table-loader la-' + iconName + ' la-2x" style="color:' + processingColor + ';">' + itemsHtml + '</div></div>';
+        },
+        setupProcessingLoader = function ($currentTable, instance) {
+          var $processing = $currentTable.closest('.dataTables_wrapper').find('.dataTables_processing');
+
+          if (!$processing.length) {
+            return;
+          }
+
+          $processing.html(buildProcessingLoaderHtml($currentTable));
+
+          if (instance && typeof instance.on === 'function') {
+            instance.on('processing.dt', function () {
+              $processing.html(buildProcessingLoaderHtml($currentTable));
+            });
+          }
+        },
         defaultFeatures = {
           autoWidth: false,
           info: false,
@@ -770,6 +804,19 @@ var g_stbServerSideProcessingIsActive = false;
         config['searching'] = this.setTableAddSearching($table);
       }
       if (toeInArray('searching', features) != -1 && searchingSettings) {
+        if (searchingSettings.searchByHiddenField !== 'on') {
+          var hiddenSearchTargets = [];
+          $table.find('thead tr:first th.invisibleCell').each(function () {
+            hiddenSearchTargets.push(jQuery(this).index());
+          });
+          if (hiddenSearchTargets.length) {
+            config.columnDefs = config.columnDefs || [];
+            config.columnDefs.push({
+              targets: hiddenSearchTargets,
+              searchable: false,
+            });
+          }
+        }
         if (searchingSettings.minChars > 0 || searchingSettings.resultOnly || searchingSettings.strictMatching) {
           jQuery.fn.dataTable.ext.search.push(function (settings, data) {
             var $searchInput = jQuery(settings.nTableWrapper).find('.dataTables_filter input'),
@@ -836,7 +883,8 @@ var g_stbServerSideProcessingIsActive = false;
         if (searchingSettings.columnSearch) {
           var inputTop = searchingSettings.columnSearchPosition && searchingSettings.columnSearchPosition == 'top',
             tPosition = inputTop ? 'thead' : 'tfoot',
-            showColumnLabel = searchingSettings.columnSearchShowLabel && searchingSettings.columnSearchShowLabel == 'on',
+            labelsSettingEnabled = searchingSettings.columnSearchShowLabel && searchingSettings.columnSearchShowLabel == 'on',
+            showColumnLabel = labelsSettingEnabled,
             hasHeader = !!$table.data('head'),
             escapeHtml = function (text) {
               return String(text)
@@ -867,7 +915,7 @@ var g_stbServerSideProcessingIsActive = false;
                 var columnTitle = jQuery.trim(cellItem.text()).replace(/\s+/g, ' '),
                   escapedColumnTitle = escapeHtml(columnTitle),
                   columnLabel = showColumnLabel && columnTitle ? '<span class="stbColumnSearchLabel">' + escapedColumnTitle + '</span>' : '',
-                  inputPlaceholder = columnTitle ? ' placeholder="' + escapedColumnTitle + '"' : '';
+                  inputPlaceholder = columnTitle && (!hasHeader || labelsSettingEnabled) ? ' placeholder="' + escapedColumnTitle + '"' : '';
 
                 searchRow +=
                   '<th ' +
@@ -1155,10 +1203,13 @@ var g_stbServerSideProcessingIsActive = false;
         }
       });
       config.language = translation;
+      config.language.processing = '';
+      config.language.sProcessing = '';
 
       var ajaxSource = {};
 
       if (g_stbServerSideProcessing) {
+        var currentApp = this;
         var nonce = typeof DTGS_NONCE !== 'undefined' ? DTGS_NONCE : DTGS_NONCE_FRONTEND;
         var route = {
             action: 'getPageRows',
@@ -1175,25 +1226,40 @@ var g_stbServerSideProcessingIsActive = false;
           ajax: {
             url: window.ajaxurl ? window.ajaxurl : ajax_obj.ajaxurl,
             type: 'POST',
-            data: {
-              action: 'supsystic-tables',
-              route: route,
-              id: $table.data('id'),
-              searchParams: searchingSettings,
-              searchValue: function () {
-                var input = jQuery('#' + $table.attr('id') + '_filter.dataTables_filter').find('input');
-                return input.length ? input.val() : '';
-              },
-              header: headerRowsCount,
-              footer: footerRowsCount,
-              beforeSend: function () {
-                g_stbServerSideProcessingIsActive = true;
-              },
+            beforeSend: function () {
+              g_stbServerSideProcessingIsActive = true;
+            },
+            data: function (d) {
+              var currentSearchParams = jQuery.extend(true, {}, searchingSettings || {}),
+                input;
+
+              if (typeof currentApp.getServerSideSearchParams === 'function') {
+                currentSearchParams = currentApp.getServerSideSearchParams($table, currentSearchParams) || currentSearchParams;
+              }
+
+              input = jQuery('#' + $table.attr('id') + '_filter.dataTables_filter').find('input');
+
+              return jQuery.extend(true, d, {
+                action: 'supsystic-tables',
+                route: route,
+                id: $table.data('id'),
+                searchParams: currentSearchParams,
+                searchValue: input.length ? input.val() : '',
+                header: headerRowsCount,
+                footer: footerRowsCount,
+              });
             },
             dataFilter: function (data) {
               var json = jQuery.parseJSON(data),
-                rows = jQuery(json.rows).find('tr'),
+                rowsHtml = json.rows || '',
+                tbodyMatch = rowsHtml.match(/<tbody[\s\S]*<\/tbody>/i),
+                rowsSource = tbodyMatch ? jQuery('<table>' + tbodyMatch[0] + '</table>') : jQuery('<div>' + rowsHtml + '</div>'),
+                rows = rowsSource.find('tbody tr'),
                 aData = [];
+
+              if (!rows.length) {
+                rows = rowsSource.find('tr');
+              }
 
               loadedRows = [];
               loadedCells = [];
@@ -1289,6 +1355,7 @@ var g_stbServerSideProcessingIsActive = false;
       tableInstance = $table.dataTable(jQuery.extend({}, defaultFeatures, config, extraConfig, ajaxSource, reinit));
       tableInstance.table_id = $table.data('id');
       tableInstance.table_view_id = $table.data('view-id');
+      setupProcessingLoader($table, tableInstance);
       if (typeof tableInstance.fnFakeRowspan !== 'undefined') {
         tableInstance.fnFakeRowspan();
       }
