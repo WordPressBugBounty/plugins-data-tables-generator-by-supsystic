@@ -441,6 +441,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
       'thumbnail_width' => isset($woocommerce['thumbnail_width']) ? absint($woocommerce['thumbnail_width']) : '',
       'thumbnail_height' => isset($woocommerce['thumbnail_height']) ? absint($woocommerce['thumbnail_height']) : '',
       'multiple_add_cart' => !empty($woocommerce['multiple_add_cart']) ? 'on' : '',
+      'view_checkout_show' => !empty($woocommerce['_view_checkout_show_present']) ? (!empty($woocommerce['view_checkout_show']) ? 'on' : '') : 'on',
       'view_cart_hide' => !empty($woocommerce['view_cart_hide']) ? 'on' : '',
       'show_private' => !empty($woocommerce['show_private']) ? 'on' : '',
       'hide_out_of_stock' => !empty($woocommerce['hide_out_of_stock']) ? 'on' : '',
@@ -448,6 +449,11 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
       'exclude_productids' => '',
       'order' => isset($woocommerce['order']) ? $this->sanitizeColumnOrder($woocommerce['order']) : '',
       'filter_attribute' => '',
+      'filter_category_list' => '',
+      'filter_stock_status' => '',
+      'expand_filter_row' => '',
+      'filter_price_show_inputs' => '',
+      'filter_price_show_slider' => '',
       'filter_attribute_selected' => [],
       'auto_categories_enable' => '',
       'auto_categories_list' => '',
@@ -457,7 +463,12 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
 
     if ($this->isAdvancedWooAllowed()) {
       $clean['filter_attribute'] = !empty($woocommerce['filter_attribute']) ? 'on' : '';
-      $clean['filter_attribute_selected'] = !empty($woocommerce['filter_attribute_selected']) ? $this->sanitizeIds($woocommerce['filter_attribute_selected']) : [];
+      $clean['filter_category_list'] = !empty($woocommerce['filter_category_list']) ? 'on' : '';
+      $clean['filter_stock_status'] = empty($clean['hide_out_of_stock']) && !empty($woocommerce['filter_stock_status']) ? 'on' : '';
+      $clean['expand_filter_row'] = !empty($woocommerce['expand_filter_row']) ? 'on' : '';
+      $clean['filter_price_show_inputs'] = !empty($woocommerce['_filter_price_show_inputs_present']) ? (!empty($woocommerce['filter_price_show_inputs']) ? 'on' : '') : 'on';
+      $clean['filter_price_show_slider'] = !empty($woocommerce['_filter_price_show_slider_present']) ? (!empty($woocommerce['filter_price_show_slider']) ? 'on' : '') : 'on';
+      $clean['filter_attribute_selected'] = !empty($woocommerce['filter_attribute_selected']) ? $this->sanitizeAttributeFilterKeys($woocommerce['filter_attribute_selected']) : [];
       $clean['auto_categories_enable'] = !empty($woocommerce['auto_categories_enable']) ? 'on' : '';
       $clean['auto_categories_list'] = !empty($woocommerce['auto_categories_list']) ? implode(',', $this->sanitizeCategoryIds(explode(',', $woocommerce['auto_categories_list']))) : '';
       $clean['exclude_productids'] = !empty($woocommerce['exclude_productids']) ? implode(',', $this->sanitizeIds(explode(',', $woocommerce['exclude_productids']))) : '';
@@ -476,10 +487,17 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     return [
       'length_menu' => '',
       'info' => '',
+      'info_filtered' => '',
       'previous' => '',
       'next' => '',
       'filters' => '',
+      'availability' => '',
+      'price_label' => '',
+      'columns' => '',
+      'columns_search' => '',
       'reset' => '',
+      'price_from' => '',
+      'price_to' => '',
       'view_checkout' => '',
       'add_selected_to_cart' => '',
       'add_to_cart' => '',
@@ -530,6 +548,14 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
       'price_bg' => '#ffffff',
       'price_font_size' => 16,
       'price_font_weight' => 600,
+      'price_filter_input_text' => '#1f2933',
+      'price_filter_input_bg' => '#ffffff',
+      'price_filter_input_font_size' => 13,
+      'price_filter_input_font_weight' => 400,
+      'price_filter_track' => '#d7dce1',
+      'price_filter_fill' => '#2271b1',
+      'price_filter_thumb' => '#2271b1',
+      'price_filter_thumb_style' => 'circle',
       'checkout_button_text' => '#2271b1',
       'checkout_button_bg' => '#ffffff',
       'checkout_button_font_size' => 13,
@@ -559,15 +585,21 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
         continue;
       }
 
-      if (in_array($key, ['header_font_size', 'body_font_size', 'button_font_size', 'length_font_size', 'info_font_size', 'description_font_size', 'signature_font_size', 'price_font_size', 'checkout_button_font_size', 'reset_button_font_size'], true)) {
+      if (in_array($key, ['header_font_size', 'body_font_size', 'button_font_size', 'length_font_size', 'info_font_size', 'description_font_size', 'signature_font_size', 'price_font_size', 'price_filter_input_font_size', 'checkout_button_font_size', 'reset_button_font_size'], true)) {
         $clean[$key] = isset($design[$key]) ? min(48, max(10, absint($design[$key]))) : $value;
         continue;
       }
 
-      if (in_array($key, ['header_font_weight', 'body_font_weight', 'button_font_weight', 'length_font_weight', 'info_font_weight', 'description_font_weight', 'signature_font_weight', 'price_font_weight', 'checkout_button_font_weight', 'reset_button_font_weight'], true)) {
+      if (in_array($key, ['header_font_weight', 'body_font_weight', 'button_font_weight', 'length_font_weight', 'info_font_weight', 'description_font_weight', 'signature_font_weight', 'price_font_weight', 'price_filter_input_font_weight', 'checkout_button_font_weight', 'reset_button_font_weight'], true)) {
         $allowedWeights = [300, 400, 500, 600, 700, 800];
         $weight = isset($design[$key]) ? absint($design[$key]) : 0;
         $clean[$key] = in_array($weight, $allowedWeights, true) ? $weight : $value;
+        continue;
+      }
+
+      if ($key === 'price_filter_thumb_style') {
+        $style = isset($design[$key]) ? sanitize_key($design[$key]) : '';
+        $clean[$key] = in_array($style, ['circle', 'round', 'square'], true) ? $style : $value;
         continue;
       }
 
@@ -624,6 +656,34 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     $ids = array_filter($ids);
 
     return array_values(array_unique($ids));
+  }
+
+  private function sanitizeAttributeFilterKeys($keys)
+  {
+    if (!is_array($keys)) {
+      $keys = [$keys];
+    }
+
+    $clean = [];
+    foreach ($keys as $key) {
+      if (is_numeric($key)) {
+        $key = absint($key);
+        if ($key > 0) {
+          $clean[] = $key;
+        }
+        continue;
+      }
+
+      $key = strtolower(trim((string) $key));
+      if (strpos($key, 'custom:') === 0) {
+        $customKey = sanitize_title(substr($key, 7));
+        if ($customKey !== '') {
+          $clean[] = 'custom:' . $customKey;
+        }
+      }
+    }
+
+    return array_values(array_unique($clean));
   }
 
   private function sanitizeCategoryIds($ids)
@@ -702,6 +762,11 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
         'max_width' => $this->isAdvancedWooAllowed() && !empty($column['max_width']) ? absint($column['max_width']) : '',
         'hide_column' => $this->isAdvancedWooAllowed() && !empty($column['hide_column']) ? 1 : 0,
         'hide_responsive' => $this->isAdvancedWooAllowed() && !empty($column['hide_responsive']) ? 1 : 0,
+        'hide_search_input' => $this->isAdvancedWooAllowed() && !empty($column['hide_search_input']) ? 1 : 0,
+        'disable_sorting' => $this->isAdvancedWooAllowed() && !empty($column['disable_sorting']) ? 1 : 0,
+        'text_align' => $this->isAdvancedWooAllowed() && !empty($column['text_align']) && in_array($column['text_align'], ['left', 'center', 'right'], true) ? $column['text_align'] : '',
+        'vertical_align' => $this->isAdvancedWooAllowed() && !empty($column['vertical_align']) && in_array($column['vertical_align'], ['top', 'middle', 'bottom'], true) ? $column['vertical_align'] : '',
+        'show_price_search_inputs' => $this->isAdvancedWooAllowed() && !empty($column['show_price_search_inputs']) ? 1 : 0,
       ];
 
       if ($cleanColumn['slug'] !== '') {
@@ -770,14 +835,18 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     if (!empty($parsed['elements']['head'])) {
       $existingSettings['elements']['head'] = 'on';
     }
+    $headerEnabled = !empty($existingSettings['elements']['head']);
 
     if (!isset($existingSettings['features']) || !is_array($existingSettings['features'])) {
       $existingSettings['features'] = [];
     }
     $advancedAllowed = $this->isAdvancedWooAllowed();
-    foreach (['info', 'ordering', 'paging', 'searching', 'auto_width'] as $key) {
+    foreach (['info', 'ordering', 'paging', 'searching', 'auto_width', 'showHideColumnsList'] as $key) {
       unset($existingSettings['features'][$key]);
-      if ($key === 'searching' && !$advancedAllowed) {
+      if (in_array($key, ['searching', 'showHideColumnsList'], true) && !$advancedAllowed) {
+        continue;
+      }
+      if (!$headerEnabled && in_array($key, ['ordering', 'searching'], true)) {
         continue;
       }
       if (!empty($parsed['features'][$key])) {
@@ -790,14 +859,14 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     }
     foreach (['columnSearch', 'columnSearchShowLabel', 'searchByHiddenField', 'resultOnly', 'showTable', 'strictMatching'] as $key) {
       unset($existingSettings['searching'][$key]);
-      if (!$advancedAllowed) {
+      if (!$advancedAllowed || !$headerEnabled || empty($existingSettings['features']['searching'])) {
         continue;
       }
       if (!empty($parsed['searching'][$key])) {
         $existingSettings['searching'][$key] = 'on';
       }
     }
-    if ($advancedAllowed) {
+    if ($advancedAllowed && $headerEnabled && !empty($existingSettings['features']['searching'])) {
       $existingSettings['searching']['columnSearchPosition'] = !empty($parsed['searching']['columnSearchPosition']) && in_array($parsed['searching']['columnSearchPosition'], ['top', 'bottom'], true) ? $parsed['searching']['columnSearchPosition'] : 'bottom';
       $existingSettings['searching']['minChars'] = isset($parsed['searching']['minChars']) ? absint($parsed['searching']['minChars']) : '';
     } else {
@@ -848,6 +917,32 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     $existingSettings['tableWidthType'] = !empty($parsed['tableWidthType']) && in_array($parsed['tableWidthType'], ['%', 'px', 'auto'], true) ? $parsed['tableWidthType'] : '%';
     $existingSettings['tableWidthMobile'] = isset($parsed['tableWidthMobile']) ? $parsed['tableWidthMobile'] : '100';
     $existingSettings['tableWidthMobileType'] = !empty($parsed['tableWidthMobileType']) && in_array($parsed['tableWidthMobileType'], ['%', 'px', 'auto'], true) ? $parsed['tableWidthMobileType'] : '%';
+
+    if ($advancedAllowed) {
+      $supportedExportFormats = ['csv', 'xls', 'xlsx', 'pdf', 'print'];
+      if (!isset($existingSettings['features']) || !is_array($existingSettings['features'])) {
+        $existingSettings['features'] = [];
+      }
+      unset($existingSettings['features']['export']);
+      if (!empty($parsed['features']['export']) && is_array($parsed['features']['export'])) {
+        $selectedFormats = array_values(array_unique(array_intersect(array_map('sanitize_key', $parsed['features']['export']), $supportedExportFormats)));
+        if (!empty($selectedFormats)) {
+          $existingSettings['features']['export'] = $selectedFormats;
+        }
+      }
+
+      $existingSettings['exportLinksPosition'] = 'before_table';
+      $existingSettings['exportOnlyVisible'] = 'on';
+
+      $supportedPdfPaperSizes = ['auto', 'a4', 'letter', 'legal', 'tabloid'];
+      $existingSettings['pdfPaperSize'] = !empty($parsed['pdfPaperSize']) && in_array($parsed['pdfPaperSize'], $supportedPdfPaperSizes, true) ? $parsed['pdfPaperSize'] : 'auto';
+      $existingSettings['pdfOrientation'] = !empty($parsed['pdfOrientation']) && in_array($parsed['pdfOrientation'], ['portrait', 'landscape'], true) ? $parsed['pdfOrientation'] : 'portrait';
+      unset($existingSettings['pdfFullWidth']);
+      if (!empty($parsed['pdfFullWidth'])) {
+        $existingSettings['pdfFullWidth'] = 'on';
+      }
+    }
+
     $existingSettings['headerRowsCount'] = 1;
     $existingSettings['tableType'] = 'woo_product_table';
     $existingSettings['sourceType'] = 'woocommerce';

@@ -4,7 +4,7 @@
  * Plugin Name: Data Tables Generator by Supsystic
  * Plugin URI: http://supsystic.com
  * Description: Create and manage beautiful data tables with custom design. No HTML knowledge is required
- * Version: 1.12.0
+ * Version: 1.12.01
  * Author: supsystic.com
  * Author URI: http://supsystic.com
  * Text Domain: supsystic_tables
@@ -32,7 +32,7 @@ $proPluginPath = str_replace('data-tables-generator-by-supsystic', 'tables-gener
 $proPluginPath = $proPluginPath . '/index.php';
 if (file_exists($proPluginPath)) {
   $pluginData = get_file_data($proPluginPath, ['Version' => 'Version'], false);
-  if (!empty($pluginData['Version']) && version_compare($pluginData['Version'], '1.7.12', '<')) {
+  if (!empty($pluginData['Version']) && version_compare($pluginData['Version'], '1.9.0', '<')) {
     add_action('admin_notices', 'dtgsChangeProVersionNotice');
     deactivate_plugins('tables-generator-pro/index.php');
   }

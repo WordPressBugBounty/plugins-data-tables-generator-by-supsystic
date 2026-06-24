@@ -1,5 +1,16 @@
+{% set wooTranslations = table.woo_settings.woocommerce.translations|default({}) %}
+{% set availabilityLabel = wooTranslations.availability|default('') is not empty ? wooTranslations.availability : filters['stock_status']['label']|default(environment.translate('Availability')) %}
+{% set categoryFilterLabel = filters['categories']['label']|default(environment.translate('Categories')) %}
+{% set showCategoryFilter = filters['categories'] is defined and filters['categories'] != false and table.woo_settings.woocommerce.filter_category_list == 'on' %}
+{% set showStockFilter = filters['stock_status'] is defined and filters['stock_status'] != false and table.woo_settings.woocommerce.filter_stock_status == 'on' %}
+{% set showAttributeFilter = filters['attributes'] is defined and filters['attributes'] != false and table.woo_settings.woocommerce.filter_attribute == 'on' %}
+{% set showPriceFilter = filters['price'] is defined and filters['price'] != false and (filters['price']['show_inputs'] or filters['price']['show_slider']) %}
+{% set hasVisibleWooFilters = showCategoryFilter or showStockFilter or showAttributeFilter or showPriceFilter %}
 <div class="supsystic-tables-addon"
     data-woocommerce-table="on"
+    data-woo-columns-config="{{ table.woo_settings.woocommerce.order|default('')|e('html_attr') }}"
+    data-price-from-placeholder="{{ wooTranslations.price_from|default('') is not empty ? wooTranslations.price_from : environment.translate('From') }}"
+    data-price-to-placeholder="{{ wooTranslations.price_to|default('') is not empty ? wooTranslations.price_to : environment.translate('To') }}"
     {% if table.woo_settings.woocommerce.view_cart_hide =='on' %}
         data-view-cart-hide="on"
     {% endif %}
@@ -7,15 +18,140 @@
         data-multiple-add-cart="on"
     {% endif %}
 >
-    {% set wooTranslations = table.woo_settings.woocommerce.translations|default({}) %}
+    {% set showCheckoutButton = table.woo_settings.woocommerce.view_checkout_show is not defined or table.woo_settings.woocommerce.view_checkout_show == 'on' %}
+    {% set showHideColumnsList = table.settings.features.showHideColumnsList is defined and table.settings.features.showHideColumnsList == 'on' %}
+    {% set filtersExpanded = table.woo_settings.woocommerce.expand_filter_row is defined and table.woo_settings.woocommerce.expand_filter_row == 'on' %}
     <div class="stb-before-woo">
-        {% if filters|length %}
-            <div class="stbWooFilterWrapper">
-            <label>{{ wooTranslations.filters|default('') is not empty ? wooTranslations.filters : environment.translate('Filters') }}:</label>
-            {% if filters['attributes'] != false %}
+        {% if table.settings.features.export | default([]) | length %}
+            <div class="stbWooExportToggle supsystic-tables-export">
+                <button type="button" class="stbWooColumnsToggleButton stbWooExportToggleButton" aria-expanded="false">
+                    <i class="fa fa-download" aria-hidden="true"></i>
+                    <span>{{ table.settings.language.exportLabel | default(environment.translate('Save as')) }}</span>
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                </button>
+                <div class="stbWooColumnsToggleDropdown stbWooExportToggleDropdown stHidden">
+                    <div class="stbWooColumnsToggleList stbWooExportToggleList">
+                        {% for type in table.settings.features.export %}
+                            {% set exportType = type %}
+                            {% set exportLabel = type == 'print' ? environment.translate('Print') : type|upper %}
+                            {% if exportType == 'xls' or exportType == 'xlsx' %}
+                                {% set exportType = exportType ~ '_values' %}
+                            {% endif %}
+                            <div class="dtsFrontendExport">
+                                <a
+                                    class="stbWooColumnsToggleItem stbWooExportToggleItem export-{{ type }}"
+                                    data-export-type="{{ type }}"
+                                    href="?export-supsystic-table=true&type={{ exportType }}&id={{ table.id }}&nonce=SUPNONCEFRONTEND"
+                                    data-only-visible="on"
+                                    {% if type == 'pdf' %}
+                                        data-paper-size="{{ table.settings.pdfPaperSize | default('auto') }}"
+                                        data-orientation="{{ table.settings.pdfOrientation | default('portrait') }}"
+                                        data-full-width="{{ table.settings.pdfFullWidth }}"
+                                    {% endif %}
+                                >
+                                    <span class="stbWooColumnsToggleItemInner">
+                                        <i class="export-{{ type }}-icon"></i>
+                                        <span class="stbWooColumnsToggleItemLabel">{{ exportLabel }}</span>
+                                    </span>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="dtsFrontendExportNotice"></div>
+                </div>
+            </div>
+        {% endif %}
+        {% if showHideColumnsList %}
+            <div class="stbWooColumnsToggle" data-columns-toggle="on" data-columns-config="{{ table.woo_settings.woocommerce.order|default('')|e('html_attr') }}">
+                <button type="button" class="stbWooColumnsToggleButton" aria-expanded="false">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                    <span>{{ wooTranslations.columns|default('') is not empty ? wooTranslations.columns : environment.translate('Columns') }}</span>
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                </button>
+                <div class="stbWooColumnsToggleDropdown stHidden">
+                    <div class="stbWooColumnsToggleList"></div>
+                </div>
+            </div>
+        {% endif %}
+        {% if showCategoryFilter %}
+                <div class="stbWooCategoryFilter" data-filter-type="{{ filters['categories']['type'] }}">
+                    <button type="button" class="stbWooColumnsToggleButton stbWooCategoryFilterButton" aria-expanded="false">
+                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                        <span>{{ categoryFilterLabel }}</span>
+                        <i class="fa fa-angle-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="stbWooColumnsToggleDropdown stbWooCategoryFilterDropdown stHidden">
+                        <div class="stbWooCategoryFilterToolbar">
+                            <button type="button" class="stbWooCategoryFilterToggleAll">{{ environment.translate('Toggle All') }}</button>
+                        </div>
+                        <div class="stbWooColumnsToggleList stbWooCategoryFilterList">
+                            {% for option in filters['categories']['options'] %}
+                                <button type="button" class="stbWooColumnsToggleItem stbWooCategoryFilterItem is-active" data-category-id="{{ option.id }}">
+                                    <span class="stbWooColumnsToggleItemInner">
+                                        <input type="checkbox" class="stbWooColumnsToggleCheckbox stbWooCategoryFilterCheckbox" checked="checked" />
+                                        <span class="stbWooColumnsToggleItemLabel">{{ option.label }}</span>
+                                    </span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+        {% endif %}
+        {% if hasVisibleWooFilters %}
+            <div class="stbWooFilterToggle">
+                <button type="button" class="stbWooColumnsToggleButton stbWooFiltersToggleButton" aria-expanded="{{ filtersExpanded ? 'true' : 'false' }}">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
+                    <span>{{ wooTranslations.filters|default('') is not empty ? wooTranslations.filters : environment.translate('Filters') }}</span>
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                </button>
+                {% if hasVisibleWooFilters %}
+                    <a href="#" class="stbResetWooFilters{{ filtersExpanded ? '' : ' stHidden' }}"><i class="fa fa-fw fa-undo"></i>{{ wooTranslations.reset|default('') is not empty ? wooTranslations.reset : environment.translate('Reset') }}</a>
+                {% endif %}
+            </div>
+            <div class="stbWooFilterWrapper{{ filtersExpanded ? '' : ' stHidden' }}">
+            
+            {% if showPriceFilter %}
+                <div class="stWooFilterPrice"
+                    data-filter-type="{{ filters['price']['type'] }}"
+                    data-min="{{ filters['price']['min'] }}"
+                    data-max="{{ filters['price']['max'] }}"
+                    data-step="{{ filters['price']['step']|default('1') }}"
+                >
+                    <span class="stWooFilterPriceLabel">{{ wooTranslations.price_label|default('') is not empty ? wooTranslations.price_label : filters['price']['label'] }}</span>
+                    {% if filters['price']['show_inputs'] %}
+                        <div class="stWooFilterPriceInputs">
+                            <input
+                                type="number"
+                                class="stWooPriceInput stWooPriceInputMin"
+                                min="{{ filters['price']['min'] }}"
+                                max="{{ filters['price']['max'] }}"
+                                step="{{ filters['price']['step']|default('1') }}"
+                                placeholder="{{ wooTranslations.price_from|default('') is not empty ? wooTranslations.price_from : environment.translate('From') }}"
+                            />
+                            <span class="stWooPriceDash">&ndash;</span>
+                            <input
+                                type="number"
+                                class="stWooPriceInput stWooPriceInputMax"
+                                min="{{ filters['price']['min'] }}"
+                                max="{{ filters['price']['max'] }}"
+                                step="{{ filters['price']['step']|default('1') }}"
+                                placeholder="{{ wooTranslations.price_to|default('') is not empty ? wooTranslations.price_to : environment.translate('To') }}"
+                            />
+                        </div>
+                    {% endif %}
+                    {% if filters['price']['show_slider'] %}
+                        <div class="stWooFilterPriceSlider">
+                            <div class="stWooPriceSliderTrack"></div>
+                            <input type="range" class="stWooPriceRange stWooPriceRangeMin" min="{{ filters['price']['min'] }}" max="{{ filters['price']['max'] }}" step="{{ filters['price']['step']|default('1') }}" value="{{ filters['price']['min'] }}" />
+                            <input type="range" class="stWooPriceRange stWooPriceRangeMax" min="{{ filters['price']['min'] }}" max="{{ filters['price']['max'] }}" step="{{ filters['price']['step']|default('1') }}" value="{{ filters['price']['max'] }}" />
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if showAttributeFilter %}
                 <div class="stWooFilterAttributes">
                     {% for i, attrData in filters['attributes'] %}
-                        <select data-type="attribute" data-column-keys="{{ attrData['keys'] }}">
+                        <select data-filter-type="{{ attrData['type']|default('attribute_term') }}" data-taxonomy="{{ attrData['taxonomy']|default('') }}">
                             <option value="">{{ attrData['label'] }}</option>
                             {% for id, title in attrData['options'] %}
                                 <option value="{{ id }}">{{ title }}</option>
@@ -23,20 +159,32 @@
                         </select>
                     {% endfor %}
                 </div>
-                <a href="#" class="stbResetWooFilters"><i class="fa fa-fw fa-undo"></i>{{ wooTranslations.reset|default('') is not empty ? wooTranslations.reset : environment.translate('Reset') }}</a>
             {% endif %}
+            {% if showStockFilter %}
+                <div class="stWooFilterStock">
+                    <select data-filter-type="{{ filters['stock_status']['type'] }}">
+                        <option value="">{{ availabilityLabel }}</option>
+                        {% for value, title in filters['stock_status']['options'] %}
+                            <option value="{{ value }}">{{ title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            
             </div>
         {% endif %}
-        {% if table.woo_settings.woocommerce.multiple_add_cart == 'on' %}
+        {% if table.woo_settings.woocommerce.multiple_add_cart == 'on' or showCheckoutButton %}
             <div class="stAddMultyWrapper">
-                {% if checkoutUrl is defined and checkoutUrl %}
+                {% if showCheckoutButton and checkoutUrl is defined and checkoutUrl %}
                     <a href="{{ checkoutUrl }}" class="button stViewCheckoutButton">
                         <span>{{ wooTranslations.view_checkout|default('') is not empty ? wooTranslations.view_checkout : environment.translate('View Checkout') }}</span>
                     </a>
                 {% endif %}
-                <button class="button stAddMultyButton" data-table-id="{{ table.id }}">
-                    <span>{{ table.woo_settings.woocommerce.translations.add_selected_to_cart|default('') is not empty ? table.woo_settings.woocommerce.translations.add_selected_to_cart : environment.translate('Add selected to cart') }}</span>
-                </button>
+                {% if table.woo_settings.woocommerce.multiple_add_cart == 'on' %}
+                    <button class="button stAddMultyButton" data-table-id="{{ table.id }}">
+                        <span>{{ table.woo_settings.woocommerce.translations.add_selected_to_cart|default('') is not empty ? table.woo_settings.woocommerce.translations.add_selected_to_cart : environment.translate('Add selected to cart') }}</span>
+                    </button>
+                {% endif %}
             </div>
         {% endif %}
     </div>

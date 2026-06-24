@@ -78,39 +78,39 @@
                             </button>
                         </li>
                         {{ environment.getDispatcher().dispatch('tables-view-buttons-left') }}
+                        {% if not isWooProductTable %}
                         <li>
                             <button id="export"
-                                    class="button{% if not isWooProductTable and environment.isPro() == false %} pro-notify{% endif %}"
-                                    {% if not isWooProductTable %}
+                                    class="button{% if environment.isPro() == false %} pro-notify{% endif %}"
                                     data-dialog="#import_exportProFeatureDialog"
                                     data-dtitle="{{ environment.translate('Import / Export') }}"
                                     data-dwidth="480"
-                                    {% endif %}
                                     >
                                 <i class="fa fa-fw fa-upload"></i>
-                                <span>{{ isWooProductTable ? environment.translate('Export Settings') : environment.translate('Export') }}</span>
+                                <span>{{ environment.translate('Export') }}</span>
                             </button>
                         </li>
                         <li>
                             <button id="import"
-                                    class="button{% if not isWooProductTable and environment.isPro() == false %} pro-notify{% endif %}"
-                                    {% if not isWooProductTable %}
+                                    class="button{% if environment.isPro() == false %} pro-notify{% endif %}"
                                     data-dialog="#import_exportProFeatureDialog"
                                     data-dtitle="{{ environment.translate('Import / Export') }}"
                                     data-dwidth="480"
-                                    {% endif %}
                                     >
                                 <i class="fa fa-fw fa-download"></i>
-                                <span>{{ isWooProductTable ? environment.translate('Import Settings') : environment.translate('Import') }}</span>
+                                <span>{{ environment.translate('Import') }}</span>
                             </button>
                         </li>
+                        {% endif %}
                         {{ environment.getDispatcher().dispatch('tables-view-buttons-right') }}
+                        {% if not isWooProductTable %}
                         <li>
                             <button id="buttonClearData" class="button">
                                 <i class="fa fa-eraser" aria-hidden="true"></i>
                                 <span>{{ environment.translate('Clear') }}</span>
                             </button>
                         </li>
+                        {% endif %}
                         <li>
                             <button id="buttonDelete" class="button">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>

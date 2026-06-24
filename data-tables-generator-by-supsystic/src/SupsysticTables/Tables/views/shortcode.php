@@ -109,6 +109,13 @@ if (!function_exists('makeCell')) {
 					<?php if ($row['height'] && $row['height'] !== 'NaN'): ?>
 						style="height: <?php print wp_kses_post($row['height']); ?>px"
 					<?php endif; ?>
+					<?php if (!empty($row['attributes']) && is_array($row['attributes'])): ?>
+						<?php foreach ($row['attributes'] as $attrName => $attrValue): ?>
+							<?php if ($attrName !== '' && $attrValue !== null): ?>
+								<?php print esc_attr($attrName); ?>="<?php print esc_attr($attrValue); ?>"
+							<?php endif; ?>
+						<?php endforeach; ?>
+					<?php endif; ?>
 				>
 					<?php foreach ($row['cells'] as $cellIndex => $cell) {
        print wp_kses_post(makeCell($cell, $rowIndex, $cellIndex));

@@ -170,6 +170,9 @@
     {% if wooTextOverrides.info|default('') %}
         {% set languageOverride = languageOverride|merge({'info': wooTextOverrides.info}) %}
     {% endif %}
+    {% if wooTextOverrides.info_filtered|default('') %}
+        {% set languageOverride = languageOverride|merge({'infoFiltered': wooTextOverrides.info_filtered}) %}
+    {% endif %}
     {% if wooTextOverrides.previous|default('') %}
         {% set languageOverride = languageOverride|merge({'previous': wooTextOverrides.previous}) %}
     {% endif %}
@@ -337,7 +340,7 @@
                 data-after-table-loaded-script="{{ table.settings.features.after_table_loaded_script | json_encode | e }}"
             {% endif %}
             data-lang="{{ table.settings.language.file | default('default') }}"
-            {% if ('language' in settingsKeys) or wooTextOverrides.length_menu|default('') or wooTextOverrides.info|default('') or wooTextOverrides.previous|default('') or wooTextOverrides.next|default('') %}
+            {% if ('language' in settingsKeys) or wooTextOverrides.length_menu|default('') or wooTextOverrides.info|default('') or wooTextOverrides.info_filtered|default('') or wooTextOverrides.previous|default('') or wooTextOverrides.next|default('') %}
                 data-override="{{ languageOverride | json_encode | e }}"
             {% endif %}
             {% if 'translation' in settingsKeys %}
@@ -481,6 +484,11 @@
                 <tr
                         {% if rowHeightExists == true and row.height != 'NaN' %}
                             style="height: {{ row.height }}px"
+                        {% endif %}
+                        {% if row.attributes is iterable %}
+                            {% for attrName, attrValue in row.attributes %}
+                                {{ attrName }}="{{ attrValue|e('html_attr') }}"
+                            {% endfor %}
                         {% endif %}
                         >
                     {% if table.settings.autoIndex == 'new' %}

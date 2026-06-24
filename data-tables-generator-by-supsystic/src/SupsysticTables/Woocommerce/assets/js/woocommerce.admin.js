@@ -1,6 +1,6 @@
 (function ($, app) {
   var WOO_DESIGN_PRESETS = {"warm_contrast":{"header_text":"#fff7ed","header_bg":"#7c2d12","header_font_size":"15","header_font_weight":"700","body_text":"#3f3f46","body_bg":"#fffdf8","body_font_size":"14","body_font_weight":"400","input_text":"#451a03","input_bg":"#fff7ed","select_text":"#451a03","select_bg":"#fff7ed","button_text":"#fff7ed","button_bg":"#9a3412","button_font_size":"13","button_font_weight":"700","button_hover_text":"#ffffff","button_hover_bg":"#7c2d12","stripe_text":"#3f3f46","stripe_bg":"#ffedd5","hover_text":"#27272a","hover_bg":"#fed7aa","price_text":"#9a3412","price_bg":"#fff7ed","border_color":"#fdba74"},"mono_slate":{"header_text":"#f8fafc","header_bg":"#334155","header_font_size":"14","header_font_weight":"700","body_text":"#334155","body_bg":"#ffffff","body_font_size":"14","body_font_weight":"400","input_text":"#1e293b","input_bg":"#f8fafc","select_text":"#1e293b","select_bg":"#f8fafc","button_text":"#f8fafc","button_bg":"#0f172a","button_font_size":"13","button_font_weight":"600","button_hover_text":"#ffffff","button_hover_bg":"#334155","stripe_text":"#334155","stripe_bg":"#f8fafc","hover_text":"#0f172a","hover_bg":"#e2e8f0","price_text":"#0f172a","price_bg":"#ffffff","border_color":"#cbd5e1"},"sage_market":{"header_text":"#f6fff8","header_bg":"#3b6b57","header_font_size":"14","header_font_weight":"700","body_text":"#254034","body_bg":"#fbfdf9","body_font_size":"14","body_font_weight":"400","input_text":"#254034","input_bg":"#f6fbf7","select_text":"#254034","select_bg":"#f6fbf7","button_text":"#f6fff8","button_bg":"#4f7c65","button_font_size":"13","button_font_weight":"600","button_hover_text":"#ffffff","button_hover_bg":"#365847","stripe_text":"#254034","stripe_bg":"#eef6f0","hover_text":"#1f3529","hover_bg":"#dbeadf","price_text":"#2f5d46","price_bg":"#fbfdf9","border_color":"#b9d0c0"},"midnight_glow":{"header_text":"#e0f2fe","header_bg":"#1e293b","header_font_size":"15","header_font_weight":"700","body_text":"#e2e8f0","body_bg":"#111827","body_font_size":"14","body_font_weight":"400","input_text":"#e2e8f0","input_bg":"#1f2937","select_text":"#e2e8f0","select_bg":"#1f2937","button_text":"#0f172a","button_bg":"#67e8f9","button_font_size":"13","button_font_weight":"700","button_hover_text":"#082f49","button_hover_bg":"#22d3ee","stripe_text":"#e2e8f0","stripe_bg":"#172033","hover_text":"#f8fafc","hover_bg":"#243447","price_text":"#67e8f9","price_bg":"#111827","border_color":"#334155"},"sandstone_shop":{"header_text":"#fffaf0","header_bg":"#8c5a2b","header_font_size":"14","header_font_weight":"700","body_text":"#5b4636","body_bg":"#fffcf7","body_font_size":"14","body_font_weight":"400","input_text":"#5b4636","input_bg":"#fff7eb","select_text":"#5b4636","select_bg":"#fff7eb","button_text":"#fff8ef","button_bg":"#c2783b","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fff8ef","button_hover_bg":"#9f5d28","stripe_text":"#5b4636","stripe_bg":"#f6ecdf","hover_text":"#493528","hover_bg":"#f2ddc5","price_text":"#9f5d28","price_bg":"#fffcf7","border_color":"#e2c4a4"},"berry_editorial":{"header_text":"#fff1f7","header_bg":"#7a284b","header_font_size":"15","header_font_weight":"700","body_text":"#4b1f31","body_bg":"#fffafc","body_font_size":"14","body_font_weight":"400","input_text":"#4b1f31","input_bg":"#fff2f7","select_text":"#4b1f31","select_bg":"#fff2f7","button_text":"#fff5f8","button_bg":"#c44278","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fff5f8","button_hover_bg":"#a92c5f","stripe_text":"#4b1f31","stripe_bg":"#fde8f0","hover_text":"#3c1827","hover_bg":"#f9d1e0","price_text":"#a92c5f","price_bg":"#fffafc","border_color":"#edb7ca"},"ocean_breeze":{"header_text":"#ecfeff","header_bg":"#0f5f78","header_font_size":"14","header_font_weight":"700","body_text":"#164e63","body_bg":"#f8fdff","body_font_size":"14","body_font_weight":"400","input_text":"#164e63","input_bg":"#f0fbff","select_text":"#164e63","select_bg":"#f0fbff","button_text":"#ecfeff","button_bg":"#0891b2","button_font_size":"13","button_font_weight":"700","button_hover_text":"#ecfeff","button_hover_bg":"#0e7490","stripe_text":"#164e63","stripe_bg":"#e0f7fa","hover_text":"#083344","hover_bg":"#bae6fd","price_text":"#0369a1","price_bg":"#f8fdff","border_color":"#a5d8e6"},"forest_merchant":{"header_text":"#f0fdf4","header_bg":"#14532d","header_font_size":"14","header_font_weight":"700","body_text":"#1f3d2a","body_bg":"#fbfefb","body_font_size":"14","body_font_weight":"400","input_text":"#1f3d2a","input_bg":"#f3fbf4","select_text":"#1f3d2a","select_bg":"#f3fbf4","button_text":"#f0fdf4","button_bg":"#15803d","button_font_size":"13","button_font_weight":"700","button_hover_text":"#f0fdf4","button_hover_bg":"#166534","stripe_text":"#1f3d2a","stripe_bg":"#e7f5ea","hover_text":"#16311f","hover_bg":"#d1fad8","price_text":"#166534","price_bg":"#fbfefb","border_color":"#b7dec0"},"rose_clay":{"header_text":"#fff8f6","header_bg":"#9a5b63","header_font_size":"14","header_font_weight":"700","body_text":"#5c3b41","body_bg":"#fffaf9","body_font_size":"14","body_font_weight":"400","input_text":"#5c3b41","input_bg":"#fff3f0","select_text":"#5c3b41","select_bg":"#fff3f0","button_text":"#fffaf7","button_bg":"#d27d6a","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fffaf7","button_hover_bg":"#b86657","stripe_text":"#5c3b41","stripe_bg":"#f9ece7","hover_text":"#472e33","hover_bg":"#f3d7cf","price_text":"#b86657","price_bg":"#fffaf9","border_color":"#e6c0b8"},"lux_gold":{"header_text":"#fef3c7","header_bg":"#1f2937","header_font_size":"15","header_font_weight":"700","body_text":"#374151","body_bg":"#fffdfa","body_font_size":"14","body_font_weight":"400","input_text":"#374151","input_bg":"#fff9ed","select_text":"#374151","select_bg":"#fff9ed","button_text":"#fffaf0","button_bg":"#c08a1a","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fffaf0","button_hover_bg":"#a16207","stripe_text":"#374151","stripe_bg":"#faf5e6","hover_text":"#1f2937","hover_bg":"#f6e7b7","price_text":"#a16207","price_bg":"#fffdfa","border_color":"#e6cf8b"}};
-  var WOO_DESIGN_PRESET_DEFAULTS = {length_color:'#334155',length_font_size:'13',length_font_weight:'400',info_color:'#334155',info_font_size:'13',info_font_weight:'400',description_color:'#334155',description_font_size:'14',description_font_weight:'400',signature_color:'#334155',signature_font_size:'13',signature_font_weight:'400',processing_bg:'#ffffff',processing_color:'#000000',price_font_size:'16',price_font_weight:'600',checkout_button_text:'#2271b1',checkout_button_bg:'#ffffff',checkout_button_font_size:'13',checkout_button_font_weight:'600',checkout_button_hover_text:'#ffffff',checkout_button_hover_bg:'#135e96',reset_button_text:'#334155',reset_button_bg:'#ffffff',reset_button_font_size:'13',reset_button_font_weight:'600',reset_button_hover_text:'#ffffff',reset_button_hover_bg:'#2271b1'};
+  var WOO_DESIGN_PRESET_DEFAULTS = {length_color:'#334155',length_font_size:'13',length_font_weight:'400',info_color:'#334155',info_font_size:'13',info_font_weight:'400',description_color:'#334155',description_font_size:'14',description_font_weight:'400',signature_color:'#334155',signature_font_size:'13',signature_font_weight:'400',processing_bg:'#ffffff',processing_color:'#000000',price_font_size:'16',price_font_weight:'600',price_filter_input_text:'#1f2933',price_filter_input_bg:'#ffffff',price_filter_input_font_size:'13',price_filter_input_font_weight:'400',price_filter_track:'#d7dce1',price_filter_fill:'#2271b1',price_filter_thumb:'#2271b1',price_filter_thumb_style:'circle',checkout_button_text:'#2271b1',checkout_button_bg:'#ffffff',checkout_button_font_size:'13',checkout_button_font_weight:'600',checkout_button_hover_text:'#ffffff',checkout_button_hover_bg:'#135e96',reset_button_text:'#334155',reset_button_bg:'#ffffff',reset_button_font_size:'13',reset_button_font_weight:'600',reset_button_hover_text:'#ffffff',reset_button_hover_bg:'#2271b1'};
 
   $.each(WOO_DESIGN_PRESETS, function (key, preset) {
     WOO_DESIGN_PRESETS[key] = $.extend({}, WOO_DESIGN_PRESET_DEFAULTS, {
@@ -12,6 +12,14 @@
       processing_color: preset.button_bg || preset.price_text || preset.body_text || WOO_DESIGN_PRESET_DEFAULTS.processing_color,
       price_font_size: preset.body_font_size || WOO_DESIGN_PRESET_DEFAULTS.price_font_size,
       price_font_weight: preset.button_font_weight || preset.header_font_weight || WOO_DESIGN_PRESET_DEFAULTS.price_font_weight,
+      price_filter_input_text: preset.input_text || WOO_DESIGN_PRESET_DEFAULTS.price_filter_input_text,
+      price_filter_input_bg: preset.input_bg || WOO_DESIGN_PRESET_DEFAULTS.price_filter_input_bg,
+      price_filter_input_font_size: preset.body_font_size || WOO_DESIGN_PRESET_DEFAULTS.price_filter_input_font_size,
+      price_filter_input_font_weight: preset.body_font_weight || WOO_DESIGN_PRESET_DEFAULTS.price_filter_input_font_weight,
+      price_filter_track: preset.border_color || WOO_DESIGN_PRESET_DEFAULTS.price_filter_track,
+      price_filter_fill: preset.button_bg || WOO_DESIGN_PRESET_DEFAULTS.price_filter_fill,
+      price_filter_thumb: preset.button_bg || preset.price_text || WOO_DESIGN_PRESET_DEFAULTS.price_filter_thumb,
+      price_filter_thumb_style: WOO_DESIGN_PRESET_DEFAULTS.price_filter_thumb_style,
       checkout_button_text: preset.button_bg || WOO_DESIGN_PRESET_DEFAULTS.checkout_button_text,
       checkout_button_bg: preset.body_bg || WOO_DESIGN_PRESET_DEFAULTS.checkout_button_bg,
       checkout_button_font_size: preset.button_font_size || WOO_DESIGN_PRESET_DEFAULTS.checkout_button_font_size,
@@ -208,7 +216,8 @@
 
   AdminPage.prototype.eventsAdminPage = function () {
     var _thisObj = this.$obj,
-      wooForm = $('form#woocommerce-settings');
+      wooForm = $('form#woocommerce-settings'),
+      advancedAllowed = typeof SDT_DATA !== 'undefined' && !!SDT_DATA.isWooAdvanced;
 
     function syncWooCheckbox($input, checked) {
       if (!$input.length) {
@@ -234,6 +243,108 @@
           $(this).addClass('stHidden');
         });
       }
+    }
+
+    function toggleWooStockStatusFilterAvailability() {
+      var hideOutOfStock = wooForm.find('input[name="woocommerce[hide_out_of_stock]"]').is(':checked'),
+        stockFilterToggle = wooForm.find('input[name="woocommerce[filter_stock_status]"]'),
+        shouldDisable = hideOutOfStock || !advancedAllowed;
+
+      if (!stockFilterToggle.length) {
+        return;
+      }
+
+      if (hideOutOfStock) {
+        syncWooCheckbox(stockFilterToggle, false);
+      }
+
+      stockFilterToggle.prop('disabled', shouldDisable);
+
+      if ($.fn.iCheck) {
+        stockFilterToggle.iCheck(shouldDisable ? 'disable' : 'enable');
+        stockFilterToggle.iCheck('update');
+      }
+    }
+
+    function toggleWooSettingsBlock(rows, enabled) {
+      rows = $(rows);
+
+      if (enabled) {
+        rows.removeClass('stHidden').stop(true, true).fadeIn();
+      } else {
+        rows.stop(true, true).fadeOut(function () {
+          $(this).addClass('stHidden');
+        });
+      }
+    }
+
+    function setWooFieldsDisabled(rows, disabled) {
+      $(rows)
+        .find('input, select, textarea, button')
+        .each(function () {
+          var field = $(this);
+
+          field.prop('disabled', !!disabled);
+
+          if ($.fn.iCheck && field.is(':checkbox, :radio')) {
+            field.iCheck(disabled ? 'disable' : 'enable');
+            field.iCheck('update');
+          }
+        });
+    }
+
+    function toggleWooSortingOptions() {
+      var enabled = wooForm.find('input[name="features[ordering]"]').is(':checked'),
+        rows = wooForm.find('.woo-sorting-options');
+
+      toggleWooSettingsBlock(rows, enabled);
+    }
+
+    function toggleWooSearchingColumnOptions() {
+      var enabled = wooForm.find('input[name="features[searching]"]').is(':checked') && wooForm.find('input[name="searching[columnSearch]"]').is(':checked'),
+        rows = wooForm.find('.woo-searching-column-options');
+
+      toggleWooSettingsBlock(rows, enabled);
+    }
+
+    function toggleWooSearchingResultOptions() {
+      var enabled = wooForm.find('input[name="features[searching]"]').is(':checked') && wooForm.find('input[name="searching[resultOnly]"]').is(':checked'),
+        rows = wooForm.find('.woo-searching-result-options');
+
+      toggleWooSettingsBlock(rows, enabled);
+    }
+
+    function toggleWooSearchingOptions() {
+      var enabled = wooForm.find('input[name="features[searching]"]').is(':checked'),
+        rows = wooForm.find('.woo-searching-options');
+
+      toggleWooSettingsBlock(rows, enabled);
+      toggleWooSearchingColumnOptions();
+      toggleWooSearchingResultOptions();
+    }
+
+    function toggleWooPaginationOptions() {
+      var enabled = wooForm.find('input[name="features[paging]"]').is(':checked'),
+        rows = wooForm.find('.woo-pagination-options');
+
+      toggleWooSettingsBlock(rows, enabled);
+    }
+
+    function toggleWooHeaderDependentOptions() {
+      var enabled = wooForm.find('input[name="elements[head]"]').is(':checked'),
+        mainRows = wooForm.find('.woo-header-dependent-main'),
+        subRows = wooForm.find('.woo-sorting-options, .woo-searching-options, .woo-searching-column-options, .woo-searching-result-options');
+
+      toggleWooSettingsBlock(mainRows, enabled);
+      if (!enabled) {
+        toggleWooSettingsBlock(subRows, false);
+      } else {
+        toggleWooSortingOptions();
+        toggleWooSearchingOptions();
+      }
+
+      setWooFieldsDisabled(mainRows, !enabled);
+      setWooFieldsDisabled(subRows, !enabled);
     }
 
     function toggleManualProductsSection(forceExpanded) {
@@ -335,8 +446,35 @@
         $('.woo-filter-attributes').fadeOut();
       }
     });
+    wooForm.find('input[name="elements[head]"]').on('change ifChanged', function () {
+      toggleWooHeaderDependentOptions();
+    });
+    wooForm.find('input[name="woocommerce[hide_out_of_stock]"]').on('change ifChanged', function () {
+      toggleWooStockStatusFilterAvailability();
+    });
+    wooForm.find('input[name="features[ordering]"]').on('change ifChanged', function () {
+      toggleWooSortingOptions();
+    });
+    wooForm.find('input[name="features[searching]"]').on('change ifChanged', function () {
+      toggleWooSearchingOptions();
+    });
+    wooForm.find('input[name="searching[columnSearch]"]').on('change ifChanged', function () {
+      toggleWooSearchingColumnOptions();
+    });
+    wooForm.find('input[name="searching[resultOnly]"]').on('change ifChanged', function () {
+      toggleWooSearchingResultOptions();
+    });
+    wooForm.find('input[name="features[paging]"]').on('change ifChanged', function () {
+      toggleWooPaginationOptions();
+    });
 
-    wooForm.find('select[name="woocommerce[filter_attribute_selected][]"]').chosen();
+    wooForm.find('select[name="woocommerce[filter_attribute_selected][]"]').chosen({ width: '100%' });
+    wooForm.find('select[name="features[export][]"]').chosen({ width: '100%' });
+    toggleWooStockStatusFilterAvailability();
+    toggleWooSortingOptions();
+    toggleWooSearchingOptions();
+    toggleWooPaginationOptions();
+    toggleWooHeaderDependentOptions();
 
     wooForm.find('input[name="woocommerce[design][enabled]"]').on('change ifChanged', function () {
       toggleWooDesignOptions();
@@ -361,8 +499,7 @@
     //Auto Add Products
     var autoSelect = $('#stbAutoCategoriesList'),
       autoInput = $('#stbAutoAddProductsWrapper input[name="woocommerce[auto_categories_list]"'),
-      autoEnable = wooForm.find('input[name="woocommerce[auto_categories_enable]"]'),
-      advancedAllowed = typeof SDT_DATA !== 'undefined' && !!SDT_DATA.isWooAdvanced;
+      autoEnable = wooForm.find('input[name="woocommerce[auto_categories_enable]"]');
 
     autoSelect.multipleSelect({
       selectAll: true,
@@ -769,6 +906,15 @@
       }
     }
 
+    function toggleDialogOption($label, $input, visible) {
+      $label.toggleClass('stHidden', !visible);
+      $input.toggleClass('stHidden', !visible);
+
+      if ($.fn.iCheck && $input.parent().hasClass('icheckbox_minimal')) {
+        $input.parent().toggleClass('stHidden', !visible);
+      }
+    }
+
     //make properties sortable
     $('.stPropertiesWrapp').sortable({
       containment: 'parent',
@@ -795,30 +941,108 @@
       }
     });
 
+    $('body').on('click', '.stPropertiesPriceSearchInputsLabel', function (e) {
+      e.preventDefault();
+
+      var dialogHtml = $(this).closest('.stPropertiesChangeNameWrapp'),
+        input = dialogHtml.find('.stColumnShowPriceSearchInputsInput').first();
+
+      if (!input.length || input.prop('disabled')) {
+        return;
+      }
+
+      if ($.fn.iCheck && input.parent().hasClass('icheckbox_minimal')) {
+        input.iCheck(input.is(':checked') ? 'uncheck' : 'check');
+        input.iCheck('update');
+      } else {
+        input.prop('checked', !input.is(':checked'));
+      }
+    });
+
+    $('body').on('click', '.stPropertiesHideSearchInputLabel', function (e) {
+      e.preventDefault();
+
+      var dialogHtml = $(this).closest('.stPropertiesChangeNameWrapp'),
+        input = dialogHtml.find('.stColumnHideSearchInputInput').first();
+
+      if (!input.length || input.prop('disabled')) {
+        return;
+      }
+
+      if ($.fn.iCheck && input.parent().hasClass('icheckbox_minimal')) {
+        input.iCheck(input.is(':checked') ? 'uncheck' : 'check');
+        input.iCheck('update');
+      } else {
+        input.prop('checked', !input.is(':checked'));
+      }
+    });
+
+    $('body').on('click', '.stPropertiesDisableSortingLabel', function (e) {
+      e.preventDefault();
+
+      var dialogHtml = $(this).closest('.stPropertiesChangeNameWrapp'),
+        input = dialogHtml.find('.stColumnDisableSortingInput').first();
+
+      if (!input.length || input.prop('disabled')) {
+        return;
+      }
+
+      if ($.fn.iCheck && input.parent().hasClass('icheckbox_minimal')) {
+        input.iCheck(input.is(':checked') ? 'uncheck' : 'check');
+        input.iCheck('update');
+      } else {
+        input.prop('checked', !input.is(':checked'));
+      }
+    });
+
       $('body').on('click', '.stOptionEditHandler', function (e) {
       e.preventDefault();
       var el = $(this),
         wrapper = el.closest('.stOptions'),
         columnNameHtml = wrapper.find('.content'),
+        columnSlug = wrapper.attr('data-slug') || '',
+        isPriceColumn = columnSlug === 'price',
         showColumn = wrapper.attr('data-nice-name-display') === '1' ? true : false,
         originalName = wrapper.attr('data-name'),
+        currentDisplayName = $.trim(wrapper.attr('data-nice-name') || ''),
         currentMaxWidth = wrapper.attr('data-max-width') || '',
+        currentTextAlign = $.trim(wrapper.attr('data-text-align') || ''),
+        currentVerticalAlign = $.trim(wrapper.attr('data-vertical-align') || ''),
         hideColumn = wrapper.attr('data-hide-column') === '1' ? true : false,
         hideResponsiveColumn = wrapper.attr('data-hide-responsive-column') === '1' ? true : false,
+        hideSearchInput = wrapper.attr('data-hide-search-input') === '1' ? true : false,
+        disableSorting = wrapper.attr('data-disable-sorting') === '1' ? true : false,
+        showPriceSearchInputs = isPriceColumn && wrapper.attr('data-show-price-search-inputs') === '1',
         dialogHtml = $('.stPropertiesChangeNameWrapp').removeClass('stHidden'),
         dialogInput = dialogHtml.find('.stColumnTitleInput'),
         dialogMaxWidth = dialogHtml.find('.stColumnMaxWidthInput'),
+        dialogTextAlign = dialogHtml.find('.stColumnTextAlignInput'),
+        dialogVerticalAlign = dialogHtml.find('.stColumnVerticalAlignInput'),
         dialogCheckbox = dialogHtml.find('.stPropertiesToggleLabel input[type="checkbox"]'),
         dialogHideColumn = dialogHtml.find('.stColumnHideColumnInput'),
-        dialogHideResponsiveColumn = dialogHtml.find('.stColumnHideResponsiveInput');
+        dialogHideResponsiveColumn = dialogHtml.find('.stColumnHideResponsiveInput'),
+        dialogHideSearchInput = dialogHtml.find('.stColumnHideSearchInputInput'),
+        dialogDisableSorting = dialogHtml.find('.stColumnDisableSortingInput'),
+        dialogHideSearchInputLabel = dialogHtml.find('.stPropertiesHideSearchInputLabel'),
+        dialogShowPriceSearchInputs = dialogHtml.find('.stColumnShowPriceSearchInputsInput'),
+        dialogShowPriceSearchInputsLabel = dialogHtml.find('.stPropertiesPriceSearchInputsLabel');
 
       dialogInput.attr('placeholder', originalName);
-      dialogInput.val('');
+      dialogInput.val(currentDisplayName !== '' ? currentDisplayName : showColumn ? $.trim(columnNameHtml.text()) : '');
       dialogMaxWidth.val(currentMaxWidth);
       dialogMaxWidth.prop('disabled', !advancedAllowed);
+      dialogTextAlign.val(currentTextAlign);
+      dialogTextAlign.prop('disabled', !advancedAllowed);
+      dialogVerticalAlign.val(currentVerticalAlign);
+      dialogVerticalAlign.prop('disabled', !advancedAllowed);
       syncDialogCheckbox(dialogCheckbox, showColumn, false);
       syncDialogCheckbox(dialogHideColumn, hideColumn, !advancedAllowed);
       syncDialogCheckbox(dialogHideResponsiveColumn, hideResponsiveColumn, !advancedAllowed);
+      syncDialogCheckbox(dialogHideSearchInput, hideSearchInput, !advancedAllowed);
+      syncDialogCheckbox(dialogDisableSorting, disableSorting, !advancedAllowed);
+      syncDialogCheckbox(dialogShowPriceSearchInputs, showPriceSearchInputs, !advancedAllowed || !isPriceColumn);
+      toggleDialogOption(dialogHideSearchInputLabel, dialogHideSearchInput, !isPriceColumn);
+      toggleDialogOption(dialogShowPriceSearchInputsLabel, dialogShowPriceSearchInputs, isPriceColumn);
 
       var $dialog = dialogHtml.dialog({
         width: 360,
@@ -835,6 +1059,11 @@
               checkbox = dialogCheckbox.is(':checked'),
               hideColumnChecked = dialogHideColumn.is(':checked'),
               hideResponsiveColumnChecked = dialogHideResponsiveColumn.is(':checked'),
+              hideSearchInputChecked = dialogHideSearchInput.is(':checked'),
+              disableSortingChecked = dialogDisableSorting.is(':checked'),
+              showPriceSearchInputsChecked = dialogShowPriceSearchInputs.is(':checked'),
+              textAlign = advancedAllowed ? $.trim(dialogTextAlign.val()) : '',
+              verticalAlign = advancedAllowed ? $.trim(dialogVerticalAlign.val()) : '',
               maxWidthInput = $.trim(dialogMaxWidth.val()),
               parsedMaxWidth = parseInt(maxWidthInput, 10),
               maxWidth = advancedAllowed && !isNaN(parsedMaxWidth) && parsedMaxWidth > 0 ? parsedMaxWidth : '';
@@ -851,6 +1080,11 @@
             wrapper.attr('data-max-width', maxWidth);
             wrapper.attr('data-hide-column', advancedAllowed && hideColumnChecked ? '1' : '0');
             wrapper.attr('data-hide-responsive-column', advancedAllowed && hideResponsiveColumnChecked ? '1' : '0');
+            wrapper.attr('data-hide-search-input', advancedAllowed && !isPriceColumn && hideSearchInputChecked ? '1' : '0');
+            wrapper.attr('data-disable-sorting', advancedAllowed && disableSortingChecked ? '1' : '0');
+            wrapper.attr('data-text-align', advancedAllowed && $.inArray(textAlign, ['left', 'center', 'right']) !== -1 ? textAlign : '');
+            wrapper.attr('data-vertical-align', advancedAllowed && $.inArray(verticalAlign, ['top', 'middle', 'bottom']) !== -1 ? verticalAlign : '');
+            wrapper.attr('data-show-price-search-inputs', advancedAllowed && isPriceColumn && showPriceSearchInputsChecked ? '1' : '0');
 
             _thisObj.saveProperties();
 
@@ -887,6 +1121,11 @@
         template.attr('data-max-width', '');
         template.attr('data-hide-column', '0');
         template.attr('data-hide-responsive-column', '0');
+        template.attr('data-hide-search-input', '0');
+        template.attr('data-disable-sorting', '0');
+        template.attr('data-text-align', '');
+        template.attr('data-vertical-align', '');
+        template.attr('data-show-price-search-inputs', '0');
         template.attr('data-slug', slug);
         template.find('.content').text(name);
         propertiesWrapp.append(template);
@@ -905,6 +1144,12 @@
 
     optionsWrapper.each(function (index) {
       var el = $(this);
+      var slug = el.attr('data-slug');
+      var hideSearchInputAttr = el.attr('data-hide-search-input');
+      var disableSortingAttr = el.attr('data-disable-sorting');
+      var textAlignAttr = $.trim(el.attr('data-text-align') || '');
+      var verticalAlignAttr = $.trim(el.attr('data-vertical-align') || '');
+      var showPriceSearchInputsAttr = el.attr('data-show-price-search-inputs');
       var valueToPush = {};
       valueToPush['id'] = el.attr('data-id');
       valueToPush['display_name'] = el.attr('data-nice-name');
@@ -913,7 +1158,12 @@
       valueToPush['max_width'] = advancedAllowed ? el.attr('data-max-width') : '';
       valueToPush['hide_column'] = advancedAllowed && el.attr('data-hide-column') === '1' ? 1 : 0;
       valueToPush['hide_responsive'] = advancedAllowed && el.attr('data-hide-responsive-column') === '1' ? 1 : 0;
-      valueToPush['slug'] = el.attr('data-slug');
+      valueToPush['hide_search_input'] = advancedAllowed && slug !== 'price' && hideSearchInputAttr === '1' ? 1 : 0;
+      valueToPush['disable_sorting'] = advancedAllowed && disableSortingAttr === '1' ? 1 : 0;
+      valueToPush['text_align'] = advancedAllowed && $.inArray(textAlignAttr, ['left', 'center', 'right']) !== -1 ? textAlignAttr : '';
+      valueToPush['vertical_align'] = advancedAllowed && $.inArray(verticalAlignAttr, ['top', 'middle', 'bottom']) !== -1 ? verticalAlignAttr : '';
+      valueToPush['show_price_search_inputs'] = advancedAllowed && slug === 'price' && showPriceSearchInputsAttr === '1' ? 1 : 0;
+      valueToPush['slug'] = slug;
       optArr.push(valueToPush);
 
       //make selected options hidden in select "Select and add columns"

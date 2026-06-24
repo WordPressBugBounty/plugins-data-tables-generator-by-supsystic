@@ -408,7 +408,15 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
       $mainId = empty($parentId) ? $id : $parentId;
 
       $sku = $_product->get_sku();
-      $data = ['id' => $id];
+      $priceRange = $this->getProductPriceRange($_product);
+      $data = [
+        'id' => $id,
+        '__stock_status' => $_product->get_stock_status(),
+        '__attribute_terms' => $this->getProductAttributeTermMap($_product, $parentId),
+        '__category_terms' => $this->getProductCategoryFilterIds($mainId),
+        '__price_min' => $priceRange['min'],
+        '__price_max' => $priceRange['max'],
+      ];
 
       foreach ($orders as $column) {
         $slug = $column['slug'];
@@ -703,6 +711,7 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
     }
     foreach ($listProducts as $product) {
       $tempArray = [];
+      $rowAttributes = [];
       foreach ($orderSlug as $slug) {
         $cell = ['data' => isset($product[$slug]) ? $product[$slug] : ''];
         if (!empty($orderMaxWidth[$slug])) {
@@ -717,7 +726,44 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
         }
         $tempArray[] = $cell;
       }
-      $table[]['cells'] = $tempArray;
+      if (!empty($product['__stock_status'])) {
+        $rowAttributes = [
+          'data-stock-status' => sanitize_key($product['__stock_status']),
+        ];
+      }
+      if (!empty($product['__attribute_terms']) && is_array($product['__attribute_terms'])) {
+        $rowAttributes['data-woo-attributes'] = wp_json_encode($product['__attribute_terms']);
+      }
+      if (!empty($product['__category_terms']) && is_array($product['__category_terms'])) {
+        $rowAttributes['data-woo-categories'] = wp_json_encode(array_map('absint', $product['__category_terms']));
+      }
+      if (isset($product['__price_min']) && $product['__price_min'] !== null && $product['__price_min'] !== '') {
+        $rowAttributes['data-price-min'] = $product['__price_min'];
+      }
+      if (isset($product['__price_max']) && $product['__price_max'] !== null && $product['__price_max'] !== '') {
+        $rowAttributes['data-price-max'] = $product['__price_max'];
+      }
+
+      if (!empty($tempArray) && !empty($rowAttributes)) {
+        $metaAttributes = [];
+        foreach ($rowAttributes as $attrName => $attrValue) {
+          if ($attrName === '' || $attrValue === null || $attrValue === '') {
+            continue;
+          }
+
+          $metaAttributes[] = sprintf('%s="%s"', esc_attr($attrName), esc_attr($attrValue));
+        }
+
+        if (!empty($metaAttributes)) {
+          $tempArray[0]['data'] = '<span class="stbWooRowMeta" style="display:none !important;" aria-hidden="true" ' . implode(' ', $metaAttributes) . '></span>' . $tempArray[0]['data'];
+        }
+      }
+
+      $row = ['cells' => $tempArray];
+      if (!empty($rowAttributes)) {
+        $row['attributes'] = $rowAttributes;
+      }
+      $table[] = $row;
     }
 
     return $table;
@@ -863,11 +909,59 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
     }
 
     foreach ($wooFilters as $filter) {
+      $filterType = isset($filter['type']) ? sanitize_key($filter['type']) : '';
+      $filterTaxonomy = isset($filter['taxonomy']) ? $this->normalizeWooAttributeFilterKey($filter['taxonomy']) : '';
       $filterValue = isset($filter['value']) ? sanitize_text_field(wp_unslash($filter['value'])) : '';
       $filterColumns = !empty($filter['columns']) && is_array($filter['columns']) ? array_map('absint', $filter['columns']) : [];
       $matched = false;
 
-      if ($filterValue === '' || empty($filterColumns)) {
+      if ($filterType === 'price_range') {
+        $filterMin = isset($filter['min']) && $filter['min'] !== '' ? (float) $filter['min'] : null;
+        $filterMax = isset($filter['max']) && $filter['max'] !== '' ? (float) $filter['max'] : null;
+        $rowMin = isset($row['__price_min']) && $row['__price_min'] !== '' ? (float) $row['__price_min'] : null;
+        $rowMax = isset($row['__price_max']) && $row['__price_max'] !== '' ? (float) $row['__price_max'] : null;
+
+        if (!$this->matchesPriceRange($rowMin, $rowMax, $filterMin, $filterMax)) {
+          return false;
+        }
+        continue;
+      }
+
+      if ($filterType === 'category_list') {
+        $filterValues = !empty($filter['values']) && is_array($filter['values']) ? array_filter(array_map('absint', $filter['values'])) : [];
+        $rowCategoryTerms = !empty($row['__category_terms']) && is_array($row['__category_terms']) ? array_filter(array_map('absint', $row['__category_terms'])) : [];
+
+        if (empty($filterValues)) {
+          return false;
+        }
+        if (empty($rowCategoryTerms) || !array_intersect($filterValues, $rowCategoryTerms)) {
+          return false;
+        }
+        continue;
+      }
+
+      if ($filterValue === '') {
+        continue;
+      }
+
+      if ($filterType === 'stock_status') {
+        $rowStockStatus = !empty($row['__stock_status']) ? sanitize_key($row['__stock_status']) : '';
+        if ($rowStockStatus !== $filterValue) {
+          return false;
+        }
+        continue;
+      }
+
+      if ($filterType === 'attribute_term') {
+        $rowAttributeTerms = !empty($row['__attribute_terms']) && is_array($row['__attribute_terms']) ? $row['__attribute_terms'] : [];
+        $taxonomyTerms = !empty($rowAttributeTerms[$filterTaxonomy]) && is_array($rowAttributeTerms[$filterTaxonomy]) ? array_map([$this, 'normalizeWooAttributeFilterValue'], $rowAttributeTerms[$filterTaxonomy]) : [];
+        if ($filterTaxonomy === '' || !in_array($this->normalizeWooAttributeFilterValue($filterValue), $taxonomyTerms, true)) {
+          return false;
+        }
+        continue;
+      }
+
+      if (empty($filterColumns)) {
         continue;
       }
 
@@ -1006,47 +1100,588 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
     if (!$postExist) {
       return false;
     }
-    $orders = $this->getOrderColumns();
 
     $allAttributes = wc_get_attribute_taxonomies();
     foreach ($attributeIds as $attributeId) {
-      $slugs = ['attribute', 'attribute-' . $attributeId];
-      $list = '';
-      $i = 0;
-      foreach ($orders as $column) {
-        if (in_array($column['slug'], $slugs)) {
-          $list .= $i . ',';
+      if (is_string($attributeId) && strpos($attributeId, 'custom:') === 0) {
+        $customAttributeFilter = $this->buildCustomAttributeFilterData($postExist, $attributeId);
+        if (!empty($customAttributeFilter)) {
+          $dataArr[] = $customAttributeFilter;
         }
-        $i++;
+        continue;
       }
 
-      if (!empty($list)) {
-        $attributeFilterEnable = true;
-        $attributeLabel = '';
-        $attributeTaxonomy = '';
+      $attributeLabel = '';
+      $attributeTaxonomy = '';
 
-        foreach ($allAttributes as $attribute) {
-          if ((int) $attribute->attribute_id === (int) $attributeId) {
-            $attributeLabel = $attribute->attribute_label;
-            $attributeTaxonomy = 'pa_' . $attribute->attribute_name;
-            break;
-          }
+      foreach ($allAttributes as $attribute) {
+        if ((int) $attribute->attribute_id === (int) $attributeId) {
+          $attributeLabel = $attribute->attribute_label;
+          $attributeTaxonomy = 'pa_' . $attribute->attribute_name;
+          break;
         }
-        $allValues = [];
-        foreach ($postExist as $post) {
-          $productAttr = get_the_terms($post->post_type == 'product_variation' ? $post->post_parent : $post->ID, $attributeTaxonomy);
-          if (is_array($productAttr)) {
-            $allValues = array_merge($allValues, $productAttr);
-          }
-        }
-
-        if (!empty($allValues)) {
-          $dataArr[] = ['label' => $attributeLabel, 'keys' => substr($list, 0, -1), 'options' => $this->generateTaxonomyList($allValues)];
-        }
-        wp_reset_postdata();
       }
+
+      if ($attributeTaxonomy === '') {
+        continue;
+      }
+
+      $allValues = [];
+      foreach ($postExist as $post) {
+        $productAttr = get_the_terms($post->post_type == 'product_variation' ? $post->post_parent : $post->ID, $attributeTaxonomy);
+        if (is_array($productAttr)) {
+          $allValues = array_merge($allValues, $productAttr);
+        }
+      }
+
+      if (!empty($allValues)) {
+        $dataArr[] = [
+          'label' => $attributeLabel,
+          'type' => 'attribute_term',
+          'taxonomy' => $attributeTaxonomy,
+          'options' => $this->generateTaxonomyList($allValues),
+        ];
+      }
+      wp_reset_postdata();
     }
     return $dataArr;
+  }
+
+  public function getAvailableFilterAttributes($settings)
+  {
+    $attributes = [];
+    $attributeTaxonomies = wc_get_attribute_taxonomies();
+
+    if (is_array($attributeTaxonomies)) {
+      foreach ($attributeTaxonomies as $attr) {
+        $attrId = is_object($attr) ? (isset($attr->attribute_id) ? absint($attr->attribute_id) : 0) : (is_array($attr) && isset($attr['attribute_id']) ? absint($attr['attribute_id']) : 0);
+        $attrName = is_object($attr) ? (isset($attr->attribute_name) ? (string) $attr->attribute_name : '') : (is_array($attr) && isset($attr['attribute_name']) ? (string) $attr['attribute_name'] : '');
+        $attrLabel = is_object($attr) ? (isset($attr->attribute_label) ? (string) $attr->attribute_label : '') : (is_array($attr) && isset($attr['attribute_label']) ? (string) $attr['attribute_label'] : '');
+
+        if ($attrId < 1) {
+          continue;
+        }
+        if ($attrLabel === '' && $attrName !== '') {
+          $attrLabel = wc_attribute_label(wc_attribute_taxonomy_name($attrName));
+        }
+        if ($attrLabel === '' && $attrName !== '') {
+          $attrLabel = $attrName;
+        }
+
+        $attributes[$attrId] = $attrLabel;
+      }
+    }
+
+    $wooSettings = $this->getSettingValue($settings, 'woocommerce', []);
+    $args = $this->getProductsArgs($wooSettings);
+    if (is_array($args)) {
+      $query = new WP_Query($args);
+      if (!empty($query->posts)) {
+        foreach ($query->posts as $post) {
+          $product = wc_get_product($post->ID);
+          if (!$product || !method_exists($product, 'get_attributes')) {
+            continue;
+          }
+
+          $baseProduct = $product->get_parent_id() ? wc_get_product($product->get_parent_id()) : $product;
+          if (!$baseProduct || !method_exists($baseProduct, 'get_attributes')) {
+            continue;
+          }
+
+          foreach ((array) $baseProduct->get_attributes() as $attribute) {
+            if (!$attribute || !method_exists($attribute, 'is_taxonomy') || $attribute->is_taxonomy()) {
+              continue;
+            }
+
+            $attributeName = trim((string) $attribute->get_name());
+            $attributeKey = sanitize_title($attributeName);
+            if ($attributeKey === '') {
+              continue;
+            }
+
+            $attributes['custom:' . $attributeKey] = $attributeName;
+          }
+        }
+      }
+      wp_reset_postdata();
+    }
+
+    if (empty($attributes)) {
+      global $wpdb;
+
+      $tableName = $wpdb->prefix . 'woocommerce_attribute_taxonomies';
+      $rows = $wpdb->get_results("SELECT attribute_id, attribute_name, attribute_label FROM {$tableName}");
+
+      if (is_array($rows)) {
+        foreach ($rows as $row) {
+          if (!is_object($row)) {
+            continue;
+          }
+
+          $attrId = isset($row->attribute_id) ? absint($row->attribute_id) : 0;
+          $attrName = isset($row->attribute_name) ? (string) $row->attribute_name : '';
+          $attrLabel = isset($row->attribute_label) ? (string) $row->attribute_label : '';
+
+          if ($attrId < 1) {
+            continue;
+          }
+          if ($attrLabel === '' && $attrName !== '') {
+            $attrLabel = $attrName;
+          }
+
+          $attributes[$attrId] = $attrLabel;
+        }
+      }
+    }
+
+    natcasesort($attributes);
+
+    return $attributes;
+  }
+
+  public function getStockStatusFilterData($settings)
+  {
+    $wooSettings = $this->getSettingValue($settings, 'woocommerce', []);
+    if (
+      !$this->environment->isPro()
+      || $this->getSettingValue($wooSettings, 'hide_out_of_stock') === 'on'
+      || $this->getSettingValue($wooSettings, 'filter_stock_status') !== 'on'
+    ) {
+      return false;
+    }
+
+    return [
+      'label' => $this->environment->translate('Availability'),
+      'type' => 'stock_status',
+      'options' => [
+        'instock' => $this->environment->translate('In stock'),
+        'outofstock' => $this->environment->translate('Out of stock'),
+        'onbackorder' => $this->environment->translate('Preorder'),
+      ],
+    ];
+  }
+
+  public function getCategoryFilterData($settings)
+  {
+    $wooSettings = $this->getSettingValue($settings, 'woocommerce', []);
+    if (
+      !$this->environment->isPro()
+      || $this->getSettingValue($wooSettings, 'filter_category_list') !== 'on'
+    ) {
+      return false;
+    }
+
+    $args = $this->getProductsArgs($wooSettings);
+    if (!is_array($args)) {
+      return false;
+    }
+
+    $dataExist = new WP_Query($args);
+    $posts = $dataExist->posts;
+    if (empty($posts)) {
+      return false;
+    }
+
+    $termMap = [];
+    foreach ($posts as $post) {
+      $mainId = $post->post_type == 'product_variation' ? $post->post_parent : $post->ID;
+      $terms = get_the_terms($mainId, 'product_cat');
+      if (is_wp_error($terms) || empty($terms)) {
+        continue;
+      }
+
+      foreach ($terms as $term) {
+        $this->collectCategoryTermWithAncestors($term, $termMap);
+      }
+    }
+
+    if (empty($termMap)) {
+      return false;
+    }
+
+    return [
+      'label' => $this->environment->translate('Categories'),
+      'type' => 'category_list',
+      'options' => $this->buildCategoryFilterHierarchy($termMap),
+    ];
+  }
+
+  public function getPriceFilterData($settings)
+  {
+    $wooSettings = $this->getSettingValue($settings, 'woocommerce', []);
+    if (!$this->environment->isPro()) {
+      return false;
+    }
+
+    $priceColumn = $this->getPriceColumnConfig($wooSettings);
+    if (empty($priceColumn)) {
+      return false;
+    }
+
+    $args = $this->getProductsArgs($wooSettings);
+    if (!is_array($args)) {
+      return false;
+    }
+
+    $dataExist = new WP_Query($args);
+    $posts = $dataExist->posts;
+    if (empty($posts)) {
+      return false;
+    }
+
+    $minPrice = null;
+    $maxPrice = null;
+    foreach ($posts as $post) {
+      $product = wc_get_product($post->ID);
+      if (!$product) {
+        continue;
+      }
+
+      $range = $this->getProductPriceRange($product);
+      if ($range['min'] === null || $range['max'] === null) {
+        continue;
+      }
+
+      $minPrice = $minPrice === null ? $range['min'] : min($minPrice, $range['min']);
+      $maxPrice = $maxPrice === null ? $range['max'] : max($maxPrice, $range['max']);
+    }
+
+    if ($minPrice === null || $maxPrice === null) {
+      return false;
+    }
+
+    $showInputs = $this->getSettingValue($wooSettings, 'filter_price_show_inputs') === 'on';
+    $showSlider = $this->getSettingValue($wooSettings, 'filter_price_show_slider') === 'on';
+
+    if (!$showInputs && !$showSlider) {
+      return false;
+    }
+
+    return [
+      'label' => !empty($priceColumn['show_display_name']) && !empty($priceColumn['display_name'])
+        ? $priceColumn['display_name']
+        : (!empty($priceColumn['original_name']) ? $priceColumn['original_name'] : $this->environment->translate('Price')),
+      'type' => 'price_range',
+      'min' => $minPrice,
+      'max' => $maxPrice,
+      'show_inputs' => $showInputs ? 1 : 0,
+      'show_slider' => $showSlider ? 1 : 0,
+      'step' => $this->getPriceFilterStep($minPrice, $maxPrice),
+    ];
+  }
+
+  private function getProductAttributeTermMap($_product, $parentId = 0)
+  {
+    $attributeTerms = [];
+    $baseProduct = $parentId ? wc_get_product($parentId) : $_product;
+
+    if ($baseProduct && method_exists($baseProduct, 'get_attributes')) {
+      foreach ((array) $baseProduct->get_attributes() as $attribute) {
+        if (!$attribute || !method_exists($attribute, 'is_taxonomy')) {
+          continue;
+        }
+
+        if ($attribute->is_taxonomy()) {
+          $taxonomy = $attribute->get_name();
+          $attributeTerms[$taxonomy] = [];
+
+          foreach ((array) $attribute->get_terms() as $term) {
+            if (is_object($term) && !empty($term->slug)) {
+              $attributeTerms[$taxonomy][] = sanitize_key($term->slug);
+            }
+          }
+
+          $attributeTerms[$taxonomy] = array_values(array_unique(array_filter($attributeTerms[$taxonomy])));
+          continue;
+        }
+
+        $customKey = 'custom:' . sanitize_title((string) $attribute->get_name());
+        $customOptions = $this->getCustomAttributeOptions($attribute);
+        if (!empty($customOptions)) {
+          $attributeTerms[$customKey] = array_keys($customOptions);
+        }
+      }
+    }
+
+    if ($_product && method_exists($_product, 'is_type') && $_product->is_type('variation') && method_exists($_product, 'get_variation_attributes')) {
+      foreach ((array) $_product->get_variation_attributes() as $attributeKey => $attributeValue) {
+        $taxonomy = str_replace('attribute_', '', (string) $attributeKey);
+        $attributeValue = sanitize_key((string) $attributeValue);
+
+        if ($taxonomy !== '' && $attributeValue !== '') {
+          if (taxonomy_exists($taxonomy)) {
+            $attributeTerms[$taxonomy] = [$attributeValue];
+          } else {
+            $attributeTerms['custom:' . sanitize_title($taxonomy)] = [$this->normalizeAttributeOptionValue($attributeValue)];
+          }
+        }
+      }
+    }
+
+    return $attributeTerms;
+  }
+
+  private function buildCustomAttributeFilterData($posts, $attributeKey)
+  {
+    $attributeKey = is_string($attributeKey) ? strtolower(trim($attributeKey)) : '';
+    if (strpos($attributeKey, 'custom:') !== 0) {
+      return [];
+    }
+
+    $customSlug = sanitize_title(substr($attributeKey, 7));
+    if ($customSlug === '') {
+      return [];
+    }
+
+    $attributeLabel = '';
+    $options = [];
+    foreach ((array) $posts as $post) {
+      $product = wc_get_product($post->post_type == 'product_variation' ? $post->post_parent : $post->ID);
+      if (!$product || !method_exists($product, 'get_attributes')) {
+        continue;
+      }
+
+      foreach ((array) $product->get_attributes() as $attribute) {
+        if (!$attribute || !method_exists($attribute, 'is_taxonomy') || $attribute->is_taxonomy()) {
+          continue;
+        }
+
+        $currentKey = sanitize_title((string) $attribute->get_name());
+        if ($currentKey !== $customSlug) {
+          continue;
+        }
+
+        if ($attributeLabel === '') {
+          $attributeLabel = trim((string) $attribute->get_name());
+        }
+
+        $options = array_merge($options, $this->getCustomAttributeOptions($attribute));
+      }
+    }
+
+    $options = array_filter($options);
+    if ($attributeLabel === '' || empty($options)) {
+      return [];
+    }
+
+    natcasesort($options);
+
+    return [
+      'label' => $attributeLabel,
+      'type' => 'attribute_term',
+      'taxonomy' => 'custom:' . $customSlug,
+      'options' => $options,
+    ];
+  }
+
+  private function getCustomAttributeOptions($attribute)
+  {
+    $options = [];
+    if (!$attribute || !method_exists($attribute, 'get_options')) {
+      return $options;
+    }
+
+    foreach ((array) $attribute->get_options() as $option) {
+      $optionLabel = $this->normalizeAttributeOptionLabel($option);
+      $optionValue = $this->normalizeAttributeOptionValue($optionLabel);
+      if ($optionLabel === '' || $optionValue === '') {
+        continue;
+      }
+
+      $options[$optionValue] = $optionLabel;
+    }
+
+    return $options;
+  }
+
+  private function normalizeAttributeOptionLabel($value)
+  {
+    $value = html_entity_decode(wp_strip_all_tags((string) $value), ENT_QUOTES, 'UTF-8');
+    $value = preg_replace('/\s+/u', ' ', $value);
+
+    return trim($value);
+  }
+
+  private function normalizeAttributeOptionValue($value)
+  {
+    $value = $this->normalizeAttributeOptionLabel($value);
+
+    return $value !== '' ? sanitize_title($value) : '';
+  }
+
+  private function normalizeWooAttributeFilterKey($value)
+  {
+    $value = strtolower(trim((string) $value));
+    if ($value === '') {
+      return '';
+    }
+
+    if (strpos($value, 'custom:') === 0) {
+      $customKey = sanitize_title(substr($value, 7));
+      return $customKey !== '' ? 'custom:' . $customKey : '';
+    }
+
+    return sanitize_key($value);
+  }
+
+  private function normalizeWooAttributeFilterValue($value)
+  {
+    return sanitize_title($this->normalizeAttributeOptionLabel($value));
+  }
+
+  private function getProductCategoryFilterIds($productId)
+  {
+    $terms = get_the_terms($productId, 'product_cat');
+    if (is_wp_error($terms) || empty($terms)) {
+      return [];
+    }
+
+    $termIds = [];
+    foreach ($terms as $term) {
+      if (empty($term->term_id)) {
+        continue;
+      }
+
+      $termIds[] = (int) $term->term_id;
+      $ancestorIds = get_ancestors((int) $term->term_id, 'product_cat', 'taxonomy');
+      if (!empty($ancestorIds)) {
+        $termIds = array_merge($termIds, array_map('absint', $ancestorIds));
+      }
+    }
+
+    return array_values(array_unique(array_filter(array_map('absint', $termIds))));
+  }
+
+  private function collectCategoryTermWithAncestors($term, &$termMap)
+  {
+    while ($term && !is_wp_error($term) && !empty($term->term_id)) {
+      $termId = (int) $term->term_id;
+      if (!isset($termMap[$termId])) {
+        $termMap[$termId] = [
+          'id' => $termId,
+          'parent' => !empty($term->parent) ? (int) $term->parent : 0,
+          'name' => $term->name,
+        ];
+      }
+
+      if (empty($term->parent)) {
+        break;
+      }
+
+      $term = get_term((int) $term->parent, 'product_cat');
+    }
+  }
+
+  private function buildCategoryFilterHierarchy($termMap, $parent = 0, $level = 0)
+  {
+    $options = [];
+    $children = [];
+
+    foreach ((array) $termMap as $termData) {
+      if ((int) $termData['parent'] === (int) $parent) {
+        $children[] = $termData;
+      }
+    }
+
+    usort($children, function ($left, $right) {
+      return strcasecmp($left['name'], $right['name']);
+    });
+
+    foreach ($children as $termData) {
+      $options[] = [
+        'id' => (int) $termData['id'],
+        'label' => str_repeat(' - ', max(0, (int) $level)) . $termData['name'],
+        'level' => (int) $level,
+      ];
+      $options = array_merge($options, $this->buildCategoryFilterHierarchy($termMap, (int) $termData['id'], $level + 1));
+    }
+
+    return $options;
+  }
+
+  private function getPriceColumnConfig($wooSettings)
+  {
+    $orders = $this->getOrderColumns($this->getSettingValue($wooSettings, 'order'));
+
+    foreach ($orders as $column) {
+      if (!empty($column['slug']) && $column['slug'] === 'price') {
+        return $column;
+      }
+    }
+
+    return [];
+  }
+
+  private function getProductPriceRange($product)
+  {
+    if (!$product) {
+      return ['min' => null, 'max' => null];
+    }
+
+    if (method_exists($product, 'is_type') && $product->is_type('variable')) {
+      $min = $product->get_variation_price('min', false);
+      $max = $product->get_variation_price('max', false);
+    } else {
+      $min = $product->get_price();
+      $max = $product->get_price();
+    }
+
+    $min = $min === '' ? null : (float) $min;
+    $max = $max === '' ? null : (float) $max;
+
+    if ($min !== null && $max !== null && $min > $max) {
+      $swap = $min;
+      $min = $max;
+      $max = $swap;
+    }
+
+    return ['min' => $min, 'max' => $max];
+  }
+
+  private function matchesPriceRange($rowMin, $rowMax, $filterMin, $filterMax)
+  {
+    if ($filterMin === null && $filterMax === null) {
+      return true;
+    }
+
+    if ($rowMin === null && $rowMax === null) {
+      return false;
+    }
+
+    if ($rowMin === null) {
+      $rowMin = $rowMax;
+    }
+    if ($rowMax === null) {
+      $rowMax = $rowMin;
+    }
+
+    if ($filterMin !== null && $filterMax !== null && $filterMin > $filterMax) {
+      $swap = $filterMin;
+      $filterMin = $filterMax;
+      $filterMax = $swap;
+    }
+
+    if ($filterMin !== null && $rowMax < $filterMin) {
+      return false;
+    }
+
+    if ($filterMax !== null && $rowMin > $filterMax) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private function getPriceFilterStep($minPrice, $maxPrice)
+  {
+    $values = [(string) $minPrice, (string) $maxPrice];
+    foreach ($values as $value) {
+      if (strpos($value, '.') !== false) {
+        return '0.01';
+      }
+    }
+
+    return '1';
   }
 
   private function generateTaxonomyList($terms, $pre = '')
@@ -1054,12 +1689,12 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
     $data = [];
     $existTaxonomy = [];
     foreach ($terms as $term) {
-      if (!in_array($term->name, $existTaxonomy)) {
-        $data[$term->name] = $pre . $term->name;
+      if (!in_array($term->slug, $existTaxonomy, true)) {
+        $data[$term->slug] = $pre . $term->name;
         if (!empty($term->children)) {
-          $data[$term->name . '_child'] = $this->generateTaxonomyList($term->children, $pre . ' - ');
+          $data = array_merge($data, $this->generateTaxonomyList($term->children, $pre . ' - '));
         }
-        $existTaxonomy[] = $term->name;
+        $existTaxonomy[] = $term->slug;
       }
     }
     return $data;

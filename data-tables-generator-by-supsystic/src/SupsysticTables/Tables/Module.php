@@ -116,7 +116,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $tablesOnPage = $this->getDataTablesObj();
 
       foreach ($tablesOnPage as $table) {
-        print wp_kses_post($this->addDataTableStyles($table->view_id));
+        echo $this->addDataTableStyles($table->view_id);
       }
     }
   }

@@ -886,6 +886,7 @@ var g_stbServerSideProcessingIsActive = false;
             labelsSettingEnabled = searchingSettings.columnSearchShowLabel && searchingSettings.columnSearchShowLabel == 'on',
             showColumnLabel = labelsSettingEnabled,
             hasHeader = !!$table.data('head'),
+            inlineTopSearch = inputTop && hasHeader,
             escapeHtml = function (text) {
               return String(text)
                 .replace(/&/g, '&amp;')
@@ -900,46 +901,82 @@ var g_stbServerSideProcessingIsActive = false;
           if (!$table.find('.stbColumnsSearchWrapper').length) {
             var headerRow = $table.find('thead tr:first').find('th');
             if (headerRow.length) {
-              var searchRow = '<tr class="stbColumnsSearchWrapper">',
-                func = inputTop ? 'prepend' : 'append';
-              for (var i = 0; i < headerRow.length; i++) {
-                var cellItem = jQuery(headerRow[i]),
-                  cellClass = '',
-                  cellStyle = '';
-                if (!g_stbServerSideProcessing) {
-                  cellStyle = cellItem.is(':visible') ? '' : 'style="display: none;"';
-                }
-                if (cellItem.hasClass('invisibleCell')) {
-                  cellClass = ' class="invisibleCell"';
-                }
-                var columnTitle = jQuery.trim(cellItem.text()).replace(/\s+/g, ' '),
-                  escapedColumnTitle = escapeHtml(columnTitle),
-                  columnLabel = showColumnLabel && columnTitle ? '<span class="stbColumnSearchLabel">' + escapedColumnTitle + '</span>' : '',
-                  inputPlaceholder = columnTitle && (!hasHeader || labelsSettingEnabled) ? ' placeholder="' + escapedColumnTitle + '"' : '';
+              if (inlineTopSearch) {
+                for (var i = 0; i < headerRow.length; i++) {
+                  var inlineCell = jQuery(headerRow[i]);
+                  if (inlineCell.find('.stbColumnSearchField.stbColumnsSearchWrapper').length) {
+                    continue;
+                  }
 
-                searchRow +=
-                  '<th ' +
-                  cellClass +
-                  cellStyle +
-                  '><div class="stbColumnSearchField">' +
-                  columnLabel +
-                  '<input class="search-column" type="text" data-column-num="' +
-                  i +
-                  '"' +
-                  inputPlaceholder +
-                  '/></div></th>';
+                  var inlineTitle = jQuery.trim(
+                      inlineCell
+                        .clone()
+                        .find('.stbColumnSearchField')
+                        .remove()
+                        .end()
+                        .text()
+                    ).replace(/\s+/g, ' '),
+                    escapedInlineTitle = escapeHtml(inlineTitle),
+                    inlinePlaceholder = inlineTitle && (!hasHeader || labelsSettingEnabled) ? ' placeholder="' + escapedInlineTitle + '"' : '';
+
+                  inlineCell.append(
+                    '<div class="stbColumnSearchField stbColumnsSearchWrapper">' +
+                      '<input class="search-column" type="text" data-column-num="' +
+                      i +
+                      '"' +
+                      inlinePlaceholder +
+                      '/>' +
+                    '</div>'
+                  );
+                }
+              } else {
+                var searchRow = '<tr class="stbColumnsSearchWrapper">',
+                  func = inputTop ? 'prepend' : 'append';
+                for (var i = 0; i < headerRow.length; i++) {
+                  var cellItem = jQuery(headerRow[i]),
+                    cellClass = '',
+                    cellStyle = '';
+                  if (!g_stbServerSideProcessing) {
+                    cellStyle = cellItem.is(':visible') ? '' : 'style="display: none;"';
+                  }
+                  if (cellItem.hasClass('invisibleCell')) {
+                    cellClass = ' class="invisibleCell"';
+                  }
+                  var columnTitle = jQuery.trim(cellItem.text()).replace(/\s+/g, ' '),
+                    escapedColumnTitle = escapeHtml(columnTitle),
+                    columnLabel = showColumnLabel && columnTitle ? '<span class="stbColumnSearchLabel">' + escapedColumnTitle + '</span>' : '',
+                    inputPlaceholder = columnTitle && (!hasHeader || labelsSettingEnabled) ? ' placeholder="' + escapedColumnTitle + '"' : '';
+
+                  searchRow +=
+                    '<th ' +
+                    cellClass +
+                    cellStyle +
+                    '><div class="stbColumnSearchField">' +
+                    columnLabel +
+                    '<input class="search-column" type="text" data-column-num="' +
+                    i +
+                    '"' +
+                    inputPlaceholder +
+                    '/></div></th>';
+                }
+                searchRow += '</tr>';
+                if ($table.find(tPosition).length == 0) {
+                  $table.append(jQuery('<' + tPosition + '>'));
+                }
+                $table.find(tPosition)[func](searchRow);
               }
-              searchRow += '</tr>';
-              if ($table.find(tPosition).length == 0) {
-                $table.append(jQuery('<' + tPosition + '>'));
-              }
-              $table.find(tPosition)[func](searchRow);
             }
           }
-          if ($table.data('auto-index') !== 'off') {
-            jQuery('.stbColumnsSearchWrapper th:first-child .stbColumnSearchField').css({
-              visibility: 'hidden',
-            });
+          if ($table.data('auto-index') && $table.data('auto-index') !== 'off') {
+            if (inlineTopSearch) {
+              $table.find('thead tr:first th:first-child .stbColumnSearchField').css({
+                visibility: 'hidden',
+              });
+            } else {
+              jQuery('.stbColumnsSearchWrapper th:first-child .stbColumnSearchField').css({
+                visibility: 'hidden',
+              });
+            }
           }
         }
       }
@@ -948,7 +985,22 @@ var g_stbServerSideProcessingIsActive = false;
           sortingDisable = [],
           aaSorting = [],
           multipleSorting = $table.data('multiple-sorting'),
-          disableSorting = $table.data('disable-sorting');
+          disableSorting = $table.data('disable-sorting'),
+          isSortingDisabledForColumn = function (columnIndex, disabledTargets) {
+            if (!disabledTargets || !disabledTargets.length) {
+              return false;
+            }
+
+            if ($.inArray('_all', disabledTargets) !== -1) {
+              return true;
+            }
+
+            return $.inArray(parseInt(columnIndex, 10), $.map(disabledTargets, function (target) {
+              var parsedTarget = parseInt(target, 10);
+
+              return isNaN(parsedTarget) ? null : parsedTarget;
+            })) !== -1;
+          };
 
         if (!$table.data('head')) {
           sortingDisable = ['_all'];
@@ -957,23 +1009,30 @@ var g_stbServerSideProcessingIsActive = false;
           sortingDisable = disableSorting;
         }
         if (multipleSorting && multipleSorting.length) {
-          aaSorting = multipleSorting;
+          aaSorting = $.grep(multipleSorting, function (sortItem) {
+            return sortItem && sortItem.length && !isSortingDisabledForColumn(sortItem[0], sortingDisable);
+          });
         } else {
           var columnsCount = $table.find('tr:first th').length,
             sortColumn = $table.data('sort-column') || 0,
             sortOrder = $table.data('sort-order') || 'asc',
             columnNumber = sortColumn - 1;
 
-          if (columnNumber >= 0 && columnNumber < columnsCount) {
+          if (columnNumber >= 0 && columnNumber < columnsCount && !isSortingDisabledForColumn(columnNumber, sortingDisable)) {
             aaSorting.push([columnNumber, sortOrder]);
           }
         }
-        // config.aoColumnDefs = [
-        //     { type: 'natural-nohtml-ci', targets: '_all' },
-        //     { "sortable": false, "targets": sortingDisable },
-        //     { "sortable": true, "targets": sortingEnable }
-        // ];
-        config.aoColumnDefs = {};
+        if (sortingDisable.length) {
+          if (typeof config.columnDefs == 'undefined' || jQuery.isEmptyObject(config.columnDefs)) {
+            config.columnDefs = [];
+          }
+          config.columnDefs.push({
+            targets: sortingDisable,
+            sortable: false,
+            orderable: false,
+            bSortable: false,
+          });
+        }
         config.aaSorting = aaSorting;
         delete defaultFeatures.order;
       }
@@ -1062,7 +1121,9 @@ var g_stbServerSideProcessingIsActive = false;
                     markup = '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">';
                   if ($table.data('head') == 'on') {
                     var tableHeadTr = jQuery(api.table().header()).find('tr:not(.stbColumnsSearchWrapper)').eq(0);
-                    var $headerContent = tableHeadTr.find('th').eq(col.columnIndex).html();
+                    var $headerCell = tableHeadTr.find('th').eq(col.columnIndex).clone();
+                    $headerCell.find('.stbColumnSearchField').remove();
+                    var $headerContent = $headerCell.html();
                     markup += '<td>';
                     if ($headerContent) {
                       markup += $headerContent;
@@ -1206,7 +1267,16 @@ var g_stbServerSideProcessingIsActive = false;
       config.language.processing = '';
       config.language.sProcessing = '';
 
-      var ajaxSource = {};
+      var ajaxSource = {},
+        loadedRows = [],
+        loadedCells = [],
+        loadedDomRows = [];
+
+      if (!g_stbServerSideProcessing) {
+        $table.find('tbody tr').each(function () {
+          loadedDomRows.push(this.attributes);
+        });
+      }
 
       if (g_stbServerSideProcessing) {
         var currentApp = this;
@@ -1216,8 +1286,6 @@ var g_stbServerSideProcessingIsActive = false;
             module: 'tables',
             nonce: nonce,
           },
-          loadedRows = [],
-          loadedCells = [],
           headerRowsCount = $table.data('head') == 'on' ? $table.data('head-rows-count') : 0,
           footerRowsCount = $table.data('foot') == 'on' ? $table.data('foot-custom-rows-count') : 0;
         ajaxSource = {
@@ -1283,13 +1351,6 @@ var g_stbServerSideProcessingIsActive = false;
               return JSON.stringify(json);
             },
           },
-          createdRow: function (row, data, dataIndex) {
-            if (typeof loadedRows[dataIndex] != 'undefined') {
-              jQuery(loadedRows[dataIndex]).each(function () {
-                jQuery(row).attr(this.name, this.value);
-              });
-            }
-          },
         };
         if (typeof config.aoColumnDefs == 'undefined' || jQuery.isEmptyObject(config.aoColumnDefs)) {
           config.aoColumnDefs = [];
@@ -1343,6 +1404,26 @@ var g_stbServerSideProcessingIsActive = false;
           },
         });
       }
+      var sourceCreatedRow = typeof config.createdRow === 'function' ? config.createdRow : null,
+        ajaxCreatedRow = typeof ajaxSource.createdRow === 'function' ? ajaxSource.createdRow : null;
+      config.createdRow = function (row, data, dataIndex) {
+        var rowAttrs = typeof loadedRows[dataIndex] != 'undefined' ? loadedRows[dataIndex] : loadedDomRows[dataIndex];
+
+        if (sourceCreatedRow) {
+          sourceCreatedRow.call(this, row, data, dataIndex);
+        }
+        if (ajaxCreatedRow) {
+          ajaxCreatedRow.call(this, row, data, dataIndex);
+        }
+        if (typeof rowAttrs != 'undefined') {
+          jQuery(rowAttrs).each(function () {
+            jQuery(row).attr(this.name, this.value);
+          });
+        }
+      };
+      if (ajaxSource.createdRow) {
+        delete ajaxSource.createdRow;
+      }
       window.table = $table;
       $table.trigger('beforeInitializeTable', $table);
       var dateFormat = $table.data('date-format');
@@ -1355,6 +1436,31 @@ var g_stbServerSideProcessingIsActive = false;
       tableInstance = $table.dataTable(jQuery.extend({}, defaultFeatures, config, extraConfig, ajaxSource, reinit));
       tableInstance.table_id = $table.data('id');
       tableInstance.table_view_id = $table.data('view-id');
+      if (!g_stbServerSideProcessing && loadedDomRows.length) {
+        var restoreDomRowAttributes = function () {
+          var api = tableInstance.api ? tableInstance.api() : null;
+
+          if (!api || typeof api.rows !== 'function') {
+            return;
+          }
+
+          api.rows({ page: 'current', search: 'applied', order: 'current' }).every(function (rowIdx) {
+            var row = this.node(),
+              rowAttrs = typeof loadedDomRows[rowIdx] != 'undefined' ? loadedDomRows[rowIdx] : null;
+
+            if (!row || !rowAttrs) {
+              return;
+            }
+
+            jQuery(rowAttrs).each(function () {
+              jQuery(row).attr(this.name, this.value);
+            });
+          });
+        };
+
+        restoreDomRowAttributes();
+        $table.off('draw.dt.stbRowAttrs').on('draw.dt.stbRowAttrs', restoreDomRowAttributes);
+      }
       setupProcessingLoader($table, tableInstance);
       if (typeof tableInstance.fnFakeRowspan !== 'undefined') {
         tableInstance.fnFakeRowspan();
@@ -1858,9 +1964,12 @@ var g_stbServerSideProcessingIsActive = false;
       if (inputs.length == 0) {
         return;
       }
-      //jQuery(document).off('keyup change', ".dataTables_wrapper:first .stbColumnsSearchWrapper .search-column")
-      //			.on('keyup change', ".dataTables_wrapper:first .stbColumnsSearchWrapper .search-column",function () {
-      inputs.off('keyup.dtg change.dtg').on('keyup.dtg change.dtg', function () {
+
+      inputs.off('mousedown.dtg click.dtg touchstart.dtg').on('mousedown.dtg click.dtg touchstart.dtg', function (e) {
+        e.stopPropagation();
+      });
+
+      inputs.off('change.dtg blur.dtg').on('change.dtg blur.dtg', function () {
         var input = jQuery(this),
           position = input.parents('th:first').index(),
           value = this.value,

@@ -28,7 +28,7 @@ class SupsysticTables_Widget extends WP_Widget
     if (!empty($title)) {
       echo wp_kses_post($args['before_title'] . $title . $args['after_title']);
     }
-    echo wp_kses_post(do_shortcode('[supsystic-tables id=' . esc_html($instance['id']) . ' position="center"]'));
+    echo do_shortcode('[supsystic-tables id=' . esc_html($instance['id']) . ' position="center"]');
     echo wp_kses_post($args['after_widget']);
   }
 

@@ -16,6 +16,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $this->filterTableAddonData();
     $this->filterWoocommerceContentTemplate();
     $this->registerWooFrontendColumnStyles();
+    $this->registerWooFrontendSortingConfig();
     $this->registerWooFrontendDesignStyles();
     $this->registerWooFrontendFeatureGuards();
 
@@ -57,6 +58,13 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $this->getEnvironment()
       ->getDispatcher()
       ->on('before_table_render', [$this, 'applyWooColumnMaxWidths']);
+  }
+
+  private function registerWooFrontendSortingConfig()
+  {
+    $this->getEnvironment()
+      ->getDispatcher()
+      ->on('before_table_render', [$this, 'applyWooDisabledSorting']);
   }
 
   private function registerWooFrontendDesignStyles()
@@ -112,7 +120,40 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $model = $this->getModelsFactory()->get('Wootables', 'woocommerce');
 
     if ($this->getEnvironment()->isPro() && !empty($table->woo_settings['woocommerce']['filter_attribute']) && $table->woo_settings['woocommerce']['filter_attribute'] === 'on') {
-      $filters['attributes'] = $model->getAttributeFilterData($table->id, $table->woo_settings);
+      $attributeFilters = $model->getAttributeFilterData($table->id, $table->woo_settings);
+      if ($attributeFilters !== false) {
+        $filters['attributes'] = $attributeFilters;
+      }
+    }
+
+    if (
+      $this->getEnvironment()->isPro()
+      && !empty($table->woo_settings['woocommerce']['filter_category_list'])
+      && $table->woo_settings['woocommerce']['filter_category_list'] === 'on'
+    ) {
+      $categoryFilter = $model->getCategoryFilterData($table->woo_settings);
+      if ($categoryFilter !== false) {
+        $filters['categories'] = $categoryFilter;
+      }
+    }
+
+    if (
+      $this->getEnvironment()->isPro()
+      && empty($table->woo_settings['woocommerce']['hide_out_of_stock'])
+      && !empty($table->woo_settings['woocommerce']['filter_stock_status'])
+      && $table->woo_settings['woocommerce']['filter_stock_status'] === 'on'
+    ) {
+      $stockFilter = $model->getStockStatusFilterData($table->woo_settings);
+      if ($stockFilter !== false) {
+        $filters['stock_status'] = $stockFilter;
+      }
+    }
+
+    if ($this->getEnvironment()->isPro()) {
+      $priceFilter = $model->getPriceFilterData($table->woo_settings);
+      if ($priceFilter !== false) {
+        $filters['price'] = $priceFilter;
+      }
     }
 
     $this->getEnvironment()
@@ -140,6 +181,8 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     }
 
     $styles = [];
+    $alignStyles = [];
+    $verticalAlignStyles = [];
     $hiddenStyles = [];
     foreach ($orders as $index => $column) {
       if (!is_array($column)) {
@@ -157,20 +200,40 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       }
 
       $maxWidth = !empty($column['max_width']) ? absint($column['max_width']) : 0;
-      if ($maxWidth < 1) {
-        continue;
+      if ($maxWidth > 0) {
+        $styles[] = sprintf(
+          '#supsystic-table-%1$s table[data-id="%2$d"] tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tr > td:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tr > th:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tr > td:nth-child(%3$d) { width: %4$dpx; max-width: %4$dpx; overflow: hidden; white-space: normal !important; overflow-wrap: anywhere; word-break: break-word; }',
+          $wrapperId,
+          $tableId,
+          $position,
+          $maxWidth
+        );
       }
 
-      $styles[] = sprintf(
-        '#supsystic-table-%1$s table[data-id="%2$d"] tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tr > td:nth-child(%3$d) { width: %4$dpx; max-width: %4$dpx; }',
-        $wrapperId,
-        $tableId,
-        $position,
-        $maxWidth
-      );
+      $textAlign = !empty($column['text_align']) && in_array($column['text_align'], ['left', 'center', 'right'], true) ? $column['text_align'] : '';
+      if ($textAlign !== '') {
+        $alignStyles[] = sprintf(
+          '#supsystic-table-%1$s table[data-id="%2$d"] thead tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] thead tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tbody tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tbody tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tfoot tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-id="%2$d"] tfoot tr > td:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d thead tr > th:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d thead tr > td:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tbody tr > th:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tbody tr > td:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tfoot tr > th:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tfoot tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] thead tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] thead tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tbody tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tbody tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tfoot tr > th:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tfoot tr > td:nth-child(%3$d) { text-align: %4$s !important; }',
+          $wrapperId,
+          $tableId,
+          $position,
+          $textAlign
+        );
+      }
+
+      $verticalAlign = !empty($column['vertical_align']) && in_array($column['vertical_align'], ['top', 'middle', 'bottom'], true) ? $column['vertical_align'] : '';
+      if ($verticalAlign !== '') {
+        $verticalAlignStyles[] = sprintf(
+          '#supsystic-table-%1$s table[data-id="%2$d"] tbody tr > td:nth-child(%3$d), #supsystic-table-%1$s table#supsystic-table-%2$d tbody tr > td:nth-child(%3$d), #supsystic-table-%1$s table[data-view-id="%1$s"] tbody tr > td:nth-child(%3$d) { vertical-align: %4$s !important; }',
+          $wrapperId,
+          $tableId,
+          $position,
+          $verticalAlign
+        );
+      }
     }
 
-    if (empty($styles) && empty($hiddenStyles)) {
+    if (empty($styles) && empty($alignStyles) && empty($verticalAlignStyles) && empty($hiddenStyles)) {
       return $table;
     }
 
@@ -180,21 +243,73 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
 
     $markerStart = '/* woo-column-max-width:start */';
     $markerEnd = '/* woo-column-max-width:end */';
+    $alignMarkerStart = '/* woo-column-text-align:start */';
+    $alignMarkerEnd = '/* woo-column-text-align:end */';
+    $verticalAlignMarkerStart = '/* woo-column-vertical-align:start */';
+    $verticalAlignMarkerEnd = '/* woo-column-vertical-align:end */';
     $hiddenMarkerStart = '/* woo-hidden-columns:start */';
     $hiddenMarkerEnd = '/* woo-hidden-columns:end */';
     $existingCss = isset($table->meta['css']) ? (string) $table->meta['css'] : '';
     $existingCss = preg_replace('/\/\* woo-column-max-width:start \*\/.*?\/\* woo-column-max-width:end \*\/\s*/s', '', $existingCss);
+    $existingCss = preg_replace('/\/\* woo-column-text-align:start \*\/.*?\/\* woo-column-text-align:end \*\/\s*/s', '', $existingCss);
+    $existingCss = preg_replace('/\/\* woo-column-vertical-align:start \*\/.*?\/\* woo-column-vertical-align:end \*\/\s*/s', '', $existingCss);
     $existingCss = preg_replace('/\/\* woo-hidden-columns:start \*\/.*?\/\* woo-hidden-columns:end \*\/\s*/s', '', $existingCss);
 
     $cssParts = [$existingCss];
     if (!empty($styles)) {
       $cssParts[] = $markerStart . "\n" . implode("\n", $styles) . "\n" . $markerEnd;
     }
+    if (!empty($alignStyles)) {
+      $cssParts[] = $alignMarkerStart . "\n" . implode("\n", $alignStyles) . "\n" . $alignMarkerEnd;
+    }
+    if (!empty($verticalAlignStyles)) {
+      $cssParts[] = $verticalAlignMarkerStart . "\n" . implode("\n", $verticalAlignStyles) . "\n" . $verticalAlignMarkerEnd;
+    }
     if (!empty($hiddenStyles)) {
       $cssParts[] = $hiddenMarkerStart . "\n" . implode("\n", $hiddenStyles) . "\n" . $hiddenMarkerEnd;
     }
 
     $table->meta['css'] = trim(implode("\n", array_filter($cssParts)));
+    return $table;
+  }
+
+  public function applyWooDisabledSorting($table)
+  {
+    if (!$this->isWooProductTable($table) || !$this->getEnvironment()->isPro()) {
+      return $table;
+    }
+
+    $this->normalizeWooSettings($table);
+
+    $orders = $this->getWooColumnOrder($table);
+    if (empty($orders)) {
+      return $table;
+    }
+
+    $disabledColumns = [];
+    foreach ($orders as $index => $column) {
+      if (!is_array($column) || empty($column['disable_sorting'])) {
+        continue;
+      }
+
+      $disabledColumns[] = (int) $index;
+    }
+
+    if (empty($disabledColumns)) {
+      return $table;
+    }
+
+    if (empty($table->meta) || !is_array($table->meta)) {
+      $table->meta = [];
+    }
+
+    $existingDisabled = [];
+    if (!empty($table->meta['columnsDisableSorting']) && is_array($table->meta['columnsDisableSorting'])) {
+      $existingDisabled = $table->meta['columnsDisableSorting'];
+    }
+
+    $table->meta['columnsDisableSorting'] = array_values(array_unique(array_map('intval', array_merge($existingDisabled, $disabledColumns))));
+
     return $table;
   }
 
@@ -232,6 +347,72 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $headerSelectors = [
       $this->buildWooSelectorList($tableSelectors, ' thead th'),
       $this->buildWooSelectorList($tableSelectors, ' thead td'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td'),
+    ];
+    $sortingBaseSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc_disabled'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc_disabled'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc_disabled'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc_disabled'),
+    ];
+    $sortingBeforeSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting::before'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc_disabled::before'),
+    ];
+    $sortingAfterSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting::after'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc_disabled::after'),
+    ];
+    $sortingAscBeforeSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc::before'),
+    ];
+    $sortingAscAfterSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc::after'),
+    ];
+    $sortingDescBeforeSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc::before'),
+    ];
+    $sortingDescAfterSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc::after'),
+    ];
+    $sortingDisabledBeforeSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc_disabled::before'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc_disabled::before'),
+    ];
+    $sortingDisabledAfterSelectors = [
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_asc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' thead .sorting_desc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_asc_disabled::after'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot .sorting_desc_disabled::after'),
     ];
     $headerInputSelectors = [
       $this->buildWooSelectorList($tableSelectors, ' thead th input'),
@@ -240,6 +421,12 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       $this->buildWooSelectorList($tableSelectors, ' thead td textarea'),
       $this->buildWooSelectorList($tableSelectors, ' thead th .stbColumnSearchField input.search-column'),
       $this->buildWooSelectorList($tableSelectors, ' thead td .stbColumnSearchField input.search-column'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th .stbColumnSearchField input.search-column'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td .stbColumnSearchField input.search-column'),
     ];
     $headerInputPlaceholderSelectors = [
       $this->buildWooSelectorList($tableSelectors, ' thead th input::placeholder'),
@@ -264,10 +451,34 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       $this->buildWooSelectorList($tableSelectors, ' thead td input::-ms-input-placeholder'),
       $this->buildWooSelectorList($tableSelectors, ' thead th textarea::-ms-input-placeholder'),
       $this->buildWooSelectorList($tableSelectors, ' thead td textarea::-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th .stbColumnSearchField input.search-column::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td .stbColumnSearchField input.search-column::placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input::-webkit-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input::-webkit-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea::-webkit-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea::-webkit-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input::-moz-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input::-moz-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea::-moz-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea::-moz-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input:-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input:-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea:-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea:-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th input::-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td input::-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th textarea::-ms-input-placeholder'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td textarea::-ms-input-placeholder'),
     ];
     $headerSelectSelectors = [
       $this->buildWooSelectorList($tableSelectors, ' thead th select'),
       $this->buildWooSelectorList($tableSelectors, ' thead td select'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot th select'),
+      $this->buildWooSelectorList($tableSelectors, ' tfoot td select'),
     ];
     $bodySelectors = [
       $this->buildWooSelectorList($tableSelectors, ' tbody td'),
@@ -323,6 +534,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       $this->buildWooSelectorList($tableSelectors, ' tbody td .stVarPrice'),
       $this->buildWooSelectorList($tableSelectors, ' tbody td .stVarPrice *'),
     ];
+    $priceFilterThumbStyle = !empty($design['price_filter_thumb_style']) ? $design['price_filter_thumb_style'] : 'circle';
 
     $headerRules = $this->buildWooDesignRule([
       'color' => isset($design['header_text']) ? $design['header_text'] : '',
@@ -332,6 +544,50 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     ]);
     if ($headerRules !== '') {
       $styles[] = implode(',', array_filter($headerSelectors)) . '{' . $headerRules . '}';
+    }
+
+    $sortingBaseRules = $this->buildWooDesignRule([
+      'position' => 'relative',
+      'padding-right' => '28px',
+      'background-image' => 'none',
+      'background-repeat' => 'no-repeat',
+    ]);
+    if ($sortingBaseRules !== '') {
+      $styles[] = implode(',', array_filter($sortingBaseSelectors)) . '{' . $sortingBaseRules . '}';
+    }
+
+    $sortingPseudoRules = $this->buildWooDesignRule([
+      'content' => '""',
+      'position' => 'absolute',
+      'right' => '10px',
+      'transform' => 'translate(0px, -50%)',
+      'border-left' => '4px solid transparent',
+      'border-right' => '4px solid transparent',
+      'opacity' => '0.35',
+      'pointer-events' => 'none',
+    ]);
+    if ($sortingPseudoRules !== '') {
+      $styles[] = implode(',', array_filter($sortingBeforeSelectors)) . '{' . $sortingPseudoRules . ';top:40%!important;border-bottom:6px solid currentColor!important;}';
+      $styles[] = implode(',', array_filter($sortingAfterSelectors)) . '{' . $sortingPseudoRules . ';top:60%!important;border-top:6px solid currentColor!important;}';
+    }
+
+    if (!empty(array_filter($sortingAscBeforeSelectors))) {
+      $styles[] = implode(',', array_filter($sortingAscBeforeSelectors)) . '{opacity:1!important;}';
+    }
+    if (!empty(array_filter($sortingAscAfterSelectors))) {
+      $styles[] = implode(',', array_filter($sortingAscAfterSelectors)) . '{opacity:0.18!important;}';
+    }
+    if (!empty(array_filter($sortingDescBeforeSelectors))) {
+      $styles[] = implode(',', array_filter($sortingDescBeforeSelectors)) . '{opacity:0.18!important;}';
+    }
+    if (!empty(array_filter($sortingDescAfterSelectors))) {
+      $styles[] = implode(',', array_filter($sortingDescAfterSelectors)) . '{opacity:1!important;}';
+    }
+    if (!empty(array_filter($sortingDisabledBeforeSelectors))) {
+      $styles[] = implode(',', array_filter($sortingDisabledBeforeSelectors)) . '{opacity:0.12!important;}';
+    }
+    if (!empty(array_filter($sortingDisabledAfterSelectors))) {
+      $styles[] = implode(',', array_filter($sortingDisabledAfterSelectors)) . '{opacity:0.12!important;}';
     }
 
     $bodyRules = $this->buildWooDesignRule([
@@ -359,7 +615,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       'border-color' => isset($design['border_color']) ? $design['border_color'] : '',
     ]);
     if ($inputRules !== '') {
-      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty{' . $inputRules . '}';
+      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput{' . $inputRules . '}';
       $styles[] = implode(',', array_filter($headerInputSelectors)) . '{' . $inputRules . 'font-size:' . (!empty($design['body_font_size']) ? absint($design['body_font_size']) . 'px' : '14px') . ';font-weight:' . (!empty($design['body_font_weight']) ? absint($design['body_font_weight']) : '400') . ';box-shadow:none;}';
     }
 
@@ -369,6 +625,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     ]);
     if ($inputPlaceholderRules !== '') {
       $styles[] = implode(',', array_filter($headerInputPlaceholderSelectors)) . '{' . $inputPlaceholderRules . '}';
+      $styles[] = $wrapSelector . ' .stbWooColumnsToggleSearchInput::placeholder,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput::-webkit-input-placeholder,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput::-moz-placeholder,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput:-ms-input-placeholder,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput::-ms-input-placeholder,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput::placeholder,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput::-webkit-input-placeholder,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput::-moz-placeholder,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput:-ms-input-placeholder,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput::-ms-input-placeholder{' . $inputPlaceholderRules . '}';
     }
 
     $selectRules = $this->buildWooDesignRule([
@@ -474,7 +731,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       'font-weight' => !empty($design['button_font_weight']) ? absint($design['button_font_weight']) : '',
     ]);
     if ($buttonRules !== '') {
-      $styles[] = $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward{' . $buttonRules . '}';
+      $styles[] = $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton,' . $wrapSelector . ' .stb-before-woo .stbWooColumnsToggleButton,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward{' . $buttonRules . '}';
     }
 
     $buttonHoverRules = $this->buildWooDesignRule([
@@ -483,7 +740,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       'border-color' => isset($design['button_hover_bg']) ? $design['button_hover_bg'] : '',
     ]);
     if ($buttonHoverRules !== '') {
-      $styles[] = $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart:hover,' . $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart:focus,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart:hover,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart:focus,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart:hover,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart:focus,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart:hover,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart:focus,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button:hover,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button:focus,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton:hover,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton:focus,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart:hover,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart:focus,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward:hover,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward:focus{' . $buttonHoverRules . '}';
+      $styles[] = $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart:hover,' . $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart:focus,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart:hover,' . $wrapSelector . ' .stAddToCartWrapper .stAddToCart:focus,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart:hover,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart:focus,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart:hover,' . $wrapSelector . ' .stAddToCartButWrapp .stAddToCart:focus,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button:hover,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button:focus,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton:hover,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton:focus,' . $wrapSelector . ' .stb-before-woo .stbWooColumnsToggleButton:hover,' . $wrapSelector . ' .stb-before-woo .stbWooColumnsToggleButton:focus,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart:hover,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart:focus,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward:hover,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart.wc-forward:focus{' . $buttonHoverRules . '}';
     }
 
     $checkoutButtonRules = $this->buildWooDesignRule([
@@ -562,12 +819,39 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       $styles[] = implode(',', array_filter($priceTextSelectors)) . '{' . $priceTextRules . '}';
     }
 
+    $priceFilterInputRules = $this->buildWooDesignRule([
+      'color' => isset($design['price_filter_input_text']) ? $design['price_filter_input_text'] : '',
+      'background-color' => isset($design['price_filter_input_bg']) ? $design['price_filter_input_bg'] : '',
+      'border-color' => isset($design['border_color']) ? $design['border_color'] : '',
+      'font-size' => !empty($design['price_filter_input_font_size']) ? absint($design['price_filter_input_font_size']) . 'px' : '',
+      'font-weight' => !empty($design['price_filter_input_font_weight']) ? absint($design['price_filter_input_font_weight']) : '',
+      'box-shadow' => 'none',
+    ]);
+    if ($priceFilterInputRules !== '') {
+      $styles[] = $wrapSelector . ' .stb-before-woo .stWooPriceInput{' . $priceFilterInputRules . '}';
+    }
+
+    $priceFilterVarRules = [];
+    if (!empty($design['price_filter_track'])) {
+      $priceFilterVarRules[] = '--stb-price-track:' . $design['price_filter_track'];
+    }
+    if (!empty($design['price_filter_fill'])) {
+      $priceFilterVarRules[] = '--stb-price-fill:' . $design['price_filter_fill'];
+    }
+    if (!empty($design['price_filter_thumb'])) {
+      $priceFilterVarRules[] = '--stb-price-thumb:' . $design['price_filter_thumb'];
+    }
+    $priceFilterVarRules[] = '--stb-price-thumb-radius:' . ($priceFilterThumbStyle === 'square' ? '3px' : ($priceFilterThumbStyle === 'round' ? '8px' : '999px'));
+    if (!empty($priceFilterVarRules)) {
+      $styles[] = $wrapSelector . ' .stb-before-woo .stWooFilterPrice{' . implode(';', $priceFilterVarRules) . '}';
+    }
+
     $borderRules = $this->buildWooDesignRule([
       'border-color' => isset($design['border_color']) ? $design['border_color'] : '',
     ]);
     if ($borderRules !== '') {
       $styles[] = implode(',', array_filter($borderSelectors)) . '{' . $borderRules . '}';
-      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length select,' . $wrapSelector . ' .stb-before-woo select,' . $wrapSelector . ' .stVarAttributes select,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty{' . $borderRules . '}';
+      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length select,' . $wrapSelector . ' .stb-before-woo select,' . $wrapSelector . ' .stVarAttributes select,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty,' . $wrapSelector . ' .stbWooColumnsToggleButton,' . $wrapSelector . ' .stbWooColumnsToggleDropdown,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput,' . $wrapSelector . ' .stbWooColumnsToggleItemInner,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput{' . $borderRules . '}';
       $styles[] = implode(',', array_filter($headerInputSelectors)) . '{' . $borderRules . '}';
       $styles[] = implode(',', array_filter($headerSelectSelectors)) . '{' . $borderRules . '}';
     }
@@ -576,7 +860,38 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       'color' => isset($design['body_text']) ? $design['body_text'] : '',
     ]);
     if ($metaTextRules !== '') {
-      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_info,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length label,' . $wrapSelector . ' .dataTables_wrapper .dataTables_filter label,' . $wrapSelector . ' .stVarAttributes label,' . $wrapSelector . ' .product-type-variable .reset_variations{' . $metaTextRules . '}';
+      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_info,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length label,' . $wrapSelector . ' .dataTables_wrapper .dataTables_filter label,' . $wrapSelector . ' .stVarAttributes label,' . $wrapSelector . ' .product-type-variable .reset_variations,' . $wrapSelector . ' .stb-before-woo .stWooFilterPriceLabel,' . $wrapSelector . ' .stb-before-woo .stWooPriceDash{' . $metaTextRules . '}';
+      $styles[] = $wrapSelector . ' .stbWooColumnsToggleItemLabel{' . $metaTextRules . '}';
+    }
+
+    $columnsPanelRules = $this->buildWooDesignRule([
+      'background-color' => isset($design['body_bg']) ? $design['body_bg'] : '',
+      'border-color' => isset($design['border_color']) ? $design['border_color'] : '',
+    ]);
+    if ($columnsPanelRules !== '') {
+      $styles[] = $wrapSelector . ' .stbWooColumnsToggleDropdown,' . $wrapSelector . ' .stbWooColumnsToggleItemInner{' . $columnsPanelRules . '}';
+    }
+
+    $columnsScrollbarVars = [];
+    if (!empty($design['border_color'])) {
+      $columnsScrollbarVars[] = '--stb-columns-scrollbar-track:' . $design['border_color'];
+    }
+    if (!empty($design['button_bg'])) {
+      $columnsScrollbarVars[] = '--stb-columns-scrollbar-thumb:' . $design['button_bg'];
+    }
+    if (!empty($design['button_hover_bg'])) {
+      $columnsScrollbarVars[] = '--stb-columns-scrollbar-thumb-hover:' . $design['button_hover_bg'];
+    }
+    if (!empty($design['body_bg'])) {
+      $columnsScrollbarVars[] = '--stb-columns-scrollbar-thumb-border:' . $design['body_bg'];
+    }
+    if (!empty($columnsScrollbarVars)) {
+      $styles[] = $wrapSelector . ' .stbWooColumnsToggleList{' . implode(';', $columnsScrollbarVars) . '}';
+      $styles[] = $wrapSelector . '{' . str_replace(
+        ['--stb-columns-scrollbar-track', '--stb-columns-scrollbar-thumb', '--stb-columns-scrollbar-thumb-hover', '--stb-columns-scrollbar-thumb-border'],
+        ['--stb-cell-scrollbar-track', '--stb-cell-scrollbar-thumb', '--stb-cell-scrollbar-thumb-hover', '--stb-cell-scrollbar-thumb-border'],
+        implode(';', $columnsScrollbarVars)
+      ) . '}';
     }
 
     $processingRules = $this->buildWooDesignRule([
@@ -626,7 +941,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       'transition' => 'all 0.2s ease',
     ]);
     if ($wooChromeRules !== '') {
-      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length select,' . $wrapSelector . ' .dataTables_wrapper .dataTables_paginate .paginate_button,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty,' . $wrapSelector . ' .stb-before-woo select,' . $wrapSelector . ' .stVarAttributes select,' . $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button,' . $wrapSelector . ' .stb-before-woo .stViewCheckoutButton.button,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart{' . $wooChromeRules . '}';
+      $styles[] = $wrapSelector . ' .dataTables_wrapper .dataTables_filter input,' . $wrapSelector . ' .dataTables_wrapper .dataTables_length select,' . $wrapSelector . ' .dataTables_wrapper .dataTables_paginate .paginate_button,' . $wrapSelector . ' .stAddToCartWrapper .quantity input,' . $wrapSelector . ' .stAddToCartWrapper .quantity .qty,' . $wrapSelector . ' .stb-before-woo select,' . $wrapSelector . ' .stVarAttributes select,' . $wrapSelector . ' .stAddToCartWrapper .button.stAddToCart,' . $wrapSelector . ' .stAddToCartButWrapp .button.stAddToCart,' . $wrapSelector . ' .stb-before-woo .stAddMultyButton.button,' . $wrapSelector . ' .stb-before-woo .stViewCheckoutButton.button,' . $wrapSelector . ' .stb-before-woo .stbWooColumnsToggleButton,' . $wrapSelector . ' .stbWooColumnsToggleSearchInput,' . $wrapSelector . ' .stbWooColumnsToggleItemInner,' . $wrapSelector . ' .stAddToCartWrapper .added_to_cart,' . $wrapSelector . ' .stb-before-woo .stWooPriceInput{' . $wooChromeRules . '}';
       $styles[] = implode(',', array_filter($headerInputSelectors)) . '{' . $wooChromeRules . '}';
       $styles[] = implode(',', array_filter($headerSelectSelectors)) . '{' . $wooChromeRules . '}';
     }
@@ -716,6 +1031,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
 
     if (!empty($table->settings['features']) && is_array($table->settings['features'])) {
       unset($table->settings['features']['searching']);
+      unset($table->settings['features']['showHideColumnsList']);
     }
 
     unset($table->settings['serverSideProcessing']);
@@ -755,6 +1071,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     if (!$data['wooAdvancedAllowed'] && !empty($data['table']->settings) && is_array($data['table']->settings)) {
       if (!empty($data['table']->settings['features']) && is_array($data['table']->settings['features'])) {
         unset($data['table']->settings['features']['searching']);
+        unset($data['table']->settings['features']['showHideColumnsList']);
       }
       unset($data['table']->settings['serverSideProcessing']);
       if (!empty($data['table']->settings['searching']) && is_array($data['table']->settings['searching'])) {
@@ -799,11 +1116,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $sizes['set_size'] = $this->getEnvironment()->translate('set size');
     $data['thumbSize'] = $sizes;
 
-    $attributes = [];
-    foreach (wc_get_attribute_taxonomies() as $attr) {
-      $attributes[$attr->attribute_id] = $attr->attribute_label;
-    }
-    $data['wooAttributes'] = $attributes;
+    $data['wooAttributes'] = $this->getAllWooAttributeOptions($data['table']);
     $data['wooCategories'] = $this->getModelsFactory()->get('Wootables', 'woocommerce')->getCategoryHierarchy();
     $excludedProductIds = !empty($data['table']->woo_settings['woocommerce']['exclude_productids']) ? array_filter(array_map('absint', explode(',', $data['table']->woo_settings['woocommerce']['exclude_productids']))) : [];
     $data['excludedProducts'] = !empty($excludedProductIds) ? $this->getModelsFactory()->get('Wootables', 'woocommerce')->getProductLookupItemsByIds($excludedProductIds, true) : [];
@@ -1006,6 +1319,13 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     }
 
     return !empty($table->id) ? (string) absint($table->id) : '';
+  }
+
+  private function getAllWooAttributeOptions($table = null)
+  {
+    $wooSettings = is_object($table) && !empty($table->woo_settings) && is_array($table->woo_settings) ? $table->woo_settings : ['woocommerce' => []];
+
+    return $this->getModelsFactory()->get('Wootables', 'woocommerce')->getAvailableFilterAttributes($wooSettings);
   }
 
   private function isWooProductTableView()
