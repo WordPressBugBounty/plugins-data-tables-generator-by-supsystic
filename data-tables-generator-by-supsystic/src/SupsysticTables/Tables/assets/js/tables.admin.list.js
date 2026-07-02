@@ -4,6 +4,44 @@ jQuery(document).ready(function () {
     return;
   }
   var tblId = 'ddtTableTbl';
+  var sortableColumns = ['id', 'title', 'table_type'];
+
+  function bindManualHeaderSorting() {
+    var grid = jQuery('#' + tblId);
+    var headers = grid.closest('.ui-jqgrid').find('.ui-jqgrid-htable th');
+
+    headers.each(function () {
+      var header = jQuery(this);
+      var columnName = header.attr('id') || '';
+
+      columnName = columnName.replace(/^jqgh_/, '');
+      if (columnName.indexOf(tblId + '_') === 0) {
+        columnName = columnName.substring((tblId + '_').length);
+      }
+
+      if (jQuery.inArray(columnName, sortableColumns) === -1) {
+        return;
+      }
+
+      header.css('cursor', 'pointer');
+      header.off('click.stbManualSort').on('click.stbManualSort', function (e) {
+        e.preventDefault();
+
+        var currentSortName = grid.jqGrid('getGridParam', 'sortname') || 'id';
+        var currentSortOrder = (grid.jqGrid('getGridParam', 'sortorder') || 'desc').toLowerCase();
+        var nextSortOrder = currentSortName === columnName && currentSortOrder === 'asc' ? 'desc' : 'asc';
+
+        grid.jqGrid('setGridParam', {
+          sortname: columnName,
+          sortorder: nextSortOrder,
+          page: 1,
+        });
+        grid.trigger('reloadGrid');
+
+        return false;
+      });
+    });
+  }
 
   jQuery('body').on('click', '#cb_ddtTableTbl', function () {
     setTimeout(() => {
@@ -37,10 +75,11 @@ jQuery(document).ready(function () {
     mtype: 'GET',
     autowidth: true,
     shrinkToFit: true,
-    colNames: ['ID', 'Title', 'Shortcode', 'Phpcode'],
+    colNames: ['ID', 'Title', 'Type', 'Shortcode', 'Phpcode'],
     colModel: [
-      { name: 'id', index: 'id', sortable: false, searchoptions: { sopt: ['eq'] }, width: '50', align: 'center' },
-      { name: 'title', index: 'title', sortable: false, searchoptions: { sopt: ['eq'] }, align: 'center' },
+      { name: 'id', index: 'id', sortable: true, searchoptions: { sopt: ['eq'] }, width: '50', align: 'center' },
+      { name: 'title', index: 'title', sortable: true, searchoptions: { sopt: ['eq'] }, align: 'center' },
+      { name: 'table_type', index: 'table_type', sortable: true, searchoptions: { sopt: ['eq'] }, align: 'center' },
       { name: 'shortcode', index: 'shortcode', sortable: false, searchoptions: { sopt: ['eq'] }, align: 'center' },
       { name: 'phpcode', index: 'phpcode', sortable: false, searchoptions: { sopt: ['eq'] }, align: 'center' },
     ],
@@ -53,7 +92,7 @@ jQuery(document).ready(function () {
     rowList: [10, 20, 30, 1000],
     pager: '#' + tblId + 'Nav',
     sortname: 'id',
-    sortable: false,
+    sortable: true,
     viewrecords: true,
     sortorder: 'desc',
     jsonReader: { repeatitems: false, id: '0' },
@@ -104,8 +143,14 @@ jQuery(document).ready(function () {
         jQuery(this).show();
         jQuery('#' + tblId + 'EmptyMsg').hide();
       }
+
+      bindManualHeaderSorting();
     },
   });
+  bindManualHeaderSorting();
+  jQuery('#' + tblId).setColProp('id', { sortable: true });
+  jQuery('#' + tblId).setColProp('title', { sortable: true });
+  jQuery('#' + tblId).setColProp('table_type', { sortable: true });
   jQuery('#' + tblId).setColProp('phpcode', { sortable: false });
   jQuery('#' + tblId).setColProp('shortcode', { sortable: false });
   jQuery('#' + tblId + 'NavShell').append(jQuery('#' + tblId + 'Nav'));

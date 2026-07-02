@@ -6,7 +6,7 @@ Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.0
-Stable tag: 1.12.01
+Stable tag: 1.12.02
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 == Description ==
 [youtube https://www.youtube.com/watch?v=_iTqniU-4Ec?rel=0]
@@ -174,9 +174,13 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 The Patchstack team help validate, triage and handle any security vulnerabilities.
 [Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
 == Changelog ==
+= 1.12.02 / 01.07.2026
+* Fix for apostrophe
+* NEW (S)FTP autosync import (new source) 
+* Support PostgreSQL for Source as DB
+
 = 1.12.01 / 24.06.2026
 * Fix for css leaks
-
 = 1.12.0 / 22.06.2026
 * Add wizard for table creating
 * Add new type of table - WooCommerce Product Table with advanced features

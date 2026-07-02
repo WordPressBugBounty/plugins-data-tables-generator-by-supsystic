@@ -824,7 +824,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     $model = $core->getModelsFactory()->get('tables');
 
     // Get total pages count for current request
-    $totalCount = $model->getTablesCount();
+    $totalCount = $model->getTablesCount($search);
     $totalPages = 0;
     if ($totalCount > 0) {
       $totalPages = ceil($totalCount / $rowsLimit);
@@ -851,6 +851,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     return $this->ajaxSuccess([
       'page' => $page,
       'total' => $totalPages,
+      'records' => $totalCount,
       'rows' => $data,
     ]);
   }
@@ -866,9 +867,14 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $shortcodePhp = sprintf('<?php echo supsystic_tables_get("%s"); ?>', esc_attr($id)); //ESCAPING OK
       $phpcode = htmlspecialchars($shortcodePhp);
       $titleUrl = '<a href="' . esc_url($this->generateUrl('tables', 'view', ['id' => $id, 'nonce' => wp_create_nonce('dtgs_nonce')])) . '">' . esc_html($row['title']) . " <i class='fa fa-fw fa-pencil'></i></a>";
+      $tableType = !empty($row['table_type']) ? sanitize_key($row['table_type']) : 'default';
+      $tableTypeLabel = $tableType === 'woo_product_table'
+        ? $this->translate('WooCommerce Product Table')
+        : $this->translate('Default');
       $data[$key]['shortcode'] = $shortcode;
       $data[$key]['phpcode'] = $phpcode;
       $data[$key]['title'] = $titleUrl;
+      $data[$key]['table_type'] = $tableTypeLabel;
     }
     return $data;
   }

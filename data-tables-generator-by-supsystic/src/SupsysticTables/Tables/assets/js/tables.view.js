@@ -213,6 +213,109 @@ var g_stbCopyPasteColsCount = [];
     // If turn on chosen plugin for selects of all types - there is conflict with handsontable plugin happen
     $('#row-tab-settings select[multiple="multiple"], #row-tab-source select[multiple="multiple"]').chosen({ width: '100%' });
 
+    $('[data-source-hub]').each(function () {
+      var hub = $(this),
+        tiles = hub.find('.stbSourceTile'),
+        panels = hub.find('.stbSourcePanel'),
+        defaultSource = hub.attr('data-source-default') || (tiles.first().attr('data-source-target') || ''),
+        isSyncingSourceState = false,
+        sourceControls = {
+          database: $('#table-source-database'),
+          google: $('#google-tables-automatically-update'),
+          ftp: $('#ftp-tables-automatically-update'),
+        };
+
+      function setCheckboxState($checkbox, isChecked) {
+        if (!$checkbox.length || $checkbox.is(':checked') === isChecked) {
+          return;
+        }
+
+        $checkbox.prop('checked', isChecked).trigger('change');
+      }
+
+      function getSelectedSource() {
+        if (sourceControls.ftp && sourceControls.ftp.length && sourceControls.ftp.is(':checked')) {
+          return 'ftp';
+        }
+
+        if (sourceControls.google && sourceControls.google.length && sourceControls.google.is(':checked')) {
+          return 'google';
+        }
+
+        if (sourceControls.database && sourceControls.database.length && sourceControls.database.is(':checked')) {
+          return 'database';
+        }
+
+        return defaultSource || 'default';
+      }
+
+      function activateSource(source) {
+        if (!source) {
+          return;
+        }
+
+        tiles.removeClass('is-active').attr('aria-selected', 'false');
+        panels.removeClass('is-active');
+
+        tiles.filter('[data-source-target="' + source + '"]').addClass('is-active').attr('aria-selected', 'true');
+        panels.filter('[data-source-panel="' + source + '"]').addClass('is-active');
+      }
+
+      function syncSourceSelection(source) {
+        if (isSyncingSourceState) {
+          return;
+        }
+
+        isSyncingSourceState = true;
+
+        if (source === 'default') {
+          setCheckboxState(sourceControls.database, false);
+          setCheckboxState(sourceControls.google, false);
+          setCheckboxState(sourceControls.ftp, false);
+        } else if (source === 'database') {
+          setCheckboxState(sourceControls.database, true);
+          setCheckboxState(sourceControls.google, false);
+          setCheckboxState(sourceControls.ftp, false);
+        } else if (source === 'google') {
+          setCheckboxState(sourceControls.google, true);
+          setCheckboxState(sourceControls.database, false);
+          setCheckboxState(sourceControls.ftp, false);
+        } else if (source === 'ftp') {
+          setCheckboxState(sourceControls.ftp, true);
+          setCheckboxState(sourceControls.google, false);
+          setCheckboxState(sourceControls.database, false);
+        }
+
+        activateSource(source);
+        isSyncingSourceState = false;
+      }
+
+      tiles.on('click', function () {
+        syncSourceSelection($(this).attr('data-source-target'));
+      });
+
+      $.each(sourceControls, function (sourceName, $checkbox) {
+        if (!$checkbox.length) {
+          return;
+        }
+
+        $checkbox.on('change ifChanged', function () {
+          if (isSyncingSourceState) {
+            return;
+          }
+
+          if ($(this).is(':checked')) {
+            syncSourceSelection(sourceName);
+          } else {
+            var selectedSource = getSelectedSource();
+            activateSource(selectedSource || defaultSource || 'default');
+          }
+        });
+      });
+
+      activateSource(getSelectedSource() || defaultSource || 'default');
+    });
+
     // Tooltips and Shortcode select
     $('[data-toggle="tooltip"]').tooltipster();
     $('#stbCopyTextCodeExamples')

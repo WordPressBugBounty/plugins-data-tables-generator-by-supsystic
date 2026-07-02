@@ -34,7 +34,7 @@ if (!function_exists('makeCell')) {
     $output .= "data-x=\"$cellIndex;\" ";
     $output .= "data-y=\"$rowIndex\" ";
     if (substr($cell['data'], 0, 1) == '=') {
-      $formulaValue = str_replace('&apos;', "'", htmlspecialchars_decode(substr($cell['data'], 1), ENT_QUOTES));
+      $formulaValue = html_entity_decode(htmlspecialchars_decode(substr($cell['data'], 1), ENT_QUOTES), ENT_QUOTES, 'UTF-8');
       $output .= 'data-formula="' . esc_attr($formulaValue) . '" ';
     }
     $output .= "class=\"" . implode(' ', $cell['meta']) . "\" ";

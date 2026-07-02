@@ -48,6 +48,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $allowedOrderBy = [
       'id' => 'id',
       'title' => 'title',
+      'table_type' => 'table_type',
       'created_at' => 'created_at',
     ];
     $orderBy = isset($allowedOrderBy[$requestedOrderBy]) ? $allowedOrderBy[$requestedOrderBy] : 'id';
@@ -58,19 +59,35 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $wild = '%';
     $textLike = $wild . $wpdb->esc_like($textLike) . $wild;
 
-    $prepare = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $rowsLimit, $limitStart);
+    $prepare = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $textLike, $rowsLimit, $limitStart);
     $results = $wpdb->get_results($prepare, ARRAY_A);
     return $results;
   }
 
-  public function getTablesCount()
+  public function getTablesCount($search = [])
   {
-    $query = $this->getQueryBuilder()
-      ->select('*')
-      ->from($this->db->prefix . 'supsystic_tbl_tables');
+    global $wpdb;
+    $textLike = !empty($search['text_like']) ? sanitize_text_field($search['text_like']) : '';
 
-    $tables = $this->db->get_results($query->build(), ARRAY_A);
-    return count($tables);
+    if ($textLike === '') {
+      $query = $this->getQueryBuilder()
+        ->select('COUNT(*)')
+        ->from($this->db->prefix . 'supsystic_tbl_tables');
+
+      return (int) $this->db->get_var($query->build());
+    }
+
+    $wild = '%';
+    $textLike = $wild . $wpdb->esc_like($textLike) . $wild;
+
+    $prepare = $wpdb->prepare(
+      "SELECT COUNT(*) FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s",
+      $textLike,
+      $textLike,
+      $textLike
+    );
+
+    return (int) $wpdb->get_var($prepare);
   }
 
   /**
@@ -945,18 +962,18 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
         }
         foreach ($data['cells'] as &$cell) {
           if (isset($cell['comment']) && isset($cell['comment']['value'])) {
-            $cell['comment']['value'] = htmlspecialchars_decode((string) $cell['comment']['value'], ENT_QUOTES);
+            $cell['comment']['value'] = $this->decodePreparedCellValue($cell['comment']['value']);
           }
           if (!empty($cell['calculatedValue'])) {
-            $cell['calculatedValue'] = htmlspecialchars_decode((string) $cell['calculatedValue'], ENT_QUOTES);
+            $cell['calculatedValue'] = $this->decodePreparedCellValue($cell['calculatedValue']);
           }
           if (!empty($cell['formattedValue'])) {
-            $cell['formattedValue'] = htmlspecialchars_decode((string) $cell['formattedValue'], ENT_QUOTES);
+            $cell['formattedValue'] = $this->decodePreparedCellValue($cell['formattedValue']);
           }
-          $cell['data'] = htmlspecialchars_decode($cell['data'], ENT_QUOTES);
+          $cell['data'] = $this->decodePreparedCellValue($cell['data']);
           if (isset($cell['source']) && is_array($cell['source'])) {
             foreach ($cell['source'] as $i => $v) {
-              $cell['source'][$i] = htmlspecialchars_decode((string) $v, ENT_QUOTES);
+              $cell['source'][$i] = $this->decodePreparedCellValue($v);
             }
           }
         }
@@ -966,6 +983,12 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     }
 
     return $data;
+  }
+
+  private function decodePreparedCellValue($value)
+  {
+    $value = htmlspecialchars_decode((string) $value, ENT_QUOTES);
+    return html_entity_decode($value, ENT_QUOTES, 'UTF-8');
   }
 
   /**

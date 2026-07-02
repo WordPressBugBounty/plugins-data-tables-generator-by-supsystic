@@ -298,8 +298,28 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!isset($table->isPageRows)) {
       $table->isPageRows = false;
     }
-    $this->checkSpreadsheet =
-      $this->checkSpreadsheet && !$table->isPageRows && $environment->isPro() && isset($table->settings['features']['import']['google']['automatically_update']) && isset($table->settings['features']['import']['google']['link']) && !empty($table->settings['features']['import']['google']['link']);
+
+    if ($this->checkSpreadsheet && !$table->isPageRows && $environment->isPro() && $environment->isModule('importer')) {
+      $freshTable = $tables->getById($id);
+      if ($freshTable) {
+        $table = $freshTable;
+        $table->isDB = $environment->isPro() && !$this->isSingleCell && !$this->isTablePart && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on';
+        $table->isWooProductTable = $this->isWooProductTable($table);
+        if ($table->isWooProductTable) {
+          $table->settings = $this->normalizeWooProductTableFrontendSettings($table->settings);
+        }
+        $table->isSSP = !$this->isSingleCell && !$this->isTablePart && isset($table->settings['features']['paging']) && $table->settings['features']['paging'] == 'on' && isset($table->settings['serverSideProcessing']) && $table->settings['serverSideProcessing'] == 'on';
+        $table->isPageRows = false;
+      }
+    }
+
+    $activeAutoImportSource = '';
+    if ($environment->isPro() && $environment->isModule('importer')) {
+      $activeAutoImportSource = $environment->getModule('importer')->getActiveAutoImportSource($table);
+    }
+    $shouldAutoImportSource = $activeAutoImportSource !== '' && (!is_admin() || !$environment->isModule('tables', 'view') || $activeAutoImportSource !== 'ftp');
+    $hasAutoImportSource = $shouldAutoImportSource && !$table->isPageRows && $activeAutoImportSource !== '';
+    $this->checkSpreadsheet = $hasAutoImportSource || ($this->checkSpreadsheet && !$table->isPageRows);
 
     if (!$table->isWooProductTable && !$table->isSSP && !isset($table->settings['disableCache']) && empty($this->tableSearch) && !$this->isSingleCell && !$this->isTablePart && !$this->checkSpreadsheet && !$this->isFromHistory && file_exists($cachePath) && $this->getEnvironment()->isProd()) {
       // Connect scripts and styles depending on table settings and table's cells settings for table cache
@@ -309,12 +329,29 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     }
     if ($this->checkSpreadsheet) {
       try {
-        $this->getEnvironment()->getModule('importer')->autoUpdateTableFromGoogle($id, $table);
+        $this->getEnvironment()->getModule('importer')->autoUpdateTableFromSource($id, $table);
       } catch (Exception $e) {
         return $e->getMessage();
       }
-      // We need to get the new rows' data from db
-      $table->meta = $tables->getMeta($id);
+      // Reload the whole table object after source import to avoid rendering stale settings/meta/rows state.
+      $reloadedTable = $tables->getById($id);
+      if ($reloadedTable) {
+        $table = $reloadedTable;
+        $table->isDB = $environment->isPro() && !$this->isSingleCell && !$this->isTablePart && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on';
+        $table->isWooProductTable = $this->isWooProductTable($table);
+        if ($table->isWooProductTable) {
+          if (!class_exists('WooCommerce')) {
+            return '';
+          }
+          $table->settings = $this->normalizeWooProductTableFrontendSettings($table->settings);
+        }
+        $table->isSSP = !$this->isSingleCell && !$this->isTablePart && isset($table->settings['features']['paging']) && $table->settings['features']['paging'] == 'on' && isset($table->settings['serverSideProcessing']) && $table->settings['serverSideProcessing'] == 'on';
+        if (!isset($table->isPageRows)) {
+          $table->isPageRows = false;
+        }
+      } else {
+        $table->meta = $tables->getMeta($id);
+      }
     }
     if (!$table->isPageRows) {
       try {

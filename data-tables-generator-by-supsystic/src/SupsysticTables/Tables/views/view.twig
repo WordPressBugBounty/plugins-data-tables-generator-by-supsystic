@@ -1027,7 +1027,7 @@
                                     {% endif %}
                                     {% if environment.isPro() == false %}
                                         <div class="setting-title">
-                                            <h3>{{ environment.translate('Export / Import') }}</h3>
+                                            <h3>{{ environment.translate('Export') }}</h3>
                                         </div>
                                         <div class="setting-wrapper">
                                             <div class="setting-label">
@@ -1093,18 +1093,6 @@
                                             </div>
                                             <div class="setting-input">
                                                 <button class="button" disabled="disabled" id="features-export-select-logo-unavailable">{{ environment.translate('Select Logo') }}</button>
-                                            </div>
-                                        </div>
-                                        <div class="setting-wrapper">
-                                            <div class="setting-label">
-                                                <label for="google-tables-automatically-update-unavailable">
-                                                    {{ environment.translate('Autoimport from Google Sheet') }}
-                                                    {{ tooltip.icon(environment.translate('If checked - table data on frontend will be overloaded from selected Google Sheet. <a href="%s" tagget="_blank">Read more</a> about how organize Auto Import form Google Sheets') | format('//supsystic.com/documentation/synchronization-table-google-sheet/')) }}
-                                                </label>
-                                                <a target="_blank" class="supsystic-pro-feature" href="{{ build_pro_url({ 'utm_medium': 'google_tables_automatically_update' }) }}">{{ environment.translate('PRO option') }}</a>
-                                            </div>
-                                            <div class="setting-check">
-                                                <input type="checkbox" disabled="disabled" name="features[google_tables_automatically_update]" data-preview-not-redraw='1' id="google-tables-automatically-update-unavailable" />
                                             </div>
                                         </div>
                                 {% endif %}

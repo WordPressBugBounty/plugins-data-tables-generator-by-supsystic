@@ -503,6 +503,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
 
         var formData = isWooProductTable ? $() : this.prepareSettingsForm($('form#settings'), id),
           sourceData = isWooProductTable ? $() : $('form#source-settings'),
+          skipFtpSourcePreviewSave = !!preview && sourceData.length && sourceData.find('#ftp-tables-automatically-update').is(':checked'),
           byPart = true,
           metaData = [],
           mergeData = [],
@@ -685,7 +686,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
 
         // Request to save settings, meta and rows
         var ajaxPromise = new $.Deferred().resolve();
-        if (!isWooProductTable && (!preview || g_stbIsDataEdited['settings'] || g_stbIsDataEdited['source'])) {
+        if (!isWooProductTable && (!preview || g_stbIsDataEdited['settings'] || (g_stbIsDataEdited['source'] && !skipFtpSourcePreviewSave))) {
           if (sourceData.length) {
             sourceData.find('input[name="source[dbSQL]"]').val(sourceData.find('#source-db-sql').val());
           }
@@ -693,7 +694,9 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
             return self.setSettings(id, formData, sourceData);
           });
           g_stbIsDataEdited['settings'] = false;
-          g_stbIsDataEdited['source'] = false;
+          if (!skipFtpSourcePreviewSave) {
+            g_stbIsDataEdited['source'] = false;
+          }
           if (lastSave == 'settings' || lastSave == 'source') {
             ajaxPromise = ajaxPromise.then(function () {
               self.endSave();
