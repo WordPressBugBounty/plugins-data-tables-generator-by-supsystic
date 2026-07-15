@@ -715,6 +715,46 @@ var g_stbServerSideProcessingIsActive = false;
             });
           }
         },
+        cssEscapeIdentifier = function (value) {
+          if (window.CSS && typeof window.CSS.escape === 'function') {
+            return window.CSS.escape(String(value));
+          }
+
+          return String(value).replace(/^[0-9-]|[^a-zA-Z0-9_-]/g, function (character) {
+            return '\\' + character.charCodeAt(0).toString(16) + ' ';
+          });
+        },
+        cssEscapeString = function (value) {
+          return String(value)
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/\r/g, '\\D ')
+            .replace(/\n/g, '\\A ')
+            .replace(/\f/g, '\\C ');
+        },
+        appendResponsiveLabelStyles = function ($currentTable) {
+          var tableId = $currentTable.attr('id'),
+            labelStyles = '',
+            styleNode;
+
+          if (!tableId) {
+            return;
+          }
+
+          $currentTable.find('thead th').each(function (index) {
+            labelStyles += '#' + cssEscapeIdentifier(tableId) + '.oneColumnWithLabels td:nth-of-type(' + (index + 1) + '):before { content: "' + cssEscapeString(jQuery(this).text()) + '"; }';
+          });
+
+          if (!labelStyles) {
+            return;
+          }
+
+          styleNode = document.createElement('style');
+          styleNode.type = 'text/css';
+          styleNode.setAttribute('data-supsystic-responsive-labels', tableId);
+          styleNode.textContent = labelStyles;
+          $currentTable.before(styleNode);
+        },
         defaultFeatures = {
           autoWidth: false,
           info: false,
@@ -1068,15 +1108,7 @@ var g_stbServerSideProcessingIsActive = false;
       // Set responsive mode
       if (responsiveMode == 0) {
         // Responsive Mode: Standart Responsive Mode
-        var labelStyles = '<style>',
-          id = '#' + $table.attr('id');
-
-        // Add header data to each response row
-        $table.find('thead th').each(function (index, el) {
-          labelStyles += id + '.oneColumnWithLabels td:nth-of-type(' + (index + 1) + '):before { content: "' + jQuery(this).text() + '"; }';
-        });
-        labelStyles += '</style>';
-        $table.append(labelStyles);
+        appendResponsiveLabelStyles($table);
 
         jQuery(window).on('load resize orientationchange', $table, function (event) {
           event.preventDefault();
@@ -1305,7 +1337,7 @@ var g_stbServerSideProcessingIsActive = false;
                 currentSearchParams = currentApp.getServerSideSearchParams($table, currentSearchParams) || currentSearchParams;
               }
 
-              input = jQuery('#' + $table.attr('id') + '_filter.dataTables_filter').find('input');
+              input = jQuery('#' + cssEscapeIdentifier($table.attr('id') + '_filter') + '.dataTables_filter').find('input');
 
               return jQuery.extend(true, d, {
                 action: 'supsystic-tables',

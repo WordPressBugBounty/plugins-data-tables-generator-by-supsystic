@@ -840,6 +840,10 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!array_key_exists('id', $attributes)) {
       return sprintf($environment->translate('Mandatory attribute "id" is not specified. ' . 'Shortcode usage example: [%s id="{table_id}"]'), $config->get('shortcode_name'));
     }
+    $tableId = (int) $attributes['id'];
+    if ($tableId < 1) {
+      return '';
+    }
     if (!empty($attributes['search'])) {
       $this->tableSearch = $attributes['search'];
     }
@@ -861,23 +865,23 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
         !is_array($pluginSettings) && ($pluginSettings = [$pluginSettings]);
         foreach ($roles as $role) {
           if (in_array($role, $pluginSettings)) {
-            $show_edit_link = $this->_getTblLink((int) $attributes['id']);
+            $show_edit_link = $this->_getTblLink($tableId);
             break;
           }
         }
       }
 
       if (!$show_edit_link && current_user_can('manage_options')) {
-        $show_edit_link = $this->_getTblLink((int) $attributes['id']);
+        $show_edit_link = $this->_getTblLink($tableId);
       }
 
       if ($show_edit_link) {
-        wp_localize_script('tables-core', 'g_stbTblEditLink_' . $attributes['id'], (array) base64_encode($show_edit_link));
+        wp_localize_script('tables-core', 'g_stbTblEditLink_' . $tableId, (array) base64_encode($show_edit_link));
       }
     }
 
     $this->shortAttributes = $attributes;
-    return $this->render((int) $attributes['id']);
+    return $this->render($tableId);
   }
 
   public function doValueShortcode($attributes)
