@@ -4,6 +4,65 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 {
   private $tableHistoryModel = null;
   private $allowedHtml = [];
+  private $tablesTableColumns = null;
+
+  public function add(array $fields)
+  {
+    $fields = $this->filterFieldsByTablesSchema($fields);
+    return parent::add($fields);
+  }
+
+  public function set($id, array $fields)
+  {
+    $fields = $this->filterFieldsByTablesSchema($fields);
+    if (count($fields) === 0) {
+      return;
+    }
+
+    return parent::set($id, $fields);
+  }
+
+  public function ensureTablesSchema()
+  {
+    global $wpdb;
+
+    $tableName = $this->getTable('tables');
+    $columns = $this->getTablesTableColumns(true);
+    if (!is_array($columns) || count($columns) === 0) {
+      return false;
+    }
+
+    $changed = false;
+    if (!in_array('table_type', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $changed = true;
+    }
+    if (!in_array('woo_settings', $columns, true)) {
+      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $changed = true;
+    }
+    if (!in_array('history_settings', $columns, true)) {
+      $afterColumn = in_array('woo_settings', $columns, true) || $this->tablesColumnExists('woo_settings', true) ? 'woo_settings' : 'settings';
+      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `history_settings` TEXT NULL AFTER `{$afterColumn}`");
+      $changed = true;
+    }
+
+    if ($changed) {
+      $columns = $this->getTablesTableColumns(true);
+    }
+
+    if (in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
+      $wpdb->query(
+        "UPDATE {$tableName}
+         SET `table_type` = 'woo_product_table'
+         WHERE `table_type` = 'default'
+           AND `woo_settings` IS NOT NULL
+           AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'"
+      );
+    }
+
+    return true;
+  }
 
   /**
    * Returns table column by index.
@@ -43,14 +102,19 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function getListTbl($params)
   {
     global $wpdb;
+    $this->ensureTablesSchema();
+
     $textLike = !empty($params['search']['text_like']) ? sanitize_text_field($params['search']['text_like']) : '';
     $requestedOrderBy = !empty($params['orderBy']) ? sanitize_key($params['orderBy']) : 'id';
+    $hasTableType = $this->tablesColumnExists('table_type');
     $allowedOrderBy = [
       'id' => 'id',
       'title' => 'title',
-      'table_type' => 'table_type',
       'created_at' => 'created_at',
     ];
+    if ($hasTableType) {
+      $allowedOrderBy['table_type'] = 'table_type';
+    }
     $orderBy = isset($allowedOrderBy[$requestedOrderBy]) ? $allowedOrderBy[$requestedOrderBy] : 'id';
     $sortOrder = !empty($params['sortOrder']) && strtoupper($params['sortOrder']) === 'ASC' ? 'ASC' : 'DESC';
     $rowsLimit = !empty($params['rowsLimit']) ? min(100, max(1, absint($params['rowsLimit']))) : 20;
@@ -59,7 +123,12 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $wild = '%';
     $textLike = $wild . $wpdb->esc_like($textLike) . $wild;
 
-    $prepare = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $textLike, $rowsLimit, $limitStart);
+    $select = $hasTableType ? '*' : "*, 'default' AS `table_type`";
+    if ($hasTableType) {
+      $prepare = $wpdb->prepare("SELECT {$select} FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $textLike, $rowsLimit, $limitStart);
+    } else {
+      $prepare = $wpdb->prepare("SELECT {$select} FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s ORDER BY `{$orderBy}` {$sortOrder} LIMIT %d OFFSET %d", $textLike, $textLike, $rowsLimit, $limitStart);
+    }
     $results = $wpdb->get_results($prepare, ARRAY_A);
     return $results;
   }
@@ -67,7 +136,10 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function getTablesCount($search = [])
   {
     global $wpdb;
+    $this->ensureTablesSchema();
+
     $textLike = !empty($search['text_like']) ? sanitize_text_field($search['text_like']) : '';
+    $hasTableType = $this->tablesColumnExists('table_type');
 
     if ($textLike === '') {
       $query = $this->getQueryBuilder()
@@ -80,12 +152,20 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     $wild = '%';
     $textLike = $wild . $wpdb->esc_like($textLike) . $wild;
 
-    $prepare = $wpdb->prepare(
-      "SELECT COUNT(*) FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s",
-      $textLike,
-      $textLike,
-      $textLike
-    );
+    if ($hasTableType) {
+      $prepare = $wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s OR `table_type` LIKE %s",
+        $textLike,
+        $textLike,
+        $textLike
+      );
+    } else {
+      $prepare = $wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}supsystic_tbl_tables WHERE `id` LIKE %s OR `title` LIKE %s",
+        $textLike,
+        $textLike
+      );
+    }
 
     return (int) $wpdb->get_var($prepare);
   }
@@ -1792,6 +1872,49 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     return $rows;
   }
 
+  public function tablesColumnExists($column, $refresh = false)
+  {
+    $column = sanitize_key($column);
+    $columns = $this->getTablesTableColumns($refresh);
+
+    return is_array($columns) && in_array($column, $columns, true);
+  }
+
+  private function getTablesTableColumns($refresh = false)
+  {
+    if ($this->tablesTableColumns !== null && !$refresh) {
+      return $this->tablesTableColumns;
+    }
+
+    global $wpdb;
+    $tableName = $this->getTable('tables');
+    $this->tablesTableColumns = $wpdb->get_col("DESC {$tableName}", 0);
+
+    if (!is_array($this->tablesTableColumns)) {
+      $this->tablesTableColumns = [];
+    }
+
+    return $this->tablesTableColumns;
+  }
+
+  private function filterFieldsByTablesSchema(array $fields)
+  {
+    $this->ensureTablesSchema();
+    $columns = $this->getTablesTableColumns();
+
+    if (!is_array($columns) || count($columns) === 0) {
+      return $fields;
+    }
+
+    foreach (array_keys($fields) as $field) {
+      if (!in_array($field, $columns, true)) {
+        unset($fields[$field]);
+      }
+    }
+
+    return $fields;
+  }
+
   // Fix for compatibility with old pro versions
   private function getTableHistoryModel()
   {
@@ -1844,6 +1967,11 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   public function getWooSettings($id)
   {
+    $this->ensureTablesSchema();
+    if (!$this->tablesColumnExists('woo_settings')) {
+      return '';
+    }
+
     $query = $this->getQueryBuilder()->select($this->getField('tables', 'woo_settings'))->from($this->getTable('tables'))->where('id', '=', (int) $id);
 
     $rows = $this->db->get_var($query->build());
@@ -1852,6 +1980,11 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   public function getTableType($id)
   {
+    $this->ensureTablesSchema();
+    if (!$this->tablesColumnExists('table_type')) {
+      return 'default';
+    }
+
     $query = $this->getQueryBuilder()->select($this->getField('tables', 'table_type'))->from($this->getTable('tables'))->where('id', '=', (int) $id);
     $type = $this->db->get_var($query->build());
 

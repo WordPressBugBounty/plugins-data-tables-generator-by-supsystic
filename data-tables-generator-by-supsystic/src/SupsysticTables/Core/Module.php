@@ -544,11 +544,12 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $wooColumnsTable = $wpdb->prefix . $dbPrefix . 'woo_columns';
     $schemaOption = $dbPrefix . 'tables_schema_version';
 
-    if ((int) get_option($schemaOption) >= 2) {
+    if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($tablesTable))) !== $tablesTable) {
       return;
     }
 
-    if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($tablesTable))) !== $tablesTable) {
+    $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
+    if ((int) get_option($schemaOption) >= 2 && is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
       return;
     }
 
@@ -561,7 +562,6 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     ) $charsetCollate";
     dbDelta($sql);
 
-    $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     if (is_array($columns) && !in_array('table_type', $columns, true)) {
       $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
       $columns[] = 'table_type';
@@ -571,13 +571,13 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       $columns[] = 'woo_settings';
     }
 
-    if (in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
+    if (is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
       $wpdb->query(
         "UPDATE {$tablesTable}
          SET `table_type` = 'woo_product_table'
          WHERE `table_type` = 'default'
            AND `woo_settings` IS NOT NULL
-           AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'",
+           AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'"
       );
     }
 

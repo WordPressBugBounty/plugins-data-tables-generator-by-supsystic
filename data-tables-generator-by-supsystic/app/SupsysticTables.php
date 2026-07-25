@@ -15,10 +15,13 @@ class SupsysticTables
     }
 
     add_action('init', [$this, 'addShortcodeButton']);
+    if (is_admin()) {
+      add_action('admin_init', [$this, 'maybeUpgradeSchema']);
+    }
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.12.04', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.12.05', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -94,9 +97,6 @@ class SupsysticTables
   public function createSchema()
   {
     global $wpdb;
-    if (get_option('stbl' . '_installed')) {
-      return;
-    }
 
     if (!function_exists('dbDelta')) {
       require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -105,6 +105,13 @@ class SupsysticTables
     $wpdb->show_errors = false;
 
     $wpdb->query('SET FOREIGN_KEY_CHECKS=0;');
+
+    if (get_option('stbl' . '_installed')) {
+      $this->createWooSchema();
+      $wpdb->query('SET FOREIGN_KEY_CHECKS=1;');
+      $wpdb->show_errors = true;
+      return;
+    }
 
     if (!$this->db_table_exist('supsystic_tbl_tables')) {
       $charset_collate = $wpdb->get_charset_collate();
@@ -199,6 +206,25 @@ class SupsysticTables
     update_option('stbl' . '_installed', 1);
   }
 
+  public function maybeUpgradeSchema()
+  {
+    if ((int) get_option('supsystic_tbl_tables_schema_version', 0) < 2 || $this->tablesSchemaNeedsUpgrade()) {
+      $this->createSchema();
+    }
+  }
+
+  protected function tablesSchemaNeedsUpgrade()
+  {
+    global $wpdb;
+
+    if (!$this->db_table_exist('supsystic_tbl_tables')) {
+      return false;
+    }
+
+    $columns = $wpdb->get_col("DESC {$wpdb->prefix}supsystic_tbl_tables", 0);
+    return !is_array($columns) || !in_array('table_type', $columns, true) || !in_array('woo_settings', $columns, true);
+  }
+
   protected function createWooSchema()
   {
     global $wpdb;
@@ -220,17 +246,21 @@ class SupsysticTables
     $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     if (is_array($columns) && !in_array('woo_settings', $columns, true)) {
       $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     }
     if (is_array($columns) && !in_array('table_type', $columns, true)) {
       $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     }
-    $wpdb->query(
-      "UPDATE {$tablesTable}
-       SET `table_type` = 'woo_product_table'
-       WHERE `table_type` = 'default'
-         AND `woo_settings` IS NOT NULL
-         AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'",
-    );
+    if (is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
+      $wpdb->query(
+        "UPDATE {$tablesTable}
+         SET `table_type` = 'woo_product_table'
+         WHERE `table_type` = 'default'
+           AND `woo_settings` IS NOT NULL
+           AND `woo_settings` LIKE '%s:6:\"enable\";s:2:\"on\"%'"
+      );
+    }
 
     $this->seedWooColumns($wooColumnsTable);
     update_option('supsystic_tbl_woo_schema_version', 1);

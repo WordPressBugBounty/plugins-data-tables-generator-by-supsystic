@@ -1341,7 +1341,16 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
 
     global $wpdb;
     $tableName = $wpdb->prefix . $this->getEnvironment()->getConfig()->get('db_prefix') . 'tables';
-    $table = $wpdb->get_row($wpdb->prepare("SELECT `table_type`, `woo_settings` FROM {$tableName} WHERE `id` = %d", $tableId));
+    $columns = $wpdb->get_col("DESC {$tableName}", 0);
+    if (!is_array($columns)) {
+      return false;
+    }
+
+    $select = [
+      in_array('table_type', $columns, true) ? '`table_type`' : "'default' AS `table_type`",
+      in_array('woo_settings', $columns, true) ? '`woo_settings`' : 'NULL AS `woo_settings`',
+    ];
+    $table = $wpdb->get_row($wpdb->prepare('SELECT ' . implode(', ', $select) . " FROM {$tableName} WHERE `id` = %d", $tableId));
 
     if (!is_object($table)) {
       return false;
