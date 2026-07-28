@@ -54,7 +54,7 @@ class SupsysticTables_Restapi_Controller_Rows extends SupsysticTables_Core_BaseC
         'count' => count($rows),
         'rows' => $rows,
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }
@@ -78,7 +78,7 @@ class SupsysticTables_Restapi_Controller_Rows extends SupsysticTables_Core_BaseC
         'table_id' => $id,
         'columns' => $columns,
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }

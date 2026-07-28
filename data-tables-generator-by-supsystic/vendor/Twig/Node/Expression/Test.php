@@ -10,7 +10,7 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Test extends Twig_SupTwgDtgs_Node_Expression_Call
 {
-  public function __construct(Twig_SupTwgDtgs_NodeInterface $node, $name, Twig_SupTwgDtgs_NodeInterface $arguments = null, $lineno)
+  public function __construct(Twig_SupTwgDtgs_NodeInterface $node, $name, $lineno, ?Twig_SupTwgDtgs_NodeInterface $arguments = null)
   {
     $nodes = ['node' => $node];
     if (null !== $arguments) {

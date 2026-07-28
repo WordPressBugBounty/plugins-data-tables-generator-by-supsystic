@@ -23,16 +23,16 @@ class Twig_SupTwgDtgs_Node_For extends Twig_SupTwgDtgs_Node
     Twig_SupTwgDtgs_Node_Expression_AssignName $keyTarget,
     Twig_SupTwgDtgs_Node_Expression_AssignName $valueTarget,
     Twig_SupTwgDtgs_Node_Expression $seq,
-    Twig_SupTwgDtgs_Node_Expression $ifexpr = null,
     Twig_SupTwgDtgs_NodeInterface $body,
-    Twig_SupTwgDtgs_NodeInterface $else = null,
     $lineno,
-    $tag = null
+    $tag = null,
+    ?Twig_SupTwgDtgs_Node_Expression $ifexpr = null,
+    ?Twig_SupTwgDtgs_NodeInterface $else = null
   ) {
     $body = new Twig_SupTwgDtgs_Node([$body, ($this->loop = new Twig_SupTwgDtgs_Node_ForLoop($lineno, $tag))]);
 
     if (null !== $ifexpr) {
-      $body = new Twig_SupTwgDtgs_Node_If(new Twig_SupTwgDtgs_Node([$ifexpr, $body]), null, $lineno, $tag);
+      $body = new Twig_SupTwgDtgs_Node_If(new Twig_SupTwgDtgs_Node([$ifexpr, $body]), $lineno, $tag);
     }
 
     $nodes = ['key_target' => $keyTarget, 'value_target' => $valueTarget, 'seq' => $seq, 'body' => $body];

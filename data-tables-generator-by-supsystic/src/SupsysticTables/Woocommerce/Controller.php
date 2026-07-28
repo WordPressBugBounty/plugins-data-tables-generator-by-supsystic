@@ -37,7 +37,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     try {
       $moduleTables->setIniLimits();
       $this->getModel('tables')->set($id, $updateData);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
     $moduleTables->getController()->cleanCache($id);
@@ -142,7 +142,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     try {
       $this->getModel('tables')->set($id, ['woo_settings' => serialize($tableSettings)]);
       return $this->ajaxSuccess(['productIds' => $productIds]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -168,7 +168,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     try {
       $this->getModel('tables')->set($id, ['woo_settings' => serialize($tableSettings)]);
       return $this->ajaxSuccess(['productIds' => $productIds]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -226,7 +226,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
             WC()->cart->add_to_cart($selectedProduct['id'], $selectedProduct['quantity'], $selectedProduct['varId'], $selectedProduct['variation']);
           }
         }
-      } catch (Exception $e) {
+      } catch (Throwable $e) {
         return $this->ajaxError($e->getMessage());
       }
     } else {
@@ -276,7 +276,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
         'filename' => $filename . '-woo-settings.json',
         'payload' => $payload,
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -323,7 +323,7 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
       $this->getEnvironment()->getModule('tables')->getController()->cleanCache($id);
 
       return $this->ajaxSuccess(['message' => $this->translate('WooCommerce table settings imported successfully.')]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }

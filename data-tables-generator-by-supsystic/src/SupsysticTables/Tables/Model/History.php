@@ -143,7 +143,7 @@ class SupsysticTables_Tables_Model_History extends SupsysticTables_Core_BaseMode
       'data' => [],
     ];
     for ($i = 0; $i < count($rows); $i++) {
-      array_push($history['data'], unserialize($rows[$i]->data));
+      array_push($history['data'], @unserialize($rows[$i]->data, ['allowed_classes' => false]));
     }
     $history['data'] = serialize($history['data']);
 
@@ -180,6 +180,9 @@ class SupsysticTables_Tables_Model_History extends SupsysticTables_Core_BaseMode
   public function _afterSimpleGet($historyTable)
   {
     $historyTable->data = unserialize($historyTable->data);
+    if (!is_array($historyTable->data)) {
+      $historyTable->data = [];
+    }
     usort($historyTable->data, [$this, 'sortHistory']);
 
     for ($i = 0; $i < count($historyTable->data); $i++) {

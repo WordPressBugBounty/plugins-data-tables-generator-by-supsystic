@@ -17,7 +17,7 @@
  */
 class Twig_SupTwgDtgs_Node_Include extends Twig_SupTwgDtgs_Node implements Twig_SupTwgDtgs_NodeOutputInterface
 {
-  public function __construct(Twig_SupTwgDtgs_Node_Expression $expr, Twig_SupTwgDtgs_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
+  public function __construct(Twig_SupTwgDtgs_Node_Expression $expr, ?Twig_SupTwgDtgs_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
   {
     $nodes = ['expr' => $expr];
     if (null !== $variables) {

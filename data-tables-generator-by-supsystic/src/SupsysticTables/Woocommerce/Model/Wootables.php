@@ -172,6 +172,9 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
       if (!is_array($orders)) {
         $orders = json_decode($orders, true);
       }
+      if (!is_array($orders)) {
+        $orders = [];
+      }
     }
     $columns = [];
     foreach ($orders as $column) {

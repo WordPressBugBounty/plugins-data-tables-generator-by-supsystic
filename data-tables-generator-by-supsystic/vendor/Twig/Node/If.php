@@ -17,7 +17,7 @@
  */
 class Twig_SupTwgDtgs_Node_If extends Twig_SupTwgDtgs_Node
 {
-  public function __construct(Twig_SupTwgDtgs_NodeInterface $tests, Twig_SupTwgDtgs_NodeInterface $else = null, $lineno, $tag = null)
+  public function __construct(Twig_SupTwgDtgs_NodeInterface $tests, $lineno, $tag = null, ?Twig_SupTwgDtgs_NodeInterface $else = null)
   {
     $nodes = ['tests' => $tests];
     if (null !== $else) {

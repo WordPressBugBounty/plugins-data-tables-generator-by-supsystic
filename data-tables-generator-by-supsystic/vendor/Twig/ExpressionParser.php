@@ -353,14 +353,14 @@ class Twig_SupTwgDtgs_ExpressionParser
           throw new Twig_SupTwgDtgs_Error_Syntax('The "block" function takes one argument (the block name).', $line, $this->parser->getStream()->getSourceContext());
         }
 
-        return new Twig_SupTwgDtgs_Node_Expression_BlockReference($args->getNode(0), count($args) > 1 ? $args->getNode(1) : null, $line);
+        return new Twig_SupTwgDtgs_Node_Expression_BlockReference($args->getNode(0), $line, null, count($args) > 1 ? $args->getNode(1) : null);
       case 'attribute':
         $args = $this->parseArguments();
         if (count($args) < 2) {
           throw new Twig_SupTwgDtgs_Error_Syntax('The "attribute" function takes at least two arguments (the variable and the attributes).', $line, $this->parser->getStream()->getSourceContext());
         }
 
-        return new Twig_SupTwgDtgs_Node_Expression_GetAttr($args->getNode(0), $args->getNode(1), count($args) > 2 ? $args->getNode(2) : null, Twig_SupTwgDtgs_Template::ANY_CALL, $line);
+        return new Twig_SupTwgDtgs_Node_Expression_GetAttr($args->getNode(0), $args->getNode(1), Twig_SupTwgDtgs_Template::ANY_CALL, $line, count($args) > 2 ? $args->getNode(2) : null);
       default:
         if (null !== ($alias = $this->parser->getImportedSymbol('function', $name))) {
           $arguments = new Twig_SupTwgDtgs_Node_Expression_Array([], $line);
@@ -454,7 +454,7 @@ class Twig_SupTwgDtgs_ExpressionParser
       $stream->expect(Twig_SupTwgDtgs_Token::PUNCTUATION_TYPE, ']');
     }
 
-    return new Twig_SupTwgDtgs_Node_Expression_GetAttr($node, $arg, $arguments, $type, $lineno);
+    return new Twig_SupTwgDtgs_Node_Expression_GetAttr($node, $arg, $type, $lineno, $arguments);
   }
 
   public function parseFilterExpression($node)
@@ -604,7 +604,7 @@ class Twig_SupTwgDtgs_ExpressionParser
       $arguments = $this->parser->getExpressionParser()->parseArguments(true);
     }
 
-    return new $class($node, $name, $arguments, $this->parser->getCurrentToken()->getLine());
+    return new $class($node, $name, $this->parser->getCurrentToken()->getLine(), $arguments);
   }
 
   private function getTest($line)

@@ -87,7 +87,7 @@ class SupsysticTables_Restapi_Controller_ImportExport extends SupsysticTables_Co
         'rows_count' => count($rows),
         'filename' => sanitize_file_name($table->title) . '.csv',
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }
@@ -134,7 +134,7 @@ class SupsysticTables_Restapi_Controller_ImportExport extends SupsysticTables_Co
         'data' => $data,
         'count' => count($data),
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }

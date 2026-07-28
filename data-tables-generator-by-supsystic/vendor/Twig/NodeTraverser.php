@@ -61,7 +61,7 @@ class Twig_SupTwgDtgs_NodeTraverser
     return $node;
   }
 
-  protected function traverseForVisitor(Twig_SupTwgDtgs_NodeVisitorInterface $visitor, Twig_SupTwgDtgs_NodeInterface $node = null)
+  protected function traverseForVisitor(Twig_SupTwgDtgs_NodeVisitorInterface $visitor, ?Twig_SupTwgDtgs_NodeInterface $node = null)
   {
     if (null === $node) {
       return;

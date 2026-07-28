@@ -503,7 +503,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
       try {
         $core->updateFromFile($file);
-      } catch (Exception $e) {
+      } catch (Throwable $e) {
         if (!$environment->isPluginPage()) {
           return;
         }

@@ -117,7 +117,7 @@ class Twig_SupTwgDtgs_Parser implements Twig_SupTwgDtgs_ParserInterface
       throw $e;
     }
 
-    $node = new Twig_SupTwgDtgs_Node_Module(new Twig_SupTwgDtgs_Node_Body([$body]), $this->parent, new Twig_SupTwgDtgs_Node($this->blocks), new Twig_SupTwgDtgs_Node($this->macros), new Twig_SupTwgDtgs_Node($this->traits), $this->embeddedTemplates, $stream->getSourceContext());
+    $node = new Twig_SupTwgDtgs_Node_Module(new Twig_SupTwgDtgs_Node_Body([$body]), new Twig_SupTwgDtgs_Node($this->blocks), new Twig_SupTwgDtgs_Node($this->macros), new Twig_SupTwgDtgs_Node($this->traits), $this->embeddedTemplates, $stream->getSourceContext(), '', $this->parent);
 
     $traverser = new Twig_SupTwgDtgs_NodeTraverser($this->env, $this->visitors);
 
@@ -308,7 +308,7 @@ class Twig_SupTwgDtgs_Parser implements Twig_SupTwgDtgs_ParserInterface
     $this->embeddedTemplates[] = $template;
   }
 
-  public function addImportedSymbol($type, $alias, $name = null, Twig_SupTwgDtgs_Node_Expression $node = null)
+  public function addImportedSymbol($type, $alias, $name = null, ?Twig_SupTwgDtgs_Node_Expression $node = null)
   {
     $this->importedSymbols[0][$type][$alias] = ['name' => $name, 'node' => $node];
   }

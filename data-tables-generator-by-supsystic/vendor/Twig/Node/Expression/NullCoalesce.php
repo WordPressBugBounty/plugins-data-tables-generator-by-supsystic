@@ -13,8 +13,8 @@ class Twig_SupTwgDtgs_Node_Expression_NullCoalesce extends Twig_SupTwgDtgs_Node_
   public function __construct(Twig_SupTwgDtgs_NodeInterface $left, Twig_SupTwgDtgs_NodeInterface $right, $lineno)
   {
     $test = new Twig_SupTwgDtgs_Node_Expression_Binary_And(
-      new Twig_SupTwgDtgs_Node_Expression_Test_Defined(clone $left, 'defined', new Twig_SupTwgDtgs_Node(), $left->getTemplateLine()),
-      new Twig_SupTwgDtgs_Node_Expression_Unary_Not(new Twig_SupTwgDtgs_Node_Expression_Test_Null($left, 'null', new Twig_SupTwgDtgs_Node(), $left->getTemplateLine()), $left->getTemplateLine()),
+      new Twig_SupTwgDtgs_Node_Expression_Test_Defined(clone $left, 'defined', $left->getTemplateLine(), new Twig_SupTwgDtgs_Node()),
+      new Twig_SupTwgDtgs_Node_Expression_Unary_Not(new Twig_SupTwgDtgs_Node_Expression_Test_Null($left, 'null', $left->getTemplateLine(), new Twig_SupTwgDtgs_Node()), $left->getTemplateLine()),
       $left->getTemplateLine(),
     );
 

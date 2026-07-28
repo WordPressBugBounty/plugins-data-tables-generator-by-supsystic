@@ -64,7 +64,7 @@ class Twig_SupTwgDtgs_TokenParser_If extends Twig_SupTwgDtgs_TokenParser
 
     $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
 
-    return new Twig_SupTwgDtgs_Node_If(new Twig_SupTwgDtgs_Node($tests), $else, $lineno, $this->getTag());
+    return new Twig_SupTwgDtgs_Node_If(new Twig_SupTwgDtgs_Node($tests), $lineno, $this->getTag(), $else);
   }
 
   public function decideIfFork(Twig_SupTwgDtgs_Token $token)

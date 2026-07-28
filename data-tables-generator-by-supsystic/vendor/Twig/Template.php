@@ -295,7 +295,7 @@ abstract class Twig_SupTwgDtgs_Template implements Twig_SupTwgDtgs_TemplateInter
    *
    * @internal
    */
-  public function hasBlock($name, array $context = null, array $blocks = [])
+  public function hasBlock($name, ?array $context = null, array $blocks = [])
   {
     if (null === $context) {
       //@trigger_error('The '.__METHOD__.' method is internal and should never be called; calling it directly is deprecated since version 1.28 and won\'t be possible anymore in 2.0.', E_USER_DEPRECATED);
@@ -331,7 +331,7 @@ abstract class Twig_SupTwgDtgs_Template implements Twig_SupTwgDtgs_TemplateInter
    *
    * @internal
    */
-  public function getBlockNames(array $context = null, array $blocks = [])
+  public function getBlockNames(?array $context = null, array $blocks = [])
   {
     if (null === $context) {
       //@trigger_error('The '.__METHOD__.' method is internal and should never be called; calling it directly is deprecated since version 1.28 and won\'t be possible anymore in 2.0.', E_USER_DEPRECATED);

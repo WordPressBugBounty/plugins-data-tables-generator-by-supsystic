@@ -20,7 +20,7 @@ class Twig_SupTwgDtgs_Node_Expression_BlockReference extends Twig_SupTwgDtgs_Nod
   /**
    * @param Twig_SupTwgDtgs_Node|null $template
    */
-  public function __construct(Twig_SupTwgDtgs_NodeInterface $name, $template = null, $lineno, $tag = null)
+  public function __construct(Twig_SupTwgDtgs_NodeInterface $name, $lineno, $tag = null, $template = null)
   {
     if (is_bool($template)) {
       //@trigger_error(sprintf('The %s method "$asString" argument is deprecated since version 1.28 and will be removed in 2.0.', __METHOD__), E_USER_DEPRECATED);

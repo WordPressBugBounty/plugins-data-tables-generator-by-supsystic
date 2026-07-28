@@ -330,7 +330,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if ($this->checkSpreadsheet) {
       try {
         $this->getEnvironment()->getModule('importer')->autoUpdateTableFromSource($id, $table);
-      } catch (Exception $e) {
+      } catch (Throwable $e) {
         return $e->getMessage();
       }
       // Reload the whole table object after source import to avoid rendering stale settings/meta/rows state.
@@ -356,7 +356,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!$table->isPageRows) {
       try {
         $table->rows = $tables->getNeededRows($id, $table->settings, $table->isSSP, $this->shortAttributes);
-      } catch (Exception $e) {
+      } catch (Throwable $e) {
         $this->isSingleCell = $this->isTablePart = $this->isFromHistory = $this->historyData = [];
         $this->checkSpreadsheet = false;
         $this->shortAttributes = [];
@@ -772,7 +772,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
     try {
       $rows = $tables->getRows($tableId);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError(sprintf($this->translate('Failed to get table rows: %s'), $e->getMessage()));
     }
 
@@ -2218,7 +2218,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!isset($settings['disallowIndexing'])) {
       return false;
     }
-    $userAgent = $this->getRequest()->headers->get('USER_AGENT');
+    $userAgent = (string) $this->getRequest()->headers->get('USER_AGENT');
     $pattern =
       '/(abachobot|acoon|aesop_com_spiderman|ah-ha.com crawler|appie|arachnoidea|architextspider|atomz|baidu|bing|bot|deepindex|esismartspider|ezresult|fast-webcrawler|feed|fido|fluffy the spider|gigabot|google|googlebot|gulliver|gulper|gulper|henrythemiragorobot|http|ia_archiver|jeevesteoma|kit-fireball|linkwalker|lnspiderguy|lycos_spider|mantraagent|mediapartners|msn|nationaldirectory-superspider|nazilla|openbot|openfind piranha,shark|robozilla|scooter|scrubby|search|slurp|sogou|sohu|soso|spider|tarantula|teoma_agent1|test|uk searcher spider|validator|w3c_validator|wdg_validator|webaltbot|webcrawler|websitepulse|wget|winona|yahoo|yodao|zyborg)/i';
     return (bool) preg_match($pattern, $userAgent);

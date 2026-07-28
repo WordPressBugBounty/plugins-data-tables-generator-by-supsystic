@@ -274,7 +274,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
         $this->addColumn($id, (array) $column);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       throw new RuntimeException(sprintf('Failed to set columns: %s', $e->getMessage()));
     }
   }
@@ -988,6 +988,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   public function prepareRowsData($data, $compress = true)
   {
+    if (!is_array($data)) {
+      $data = [];
+    }
     if (!empty($data['cells'])) {
       $keys = [
         'd' => 'data',
@@ -1222,7 +1225,10 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
       foreach ($results as $i => $row) {
         $data = @unserialize($row->data, ['allowed_classes' => false]);
-        $index = array_search($data['cells'][0]['y'], $ids);
+        if (!is_array($data)) {
+          continue;
+        }
+        $index = array_search($data['cells'][0]['y'] ?? null, $ids);
         if ($index !== false) {
           $rows[$index] = $this->prepareRowsData($data, false);
         }
@@ -1426,7 +1432,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
         $this->removeRowsByPart($id, $lastRowId, $last);
         delete_option($option_name, $lastRowId);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       throw new RuntimeException(sprintf('Failed to set rows: %s', $e->getMessage()));
     }
   }
@@ -1490,6 +1496,12 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
       foreach ($rows as $i => $row) {
         $values = @unserialize($row->data, ['allowed_classes' => false]);
+        if (!is_array($values)) {
+          continue;
+        }
+        if (!isset($values['cells']) || !is_array($values['cells'])) {
+          $values['cells'] = [];
+        }
         array_splice($values['cells'], $from);
         $this->updateRow($row->id, $values);
       }
@@ -1517,7 +1529,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       foreach ($rows as $row) {
         $this->addRow($id, $row);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       throw new RuntimeException(sprintf('Failed to set rows: %s', $e->getMessage()));
     }
   }
@@ -1536,7 +1548,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       foreach ($rows as $row) {
         $this->addRow($id, $row);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       throw new RuntimeException(sprintf('Failed to set rows: %s', $e->getMessage()));
     }
   }
@@ -1714,6 +1726,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   }
   public function fixIncorrectSerialize($string)
   {
+    $string = (string) $string;
     // at first, check if "fixing" is really needed at all. After that, security checkup.
     if (@!unserialize($string, ['allowed_classes' => false]) && preg_match('/^[aOs]:/', $string)) {
       $string = preg_replace_callback(

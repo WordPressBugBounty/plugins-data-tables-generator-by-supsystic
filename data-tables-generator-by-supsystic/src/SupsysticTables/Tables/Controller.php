@@ -15,7 +15,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         'order_by' => 'id',
       ]);
       return $this->response('@tables/index.twig', ['tables' => $tables]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->response('error.twig', ['exception' => $e]);
     }
   }
@@ -115,7 +115,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         // Save an empty table's rows to prevent error when the Data Tables script will be executed
         $this->getModel('tables')->setRows($tableId, $rows);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
 
@@ -139,7 +139,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       foreach ($ids as $i => $id) {
         $this->getModel('tables')->removeById($id);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       if ($this->isAjax()) {
         return $this->ajaxError($e->getMessage());
       }
@@ -172,7 +172,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       });
       $id = $request->query->get('id');
       $table = $this->getModel('tables')->getById($id);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->response('error.twig', ['exception' => $e]);
     }
     if (isset($table->settings['features']['after_table_loaded_script']) && !empty($table->settings['features']['after_table_loaded_script'])) {
@@ -235,7 +235,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $this->getModel('tables')->set($id, [
         'title' => $title,
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
 
@@ -261,6 +261,9 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $start = $request->post->get('start');
       $length = $request->post->get('length');
       $searchAll = $request->post->get('search');
+      if (!is_array($searchAll)) {
+        $searchAll = ['value' => ''];
+      }
       $columns = $request->post->get('columns');
       $searchParams = $request->post->get('searchParams');
       $searchValue = $request->post->get('searchValue');
@@ -315,7 +318,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $module->setDataForPage($table);
 
       return $this->ajaxSuccess(['draw' => $request->post->get('draw'), 'recordsTotal' => $rows['recordsTotal'], 'recordsFiltered' => $rows['recordsFiltered'], 'rows' => $module->render($id)]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -336,7 +339,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
 
     try {
       return $this->ajaxSuccess(['columns' => $tables->getColumns($id)]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -357,8 +360,11 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     $columns = $request->post->get('columns');
 
     try {
+      if (!is_array($columns)) {
+        throw new InvalidArgumentException('Columns must be an array.');
+      }
       $tables->setColumns($id, $columns);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError(sprintf($this->translate('Failed to save table columns: %s'), $e->getMessage()));
     }
 
@@ -384,7 +390,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       return $this->ajaxSuccess([
         'countRows' => $tables->getCountRows($id),
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -411,7 +417,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       return $this->ajaxSuccess([
         'rows' => $tables->getRows($id, isset($limit) ? $limit : 0, 'ASC', isset($offset) ? $offset : 0),
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -453,7 +459,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       } else {
         $tables->setRows($id, $rows);
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError(sprintf($this->translate('Failed to save table rows: %s'), $e->getMessage()));
     }
     $this->cleanCache($id);
@@ -490,7 +496,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     try {
       $this->getEnvironment()->getModule('tables')->setIniLimits();
       $this->getModel('tables')->set($id, ['settings' => htmlspecialchars(serialize($settings), ENT_QUOTES)]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
 
@@ -566,7 +572,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     try {
       $this->getEnvironment()->getModule('tables')->setIniLimits();
       $tables->setMeta($id, $meta);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError(sprintf($this->translate('Failed to save table meta data: %s'), $e->getMessage()));
     }
 
@@ -741,7 +747,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $tablesModule->additionalCloningActions($clonedTable, $tableId);
 
       return $this->ajaxSuccess(['id' => $tableId]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }
@@ -801,7 +807,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         'order_by' => 'title',
       ]);
       return $this->ajaxSuccess(['tables' => $tables]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
   }

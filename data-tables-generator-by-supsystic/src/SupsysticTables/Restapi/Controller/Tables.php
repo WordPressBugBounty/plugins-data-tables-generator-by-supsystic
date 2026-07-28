@@ -89,7 +89,7 @@ class SupsysticTables_Restapi_Controller_Tables extends SupsysticTables_Core_Bas
         'per_page' => $perPage,
         'total_pages' => (int) ceil($total / $perPage),
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }
@@ -110,7 +110,7 @@ class SupsysticTables_Restapi_Controller_Tables extends SupsysticTables_Core_Bas
       }
 
       return rest_ensure_response($this->formatTable($table, $includeData));
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }

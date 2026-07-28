@@ -18,7 +18,7 @@ class Twig_SupTwgDtgs_Sandbox_SecurityNotAllowedFunctionError extends Twig_SupTw
 {
   private $functionName;
 
-  public function __construct($message, $functionName, $lineno = -1, $filename = null, Exception $previous = null)
+  public function __construct($message, $functionName, $lineno = -1, $filename = null, ?Exception $previous = null)
   {
     parent::__construct($message, $lineno, $filename, $previous);
     $this->functionName = $functionName;

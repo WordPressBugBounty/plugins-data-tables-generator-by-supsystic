@@ -20,7 +20,7 @@ abstract class Twig_SupTwgDtgs_Test_NodeTestCase extends PHPUnit_Framework_TestC
     $this->assertNodeCompilation($source, $node, $environment, $isPattern);
   }
 
-  public function assertNodeCompilation($source, Twig_SupTwgDtgs_Node $node, Twig_SupTwgDtgs_Environment $environment = null, $isPattern = false)
+  public function assertNodeCompilation($source, Twig_SupTwgDtgs_Node $node, ?Twig_SupTwgDtgs_Environment $environment = null, $isPattern = false)
   {
     $compiler = $this->getCompiler($environment);
     $compiler->compile($node);
@@ -32,7 +32,7 @@ abstract class Twig_SupTwgDtgs_Test_NodeTestCase extends PHPUnit_Framework_TestC
     }
   }
 
-  protected function getCompiler(Twig_SupTwgDtgs_Environment $environment = null)
+  protected function getCompiler(?Twig_SupTwgDtgs_Environment $environment = null)
   {
     return new Twig_SupTwgDtgs_Compiler(null === $environment ? $this->getEnvironment() : $environment);
   }

@@ -159,7 +159,7 @@ class ConsumerStrategies_SocketConsumer extends ConsumerStrategies_AbstractConsu
         $this->_socket = $socket;
         return $socket;
       }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       $this->_handleError($e->getCode(), $e->getMessage());
       return $retry == true ? $this->_createSocket(false) : false;
     }
@@ -208,7 +208,7 @@ class ConsumerStrategies_SocketConsumer extends ConsumerStrategies_AbstractConsu
         if ($bytes > 0) {
           $data = substr($data, $max_bytes_per_write);
         }
-      } catch (Exception $e) {
+      } catch (Throwable $e) {
         $this->_handleError($e->getCode(), $e->getMessage());
         $socket_closed = true;
       }

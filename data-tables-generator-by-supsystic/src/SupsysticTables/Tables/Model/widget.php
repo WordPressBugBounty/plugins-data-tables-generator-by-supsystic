@@ -23,12 +23,12 @@ class SupsysticTables_Widget extends WP_Widget
    */
   public function widget($args, $instance)
   {
-    $title = apply_filters('widget_title', $instance['title']);
+    $title = apply_filters('widget_title', isset($instance['title']) ? $instance['title'] : '');
     echo wp_kses_post($args['before_widget']);
     if (!empty($title)) {
       echo wp_kses_post($args['before_title'] . $title . $args['after_title']);
     }
-    echo do_shortcode('[supsystic-tables id=' . esc_html($instance['id']) . ' position="center"]');
+    echo do_shortcode('[supsystic-tables id=' . esc_html(isset($instance['id']) ? $instance['id'] : '') . ' position="center"]');
     echo wp_kses_post($args['after_widget']);
   }
 

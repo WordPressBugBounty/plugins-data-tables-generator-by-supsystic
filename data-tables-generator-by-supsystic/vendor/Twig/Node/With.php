@@ -16,7 +16,7 @@
  */
 class Twig_SupTwgDtgs_Node_With extends Twig_SupTwgDtgs_Node
 {
-  public function __construct(Twig_SupTwgDtgs_Node $body, Twig_SupTwgDtgs_Node $variables = null, $only = false, $lineno, $tag = null)
+  public function __construct(Twig_SupTwgDtgs_Node $body, $lineno, $tag = null, ?Twig_SupTwgDtgs_Node $variables = null, $only = false)
   {
     $nodes = ['body' => $body];
     if (null !== $variables) {

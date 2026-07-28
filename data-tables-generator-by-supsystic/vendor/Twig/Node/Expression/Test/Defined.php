@@ -23,7 +23,7 @@
  */
 class Twig_SupTwgDtgs_Node_Expression_Test_Defined extends Twig_SupTwgDtgs_Node_Expression_Test
 {
-  public function __construct(Twig_SupTwgDtgs_NodeInterface $node, $name, Twig_SupTwgDtgs_NodeInterface $arguments = null, $lineno)
+  public function __construct(Twig_SupTwgDtgs_NodeInterface $node, $name, $lineno, ?Twig_SupTwgDtgs_NodeInterface $arguments = null)
   {
     if ($node instanceof Twig_SupTwgDtgs_Node_Expression_Name) {
       $node->setAttribute('is_defined_test', true);
@@ -40,7 +40,7 @@ class Twig_SupTwgDtgs_Node_Expression_Test_Defined extends Twig_SupTwgDtgs_Node_
       throw new Twig_SupTwgDtgs_Error_Syntax('The "defined" test only works with simple variables.', $this->getTemplateLine());
     }
 
-    parent::__construct($node, $name, $arguments, $lineno);
+    parent::__construct($node, $name, $lineno, $arguments);
   }
 
   protected function changeIgnoreStrictCheck(Twig_SupTwgDtgs_Node_Expression_GetAttr $node)

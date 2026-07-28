@@ -35,7 +35,7 @@ class Twig_SupTwgDtgs_TokenParser_With extends Twig_SupTwgDtgs_TokenParser
 
     $stream->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);
 
-    return new Twig_SupTwgDtgs_Node_With($body, $variables, $only, $token->getLine(), $this->getTag());
+    return new Twig_SupTwgDtgs_Node_With($body, $token->getLine(), $this->getTag(), $variables, $only);
   }
 
   public function decideWithEnd(Twig_SupTwgDtgs_Token $token)

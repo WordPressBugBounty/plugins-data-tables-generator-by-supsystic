@@ -18,7 +18,7 @@ class Twig_SupTwgDtgs_Sandbox_SecurityNotAllowedTagError extends Twig_SupTwgDtgs
 {
   private $tagName;
 
-  public function __construct($message, $tagName, $lineno = -1, $filename = null, Exception $previous = null)
+  public function __construct($message, $tagName, $lineno = -1, $filename = null, ?Exception $previous = null)
   {
     parent::__construct($message, $lineno, $filename, $previous);
     $this->tagName = $tagName;

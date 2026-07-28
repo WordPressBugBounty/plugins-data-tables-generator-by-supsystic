@@ -19,7 +19,7 @@ class Twig_SupTwgDtgs_Sandbox_SecurityNotAllowedPropertyError extends Twig_SupTw
   private $className;
   private $propertyName;
 
-  public function __construct($message, $className, $propertyName, $lineno = -1, $filename = null, Exception $previous = null)
+  public function __construct($message, $className, $propertyName, $lineno = -1, $filename = null, ?Exception $previous = null)
   {
     parent::__construct($message, $lineno, $filename, $previous);
     $this->className = $className;

@@ -64,7 +64,7 @@ class Twig_SupTwgDtgs_TokenParser_For extends Twig_SupTwgDtgs_TokenParser
       $this->checkLoopUsageBody($stream, $body);
     }
 
-    return new Twig_SupTwgDtgs_Node_For($keyTarget, $valueTarget, $seq, $ifexpr, $body, $else, $lineno, $this->getTag());
+    return new Twig_SupTwgDtgs_Node_For($keyTarget, $valueTarget, $seq, $body, $lineno, $this->getTag(), $ifexpr, $else);
   }
 
   public function decideForFork(Twig_SupTwgDtgs_Token $token)

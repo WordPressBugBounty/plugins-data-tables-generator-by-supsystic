@@ -15,7 +15,7 @@ class SupsysticTables_Settings_Controller extends SupsysticTables_Core_BaseContr
 
     try {
       return $this->response($templates['settings.index'], ['settings' => $settings, 'wpRoles' => wp_roles()->role_names]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->response('error.twig', ['exception' => $e]);
     }
   }
@@ -43,11 +43,17 @@ class SupsysticTables_Settings_Controller extends SupsysticTables_Core_BaseContr
       $currentSettings = [];
     }
 
-    // This functions only checks one dimension of n-dimensional array and
-    // if array have sub array-elements they are casted to string and since
-    // php 5.4 it throws notices
-    $diff = @array_diff($settings, $currentSettings);
-    $intersect = @array_intersect($settings, $currentSettings);
+    // array_diff()/array_intersect() cast sub-array elements to string for
+    // comparison, which triggers "Array to string conversion" (not silenced
+    // by @ for this specific case), so compare with a type-safe callback.
+    $compareValues = function ($a, $b) {
+      if (is_array($a) || is_array($b)) {
+        return $a == $b ? 0 : 1;
+      }
+      return strcmp((string) $a, (string) $b);
+    };
+    $diff = array_udiff($settings, $currentSettings, $compareValues);
+    $intersect = array_uintersect($settings, $currentSettings, $compareValues);
     $merge = array_merge($intersect, $diff);
 
     update_option($optionsName, $merge);

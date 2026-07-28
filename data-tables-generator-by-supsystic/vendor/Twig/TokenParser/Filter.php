@@ -25,7 +25,7 @@ class Twig_SupTwgDtgs_TokenParser_Filter extends Twig_SupTwgDtgs_TokenParser
   public function parse(Twig_SupTwgDtgs_Token $token)
   {
     $name = $this->parser->getVarName();
-    $ref = new Twig_SupTwgDtgs_Node_Expression_BlockReference(new Twig_SupTwgDtgs_Node_Expression_Constant($name, $token->getLine()), null, $token->getLine(), $this->getTag());
+    $ref = new Twig_SupTwgDtgs_Node_Expression_BlockReference(new Twig_SupTwgDtgs_Node_Expression_Constant($name, $token->getLine()), $token->getLine(), $this->getTag(), null);
 
     $filter = $this->parser->getExpressionParser()->parseFilterExpressionRaw($ref, $this->getTag());
     $this->parser->getStream()->expect(Twig_SupTwgDtgs_Token::BLOCK_END_TYPE);

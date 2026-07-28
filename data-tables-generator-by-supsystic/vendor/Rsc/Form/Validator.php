@@ -37,7 +37,7 @@ class RscDtgs_Form_Validator
    * @param RscDtgs_Common_Collection|array $rules
    * @param RscDtgs_Common_Collection|array $filters
    */
-  public function __construct(RscDtgs_Http_Request $request = null, $method = null, array $rules = [], array $filters = [])
+  public function __construct(?RscDtgs_Http_Request $request = null, $method = null, array $rules = [], array $filters = [])
   {
     $this->request = $request === null ? RscDtgs_Http_Request::create() : $request;
     $this->method = $method === null ? self::METHOD_POST : $this->prepareMethod($method);

@@ -97,7 +97,7 @@ class Twig_SupTwgDtgs_Environment
    * @param Twig_SupTwgDtgs_LoaderInterface $loader
    * @param array                $options An array of options
    */
-  public function __construct(Twig_SupTwgDtgs_LoaderInterface $loader = null, $options = [])
+  public function __construct(?Twig_SupTwgDtgs_LoaderInterface $loader = null, $options = [])
   {
     if (null !== $loader) {
       $this->setLoader($loader);
