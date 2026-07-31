@@ -423,6 +423,86 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
   }
 
   /**
+   * Returns just the real row ids for a range of rows, in the same order as
+   * getRowsAction(). Used by the paginated editor to learn which row id
+   * belongs to which position on a page, so that page can later be saved
+   * on its own via updatePageRowsAction() without resaving the whole table.
+   * @param RscDtgs_Http_Request $request
+   * @return RscDtgs_Http_Response
+   */
+  public function getRowIdsAction(RscDtgs_Http_Request $request)
+  {
+    if (!$this->_checkNonce($request)) {
+      die();
+    }
+    /** @var SupsysticTables_Tables_Model_Tables $tables */
+    $tables = $this->getModel('tables');
+    $id = $request->post->get('id');
+    $limit = $request->post->get('limit');
+    $offset = $request->post->get('offset');
+
+    try {
+      return $this->ajaxSuccess([
+        'ids' => $tables->getRowIds($id, isset($limit) ? $limit : 0, isset($offset) ? $offset : 0),
+      ]);
+    } catch (Throwable $e) {
+      return $this->ajaxError($e->getMessage());
+    }
+  }
+
+  /**
+   * Saves just one page of rows (identified by their real row id) without
+   * touching the rest of the table. Used by the "Save only this page"
+   * pagination-save algorithm, as a lighter alternative to resaving/replacing
+   * the whole table through updateRowsAction().
+   * @param RscDtgs_Http_Request $request
+   * @return RscDtgs_Http_Response
+   */
+  public function updatePageRowsAction(RscDtgs_Http_Request $request)
+  {
+    if (!$this->_checkNonce($request)) {
+      die();
+    }
+    /** @var SupsysticTables_Tables_Model_Tables $tables */
+    $tables = $this->getModel('tables');
+    $id = $request->post->get('id');
+    $rowsData = $request->post->get('rows');
+    $rows = $this->prepareData($rowsData);
+
+    if (null === $rows || !is_array($rows)) {
+      $message = $this->translate('Can\'t decode table rows from JSON.');
+      if (function_exists('json_last_error')) {
+        $message .= 'Error: ' . json_last_error();
+      }
+      return $this->ajaxError($message);
+    }
+
+    try {
+      $this->getEnvironment()->getModule('tables')->setIniLimits();
+
+      $rowsById = [];
+      foreach ($rows as $row) {
+        if (!is_array($row) || !isset($row['id'])) {
+          continue;
+        }
+        $rowId = $row['id'];
+        unset($row['id']);
+        $rowsById[$rowId] = $row;
+      }
+
+      if (empty($rowsById)) {
+        throw new InvalidArgumentException($this->translate('No valid row ids were provided to save.'));
+      }
+
+      $tables->updateRowsByIds($id, $rowsById);
+    } catch (Throwable $e) {
+      return $this->ajaxError(sprintf($this->translate('Failed to save table rows: %s'), $e->getMessage()));
+    }
+    $this->cleanCache($id);
+    return $this->ajaxSuccess();
+  }
+
+  /**
    * Updates the table rows.
    * @param RscDtgs_Http_Request $request
    * @return RscDtgs_Http_Response

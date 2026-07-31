@@ -1,6 +1,12 @@
 var g_stbWindowHeight = 0;
 var g_stbPagination = false;
 var g_stbRowsPerPage = 1;
+// 'off' (do nothing, keep everything in the client buffer until the main Save
+// button is pressed), 'confirm' (ask via popup) or 'autosave' (save silently).
+var g_stbPaginationSaveMode = 'off';
+// 'full' (resend/replace the whole table, safe, existing mechanism) or
+// 'partial' (save just this page by row id, frees that page's buffer memory).
+var g_stbPaginationSaveAlgorithm = 'full';
 var g_stbIsDataEdited = { settings: false, source: false, history: false, woocommerce: false, data: false };
 (function ($, app, undefined) {
   $(document).ready(function () {
@@ -12,6 +18,14 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
       var rowsPerPage = $('#tableEditor').data('editor-pagination-rows');
       if (typeof rowsPerPage != 'undefined') {
         g_stbRowsPerPage = rowsPerPage;
+      }
+      var saveMode = $('#tableEditor').data('editor-pagination-save-mode');
+      if (saveMode == 'confirm' || saveMode == 'autosave') {
+        g_stbPaginationSaveMode = saveMode;
+      }
+      var saveAlgorithm = $('#tableEditor').data('editor-pagination-save-algorithm');
+      if (saveAlgorithm == 'partial') {
+        g_stbPaginationSaveAlgorithm = saveAlgorithm;
       }
     }
 
@@ -181,12 +195,21 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
       if (isForced) $(editor.table).find('a').attr('target', '_blank');
     });
     editor.addHook('beforeChange', function (changes, source) {
-      g_stbIsDataEdited['data'] = true;
+      // beforeChange also fires for non-edits: the formulas plugin re-confirms
+      // dependent cells' values while recalculating on every render (e.g. right
+      // after a page switch), passing the same old/new value through. Only
+      // count it as a real edit when a value is actually different, so the
+      // pagination-save-mode popup/autosave doesn't fire on a page nobody touched.
       $.each(changes, function (index, changeSet) {
         var row = changeSet[0],
           col = changeSet[1],
+          oldValue = changeSet[2],
           value = changeSet[3],
           cell = editor.getCellMeta(row, col);
+
+        if (oldValue !== value) {
+          g_stbIsDataEdited['data'] = true;
+        }
 
         if (cell.type == 'date') {
           var newDate = moment(value, cell.format);
@@ -568,6 +591,22 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
             }, 3000);
             $('#buttonSave').attr('disabled', false);
             g_stbDoSaving = false;
+
+            if (g_stbPagination) {
+              // Needed by the "save only this page" pagination-save algorithm,
+              // and to know which rows have a real DB id at all.
+              tablesModel.getRowIds(tableId).done(function (idsResponse) {
+                editor.bufferRowIds = idsResponse.ids;
+              });
+
+              if (g_stbPaginationSaveAlgorithm == 'partial') {
+                // Only meaningful here: row changes are already saved page by
+                // page by the partial algorithm, so this can skip resending
+                // every row on a large table when just settings changed.
+                $('#buttonSaveSettingsOnlyWrap').show();
+                $('#buttonSaveSettingsOnly').attr('disabled', false);
+              }
+            }
           });
       })
       .fail(function (error) {
@@ -760,6 +799,13 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
           manualRowResize: true,
         });
         this.renderWithRecalc();
+
+        // renderWithRecalc() re-evaluates formulas for the newly-loaded page,
+        // which can itself trigger the same beforeChange hook a real edit
+        // does. Reset here so the pagination-save-mode popup/autosave only
+        // fires for edits made after this page finished loading, not for
+        // this load/recalc pass itself.
+        g_stbIsDataEdited['data'] = false;
       };
     })();
 
@@ -770,7 +816,14 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
         }
 
         var countRows = this.countRows(),
-          countCols = this.countCols(),
+          // Use the table-wide bufferCols (set once, from the widest row) rather
+          // than the live countCols() of whichever page happens to be loaded right
+          // now. Handsontable's live column count can end up smaller than the
+          // table's real width if the first-loaded page wasn't the widest row, and
+          // writing with a different divisor than _saveTable() reads with would
+          // misalign the flat bufferMeta array on every page switch.
+          countCols = typeof this.bufferCols != 'undefined' ? this.bufferCols : this.countCols(),
+          liveCountCols = this.countCols(),
           start = this.pageStart,
           stop = this.pageStop,
           data = this.getData(),
@@ -781,7 +834,7 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
           real = start + row;
           this.bufferData[real] = data[row].slice();
           this.bufferHeights[real] = this.getRowHeight(row);
-          for (var col = 0; col < countCols; col++) {
+          for (var col = 0; col < liveCountCols; col++) {
             this.bufferMeta[real * countCols + col] = editor.getCellMeta(row, col);
           }
         }
@@ -864,9 +917,110 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
       };
     })();
 
+    // Shows an in-app Save / Don't Save / Cancel dialog (replaces window.confirm,
+    // which only offered OK/Cancel and no way to just stay on the page).
+    // Calls back with 'save', 'discard', or 'cancel' - closing the dialog any
+    // other way (Esc, the X button) is treated as 'cancel' for safety.
+    function showSaveConfirmDialog(callback) {
+      var $dialog = $('<div/>').text('You have unsaved changes on this page. Save them before switching to another page?'),
+        resolved = false;
+
+      function resolve(action) {
+        if (resolved) return;
+        resolved = true;
+        callback(action);
+      }
+
+      $dialog.dialog({
+        title: 'Unsaved changes',
+        autoOpen: true,
+        modal: true,
+        width: 420,
+        resizable: false,
+        dialogClass: 'stb-save-confirm-dialog',
+        close: function () {
+          resolve('cancel');
+          $dialog.dialog('destroy').remove();
+        },
+        buttons: {
+          Save: function () {
+            resolve('save');
+            $(this).dialog('close');
+          },
+          "Don't Save": function () {
+            resolve('discard');
+            $(this).dialog('close');
+          },
+          Cancel: function () {
+            resolve('cancel');
+            $(this).dialog('close');
+          },
+        },
+      });
+    }
+
+    var g_stbSuppressHashChange = false;
+
     Handsontable.dom.addEvent(window, 'hashchange', function (event) {
-      if (g_stbPagination) {
+      if (!g_stbPagination) {
+        return;
+      }
+
+      if (g_stbSuppressHashChange) {
+        // A programmatic revert (Cancel below), not a real navigation - skip
+        // the whole prompt/reload cycle for it.
+        g_stbSuppressHashChange = false;
+        return;
+      }
+
+      if (g_stbPaginationSaveMode == 'off' || !g_stbIsDataEdited['data']) {
         editor.setPageData();
+        return;
+      }
+
+      var switchToNewPage = function () {
+        editor.setPageData();
+      };
+
+      var saveThenSwitchPage = function () {
+        if (g_stbPaginationSaveAlgorithm == 'partial') {
+          tablesModel.savePageRows(editor.pageStart, editor.pageStop);
+        } else {
+          tablesModel.saveTable();
+        }
+
+        var waitForSaveThenSwitch = function () {
+          if (g_stbDoSaving) {
+            setTimeout(waitForSaveThenSwitch, 100);
+          } else {
+            switchToNewPage();
+          }
+        };
+        waitForSaveThenSwitch();
+      };
+
+      var cancelSwitch = function () {
+        // Stay on the page we were already on - revert the hash without
+        // letting that revert itself trigger another round of this handler.
+        var currentPage = Math.floor(editor.pageStart / g_stbRowsPerPage) + 1;
+        g_stbSuppressHashChange = true;
+        window.location.hash = '#' + currentPage;
+      };
+
+      if (g_stbPaginationSaveMode == 'autosave') {
+        saveThenSwitchPage();
+      } else if (g_stbPaginationSaveMode == 'confirm') {
+        showSaveConfirmDialog(function (action) {
+          if (action == 'save') {
+            saveThenSwitchPage();
+          } else if (action == 'discard') {
+            switchToNewPage();
+          } else {
+            cancelSwitch();
+          }
+        });
+      } else {
+        switchToNewPage();
       }
     });
   });

@@ -659,6 +659,9 @@ var g_stbCopyPasteColsCount = [];
     $('#buttonSave').on('click', function () {
       tablesModel.saveTable();
     });
+    $('#buttonSaveSettingsOnly').on('click', function () {
+      tablesModel.saveSettingsOnly();
+    });
     $('#buttonDelete').on('click', function () {
       var $button = $(this);
 

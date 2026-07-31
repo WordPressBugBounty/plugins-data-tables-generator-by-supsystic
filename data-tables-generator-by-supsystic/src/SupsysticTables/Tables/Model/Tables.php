@@ -1113,6 +1113,74 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   }
 
   /**
+   * Returns the ids of the table rows only, in the same order as getRows().
+   * Used by the editor's per-page save feature to know which real row id
+   * corresponds to which position on the currently displayed page, without
+   * touching the widely-used getRows() response shape.
+   * @param int $id Table id
+   * @param int $limit limit
+   * @param int $offset offset
+   * @return int[]
+   */
+  public function getRowIds($id, $limit = 0, $offset = 0)
+  {
+    $query = $this->getQueryBuilder()->select($this->getField('rows', 'id'))->from($this->getTable('rows'))->where('table_id', '=', (int) $id)->orderBy($this->getField('rows', 'id'));
+
+    if ($limit != 0) {
+      $query->limit((int) $limit)->offset((int) $offset);
+    }
+
+    $rows = $this->db->get_results($query->build());
+
+    if ($this->db->last_error) {
+      throw new RuntimeException($this->db->last_error);
+    }
+
+    $ids = [];
+    foreach ($rows as $row) {
+      $ids[] = (int) $row->id;
+    }
+
+    return $ids;
+  }
+
+  /**
+   * Updates a set of existing rows in place, by their real row id, without
+   * touching any other row of the table. Unlike setRows()/setRowsByPart()
+   * (which replace the whole table's rows), this never deletes anything, so
+   * it is safe to call for just a single page of a paginated editor.
+   * @param int $tableId Table id
+   * @param array $rowsById [ rowId => rowDataArray, ... ]
+   */
+  public function updateRowsByIds($tableId, array $rowsById)
+  {
+    $tableId = (int) $tableId;
+
+    foreach ($rowsById as $rowId => $rowData) {
+      $rowId = (int) $rowId;
+      if ($rowId <= 0 || !is_array($rowData)) {
+        continue;
+      }
+
+      $data = $this->prepareRowsData($rowData);
+
+      // Scoped to table_id so a forged/foreign row id can never overwrite
+      // another table's data.
+      $update = $this->getQueryBuilder()
+        ->update($this->getTable('rows'))
+        ->where('id', '=', $rowId)
+        ->andWhere($this->getField('rows', 'table_id'), '=', $tableId)
+        ->set(['data' => serialize($data)]);
+
+      $this->db->query($update->build());
+
+      if ($this->db->last_error) {
+        throw new RuntimeException($this->db->last_error);
+      }
+    }
+  }
+
+  /**
    * Returns table rows with Id
    * @return array
    */
@@ -1429,8 +1497,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       }
 
       if (!empty($last)) {
-        $this->removeRowsByPart($id, $lastRowId, $last);
-        delete_option($option_name, $lastRowId);
+        // The call above already ran with $last=true (no LIMIT), so every row
+        // with id <= $lastRowId is already gone; nothing left to clean up here.
+        delete_option($option_name);
       }
     } catch (Throwable $e) {
       throw new RuntimeException(sprintf('Failed to set rows: %s', $e->getMessage()));

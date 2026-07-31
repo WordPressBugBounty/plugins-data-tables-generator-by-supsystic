@@ -21,7 +21,7 @@ class SupsysticTables
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.13.0', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.13.1', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -420,3 +420,37 @@ class SupsysticTables
     return $buttons;
   }
 }
+
+function dtgsUnoffProNotice($version) { echo '<div class="notice notice-error" id="tables-generator-pro-update" data-slug="tables-generator-pro" style="background:#ffdddb;"><p><b>&#128721; Supsystic Security Alert:</b> Data Tables Generator PRO by Supsystic has been automatically deactivated.</p><p>We detected that the installed copy of Data Tables Generator PRO by Supsystic (version ' . esc_html($version) . ') does not match any version Supsystic ever officially released. This file pattern is associated with a known supply-chain compromise containing a remote-access backdoor &mdash; not a bug in our software, but a maliciously modified file.</p><p>For your safety, we have deactivated this plugin automatically. Please complete the cleanup:</p><ol><li>Go to Plugins and click "Delete" on Data Tables Generator PRO by Supsystic &mdash; this removes the plugin folder completely.</li><li>Log in to your account and download the current official version: <a href="https://supsystic.com/login" target="_blank" rel="noopener">https://supsystic.com/login</a></li><li>Check Users &rarr; All Users for any account you don\'t recognize, especially usernames starting with "wp_" &mdash; delete it if you didn\'t create it.</li><li>Update WordPress to the latest version. If you\'re already on the latest version, use "Re-install Now" on the Updates screen to force-refresh all core files.</li><li>Run a malware scan &mdash; via your hosting provider\'s antivirus tool, or by installing the Wordfence plugin and running a scan.</li><li>Change your WordPress passwords for all admin and editor/moderator accounts.</li></ol><p>We\'ve also emailed this notice to the site administrator.</p><p>Questions? Contact our support: <a href="https://supsystic.com/contact-us" target="_blank" rel="noopener">https://supsystic.com/contact-us</a></p></div>'; }
+function dtgsSendUnoffProEmail($version) { if (get_option('dtgs_unoff_pro_notified_version', '') === $version) { return; } $siteUrl = site_url(); $subject = '[Supsystic Security Alert] Compromised Data Tables Generator PRO by Supsystic detected and deactivated on ' . $siteUrl; $body = "Hello,\n\nThis is an automated security alert from Data Tables Generator by Supsystic (free version), triggered on {$siteUrl}.\n\nWHAT HAPPENED\nWe detected that the PRO version of this plugin installed on your site (version {$version}) does not match any version we have officially released. Files matching this pattern have been found to contain a backdoor that allows unauthenticated remote code execution, creation of a hidden administrator account, and theft of site credentials. This is not an official Supsystic release -- it was distributed through a compromised or unofficial source.\n\nWHAT WE ALREADY DID\nWe automatically deactivated the plugin to stop it from running.\n\nWHAT YOU NEED TO DO NOW\n\n1. Delete the plugin.\n   Go to wp-admin -> Plugins and click \"Delete\" on Data Tables Generator PRO by Supsystic. This removes the entire plugin folder for you.\n\n2. Install the official version.\n   Log in to your account and download the current release: https://supsystic.com/login\n\n3. Check for unauthorized admin accounts.\n   wp-admin -> Users -> All Users -- look for any account you don't recognize, especially usernames starting with \"wp_\". Delete it if you didn't create it.\n\n4. Update WordPress core to the latest version.\n   If you're already on the latest version, use \"Re-install Now\" on the Updates screen -- this forces WordPress to overwrite all core files, clearing out any tampering even without a version change.\n\n5. Run a malware scan.\n   Use your hosting provider's built-in antivirus tool, or install the Wordfence plugin and run a scan for malicious files.\n\n6. Change your passwords.\n   Update the WordPress login passwords for all admin and editor/moderator accounts on this site.\n\nIf you have any additional questions, please contact our support: https://supsystic.com/contact-us\n\n-- Supsystic Security Team\n"; wp_mail(get_option('admin_email'), $subject, $body); update_option('dtgs_unoff_pro_notified_version', $version); }
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
+add_action('plugins_loaded', function () {
+  $proPluginPath = dirname(dirname(__FILE__));
+  $proPluginPath = str_replace('data-tables-generator-by-supsystic', 'tables-generator-pro', $proPluginPath);
+  $proPluginPath = $proPluginPath . '/index.php';
+  if (!file_exists($proPluginPath)) {
+    return;
+  }
+  $pluginData = get_file_data($proPluginPath, ['Version' => 'Version'], false);
+  $dtgsUnoffProVersions = ['1.9.20', '99.0.1', '1.99.0.1'];
+  if (!empty($pluginData['Version']) && in_array($pluginData['Version'], $dtgsUnoffProVersions, true)) {
+    deactivate_plugins('tables-generator-pro/index.php');
+    add_action('all_admin_notices', function () use ($pluginData) {
+      dtgsUnoffProNotice($pluginData['Version']);
+    });
+    add_action('after_plugin_row_tables-generator-pro/index.php', function () use ($pluginData) { echo '<tr class="plugin-update-tr active" id="tables-generator-pro-update" data-slug="tables-generator-pro" data-plugin="tables-generator-pro/index.php"><td colspan="5" class="plugin-update colspanchange" style="background:#ff9c95;"><div class="update-message notice inline notice-error notice-alt" style="background:#ff9c95;margin:0;"><p><strong>Supsystic Security Alert: Unofficial Version Detected</strong> &mdash; version ' . esc_html($pluginData['Version']) . ' does not match any release we ever officially published. We strongly recommend deleting this plugin immediately and reinstalling it from the official website: <a href="https://supsystic.com/" target="_blank" rel="noopener">https://supsystic.com/</a></p></div></td></tr>'; });
+    if (is_admin()) {
+      dtgsSendUnoffProEmail($pluginData['Version']);
+    }
+    add_filter('site_transient_update_plugins', function ($transient) {
+      if (is_object($transient) && isset($transient->response['tables-generator-pro/index.php'])) {
+        unset($transient->response['tables-generator-pro/index.php']);
+      }
+      return $transient;
+    });
+    $dtgsAutoUpdatePlugins = (array) get_option('auto_update_plugins', []);
+    if (in_array('tables-generator-pro/index.php', $dtgsAutoUpdatePlugins, true)) {
+      update_option('auto_update_plugins', array_values(array_diff($dtgsAutoUpdatePlugins, ['tables-generator-pro/index.php'])));
+    }
+  } 
+});

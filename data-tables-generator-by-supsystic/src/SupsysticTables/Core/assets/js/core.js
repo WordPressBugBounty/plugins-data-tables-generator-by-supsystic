@@ -1645,6 +1645,16 @@ var g_stbServerSideProcessingIsActive = false;
       // Set formats
       self.formatDataAtTable($table, true);
 
+      // On SSP each page/search draw replaces the tbody with freshly ajax-loaded
+      // rows, so formulas (e.g. HYPERLINK) and cell formats (date/number/currency)
+      // must be recalculated/reapplied for those rows too, not just on the initial draw.
+      if (g_stbServerSideProcessing) {
+        $table.on('draw.dt', function () {
+          self.getRuleJSInstance($table).init();
+          self.formatDataAtTable($table, true);
+        });
+      }
+
       // Apply shortcode param "search"
       if ($table.data('search-value')) {
         $table.api().search($table.data('search-value')).draw();

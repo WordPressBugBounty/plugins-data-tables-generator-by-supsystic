@@ -67,8 +67,21 @@
 
     $('[data-target-toggle]').on('click change ifChanged', function (event) {
       event.preventDefault();
-      $target = $($(this).data('target-toggle'));
-      $target.fadeToggle();
+      var $this = $(this);
+
+      // Checkbox/iCheck inputs fire more than one of click/change/ifChanged per
+      // single user interaction; without this guard fadeToggle() runs twice in
+      // the same tick and cancels itself out, so the panel never visibly toggles.
+      if ($this.data('toggling')) {
+        return;
+      }
+      $this.data('toggling', true);
+
+      $($this.data('target-toggle'))
+        .stop(true, true)
+        .fadeToggle(400, function () {
+          $this.removeData('toggling');
+        });
     });
 
     $('input.stbCopyTextCode').click(function () {

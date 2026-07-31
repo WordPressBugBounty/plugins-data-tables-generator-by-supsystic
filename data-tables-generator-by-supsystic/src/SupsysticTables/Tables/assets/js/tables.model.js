@@ -1,6 +1,7 @@
 var g_stbDoSaving = true; //waiting for the end of downloads
 var g_stbDoPreview = false;
 var g_stbNeedPreview = false;
+var g_stbSaveQueued = false; //a save attempt arrived while one was already in flight; rerun once it finishes
 var g_stbMobilePreview = false;
 var g_stbPreviewTimeoutSet = false;
 window.g_stbAnimationSpeed = window.g_stbAnimationSpeed || 300;
@@ -142,9 +143,25 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
             }
           );
         });
+        if (g_stbPagination) {
+          // A full resave deletes and reinserts every row (fresh auto-increment
+          // ids), so any row ids cached for the "save just this page" algorithm
+          // are now stale. Refresh them, or a later partial save would silently
+          // update nothing (its row ids would no longer exist).
+          ajaxPromise = ajaxPromise.then(function () {
+            return self.getRowIds(id).done(function (idsResponse) {
+              var editor = self.getEditor();
+              if (editor) {
+                editor.bufferRowIds = idsResponse.ids;
+              }
+            });
+          });
+        }
         ajaxPromise = ajaxPromise.then(function () {
           self.endSave();
         });
+
+        return ajaxPromise;
       } else {
         return this.request('updateRows', { id: id, rows: this._prepareData(rows) });
       }
@@ -153,6 +170,264 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
     TablesModel.prototype.endSave = function () {
       app.deleteSpinner($('#buttonSave'));
       g_stbDoSaving = false;
+      if (g_stbSaveQueued) {
+        g_stbSaveQueued = false;
+        this.saveTable();
+      }
+    };
+
+    /**
+     * Fetches the real DB row ids, in the same order as getRows(), so the
+     * paginated editor can later save a single page by id via setPageRows()
+     * without resaving/replacing the whole table.
+     */
+    TablesModel.prototype.getRowIds = function (id) {
+      if (isNaN((id = parseInt(id)))) {
+        throw new Error('Invalid table id.');
+      }
+
+      return this.request('getRowIds', { id: id, limit: 0, offset: 0 });
+    };
+
+    /**
+     * Updates a set of existing rows in place, by their real row id. Used by
+     * the "save only this page" pagination-save algorithm.
+     */
+    TablesModel.prototype.setPageRows = function (id, rows) {
+      if (isNaN((id = parseInt(id)))) {
+        throw new Error('Invalid table id.');
+      }
+
+      return this.request('updatePageRows', { id: id, rows: this._prepareData(rows) });
+    };
+
+    /**
+     * Saves just the rows currently on the page spanning bufferData indexes
+     * [pageStart, pageStop], by their real row id - a lighter alternative to
+     * saveTable() for the SSP pagination "save on page switch" flow. Falls
+     * back to a full saveTable() if row ids aren't available yet (e.g. rows
+     * added in this session were never assigned a real DB id) since those
+     * can't be targeted by setPageRows()/updateRowsByIds().
+     */
+    TablesModel.prototype.savePageRows = function (pageStart, pageStop) {
+      var self = this,
+        id = app.getParameterByName('id'),
+        editor = self.getEditor(),
+        toolbar = app.Editor.Tb,
+        svlFormatsClass = toolbar.getSvlFormatClass(),
+        formatClasses = toolbar.getFormatClasses(),
+        formData = this.prepareSettingsForm($('form#settings'), id);
+
+      editor.copyInBuffer();
+
+      var bufferData = editor.bufferData,
+        bufferMeta = editor.bufferMeta,
+        countCols = editor.bufferCols,
+        bufferHeights = editor.bufferHeights,
+        bufferRowIds = editor.bufferRowIds,
+        row;
+
+      if (!bufferRowIds || bufferRowIds.length !== bufferData.length) {
+        // Row count no longer matches the ids we fetched (rows were
+        // added/removed, or ids were never loaded) - can't safely target rows
+        // by id, so fall back to the full resave which is always correct.
+        return self.saveTable();
+      }
+      for (row = pageStart; row <= pageStop; row++) {
+        if (!bufferRowIds[row]) {
+          return self.saveTable();
+        }
+      }
+
+      if (g_stbDoSaving) {
+        g_stbSaveQueued = true;
+        return;
+      }
+      g_stbDoSaving = true;
+      app.createSpinner($('#buttonSave'));
+
+      var rowsData = [];
+
+      for (row = pageStart; row <= pageStop; row++) {
+        var currentRow = { id: bufferRowIds[row], cells: [] };
+
+        $.each(bufferData[row], function (y) {
+          var meta = bufferMeta[row * countCols + y] || {},
+            metaClasses = meta.className,
+            cell = bufferData[row][y];
+
+          if (typeof metaClasses != 'undefined' && metaClasses.indexOf(svlFormatsClass) !== -1) {
+            metaClasses = metaClasses.replace(svlFormatsClass, '').trim();
+            var dataFormats = 'data-formats' in meta ? meta['data-formats'] : '';
+            if (dataFormats.length > 0) {
+              for (var c in formatClasses) {
+                if (dataFormats.indexOf(c) !== -1) {
+                  metaClasses += ' ' + c;
+                }
+              }
+            }
+          }
+
+          var classes = [],
+            mergeCell = editor.mergeGetInfo(row, y),
+            cellData = {
+              y: row + 1,
+              data: cell,
+              calculatedValue: null,
+              hidden: false,
+              hiddenCell: metaClasses && metaClasses.match('hiddenCell') !== null,
+              invisibleCell: metaClasses && metaClasses.match('invisibleCell') !== null,
+            };
+
+          if (mergeCell !== undefined && mergeCell !== false) {
+            cellData.hidden = true;
+          }
+          if (meta.readOnly) {
+            cellData.readOnly = true;
+          }
+          if (meta.source && meta.source.length) {
+            meta.type = 'dropdown';
+            cellData.source = meta.source;
+          }
+
+          cellData.type = meta.type ? meta.type : 'text';
+          cellData.baseType = meta.baseType ? meta.baseType : 'text';
+          cellData.formatType = meta.formatType ? meta.formatType : '';
+
+          switch (cellData.formatType) {
+            case 'currency':
+              cellData.format = formData.find('[name="currencyFormat"]').val();
+              break;
+            case 'percent':
+              cellData.format = formData.find('[name="percentFormat"]').val();
+              break;
+            case 'date':
+              cellData.format = meta.format != 'undefined' ? meta.format : formData.find('[name="dateFormat"]').val();
+
+              var date = moment(cellData.data, cellData.format);
+              if (date.isValid()) {
+                cellData.dateOrder = date.format('x');
+              }
+              break;
+            default:
+              cellData.format = meta.format;
+              break;
+          }
+
+          if (self.isFormula(cell)) {
+            var value = self.getFormulaResult(cell, row, y);
+
+            if (value !== undefined) {
+              if (!isNaN(value) && value !== '0' && value !== 0 && value % 1 !== 0) {
+                var floatValue = parseFloat(value);
+
+                if (floatValue.toString().indexOf('.') !== -1) {
+                  var afterPointSybolsLength = floatValue.toString().split('.')[1].length;
+
+                  if (afterPointSybolsLength > 4) {
+                    value = floatValue.toFixed(4);
+                  }
+                }
+              }
+              cellData.calculatedValue = value;
+              if (typeof cell == 'string' && cell.toLowerCase().indexOf('=hyperlink') === 0) {
+                cellData.calculatedValue = app._hyperlinkUrl ? app._hyperlinkUrl : value;
+              }
+            }
+          }
+
+          if (metaClasses !== undefined) {
+            $.each(metaClasses.split(' '), function (index, element) {
+              if (element.length) {
+                classes.push($.trim(element));
+              }
+            });
+          }
+          cellData.meta = classes;
+
+          if (typeof meta.comment != 'undefined') {
+            cellData.comment = meta.comment;
+          }
+
+          currentRow.cells.push(cellData);
+        });
+
+        currentRow.height = bufferHeights[row];
+        rowsData.push(currentRow);
+      }
+
+      g_stbIsDataEdited['data'] = false;
+
+      return self.setPageRows(id, rowsData).then(
+        function () {
+          self.endSave();
+        },
+        function () {
+          alert('Failed to save table data: There are errors during the request');
+          self.endSave();
+        }
+      );
+    };
+
+    /**
+     * Saves just the table settings (title/features/styling/source/etc, via
+     * form#settings), without resending row data. Meant for the "save only
+     * this page" pagination algorithm, where row edits are already persisted
+     * page by page as the user navigates - so a large table doesn't need its
+     * rows resent just because a setting changed.
+     */
+    TablesModel.prototype.saveSettingsOnly = function () {
+      var self = this,
+        id = app.getParameterByName('id'),
+        editor = self.getEditor(),
+        formData = this.prepareSettingsForm($('form#settings'), id),
+        sourceData = $('form#source-settings');
+
+      if (g_stbDoSaving) {
+        return;
+      }
+
+      function doSaveSettings() {
+        if (g_stbDoSaving) {
+          return;
+        }
+        g_stbDoSaving = true;
+        app.createSpinner($('#buttonSaveSettingsOnly'));
+
+        if (sourceData.length) {
+          sourceData.find('input[name="source[dbSQL]"]').val(sourceData.find('#source-db-sql').val());
+        }
+
+        self.setSettings(id, formData, sourceData).then(
+          function () {
+            g_stbIsDataEdited['settings'] = false;
+            g_stbIsDataEdited['source'] = false;
+            self.endSave();
+            app.deleteSpinner($('#buttonSaveSettingsOnly'));
+          },
+          function () {
+            alert('Failed to save table settings: There are errors during the request');
+            self.endSave();
+            app.deleteSpinner($('#buttonSaveSettingsOnly'));
+          }
+        );
+      }
+
+      if (g_stbPagination && g_stbPaginationSaveAlgorithm == 'partial' && g_stbIsDataEdited['data'] && editor) {
+        // This page's own edits are normally only persisted once the user
+        // navigates away from it (that's when the partial algorithm sends
+        // them) - flush them first so this can never silently drop pending
+        // row edits on the currently displayed page.
+        var pending = self.savePageRows(editor.pageStart, editor.pageStop);
+
+        if (pending && pending.then) {
+          pending.then(doSaveSettings, doSaveSettings);
+        }
+        // else: savePageRows() had no valid row ids to target and fell back
+        // to a full saveTable(), which already saves settings as part of it.
+      } else {
+        doSaveSettings();
+      }
     };
 
     TablesModel.prototype.getMeta = function (id) {
@@ -229,7 +504,17 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
           cellsMeta = [],
           heights = [],
           widths = [],
-          $style = app.getAdminCellStylesElem();
+          $style = app.getAdminCellStylesElem(),
+          // Some rows may have fewer/more cells than others (e.g. legacy data,
+          // partial imports). Use the widest row as the column count so the
+          // flat row*cols+col indexing below stays aligned for every row.
+          cols = 0;
+
+        $.each(rows, function (i, row) {
+          if (row.cells && row.cells.length > cols) {
+            cols = row.cells.length;
+          }
+        });
 
         $.each(rows, function (x, row) {
           var cells = [];
@@ -358,7 +643,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
                 metaData.renderer = self.getDefaultRenderer();
                 break;
             }
-            cellsMeta.push(metaData);
+            cellsMeta[x * cols + y] = metaData;
 
             if (x === 0 && meta.columnsWidth) {
               widths.push(meta.columnsWidth[y] > 0 ? meta.columnsWidth[y] : 62);
@@ -391,9 +676,11 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
         // Load extracted data
         if (g_stbPagination) {
           if (typeof editor.bufferData == 'undefined') {
-            var cols = data.length > 0 ? data[0].length : 0;
             for (var c in comments) {
-              cellsMeta[comments[c].row * cols + comments[c].col].comment = comments[c].comment;
+              var commentMeta = cellsMeta[comments[c].row * cols + comments[c].col];
+              if (commentMeta) {
+                commentMeta.comment = comments[c].comment;
+              }
             }
             editor.bufferCols = cols;
             editor.bufferData = data;
@@ -431,6 +718,9 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
 
           // Load extracted metadata
           $.each(cellsMeta, function (i, meta) {
+            if (!meta) {
+              return;
+            }
             editor.setCellMetaObject(meta.row, meta.col, meta);
             toolbar.setTooltip(meta.row, meta.col);
           });
@@ -497,7 +787,18 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
         g_stbNeedPreview = true;
       }
 
-      if (!g_stbDoSaving && (!preview || lastSave !== false)) {
+      var wouldSave = !preview || lastSave !== false;
+
+      if (g_stbDoSaving && wouldSave) {
+        // A previous save (manual or the silent auto-preview one) is still in
+        // flight. bufferData/rowsData above already reflect the latest edits,
+        // but sending them now would race the in-progress request, so instead
+        // of silently dropping this save (losing whatever changed since the
+        // in-flight save snapshotted its data), queue a rerun for when it ends.
+        g_stbSaveQueued = true;
+      }
+
+      if (!g_stbDoSaving && wouldSave) {
         g_stbDoSaving = true;
         app.createSpinner($('#buttonSave'));
 
@@ -518,7 +819,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
             rowCounter++;
 
             $.each(row, function (y) {
-              var meta = pagination ? bufferMeta[x * countCols + y] : editor.getCellMeta(x, y),
+              var meta = (pagination ? bufferMeta[x * countCols + y] : editor.getCellMeta(x, y)) || {},
                 metaClasses = meta.className,
                 row = editor.toPhysicalRow(x),
                 cell = pagination ? bufferData[x][y] : editor.getSourceDataAtCell(row, y);

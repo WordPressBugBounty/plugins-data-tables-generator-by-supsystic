@@ -6,7 +6,8 @@ Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
 Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.0
-Stable tag: 1.13.0
+Requires PHP: 7.4
+Stable tag: 1.13.1
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 
 == Description ==
@@ -300,54 +301,76 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 
 = 2026 =
 
+= 1.13.1 — July 30, 2026 =
+
+* Added further security hardening and unofficial version detected
+* Fixed cell formatting and links disappearing on page 2+ and in search results when Server-Side Processing is enabled on the frontend.
+* Fixed a crash when saving very large tables with pagination enabled in the table editor.
+* Added a lighter "save only this page" option for large paginated tables in the editor, plus a "Save Settings Only" button so you don't have to resave every row just to update a setting.
+* Replaced the page-switch save prompt with a proper in-app dialog (Save / Don't Save / Cancel), and fixed it popping up even when nothing had actually changed.
+* Fixed the "Hide Table Loader" checkbox not toggling correctly in Settings.
+* Fixed a PHP deprecation warning that could appear when importing or exporting very large spreadsheets.
+
 = 1.13.0 — July 28, 2026 =
+
 * Fixed a critical error that could occur during automatic Google Sheets imports.
 * Replaced the legacy contact form on the Overview screen with a direct link to our support team, so help is always one click away.
 * Completed a full compatibility review across the plugin's core and bundled libraries, keeping everything running cleanly from PHP 7.4 through the newest PHP 8.5.
 * General security hardening and stability improvements.
 
 = 1.12.05 — July 23, 2026 =
+
 * Applied a small fix to keep table migrations running smoothly.
 
 = 1.12.04 — July 15, 2026 =
+
 * Added further security hardening to keep your table data safe.
 * General stability improvements.
 
 = 1.12.03 — July 2, 2026 =
+
 * General stability improvements.
 
 = 1.12.02 — July 1, 2026 =
+
 * Added a new (S)FTP auto-sync source, so tables can pull data on a schedule without any manual re-import.
 * Added PostgreSQL support as a database source.
 * Fixed an issue with apostrophes appearing incorrectly in table data.
 
 = 1.12.01 — June 24, 2026 =
+
 * Fixed a CSS conflict that could leak styles onto other elements on the page.
 
 = 1.12.0 — June 22, 2026 =
+
 * Added a brand-new table creation wizard to help you get started faster.
 * Added a dedicated WooCommerce Product Table type with advanced display options.
 * Added compatibility with WordPress 7.0.
 
 = 1.11.2 — May 25, 2026 =
+
 * Improved REST API endpoint reliability.
 * Added further compatibility improvements for PHP 8+.
 * Fixed hyperlink rendering and a text-concatenation issue.
 
 = 1.11.1 — April 29, 2026 =
+
 * Added the option to show column titles above column search fields, with duplicate labels hidden automatically.
 * Improved asset loading for the collapsible row feature.
 
 = 1.11.0 — April 2, 2026 =
+
 * Added compatibility with WordPress 6.9.4.
 * Introduced the new AI-powered table assistant (read and analyse your tables with ChatGPT, Claude, Gemini, and more).
 * Refined the plugin's design, fixed a licensing display issue, and added further security hardening.
 
 = 1.10.48 — March 16, 2026 =
+
 * Fixed a PHP error in the export libraries and a nonce validation issue.
 * Optimised the codebase and removed an outdated WooCommerce notice.
 
 = 1.10.47 — January 19, 2026 =
+
 * Confirmed compatibility with WordPress 6.9 and PHP 8.4.
 * Fixed a caching issue and added further stability improvements.
 

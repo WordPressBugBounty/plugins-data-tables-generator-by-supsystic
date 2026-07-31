@@ -36,33 +36,6 @@
                                             <input type="checkbox"  name="settings[disable_wp_footer_fix]" {% if settings.disable_wp_footer_fix == 'on' %} checked {%  endif %}>
                                         </div>
                                     </div>
-                                    <div class="table-disable-wp-footer-fix-option table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Show promo link') }}</label>
-                                            {{ tooltip.icon(environment.translate('To promote our plugin, you can show the promo link below the table, if you don\'t want to show the promo link you can also hide it. You can completely remove the link under the table by purchasing the PRO version of the plugin. Thank you for cooperation!'), 'top', true) }} </label>
-                                        </div>
-                                        <div class="setting-control">
-                                            <input type="checkbox"  name="settings[add_love_link]" {% if settings.add_love_link == 'on' %} checked {%  endif %}>
-                                        </div>
-                                    </div>
-                                    <div class="table-disable-wp-footer-fix-option table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Remove promo link') }}</label>
-                                            {{ tooltip.icon(environment.translate('If you want to delete promo link below the table from HTML just check this box. Only for PRO users.'), 'top', true) }} </label>
-                                            {% if environment.isPro() == false %}
-                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'load_by_ajax_enabled' }) }}">
-                                                    {{ environment.translate('PRO option') }}
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="setting-control">
-                                            {% if environment.isPro() == false %}
-                                                <input type="checkbox" disabled value=""/>
-                                            {% else %}
-                                                <input type="checkbox"  name="settings[remove_love_link]" {% if settings.remove_love_link == 'on' %} checked {%  endif %}>
-                                            {% endif %}
-                                        </div>
-                                    </div>
 									<div class="table-pagination-option table-option">
 										<div class="setting-description">
 											<label>{{ environment.translate('Pagination in Editor') }}</label>
@@ -78,6 +51,25 @@
                                                        style="width:60px"
                                                        value="{{ settings.editor_pagination_rows | default('500') }}" />
                                                 <label for="settings_editor_pagination_rows"> {{ environment.translate('rows per page') }}</label>
+											</div>
+										</div>
+									</div>
+									<div class="table-pagination-save-option table-option">
+										<div class="setting-description">
+											<label>{{ environment.translate('Save on Page Switch (Editor Pagination)') }}</label>
+											{{ tooltip.icon(environment.translate('When Pagination in Editor is on and you switch to another page of rows, decide what should happen to your unsaved changes on the page you are leaving.'), 'top', true) }}
+										</div>
+										<div class="setting-control">
+											<select name="settings[editor_pagination_save_mode]">
+												<option value="off" {% if (settings.editor_pagination_save_mode | default('off')) == 'off' %} selected {% endif %}>{{ environment.translate('Off - keep changes in memory until I click Save') }}</option>
+												<option value="confirm" {% if settings.editor_pagination_save_mode == 'confirm' %} selected {% endif %}>{{ environment.translate('Ask before switching pages (popup)') }}</option>
+												<option value="autosave" {% if settings.editor_pagination_save_mode == 'autosave' %} selected {% endif %}>{{ environment.translate('Save automatically, no popup') }}</option>
+											</select>
+											<div style="margin-top: 10px;">
+												<select name="settings[editor_pagination_save_algorithm]">
+													<option value="partial" {% if settings.editor_pagination_save_algorithm == 'partial' %} selected {% endif %}>{{ environment.translate('Save only this page - Recommended') }}</option>
+													<option value="full" {% if (settings.editor_pagination_save_algorithm | default('full')) == 'full' %} selected {% endif %}>{{ environment.translate('Full table resave (safe, but can take much longer for large tables)') }}</option>
+												</select>
 											</div>
 										</div>
 									</div>
