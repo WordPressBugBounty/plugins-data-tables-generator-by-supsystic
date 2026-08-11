@@ -136,14 +136,14 @@ class SupsysticTables_Restapi_Controller_Tables extends SupsysticTables_Core_Bas
 
     $settings = [];
     if (!empty($table->settings)) {
-      $decoded = is_string($table->settings) ? @unserialize($table->settings) : $table->settings;
+      $decoded = is_string($table->settings) ? @unserialize($table->settings, ['allowed_classes' => false]) : $table->settings;
       $settings = is_array($decoded) ? $decoded : [];
     }
     $result['settings'] = $settings;
 
     $meta = [];
     if (!empty($table->meta)) {
-      $decoded = is_string($table->meta) ? @unserialize($table->meta) : $table->meta;
+      $decoded = is_string($table->meta) ? @unserialize($table->meta, ['allowed_classes' => false]) : $table->meta;
       $meta = is_array($decoded) ? $decoded : [];
     }
     $result['meta'] = $meta;

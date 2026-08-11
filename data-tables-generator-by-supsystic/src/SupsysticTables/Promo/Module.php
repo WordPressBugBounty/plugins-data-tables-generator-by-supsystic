@@ -18,11 +18,7 @@ class SupsysticTables_Promo_Module extends SupsysticTables_Core_BaseModule
       add_action('admin_init', [$this, 'loadAdminPromoAssets']);
       add_action('wp_ajax_supsystic-tables-tutorial-close', [$this, 'endTutorial']);
 
-      $dispatcher = $this->getEnvironment()->getDispatcher();
-      $dispatcher->on('messages', [$this, 'renderDiscountMsg']);
-
       $this->_checkFirstRun();
-      // add_action('admin_footer', array($this, 'checkPluginDeactivation'));
     }
   }
 
@@ -206,72 +202,4 @@ class SupsysticTables_Promo_Module extends SupsysticTables_Core_BaseModule
     update_user_meta(get_current_user_id(), 'supsystic-tables-tutorial_was_showed', 1);
   }
 
-  public function renderDiscountMsg()
-  {
-    // $environment = $this->getEnvironment();
-    // if($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
-    // 	$proPluginsList = array(
-    // 		'ultimate-maps-by-supsystic-pro', 'newsletters-by-supsystic-pro', 'contact-form-by-supsystic-pro', 'live-chat-pro',
-    // 		'digital-publications-supsystic-pro', 'coming-soon-supsystic-pro', 'price-table-supsystic-pro', 'tables-generator-pro',
-    // 		'social-share-pro', 'popup-by-supsystic-pro', 'supsystic_slider_pro', 'supsystic-gallery-pro', 'google-maps-easy-pro',
-    // 		'backup-supsystic-pro',
-    // 	);
-    // 	$activePluginsList = get_option('active_plugins', array());
-    // 	$activeProPluginsCount = 0;
-    // 	foreach($activePluginsList as $actPl) {
-    // 		foreach($proPluginsList as $proPl) {
-    // 			if(strpos($actPl, $proPl) !== false) {
-    // 				$activeProPluginsCount++;
-    // 			}
-    // 		}
-    // 	}
-    // 	if($activeProPluginsCount === 1) {
-    // 		$twig = $this->getEnvironment()->getTwig();
-    // 		$twig->display('@promo/discountMessage.twig', array(
-    // 			'bundlePageLink' => '//supsystic.com/all-plugins/',
-    // 			'buyLink' => $this->getDiscountBuyUrl(),
-    // 		));
-    // 	}
-    // }
-  }
-
-  public function getDiscountBuyUrl()
-  {
-    $environment = $this->getEnvironment();
-    $pluginCode = $environment->getConfig()->get('plugin_product_code');
-    $license = $environment->getModule('license')->getHelper()->getCredentials();
-    $license['key'] = md5($license['key']);
-    $license = urlencode(base64_encode(implode('|', $license)));
-    return 'https://supsystic.com/?mod=manager&pl=lms&action=extend&plugin_code=' . $pluginCode . '&lic=' . $license;
-  }
-
-  public function checkPluginDeactivation()
-  {
-    // if(function_exists('get_current_screen')) {
-    // 	$screen = get_current_screen();
-    // 	if($screen && isset($screen->base) && $screen->base == 'plugins') {
-    // 		$twig = $this->getEnvironment()->getTwig();
-    // 		$twig->display('@promo/pluginDeactivation.twig', array(
-    // 			'pluginName' => $this->getConfig()->get('plugin_title_name'),
-    // 		));
-    // 		$modulePath = untrailingslashit(plugin_dir_url(__FILE__));
-    // 		wp_enqueue_script('jquery-ui-dialog');
-    // 		wp_enqueue_script(
-    // 			$this->config('db_prefix'). 'plug-deactivation',
-    // 			$modulePath . '/assets/js/admin.plugins.js',
-    // 			array('jquery-ui-dialog')
-    // 		);
-    // 		$pluginPath = $this->getEnvironment()->getPluginPath();
-    // 		$pluginDirName = basename($pluginPath);
-    // 		$pluginUrl = plugin_dir_url($pluginPath). $pluginDirName. '/';
-    // 		wp_enqueue_script('jquery-ui-dialog');
-    // 		wp_enqueue_style('tables-ui-styles', $pluginUrl. '/app/assets/css/supsystic-ui.css');
-    // 		wp_enqueue_style('jquery-ui');
-    // 		wp_enqueue_style('supsystic-font-awesome', '/app/assets/css/libraries/fontawesome/font-awesome.min.css');
-    // 		wp_localize_script($this->config('db_prefix'). 'plug-deactivation', 'dtsPluginsData', array(
-    // 			'plugName' => $pluginDirName. '/index.php',
-    // 		));
-    // 	}
-    // }
-  }
 }

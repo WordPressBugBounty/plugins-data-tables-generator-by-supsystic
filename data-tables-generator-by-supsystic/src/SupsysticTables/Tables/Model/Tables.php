@@ -450,7 +450,6 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
           'name' => 1,
           'referrerpolicy' => 1,
           'sandbox' => 1,
-          'srcdoc' => 1,
         ],
         'br' => [],
         'a' => [
@@ -509,7 +508,6 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
           'formtarget' => 1,
           'type' => 1,
           'value' => 1,
-          'onclick' => 1,
         ],
       ];
       $allowedDiv = [

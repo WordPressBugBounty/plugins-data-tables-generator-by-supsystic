@@ -179,7 +179,7 @@ class SupsysticTables_Tables_Model_History extends SupsysticTables_Core_BaseMode
 
   public function _afterSimpleGet($historyTable)
   {
-    $historyTable->data = unserialize($historyTable->data);
+    $historyTable->data = unserialize($historyTable->data, ['allowed_classes' => false]);
     if (!is_array($historyTable->data)) {
       $historyTable->data = [];
     }
@@ -203,7 +203,7 @@ class SupsysticTables_Tables_Model_History extends SupsysticTables_Core_BaseMode
     if (!$settings) {
       throw new RuntimeException(sprintf('The table with ID %d not exists.', $id));
     }
-    $settings->history_settings = unserialize($settings->history_settings);
+    $settings->history_settings = unserialize($settings->history_settings, ['allowed_classes' => false]);
 
     return $settings->history_settings;
   }

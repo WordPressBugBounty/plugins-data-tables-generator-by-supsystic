@@ -645,26 +645,6 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     endif;
     $twig->addGlobal('DTGS_WEBSITE', get_bloginfo('url'));
     $twig->addGlobal('_wpnonce', wp_create_nonce('supsystic-tables'));
-
-    $show = true;
-    $acRemind = get_option('dtgs_ac_remind', false);
-    if (!empty($acRemind)) {
-      $currentDate = date('Y-m-d h:i:s');
-      if ($currentDate > $acRemind) {
-        $show = true;
-      } else {
-        $show = false;
-      }
-    }
-    $acSubscribe = get_option('dtgs_ac_subscribe', false);
-    if (!empty($acSubscribe)) {
-      $show = false;
-    }
-    $acDisabled = get_option('dtgs_ac_disabled', false);
-    if (!empty($acDisabled)) {
-      $show = false;
-    }
-    $twig->addGlobal('DTGS_AC_SHOW', $show);
   }
 
   private function cleanTablesCache()

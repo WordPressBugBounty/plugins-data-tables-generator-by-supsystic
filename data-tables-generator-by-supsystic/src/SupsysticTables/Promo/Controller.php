@@ -29,19 +29,4 @@ class SupsysticTables_Promo_Controller extends SupsysticTables_Core_BaseControll
     return $this->redirect($this->generateUrl('overview', 'index', ['supsystic_tutorial' => 'begin']));
   }
 
-  /**
-   * Just let us know. Love is Sharing
-   * @param RscDtgs_Http_Request $request
-   * @return RscDtgs_Http_Response
-   */
-  public function saveDeactivateDataAction(RscDtgs_Http_Request $request)
-  {
-    $this->getModel('promo')->saveDeactivateData([
-      'deactivate_reason' => $request->query->get('deactivate_reason'),
-      'better_plugin' => $request->query->get('better_plugin'),
-      'other' => $request->query->get('other'),
-    ]);
-
-    return $this->ajaxSuccess();
-  }
 }
