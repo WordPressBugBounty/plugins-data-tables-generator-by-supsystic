@@ -52,7 +52,7 @@ class SupsysticTables_Restapi_Controller_Settings extends SupsysticTables_Core_B
         'table_id' => $id,
         'settings' => is_array($settings) ? $settings : [],
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }
@@ -77,7 +77,7 @@ class SupsysticTables_Restapi_Controller_Settings extends SupsysticTables_Core_B
         'table_id' => $id,
         'meta' => is_array($meta) ? $meta : [],
       ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
       return $this->restError($e->getMessage());
     }
   }

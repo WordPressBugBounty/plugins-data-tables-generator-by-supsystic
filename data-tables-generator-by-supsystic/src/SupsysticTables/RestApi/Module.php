@@ -19,8 +19,14 @@ class SupsysticTables_Restapi_Module extends SupsysticTables_Core_BaseModule
   {
     parent::onInit();
 
-    // Register REST API routes on the standard WP hook
-    add_action('rest_api_init', [$this, 'registerRoutes']);
+    // If rest_api_init already fired (e.g. another plugin called rest_get_server()
+    // early during plugins_loaded), register routes immediately.
+    // Otherwise hook normally.
+    if (did_action('rest_api_init')) {
+      $this->registerRoutes();
+    } else {
+      add_action('rest_api_init', [$this, 'registerRoutes']);
+    }
   }
 
   /**
