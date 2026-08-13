@@ -274,6 +274,23 @@
             {% if table.settings.styling.lfixed is defined %}
             data-lfixed="{{ 1 }}"
             {% endif %}
+            {% if table.settings.styling.cellMaxHeight is defined
+                and table.settings.styling.cellMaxHeight|default('') != ''
+                and table.settings.styling.cellMaxHeight|default('0') != '0'
+            %}
+                data-cell-max-height="{{ table.settings.styling.cellMaxHeight }}"
+            {% endif %}
+            {% if table.settings.styling.cellMaxWidth is defined
+                and table.settings.styling.cellMaxWidth|default('') != ''
+                and table.settings.styling.cellMaxWidth|default('0') != '0'
+            %}
+                data-cell-max-width="{{ table.settings.styling.cellMaxWidth }}"
+            {% endif %}
+            {% if table.settings.styling.cellMaxWidthRules is defined
+                and table.settings.styling.cellMaxWidthRules|length
+            %}
+                data-cell-max-width-rules="{{ table.settings.styling.cellMaxWidthRules | json_encode | e }}"
+            {% endif %}
             {% if 'lightboxImg' in table.settings.styling | keys %}
                 data-lightbox-img="{{ table.settings.styling.lightboxImg }}"
             {% endif %}
@@ -350,6 +367,9 @@
                 data-merged="{{ table.meta.mergedCells | json_encode | e }}"
             {% endif %}
             data-responsive-mode="{{ table.settings.responsiveMode|default(1) }}"
+            {% if table.settings.responsiveColumnSettings is defined %}
+                data-responsive-column-settings="{{ table.settings.responsiveColumnSettings | json_encode | e }}"
+            {% endif %}
             data-from-history="{{ table.history|default(0) }}"
             {% if 'attr_period' in table.history_data | keys %}
                 data-history-period="{{ table.history_data.attr_period }}"

@@ -7,7 +7,7 @@ Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.14.1
+Stable tag: 1.14.2
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 
 == Description ==
@@ -300,6 +300,13 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 == Changelog ==
 
 = 2026 =
+
+= 1.14.2 — August 12, 2026 =
+
+* Added SQLite support.
+* Added a configurable Column Hiding with Settings responsive mode for classic tables.
+* Added fixed cell max-height and max-width options, including per-column max-width rules.
+* Improved server-side processing redraw handling for responsive columns and cell overflow wrappers.
 
 = 1.14.1 — August 11, 2026 =
 

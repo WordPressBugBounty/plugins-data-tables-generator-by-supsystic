@@ -3,7 +3,7 @@ CREATE TABLE `%prefix%tables` (
 	`title` VARCHAR(255) NOT NULL,
 	`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`settings` TEXT NOT NULL,
-	`meta` TEXT NULL AFTER `created_at`,
+	`meta` TEXT NULL,
 	PRIMARY KEY (`id`)
 )
 	DEFAULT CHARSET=utf8

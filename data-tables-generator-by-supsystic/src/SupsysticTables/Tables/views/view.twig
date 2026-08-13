@@ -577,6 +577,7 @@
                                             {{ tooltip.icon(
                                             environment.translate('Standard Responsive mode - in this mode if table content doesn\'t fit all columns become under each other with one cell per row') ~ '<br>' ~ '<br>' ~
                                             environment.translate('Automatic column hiding - in this mode table columns will collapse from right to left if content does not fit to parent container width') ~ '<br>' ~ '<br>' ~
+                                            environment.translate('Column Hiding with Settings - in this mode selected columns stay visible for each screen width and the rest can be moved into the row details toggle') ~ '<br>' ~ '<br>' ~
                                             environment.translate('Horizontal scroll - in this mode scroll bar will be added if table overflows parent container width') ~ '<br>' ~ '<br>' ~
                                             environment.translate('Disable Responsivity - default table fluid layout <a href="https://supsystic.com/example/data-table-responsive-modes/" target="_blank">Read more.</a>') ~ '<br>'
                                             ) }}
@@ -587,6 +588,7 @@
                                             {% for value, name in {
                                             '0': environment.translate('Standard Responsive mode'),
                                             '1': environment.translate('Automatic column hiding'),
+                                            '4': environment.translate('Column Hiding with Settings'),
                                             '2': environment.translate('Horizontal scroll'),
                                             '3': environment.translate('Disable Responsivity'),
                                             } %}
@@ -600,6 +602,77 @@
                                             {% endfor %}
                                         </select>
                                     </div>
+                                </div>
+                                <div class="setting-wrapper stb-responsive-column-settings-button"
+                                        {% if table.settings.responsiveMode|default(0) != '4' and table.settings.responsiveMode|default(0) != 4 %}
+                                            style="display:none"
+                                        {% endif %}
+                                        >
+                                    <div class="setting-label">
+                                        <label for="stb-open-responsive-column-settings">
+                                            {{ environment.translate('Column Hiding Settings') }}
+                                            {{ tooltip.icon(
+                                                environment.translate('These settings are used only when Responsive Mode is set to Column Hiding with Settings. They let you define separate column visibility rules for Desktop, Tablet, and Mobile widths. Use column numbers separated by commas, ranges like 1-4, or * in Toggle Columns to place every column not listed as visible into the row details toggle.')
+                                            ) }}
+                                        </label>
+                                    </div>
+                                    <div class="setting-input">
+                                        <button type="button" class="button" id="stb-open-responsive-column-settings">
+                                            {{ environment.translate('Open Settings') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="stb-responsive-column-settings setting-suboption" title="{{ environment.translate('Column Hiding Settings') }}" style="display:none">
+                                    <div class="setting-wrapper stb-responsive-column-settings-intro">
+                                        <div class="setting-label">{{ environment.translate('Column Hiding Settings') }}</div>
+                                    </div>
+                                    {% set responsiveColumnTooltips = {
+                                        'minWidth': environment.translate('The minimum table width, in pixels, where this profile should be used. For example, Desktop starts from 1025px. Use 0 when the profile should have no lower width limit.'),
+                                        'maxWidth': environment.translate('The maximum table width, in pixels, where this profile should be used. Leave empty when the profile should have no upper width limit.'),
+                                        'visible': environment.translate('Columns that must stay visible in the main table for this screen width. Use column numbers counted from left to right, for example 1,3,5. Ranges are supported, for example 1-5. Use * to keep all columns visible.'),
+                                        'toggle': environment.translate('Columns that should be moved into the row details area opened by the +/- responsive toggle. Use column numbers, ranges like 4-8, or * to move every column that is not listed in Visible Columns. Leave empty to automatically place every column not listed in Visible Columns into the toggle.')
+                                    } %}
+                                    {% for breakpoint, defaults in {
+                                        'desktop': {'label': environment.translate('Desktop'), 'min': '1025', 'max': '', 'visible': '*', 'toggle': '', 'info': environment.translate('Settings used for wide screens. By default this profile starts from 1025px and has no maximum width, so it is usually used for desktop layouts.')},
+                                        'tablet': {'label': environment.translate('Tablet'), 'min': '768', 'max': '1024', 'visible': '1-5', 'toggle': '*', 'info': environment.translate('Settings used for medium screens. By default this profile works from 768px to 1024px and is usually used for tablet layouts.')},
+                                        'mobile': {'label': environment.translate('Mobile'), 'min': '0', 'max': '767', 'visible': '1-2', 'toggle': '*', 'info': environment.translate('Settings used for narrow screens. By default this profile works from 0px to 767px and is usually used for phone layouts.')}
+                                    } %}
+                                        {% set breakpointSettings = table.settings.responsiveColumnSettings[breakpoint]|default({}) %}
+                                        <div class="stb-responsive-column-breakpoint">
+                                            <div class="stb-responsive-column-title">
+                                                {{ defaults.label }}
+                                                {{ tooltip.icon(defaults.info) }}
+                                            </div>
+                                            <label>
+                                                <span>
+                                                    {{ environment.translate('Min Width') }}
+                                                    {{ tooltip.icon(responsiveColumnTooltips.minWidth) }}
+                                                </span>
+                                                <input type="number" min="0" step="1" name="responsiveColumnSettings[{{ breakpoint }}][minWidth]" value="{{ breakpointSettings.minWidth|default(defaults.min) }}">
+                                            </label>
+                                            <label>
+                                                <span>
+                                                    {{ environment.translate('Max Width') }}
+                                                    {{ tooltip.icon(responsiveColumnTooltips.maxWidth) }}
+                                                </span>
+                                                <input type="number" min="0" step="1" name="responsiveColumnSettings[{{ breakpoint }}][maxWidth]" value="{{ breakpointSettings.maxWidth|default(defaults.max) }}">
+                                            </label>
+                                            <label>
+                                                <span>
+                                                    {{ environment.translate('Visible Columns') }}
+                                                    {{ tooltip.icon(responsiveColumnTooltips.visible) }}
+                                                </span>
+                                                <input type="text" name="responsiveColumnSettings[{{ breakpoint }}][visible]" value="{{ breakpointSettings.visible|default(defaults.visible) }}">
+                                            </label>
+                                            <label>
+                                                <span>
+                                                    {{ environment.translate('Toggle Columns') }}
+                                                    {{ tooltip.icon(responsiveColumnTooltips.toggle) }}
+                                                </span>
+                                                <input type="text" name="responsiveColumnSettings[{{ breakpoint }}][toggle]" value="{{ breakpointSettings.toggle|default(defaults.toggle) }}">
+                                            </label>
+                                        </div>
+                                    {% endfor %}
                                 </div>
                                 <div class="setting-wrapper">
                                     <div class="setting-label">
@@ -1256,6 +1329,113 @@
                                                 {{ checkbox.checked(attribute(table.settings.styling, 'nowrap')) }}
                                                id="styling-nowrap"/>
                                     </div>
+                                </div>
+                                <div class="setting-wrapper">
+                                    <div class="setting-label">
+                                        <label for="styling-cell-max-height">
+                                            {{ environment.translate('Fixed Max-Height for Cell') }}
+                                            {{ tooltip.icon(environment.translate('Set the maximum height for table body cell content, in pixels. If the content is higher than this value, the cell content will get a vertical scroll and the table row will not be stretched by that content. Leave empty or set 0 to disable this option.')) }}
+                                        </label>
+                                    </div>
+                                    <div class="setting-input">
+                                        <input type="number"
+                                               min="0"
+                                               step="1"
+                                               name="styling[cellMaxHeight]"
+                                               value="{{ attribute(table.settings.styling, 'cellMaxHeight')|default('') }}"
+                                               id="styling-cell-max-height"/>
+                                    </div>
+                                </div>
+                                <div class="setting-wrapper">
+                                    <div class="setting-label">
+                                        <label for="styling-cell-max-width">
+                                            {{ environment.translate('Fixed Max-Width for Cell') }}
+                                            {{ tooltip.icon(environment.translate('Set the default maximum width for table body cell content, in pixels. If the content is wider than this value, it will scroll inside the cell instead of stretching the table. Leave empty or set 0 to disable the default max-width.')) }}
+                                        </label>
+                                    </div>
+                                    <div class="setting-input">
+                                        <input type="number"
+                                               min="0"
+                                               step="1"
+                                               name="styling[cellMaxWidth]"
+                                               value="{{ attribute(table.settings.styling, 'cellMaxWidth')|default('') }}"
+                                               id="styling-cell-max-width"/>
+                                    </div>
+                                </div>
+                                <div class="setting-wrapper">
+                                    <div class="setting-label">
+                                        <label for="stb-open-cell-max-width-settings">
+                                            {{ environment.translate('Column Max-Width Settings') }}
+                                            {{ tooltip.icon(environment.translate('Use these rules to set max-width for specific columns or ranges. Column numbers are counted from left to right. Examples: columns 1-5 with max-width 200px, or columns 2,3 with max-width 100px. Rules override the default Fixed Max-Width for Cell value.')) }}
+                                        </label>
+                                    </div>
+                                    <div class="setting-input">
+                                        <button type="button" class="button" id="stb-open-cell-max-width-settings">
+                                            {{ environment.translate('Open Settings') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                {% set cellMaxWidthSettingsTooltip = environment.translate('Use these rules when the default Fixed Max-Width for Cell is not enough. Each rule targets one column, several columns, a range, or all columns and applies its own max-width in pixels. These rules affect table body cells only and are applied only when a valid max-width value is set.') %}
+                                {% set cellMaxWidthColumnsTooltip = environment.translate('Enter column numbers counted from left to right. Use a single number like 3, a comma-separated list like 1,3,5, a range like 1-5, or * for all columns.') %}
+                                {% set cellMaxWidthValueTooltip = environment.translate('Enter the maximum content width in pixels for the selected columns. If the cell content is wider than this value, it will scroll inside the cell instead of stretching the whole table. Use a positive number, for example 200.') %}
+                                {% set cellMaxWidthRemoveTooltip = environment.translate('Remove this column max-width rule. The rule will be deleted from the table settings after you save the table.') %}
+                                {% set cellMaxWidthAddTooltip = environment.translate('Add a new column max-width rule. Use additional rules when different columns or ranges need different maximum widths.') %}
+                                {% set cellMaxWidthCloseTooltip = environment.translate('Close this popup. Changes remain in the form and will be stored when you save the table settings.') %}
+                                <div class="stb-cell-max-width-settings"
+                                     title="{{ environment.translate('Column Max-Width Settings') }}"
+                                     data-close-tooltip="{{ cellMaxWidthCloseTooltip }}"
+                                     style="display:none">
+                                    {% set cellMaxWidthRules = attribute(table.settings.styling, 'cellMaxWidthRules')|default([]) %}
+                                    <input type="hidden" class="stb-cell-max-width-rules-empty" name="styling[cellMaxWidthRules]" value="">
+                                    <div class="setting-wrapper stb-cell-max-width-settings-intro">
+                                        <div class="setting-label">
+                                            {{ environment.translate('Column Max-Width Settings') }}
+                                            {{ tooltip.icon(cellMaxWidthSettingsTooltip) }}
+                                        </div>
+                                    </div>
+                                    <div class="stb-cell-max-width-settings-list">
+                                        {% if cellMaxWidthRules|length %}
+                                            {% for ruleIndex, rule in cellMaxWidthRules %}
+                                                {% if rule.columns|default('') != '' or rule.maxWidth|default('') != '' %}
+                                                    <div class="stb-cell-max-width-rule">
+                                                        <label>
+                                                            <span>
+                                                                {{ environment.translate('Columns') }}
+                                                                {{ tooltip.icon(cellMaxWidthColumnsTooltip) }}
+                                                            </span>
+                                                            <input type="text" name="styling[cellMaxWidthRules][{{ ruleIndex }}][columns]" value="{{ rule.columns|default('') }}" placeholder="1-5">
+                                                        </label>
+                                                        <label>
+                                                            <span>
+                                                                {{ environment.translate('Max Width') }}
+                                                                {{ tooltip.icon(cellMaxWidthValueTooltip) }}
+                                                            </span>
+                                                            <input type="number" min="0" step="1" name="styling[cellMaxWidthRules][{{ ruleIndex }}][maxWidth]" value="{{ rule.maxWidth|default('') }}" placeholder="200">
+                                                        </label>
+                                                        <button type="button" class="button stb-remove-cell-max-width-rule" {{ tooltip.attr(cellMaxWidthRemoveTooltip) }}>{{ environment.translate('Remove') }}</button>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="stb-cell-max-width-rule stb-cell-max-width-rule-template" style="display:none">
+                                        <label>
+                                            <span>
+                                                {{ environment.translate('Columns') }}
+                                                {{ tooltip.icon(cellMaxWidthColumnsTooltip) }}
+                                            </span>
+                                            <input type="text" data-name-template="styling[cellMaxWidthRules][__index__][columns]" value="" placeholder="1-5">
+                                        </label>
+                                        <label>
+                                            <span>
+                                                {{ environment.translate('Max Width') }}
+                                                {{ tooltip.icon(cellMaxWidthValueTooltip) }}
+                                            </span>
+                                            <input type="number" min="0" step="1" data-name-template="styling[cellMaxWidthRules][__index__][maxWidth]" value="" placeholder="200">
+                                        </label>
+                                        <button type="button" class="button stb-remove-cell-max-width-rule" {{ tooltip.attr(cellMaxWidthRemoveTooltip) }}>{{ environment.translate('Remove') }}</button>
+                                    </div>
+                                    <button type="button" class="button stb-add-cell-max-width-rule" {{ tooltip.attr(cellMaxWidthAddTooltip) }}>{{ environment.translate('Add Rule') }}</button>
                                 </div>
                                 <div class="setting-wrapper">
                                     <div class="setting-label">

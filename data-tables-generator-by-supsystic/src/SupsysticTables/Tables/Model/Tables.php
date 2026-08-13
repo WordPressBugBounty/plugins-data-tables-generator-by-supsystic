@@ -24,8 +24,6 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   public function ensureTablesSchema()
   {
-    global $wpdb;
-
     $tableName = $this->getTable('tables');
     $columns = $this->getTablesTableColumns(true);
     if (!is_array($columns) || count($columns) === 0) {
@@ -34,16 +32,16 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
     $changed = false;
     if (!in_array('table_type', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $this->safeQuery("ALTER TABLE {$tableName} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
       $changed = true;
     }
     if (!in_array('woo_settings', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $this->safeQuery("ALTER TABLE {$tableName} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
       $changed = true;
     }
     if (!in_array('history_settings', $columns, true)) {
       $afterColumn = in_array('woo_settings', $columns, true) || $this->tablesColumnExists('woo_settings', true) ? 'woo_settings' : 'settings';
-      $wpdb->query("ALTER TABLE {$tableName} ADD COLUMN `history_settings` TEXT NULL AFTER `{$afterColumn}`");
+      $this->safeQuery("ALTER TABLE {$tableName} ADD COLUMN `history_settings` TEXT NULL AFTER `{$afterColumn}`");
       $changed = true;
     }
 
@@ -52,7 +50,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     }
 
     if (in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
-      $wpdb->query(
+      $this->safeQuery(
         "UPDATE {$tableName}
          SET `table_type` = 'woo_product_table'
          WHERE `table_type` = 'default'

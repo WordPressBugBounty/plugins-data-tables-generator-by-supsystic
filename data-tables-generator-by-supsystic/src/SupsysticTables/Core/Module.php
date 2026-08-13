@@ -539,6 +539,8 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
   {
     global $wpdb;
 
+    /** @var SupsysticTables_Core_Model_Core $core */
+    $core = $this->getModelsFactory()->get('core');
     $dbPrefix = $this->getEnvironment()->getConfig()->get('db_prefix');
     $tablesTable = $wpdb->prefix . $dbPrefix . 'tables';
     $wooColumnsTable = $wpdb->prefix . $dbPrefix . 'woo_columns';
@@ -560,19 +562,19 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       `columns_nice_name` VARCHAR(128) NULL DEFAULT NULL,
       PRIMARY KEY (`id`)
     ) $charsetCollate";
-    dbDelta($sql);
+    $core->delta($sql);
 
     if (is_array($columns) && !in_array('table_type', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $core->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
       $columns[] = 'table_type';
     }
     if (is_array($columns) && !in_array('woo_settings', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $core->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
       $columns[] = 'woo_settings';
     }
 
     if (is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
-      $wpdb->query(
+      $core->safeQuery(
         "UPDATE {$tablesTable}
          SET `table_type` = 'woo_product_table'
          WHERE `table_type` = 'default'

@@ -515,6 +515,100 @@
 .setting-suboption {
   padding-left: 15px;
 }
+.stb-responsive-column-settings {
+  margin: 0;
+  padding: 0 4px;
+}
+.stb-responsive-column-dialog.ui-dialog {
+  position: fixed !important;
+  max-width: calc(100vw - 40px);
+}
+.stb-responsive-column-dialog .ui-dialog-content {
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto;
+}
+.stb-responsive-column-settings-button .setting-input {
+  text-align: left;
+}
+.stb-responsive-column-settings-intro {
+  display: none;
+}
+.stb-responsive-column-breakpoint {
+  display: grid;
+  grid-template-columns: 90px repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+  align-items: start;
+  margin: 0 0 12px;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid #dcdcde;
+}
+.stb-responsive-column-breakpoint:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+.stb-responsive-column-breakpoint label {
+  display: block;
+  min-width: 0;
+}
+.stb-responsive-column-breakpoint span,
+.stb-responsive-column-title {
+  display: block;
+  margin-bottom: 3px;
+  color: #50575e;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.stb-responsive-column-title {
+  color: #1d2327;
+}
+.stb-responsive-column-breakpoint .supsystic-tooltip {
+  float: none;
+  margin-left: 4px;
+}
+.stb-responsive-column-breakpoint input {
+  width: 100%;
+}
+.stb-cell-max-width-settings {
+  margin: 0;
+  padding: 0 4px;
+}
+.stb-cell-max-width-rule {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 140px auto;
+  gap: 10px;
+  align-items: end;
+  margin: 0 0 10px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #dcdcde;
+}
+.stb-cell-max-width-rule label,
+.stb-cell-max-width-rule span {
+  display: block;
+}
+.stb-cell-max-width-rule span {
+  margin-bottom: 3px;
+  color: #50575e;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.stb-cell-max-width-rule input {
+  width: 100%;
+}
+@media (max-width: 782px) {
+  .stb-cell-max-width-rule {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 782px) {
+  .stb-responsive-column-breakpoint {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stb-responsive-column-title {
+    grid-column: 1 / -1;
+  }
+}
 .tables-view .settings-section input[type='text'] {
   height: 28px;
 }

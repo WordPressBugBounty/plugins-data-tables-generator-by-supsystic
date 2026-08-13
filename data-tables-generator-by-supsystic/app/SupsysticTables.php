@@ -21,7 +21,7 @@ class SupsysticTables
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.14.1', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.14.2', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -104,11 +104,11 @@ class SupsysticTables
 
     $wpdb->show_errors = false;
 
-    $wpdb->query('SET FOREIGN_KEY_CHECKS=0;');
+    $this->safeQuery('SET FOREIGN_KEY_CHECKS=0;');
 
     if (get_option('stbl' . '_installed')) {
       $this->createWooSchema();
-      $wpdb->query('SET FOREIGN_KEY_CHECKS=1;');
+      $this->safeQuery('SET FOREIGN_KEY_CHECKS=1;');
       $wpdb->show_errors = true;
       return;
     }
@@ -127,7 +127,7 @@ class SupsysticTables
           	`meta` TEXT NULL,
           	PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     if (!$this->db_table_exist('supsystic_tbl_columns')) {
@@ -140,7 +140,7 @@ class SupsysticTables
             `title` VARCHAR(255) NOT NULL,
             PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     if (!$this->db_table_exist('supsystic_tbl_rows_history')) {
@@ -155,7 +155,7 @@ class SupsysticTables
             `updated` TIMESTAMP NULL DEFAULT NULL,
             PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     if (!$this->db_table_exist('supsystic_tbl_rows')) {
@@ -167,7 +167,7 @@ class SupsysticTables
           	`data` TEXT NOT NULL,
           	PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     if (!$this->db_table_exist('supsystic_tbl_conditions')) {
@@ -179,7 +179,7 @@ class SupsysticTables
           	`data` TEXT NOT NULL,
           	PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     if (!$this->db_table_exist('supsystic_tbl_diagrams')) {
@@ -195,15 +195,64 @@ class SupsysticTables
             `data` MEDIUMTEXT NULL DEFAULT NULL,
             PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     $this->createWooSchema();
 
-    $wpdb->query('SET FOREIGN_KEY_CHECKS=1;');
+    $this->safeQuery('SET FOREIGN_KEY_CHECKS=1;');
 
     $wpdb->show_errors = true;
     update_option('stbl' . '_installed', 1);
+  }
+
+  /**
+   * Runs dbDelta(), catching driver exceptions instead of letting them fatal
+   * the request. On MySQL a malformed statement just sets $wpdb->last_error
+   * and execution continues; the SQLite compatibility layer (WordPress
+   * Playground, WP Studio) throws instead, so we normalize to the MySQL
+   * behavior here.
+   * @param string $sql
+   * @return mixed
+   */
+  private function safeDbDelta($sql)
+  {
+    try {
+      return dbDelta($sql);
+    } catch (Throwable $e) {
+      $this->logDbError($e->getMessage(), $sql);
+      return false;
+    }
+  }
+
+  /**
+   * Runs a raw query, catching driver exceptions instead of letting them fatal
+   * the request.
+   * @param string $sql
+   * @return int|bool
+   */
+  private function safeQuery($sql)
+  {
+    global $wpdb;
+
+    try {
+      return $wpdb->query($sql);
+    } catch (Throwable $e) {
+      $this->logDbError($e->getMessage(), $sql);
+      return false;
+    }
+  }
+
+  /**
+   * Logs a failed query when debugging is enabled.
+   * @param string $message
+   * @param string $query
+   */
+  private function logDbError($message, $query)
+  {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+      error_log(sprintf('[Supsystic Tables] Query failed: %s | Query: %s', $message, $query));
+    }
   }
 
   public function maybeUpgradeSchema()
@@ -240,20 +289,20 @@ class SupsysticTables
             `columns_nice_name` VARCHAR(128) NULL DEFAULT NULL,
             PRIMARY KEY (`id`)
           ) $charset_collate";
-      dbDelta($sql);
+      $this->safeDbDelta($sql);
     }
 
     $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     if (is_array($columns) && !in_array('woo_settings', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
+      $this->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `woo_settings` TEXT NULL AFTER `settings`");
       $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     }
     if (is_array($columns) && !in_array('table_type', $columns, true)) {
-      $wpdb->query("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
+      $this->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
       $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     }
     if (is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
-      $wpdb->query(
+      $this->safeQuery(
         "UPDATE {$tablesTable}
          SET `table_type` = 'woo_product_table'
          WHERE `table_type` = 'default'

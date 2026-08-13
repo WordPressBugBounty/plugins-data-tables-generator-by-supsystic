@@ -25,14 +25,29 @@ class SupsysticTables_Core_Model_Core extends SupsysticTables_Core_BaseModel
     $queries = array_filter($queries);
 
     foreach ($queries as $q) {
-      if ('alter' === substr(strtolower($q), 0, 5)) {
-        if ($this->checkQueryOnColumnNotExists($q)) {
-          $this->db->query($q);
+      try {
+        if ('alter' === substr(strtolower($q), 0, 5)) {
+          if ($this->checkQueryOnColumnNotExists($q)) {
+            $this->safeQuery($q);
+          }
+        } elseif ('delete' === substr(strtolower($q), 0, 6)) {
+          $this->safeQuery($q);
+        } elseif (preg_match('/^CREATE\s+TABLE\s+`?([^`\s(]+)/i', $q, $m) && $this->isTableExists(trim($m[1], '`'))) {
+          // The table already exists, so this CREATE TABLE has already done its
+          // one-time job. Do not hand it to dbDelta for column diffing: dbDelta's
+          // parser treats a column literally named `index` (among other reserved
+          // words) as an index definition, which produces a malformed
+          // "ALTER TABLE ... ADD `` (``)" query. Any future column additions to
+          // an existing table should go through an explicit ALTER TABLE with an
+          // existence check instead, like ensureTablesSchema() already does.
+          continue;
+        } else {
+          $this->delta($q);
         }
-      } elseif ('delete' === substr(strtolower($q), 0, 6)) {
-        $this->db->query($q);
-      } else {
-        $this->delta($q);
+      } catch (Throwable $e) {
+        // One malformed/unsupported statement (e.g. under the SQLite
+        // compatibility layer) must not abort the rest of the update.
+        $this->logDbError($e->getMessage(), $q);
       }
     }
   }

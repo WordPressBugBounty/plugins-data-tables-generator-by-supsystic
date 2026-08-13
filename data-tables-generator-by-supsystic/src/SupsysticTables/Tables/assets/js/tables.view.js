@@ -24,6 +24,32 @@ var g_stbCopyPasteColsCount = [];
       editor = app.Editor.Hot,
       cssEditor = tablesModel.getCssEditor();
     previewContainer = $('#table-preview');
+    previewContainer.attr('data-responsive-column-profile', 'desktop');
+    function syncPreviewResponsiveColumnProfile(profile) {
+      previewContainer.attr('data-responsive-column-profile', profile);
+      previewContainer.find('table.supsystic-table').attr('data-responsive-column-preview-profile', profile);
+    }
+    function refreshPreviewResponsiveColumnState() {
+      var table = previewContainer.find('table.supsystic-table'),
+        tableId = app.getParameterByName('id'),
+        tableInstance = app.getTableInstanceById(tableId);
+
+      if (!table.length || !tableInstance) {
+        return;
+      }
+      syncPreviewResponsiveColumnProfile(previewContainer.attr('data-responsive-column-profile') || 'desktop');
+      if (tableInstance.api) {
+        var tableApi = tableInstance.api();
+
+        if (tableApi.responsive && tableApi.responsive.rebuild && tableApi.responsive.recalc) {
+          tableApi.responsive.rebuild();
+          tableApi.responsive.recalc();
+        }
+        if (tableApi.columns && tableApi.columns.adjust) {
+          tableApi.columns.adjust();
+        }
+      }
+    }
 
     // Initialize Main Tabs
     var $mainTabsContent = $('.row-tab'),
@@ -159,7 +185,8 @@ var g_stbCopyPasteColsCount = [];
     });
     $('.preview-section .stb-anchor-nav-links').on('click', function (e, funcParams) {
       e.preventDefault();
-      var href = $(this).attr('href');
+      var href = $(this).attr('href'),
+        responsiveColumnProfile = 'desktop';
 
       g_stbMobilePreview = false;
       $('.preview-styling a').removeClass('active');
@@ -167,19 +194,24 @@ var g_stbCopyPasteColsCount = [];
       switch (href) {
         case '#stb-style-desktop':
           previewContainer.css('max-width', 'none');
+          responsiveColumnProfile = 'desktop';
           break;
         case '#stb-style-tablet':
           previewContainer.css('max-width', '768px');
           g_stbMobilePreview = true;
+          responsiveColumnProfile = 'tablet';
           break;
         case '#stb-style-mobile':
           previewContainer.css('max-width', '380px');
           g_stbMobilePreview = true;
+          responsiveColumnProfile = 'mobile';
           break;
         default:
           break;
       }
+      syncPreviewResponsiveColumnProfile(responsiveColumnProfile);
       tablesModel.reinitPreview(previewContainer);
+      setTimeout(refreshPreviewResponsiveColumnState, 350);
     });
 
     // init anchor link
@@ -720,6 +752,135 @@ var g_stbCopyPasteColsCount = [];
       fixedHead = formSettings.find('[name="fixedHeader"]'),
       fixedFoot = formSettings.find('[name="fixedFooter"]');
 
+    var responsiveModeSelect = formSettings.find('select[name="responsiveMode"]'),
+      responsiveColumnSettings = formSettings.find('.stb-responsive-column-settings'),
+      responsiveColumnSettingsButton = formSettings.find('.stb-responsive-column-settings-button');
+    function toggleResponsiveColumnSettings() {
+      var isSettingsMode = responsiveModeSelect.val() == '4';
+
+      responsiveColumnSettingsButton.toggle(isSettingsMode);
+      if (!isSettingsMode && responsiveColumnSettings.hasClass('ui-dialog-content')) {
+        responsiveColumnSettings.dialog('close');
+      }
+    }
+    if (responsiveColumnSettings.length) {
+      responsiveColumnSettings.dialog({
+        autoOpen: false,
+        appendTo: formSettings,
+        dialogClass: 'stb-responsive-column-dialog',
+        width: Math.max(320, Math.min(820, $(window).width() - 40)),
+        maxWidth: 820,
+        height: 'auto',
+        modal: true,
+        position: {
+          my: 'center',
+          at: 'center',
+          of: window,
+        },
+        open: function () {
+          responsiveColumnSettings.dialog('option', 'width', Math.max(320, Math.min(820, $(window).width() - 40)));
+          responsiveColumnSettings.dialog('option', 'position', {
+            my: 'center',
+            at: 'center',
+            of: window,
+          });
+        },
+        buttons: {
+          Close: function () {
+            $(this).dialog('close');
+          },
+        },
+      });
+      formSettings.find('#stb-open-responsive-column-settings').on('click', function (e) {
+        e.preventDefault();
+        responsiveColumnSettings.dialog('open');
+      });
+    }
+    responsiveModeSelect.on('change', toggleResponsiveColumnSettings);
+    toggleResponsiveColumnSettings();
+
+    var cellMaxWidthSettings = formSettings.find('.stb-cell-max-width-settings'),
+      cellMaxWidthRuleIndex = cellMaxWidthSettings.find('.stb-cell-max-width-settings-list .stb-cell-max-width-rule').length;
+    if (cellMaxWidthSettings.length) {
+      function updateCellMaxWidthRulesEmptyState() {
+        var hasRules = cellMaxWidthSettings.find('.stb-cell-max-width-settings-list .stb-cell-max-width-rule').length > 0;
+
+        cellMaxWidthSettings.find('.stb-cell-max-width-rules-empty').prop('disabled', hasRules);
+      }
+      cellMaxWidthSettings.find('.stb-cell-max-width-settings-list input[name^="styling[cellMaxWidthRules]"]').each(function () {
+        var matches = ($(this).attr('name') || '').match(/cellMaxWidthRules]\[(\d+)]/);
+
+        if (matches) {
+          cellMaxWidthRuleIndex = Math.max(cellMaxWidthRuleIndex, parseInt(matches[1], 10) + 1);
+        }
+      });
+      cellMaxWidthSettings.dialog({
+        autoOpen: false,
+        appendTo: formSettings,
+        dialogClass: 'stb-responsive-column-dialog',
+        width: Math.max(320, Math.min(720, $(window).width() - 40)),
+        maxWidth: 720,
+        height: 'auto',
+        modal: true,
+        position: {
+          my: 'center',
+          at: 'center',
+          of: window,
+        },
+        open: function () {
+          cellMaxWidthSettings.dialog('option', 'width', Math.max(320, Math.min(720, $(window).width() - 40)));
+          cellMaxWidthSettings.dialog('option', 'position', {
+            my: 'center',
+            at: 'center',
+            of: window,
+          });
+          cellMaxWidthSettings
+            .closest('.ui-dialog')
+            .find('.ui-dialog-titlebar-close, .ui-dialog-buttonpane button')
+            .attr('title', cellMaxWidthSettings.attr('data-close-tooltip') || '');
+        },
+        buttons: {
+          Close: function () {
+            $(this).dialog('close');
+          },
+        },
+      });
+      formSettings.find('#stb-open-cell-max-width-settings').on('click', function (e) {
+        e.preventDefault();
+        cellMaxWidthSettings.dialog('open');
+      });
+      cellMaxWidthSettings.on('click', '.stb-add-cell-max-width-rule', function (e) {
+        e.preventDefault();
+        var $rule = cellMaxWidthSettings.find('.stb-cell-max-width-rule-template:first').clone(false, false);
+
+        $rule.removeClass('stb-cell-max-width-rule-template').removeAttr('style');
+        $rule.find('input').each(function () {
+          var $input = $(this),
+            name = $input.data('name-template');
+
+          $input.val('');
+          if (name) {
+            $input.attr('name', name.replace('__index__', cellMaxWidthRuleIndex));
+            $input.removeAttr('data-name-template');
+          }
+        });
+        cellMaxWidthSettings.find('.stb-cell-max-width-settings-list').append($rule);
+        cellMaxWidthRuleIndex++;
+        updateCellMaxWidthRulesEmptyState();
+        g_stbIsDataEdited['settings'] = true;
+      });
+      cellMaxWidthSettings.on('click', '.stb-remove-cell-max-width-rule', function (e) {
+        e.preventDefault();
+        $(this).closest('.stb-cell-max-width-rule').remove();
+        updateCellMaxWidthRulesEmptyState();
+        g_stbIsDataEdited['settings'] = true;
+      });
+      cellMaxWidthSettings.on('input change', 'input', function () {
+        g_stbIsDataEdited['settings'] = true;
+      });
+      updateCellMaxWidthRulesEmptyState();
+    }
+
     // Set numbers
     formSettings
       .find('[name="useNumberFormat"]')
@@ -1145,7 +1306,11 @@ var g_stbCopyPasteColsCount = [];
       }
     });
 
-    formSettings.find('.setting-wrapper input, .setting-input select, textarea').on('change ifChanged', function (e) {
+    formSettings.find('.stb-responsive-column-settings input').on('input', function () {
+      g_stbIsDataEdited['settings'] = true;
+    });
+
+    formSettings.find('.setting-wrapper input, .setting-input select, .stb-responsive-column-settings input, textarea').on('change ifChanged', function (e) {
       g_stbIsDataEdited['settings'] = true;
       var $this = $(this);
       tablesModel.controlSettingsValues($this);

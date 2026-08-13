@@ -75,6 +75,15 @@ table.supsystic-table img {
   max-width: 100%;
   height: auto;
 }
+table.supsystic-table .stb-cell-dimension-inner,
+table.supsystic-table .stb-cell-max-height-inner {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: normal !important;
+}
 
 .supsystic-tables-wrap table.supsystic-table .no-header tr:first-child td {
   border-top: 1px solid #111;
@@ -99,6 +108,9 @@ table.supsystic-table img {
 table.supsystic-table .ww-h {
   white-space: nowrap !important;
   overflow: hidden;
+}
+table.supsystic-table .ww-h.stb-cell-dimension-cell {
+  overflow: visible;
 }
 
 table.supsystic-table {

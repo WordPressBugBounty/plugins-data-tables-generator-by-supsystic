@@ -2190,10 +2190,9 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $notice = get_option($option);
     if (!$notice) {
       update_option($option, [
-        'time' => time(),
+        'time' => time() + 60 * 60 * 24 * 2,
         'shown' => false,
       ]);
-      add_action('admin_notices', [$this, 'showAiNotice']);
     } elseif ($notice['shown'] === false && time() > $notice['time']) {
       add_action('admin_notices', [$this, 'showAiNotice']);
     }

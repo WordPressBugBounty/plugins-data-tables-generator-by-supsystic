@@ -80,7 +80,8 @@ abstract class SupsysticTables_Core_BaseModel extends RscDtgs_Mvc_Model implemen
   }
 
   /**
-   * Returns table field.
+   * Returns table field, backtick-quoted so field names that collide with SQL
+   * reserved words (e.g. a column literally named `index`) stay valid.
    * @param string|null $tableName
    * @param string $fieldName
    * @param string|null $as
@@ -88,7 +89,9 @@ abstract class SupsysticTables_Core_BaseModel extends RscDtgs_Mvc_Model implemen
    */
   public function getField($tableName = null, $fieldName = 'id', $as = null)
   {
-    $field = $this->getTable($tableName) . '.' . $fieldName;
+    $field = '*' === $fieldName
+      ? '`' . $this->getTable($tableName) . '`.*'
+      : '`' . $this->getTable($tableName) . '`.`' . $fieldName . '`';
 
     if (is_string($as)) {
       $field = $field . ' AS ' . $as;

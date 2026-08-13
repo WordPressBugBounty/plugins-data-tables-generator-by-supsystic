@@ -420,6 +420,363 @@ var g_stbServerSideProcessingIsActive = false;
       }
     };
 
+    vendor[appName].getResponsiveColumnSettings = function ($table) {
+      var defaults = {
+          desktop: { minWidth: 1025, maxWidth: '', visible: '*', toggle: '' },
+          tablet: { minWidth: 768, maxWidth: 1024, visible: '1-5', toggle: '*' },
+          mobile: { minWidth: 0, maxWidth: 767, visible: '1-2', toggle: '*' },
+        },
+        source = $table.data('responsive-column-settings') || {},
+        settings = {},
+        names = ['desktop', 'tablet', 'mobile'];
+
+      jQuery.each(names, function (index, name) {
+        var current = source && source[name] ? source[name] : {};
+        settings[name] = jQuery.extend({}, defaults[name], current);
+        settings[name].minWidth = parseInt(settings[name].minWidth, 10);
+        settings[name].maxWidth = settings[name].maxWidth === '' || typeof settings[name].maxWidth == 'undefined' ? '' : parseInt(settings[name].maxWidth, 10);
+        settings[name].minWidth = isNaN(settings[name].minWidth) ? defaults[name].minWidth : settings[name].minWidth;
+        settings[name].maxWidth = settings[name].maxWidth === '' || isNaN(settings[name].maxWidth) ? '' : settings[name].maxWidth;
+        settings[name].visible = typeof settings[name].visible == 'undefined' ? defaults[name].visible : String(settings[name].visible);
+        settings[name].toggle = typeof settings[name].toggle == 'undefined' ? defaults[name].toggle : String(settings[name].toggle);
+      });
+
+      return settings;
+    };
+
+    vendor[appName].parseResponsiveColumnList = function (value, columnCount) {
+      var result = { all: false, columns: {} };
+
+      value = typeof value == 'undefined' ? '' : String(value).replace(/\s+/g, '');
+      if (!value.length) {
+        return result;
+      }
+      if (value === '*') {
+        result.all = true;
+        return result;
+      }
+
+      jQuery.each(value.split(','), function (index, part) {
+        var range, start, end, i;
+
+        if (!part.length) {
+          return;
+        }
+        if (part === '*') {
+          result.all = true;
+          return false;
+        }
+
+        range = part.split('-');
+        start = parseInt(range[0], 10);
+        end = range.length > 1 ? parseInt(range[1], 10) : start;
+        if (isNaN(start) || isNaN(end)) {
+          return;
+        }
+        if (end < start) {
+          i = start;
+          start = end;
+          end = i;
+        }
+        start = Math.max(1, start);
+        end = Math.min(columnCount, end);
+        if (start > columnCount || end < 1) {
+          return;
+        }
+        for (i = start; i <= end; i++) {
+          result.columns[i - 1] = true;
+        }
+      });
+
+      return result;
+    };
+
+    vendor[appName].responsiveColumnListContains = function (list, columnIndex) {
+      return !!(list && (list.all || list.columns[columnIndex]));
+    };
+
+    vendor[appName].getResponsiveColumnPreviewProfile = function ($table) {
+      var names = ['desktop', 'tablet', 'mobile'],
+        previewContainer = $table.closest('#table-preview'),
+        profile = $table.attr('data-responsive-column-preview-profile') || previewContainer.attr('data-responsive-column-profile');
+
+      profile = typeof profile == 'undefined' ? '' : String(profile);
+      return toeInArray(profile, names) != -1 ? profile : '';
+    };
+
+    vendor[appName].getActiveResponsiveColumnProfile = function ($table) {
+      var settings = this.getResponsiveColumnSettings($table),
+        previewProfile = this.getResponsiveColumnPreviewProfile($table),
+        width = window.innerWidth || jQuery(window).width(),
+        names = ['desktop', 'tablet', 'mobile'],
+        fallback = 'desktop';
+
+      if (previewProfile) {
+        return previewProfile;
+      }
+
+      for (var i = 0; i < names.length; i++) {
+        var name = names[i],
+          min = settings[name].minWidth,
+          max = settings[name].maxWidth === '' ? Infinity : settings[name].maxWidth;
+
+        if (width >= min && width <= max) {
+          return name;
+        }
+      }
+
+      if (width <= settings.mobile.maxWidth) {
+        fallback = 'mobile';
+      } else if (settings.tablet.maxWidth !== '' && width <= settings.tablet.maxWidth) {
+        fallback = 'tablet';
+      }
+
+      return fallback;
+    };
+
+    vendor[appName].isResponsiveColumnVisibleForProfile = function ($table, profile, columnIndex, columnCount) {
+      var settings = this.getResponsiveColumnSettings($table),
+        list = this.parseResponsiveColumnList(settings[profile].visible, columnCount);
+
+      return this.responsiveColumnListContains(list, columnIndex);
+    };
+
+    vendor[appName].isResponsiveColumnToggleForProfile = function ($table, profile, columnIndex, columnCount) {
+      var settings = this.getResponsiveColumnSettings($table),
+        visible = this.parseResponsiveColumnList(settings[profile].visible, columnCount),
+        toggle = this.parseResponsiveColumnList(settings[profile].toggle, columnCount);
+
+      if (this.responsiveColumnListContains(visible, columnIndex)) {
+        return false;
+      }
+      if (!jQuery.trim(settings[profile].toggle).length) {
+        return true;
+      }
+      if (toggle.all) {
+        return true;
+      }
+
+      return this.responsiveColumnListContains(toggle, columnIndex);
+    };
+
+    vendor[appName].getResponsiveColumnBreakpoints = function ($table) {
+      var settings = this.getResponsiveColumnSettings($table),
+        previewProfile = this.getResponsiveColumnPreviewProfile($table);
+
+      if (previewProfile) {
+        return [{ name: previewProfile, width: Infinity }];
+      }
+
+      return [
+        { name: 'desktop', width: settings.desktop.maxWidth === '' ? Infinity : settings.desktop.maxWidth },
+        { name: 'tablet', width: settings.tablet.maxWidth === '' ? 1024 : settings.tablet.maxWidth },
+        { name: 'mobile', width: settings.mobile.maxWidth === '' ? 767 : settings.mobile.maxWidth },
+      ];
+    };
+
+    vendor[appName].applyResponsiveColumnClasses = function ($table) {
+      var self = this,
+        profiles = ['desktop', 'tablet', 'mobile'],
+        headers = $table.find('thead tr:not(.stbColumnsSearchWrapper):first th'),
+        columnCount = headers.length;
+
+      headers.each(function (columnIndex) {
+        var header = jQuery(this),
+          classes = [];
+
+        header.removeClass('desktop tablet mobile none all');
+        jQuery.each(profiles, function (index, profile) {
+          if (self.isResponsiveColumnVisibleForProfile($table, profile, columnIndex, columnCount)) {
+            classes.push(profile);
+          }
+        });
+        header.addClass(classes.length ? classes.join(' ') : 'none');
+      });
+    };
+
+    vendor[appName].buildResponsiveDetailsRenderer = function (modeWithSettings) {
+      var self = this;
+
+      return function (api, rowIdx, columns) {
+        var $table = jQuery(api.table().node()),
+          profile = self.getActiveResponsiveColumnProfile($table),
+          columnCount = columns.length,
+          $subTable = jQuery('<table/>');
+
+        jQuery.each(columns, function (i, col) {
+          if (modeWithSettings) {
+            if (!self.isResponsiveColumnToggleForProfile($table, profile, col.columnIndex, columnCount)) {
+              return;
+            }
+          } else if (!col.hidden) {
+            return;
+          }
+
+          var $cell = jQuery(api.cell(col.rowIndex, col.columnIndex).node()).clone(),
+            markup = '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">';
+          if ($table.data('head') == 'on') {
+            var tableHeadTr = jQuery(api.table().header()).find('tr:not(.stbColumnsSearchWrapper)').eq(0);
+            var $headerCell = tableHeadTr.find('th').eq(col.columnIndex).clone();
+            $headerCell.find('.stbColumnSearchField').remove();
+            var $headerContent = $headerCell.html();
+            markup += '<td>';
+            if ($headerContent) {
+              markup += $headerContent;
+            }
+            markup += '</td>';
+          }
+          markup += '</tr>';
+          $cell.after(jQuery('<td>').addClass('collapsed-cell-holder').attr('data-cell-row', col.rowIndex).attr('data-cell-column', col.columnIndex).hide());
+          $subTable.append(jQuery(markup).append($cell.addClass('collapsed').show()));
+        });
+        return $subTable.is(':empty') ? false : $subTable;
+      };
+    };
+
+    vendor[appName].syncResponsiveColumnSearch = function ($table, columns) {
+      $table.find('th input.search-column').each(function () {
+        var th = jQuery(this).parents('th:first'),
+          i = th.index();
+        if (columns.length > i) {
+          th.css('display', columns[i] ? '' : 'none');
+        }
+      });
+    };
+
+    vendor[appName].getCellMaxHeight = function ($table) {
+      var height = parseInt($table.data('cell-max-height'), 10);
+
+      return isNaN(height) || height <= 0 ? 0 : height;
+    };
+
+    vendor[appName].getCellMaxWidth = function ($table) {
+      var width = parseInt($table.data('cell-max-width'), 10);
+
+      return isNaN(width) || width <= 0 ? 0 : width;
+    };
+
+    vendor[appName].getCellMaxWidthRules = function ($table, columnCount) {
+      var self = this,
+        source = $table.data('cell-max-width-rules') || [],
+        rules = [];
+
+      if (!jQuery.isArray(source) && typeof source == 'object') {
+        source = jQuery.map(source, function (rule) {
+          return rule;
+        });
+      }
+      if (!jQuery.isArray(source)) {
+        return rules;
+      }
+
+      jQuery.each(source, function (index, rule) {
+        var columns = rule && typeof rule.columns != 'undefined' ? jQuery.trim(String(rule.columns)) : '',
+          maxWidth = rule && typeof rule.maxWidth != 'undefined' ? parseInt(rule.maxWidth, 10) : 0,
+          list;
+
+        if (!columns.length || isNaN(maxWidth) || maxWidth <= 0) {
+          return;
+        }
+
+        list = self.parseResponsiveColumnList(columns, columnCount);
+        if (list.all || !jQuery.isEmptyObject(list.columns)) {
+          rules.push({
+            columns: list,
+            maxWidth: maxWidth,
+          });
+        }
+      });
+
+      return rules;
+    };
+
+    vendor[appName].applyCellDimensions = function ($table) {
+      var self = this,
+        height = this.getCellMaxHeight($table),
+        globalWidth = this.getCellMaxWidth($table),
+        firstRowCells = $table.children('tbody').children('tr:not(.child):first').children('td'),
+        columnCount = firstRowCells.length || $table.find('thead tr:not(.stbColumnsSearchWrapper):first th').length,
+        widthRules = this.getCellMaxWidthRules($table, columnCount);
+
+      if (!height && !globalWidth && !widthRules.length) {
+        return;
+      }
+
+      var getInnerStyles = function (height, width) {
+        return {
+          maxHeight: height ? height + 'px' : '',
+          maxWidth: width ? width + 'px' : '',
+        };
+      },
+        unwrapCell = function ($cell, $inner) {
+          $cell.removeClass('stb-cell-dimension-cell');
+          if ($inner.length) {
+            $inner.contents().unwrap();
+          }
+        };
+
+      $table
+        .children('tbody')
+        .children('tr:not(.child)')
+        .children('td')
+        .not('.collapsed-cell-holder, .dataTables_empty')
+        .each(function () {
+          var $cell = jQuery(this),
+            columnIndex = $cell.index(),
+            width = globalWidth,
+            $inner = $cell.children('.stb-cell-dimension-inner:first, .stb-cell-max-height-inner:first');
+
+          jQuery.each(widthRules, function (index, rule) {
+            if (self.responsiveColumnListContains(rule.columns, columnIndex)) {
+              width = rule.maxWidth;
+            }
+          });
+
+          if (!height && !width) {
+            unwrapCell($cell, $inner);
+            return;
+          }
+
+          $cell.addClass('stb-cell-dimension-cell');
+          if ($inner.length) {
+            $inner.addClass('stb-cell-dimension-inner').css(getInnerStyles(height, width));
+          } else {
+            $inner = jQuery('<div/>').addClass('stb-cell-dimension-inner').css(getInnerStyles(height, width));
+            $cell.contents().appendTo($inner);
+            $cell.append($inner);
+          }
+
+          if ((!height || $inner.get(0).scrollHeight <= height + 1) && (!width || $inner.get(0).scrollWidth <= width + 1)) {
+            unwrapCell($cell, $inner);
+          }
+        });
+    };
+
+    vendor[appName].queueCellDimensions = function ($table) {
+      var self = this,
+        timers = $table.data('stb-cell-dimension-timers') || [],
+        delays = [0, 50, 250];
+
+      jQuery.each(timers, function (index, timer) {
+        clearTimeout(timer);
+      });
+
+      timers = [];
+
+      jQuery.each(delays, function (index, delay) {
+        var timer = setTimeout(function () {
+          self.applyCellDimensions($table);
+          if (index === delays.length - 1) {
+            $table.removeData('stb-cell-dimension-timers');
+          }
+        }, delay);
+
+        timers.push(timer);
+      });
+
+      $table.data('stb-cell-dimension-timers', timers);
+    };
+
     vendor[appName].initializeTable = function (table, callback, finalCallback, reinit, addInstance) {
       if (typeof jQuery.fn.dataTable.moment == 'undefined' && typeof moment !== 'undefined') {
         jQuery.fn.dataTable.moment = function (format, locale, reverseEmpties) {
@@ -1143,32 +1500,7 @@ var g_stbServerSideProcessingIsActive = false;
         // Responsive Mode: Automatic Column Hiding
         config.responsive = {
           details: {
-            renderer: function (api, rowIdx, columns) {
-              var $table = jQuery(api.table().node()),
-                $subTable = jQuery('<table/>');
-
-              jQuery.each(columns, function (i, col) {
-                if (col.hidden) {
-                  var $cell = jQuery(api.cell(col.rowIndex, col.columnIndex).node()).clone(),
-                    markup = '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">';
-                  if ($table.data('head') == 'on') {
-                    var tableHeadTr = jQuery(api.table().header()).find('tr:not(.stbColumnsSearchWrapper)').eq(0);
-                    var $headerCell = tableHeadTr.find('th').eq(col.columnIndex).clone();
-                    $headerCell.find('.stbColumnSearchField').remove();
-                    var $headerContent = $headerCell.html();
-                    markup += '<td>';
-                    if ($headerContent) {
-                      markup += $headerContent;
-                    }
-                    markup += '</td>';
-                  }
-                  markup += '</tr>';
-                  $cell.after(jQuery('<td>').addClass('collapsed-cell-holder').attr('data-cell-row', col.rowIndex).attr('data-cell-column', col.columnIndex).hide());
-                  $subTable.append(jQuery(markup).append($cell.addClass('collapsed').show()));
-                }
-              });
-              return $subTable.is(':empty') ? false : $subTable;
-            },
+            renderer: self.buildResponsiveDetailsRenderer(false),
           },
         };
         $table.on('responsive-resize.dt', function (event, api, columns) {
@@ -1186,13 +1518,7 @@ var g_stbServerSideProcessingIsActive = false;
           for (var i = 0, len = columns.length; i < len; i++) {
             autoHiding[i] = columns[i] ? 1 : 0;
           }
-          $table.find('th input.search-column').each(function () {
-            var th = jQuery(this).parents('th:first'),
-              i = th.index();
-            if (columns.length > i) {
-              th.css('display', columns[i] ? '' : 'none');
-            }
-          });
+          self.syncResponsiveColumnSearch($table, columns);
           if (typeof columns[0] == 'boolean') {
             $table.attr('data-auto-hiding', autoHiding.join());
           }
@@ -1224,6 +1550,51 @@ var g_stbServerSideProcessingIsActive = false;
               'data-colspan': 1,
               colspan: 1,
             });
+          }
+        });
+      } else if (responsiveMode === 4) {
+        // Responsive Mode: Column Hiding with Settings
+        self.applyResponsiveColumnClasses($table);
+        config.responsive = {
+          auto: false,
+          breakpoints: self.getResponsiveColumnBreakpoints($table),
+          details: {
+            renderer: self.buildResponsiveDetailsRenderer(true),
+          },
+        };
+        $table.on('responsive-resize.dt', function (event, api, columns) {
+          if (typeof api == 'undefined' || typeof columns == 'undefined') {
+            var tbl = jQuery(this),
+              instance = vendor[appName].getTableInstanceById(tbl.data('id'));
+
+            if (instance) {
+              api = typeof api != 'undefined' ? api : instance.api();
+              columns = typeof columns != 'undefined' ? columns : instance.api().columns();
+            }
+          }
+          if (typeof columns == 'undefined') {
+            return;
+          }
+          var autoHiding = [];
+          for (var i = 0, len = columns.length; i < len; i++) {
+            autoHiding[i] = columns[i] ? 1 : 0;
+          }
+          self.syncResponsiveColumnSearch($table, columns);
+          if (typeof columns[0] == 'boolean') {
+            $table.attr('data-auto-hiding', autoHiding.join());
+          }
+          for (var i = 0, len = columns.length; i < len; i++) {
+            if (columns[i]) {
+              $table.find('tr > td.collapsed-cell-holder[data-cell-column="' + i + '"]').each(function (index, el) {
+                var $this = jQuery(this);
+                var $cell = jQuery(api.cell($this.data('cell-row'), $this.data('cell-column')).node());
+
+                if ($cell.hasClass('collapsed')) {
+                  $cell.removeClass('collapsed');
+                  $this.replaceWith($cell);
+                }
+              });
+            }
           }
         });
       } else if (responsiveMode === 2) {
@@ -1589,7 +1960,7 @@ var g_stbServerSideProcessingIsActive = false;
         }
         self.initShortcodesInTable($table);
       });
-      if (responsiveMode === 1) {
+      if (responsiveMode === 1 || responsiveMode === 4) {
         $table.on('responsive-resize.dt', function (event, api, columns) {
           if (!g_stbServerSideProcessing && $table.data('merged')) {
             tableInstance.fnResetFakeRowspan();
@@ -1866,6 +2237,11 @@ var g_stbServerSideProcessingIsActive = false;
           .trigger('draw.dt');
       }
 
+      $table.off('draw.dt.stbCellDimensions').on('draw.dt.stbCellDimensions', function () {
+        self.queueCellDimensions($table);
+      });
+      self.queueCellDimensions($table);
+
       var tblEditLink = 'g_stbTblEditLink_' + $table.data('id'),
         showTblEditLink = eval('typeof ' + tblEditLink) !== 'undefined' ? jQuery(window.atob(eval(tblEditLink))) : false;
 
@@ -2098,7 +2474,7 @@ var g_stbServerSideProcessingIsActive = false;
       table.find('th, td').each(function (index, el) {
         var $this = jQuery(this);
 
-        if ((table.data('auto-index') != 'off' && $this.is(':first-child')) || (table.data('responsive-mode') == 1 && table.hasClass('collapsed') && $this.hasClass('child')) || $this.find('.search-column').length || $this.hasClass('tooltipCell') || $this.data('hide')) {
+        if ((table.data('auto-index') != 'off' && $this.is(':first-child')) || ((table.data('responsive-mode') == 1 || table.data('responsive-mode') == 4) && table.hasClass('collapsed') && $this.hasClass('child')) || $this.find('.search-column').length || $this.hasClass('tooltipCell') || $this.data('hide')) {
           // Break current .each iteration
           return;
         }
@@ -2106,9 +2482,10 @@ var g_stbServerSideProcessingIsActive = false;
         var languageData = numeral.languageData(),
           format = $this.data('cell-format'),
           formatType = $this.data('cell-format-type'),
+          $dimensionInner = $this.children('.stb-cell-dimension-inner:first, .stb-cell-max-height-inner:first'),
           preparedFormat,
           delimiters,
-          value = jQuery.trim($this.html()),
+          value = jQuery.trim($dimensionInner.length ? $dimensionInner.html() : $this.html()),
           noFormat = false;
 
         // function checkIfDate(parts) {
@@ -2282,7 +2659,11 @@ var g_stbServerSideProcessingIsActive = false;
             }
           }
         }
-        $this.html(value);
+        if ($dimensionInner.length) {
+          $dimensionInner.html(value);
+        } else {
+          $this.html(value);
+        }
       });
     };
 
