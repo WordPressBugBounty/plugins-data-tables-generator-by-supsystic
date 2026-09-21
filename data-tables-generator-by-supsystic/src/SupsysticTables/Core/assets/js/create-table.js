@@ -14,6 +14,7 @@
       $stepTwoTitle = $('#dtgsWizardStepTwoTitle'),
       $dataSizeStep = $('#dtgsWizardDataSize'),
       $wooReadyStep = $('#dtgsWizardWooReady'),
+      $pricingReadyStep = $('#dtgsWizardPricingReady'),
       $steps = $('.dtgs-wizard-step'),
       $progress = $('#dtgsWizardProgress'),
       $dialog = $('#dtgAddDialog').dialog({
@@ -115,14 +116,16 @@
         tableType = 'data';
       }
       var isWooCatalog = tableType === 'woocommerce';
+      var isPricing = tableType === 'pricing';
 
       $steps.removeClass('is-active').hide();
       $steps.filter('[data-wizard-step="' + currentStep + '"]').addClass('is-active').show();
       $progress.text('Step ' + currentStep + ' of ' + totalSteps);
-      $stepTwoTitle.text(isWooCatalog ? 'Step 2: Ready to Create' : 'Step 2: Rows x Columns');
+      $stepTwoTitle.text(isWooCatalog || isPricing ? 'Step 2: Ready to Create' : 'Step 2: Rows x Columns');
 
-      $dataSizeStep.toggle(!isWooCatalog && currentStep === 2);
+      $dataSizeStep.toggle(!isWooCatalog && !isPricing && currentStep === 2);
       $wooReadyStep.toggle(isWooCatalog && currentStep === 2);
+      $pricingReadyStep.toggle(isPricing && currentStep === 2);
 
       syncDialogButtons();
     }
@@ -170,12 +173,12 @@
 
       $error.fadeOut();
 
-      var cols = getCheckedValue($tableType, 'data') === 'woocommerce' ? 1 : $cols.val();
-      var rows = getCheckedValue($tableType, 'data') === 'woocommerce' ? 1 : $rows.val();
       var tableType = getCheckedValue($tableType, 'data');
       if (tableType === 'woocommerce' && !wooAvailable) {
         tableType = 'data';
       }
+      var cols = tableType === 'woocommerce' ? 1 : (tableType === 'pricing' ? 3 : $cols.val());
+      var rows = tableType === 'woocommerce' ? 1 : (tableType === 'pricing' ? 3 : $rows.val());
       var sourceType = tableType === 'woocommerce' ? 'woocommerce' : 'manual';
 
       app

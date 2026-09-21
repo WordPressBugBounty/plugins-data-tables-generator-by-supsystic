@@ -23,21 +23,21 @@ class SupsysticTables_Overview_Module extends SupsysticTables_Core_BaseModule
   {
     parent::afterUiLoaded($ui);
 
-    // if (!$this->getEnvironment()->isModule('overview')) {
-    //     return;
-    // }
-
     $hook = 'admin_enqueue_scripts';
-    $ui->add($ui->createStyle('supsystic-tables-overview-css')->setHookName($hook)->setModuleSource($this, 'css/overview.css'));
-
-    $ui->add($ui->createScript('supsystic-tables-overview-js')->setHookName($hook)->setModuleSource($this, 'js/overview.settings.js'));
-
-    $ui->add($ui->createScript('supsystic-tables-overview-scroll-js')->setHookName($hook)->setModuleSource($this, 'js/jquery.slimscroll.js'));
     $environment = $this->getEnvironment();
     $version = $environment->getConfig()->get('plugin_version');
     $cachingAllowed = $environment->isProd();
 
+    // This theme was historically provided by the Overview module for shared
+    // dialogs (including Add new table), so it must remain available globally.
     $ui->add($ui->createStyle('jquery-ui-min')->setHookName($hook)->setLocalSource('css/jquery-ui.min.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
+
+    if (!$environment->isModule('overview')) {
+      return;
+    }
+
+    $ui->add($ui->createStyle('supsystic-tables-overview-css')->setHookName($hook)->setModuleSource($this, 'css/overview.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-overview-7'));
+    $ui->add($ui->createScript('supsystic-tables-overview-js')->setHookName($hook)->setModuleSource($this, 'js/overview.settings.js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-overview-7'));
   }
 
   private function registerMenu()

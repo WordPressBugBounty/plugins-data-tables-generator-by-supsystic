@@ -1,0 +1,45 @@
+{% for table in tables %}
+    <tr id="dtgs-table-{{ table.id }}" data-table-id="{{ table.id }}">
+        <td class="dtgs-col-check">
+            <input type="checkbox" class="dtgs-row-checkbox dtgs-native-check"
+                   id="dtgs-check-{{ table.id }}" data-table-id="{{ table.id }}"
+                   aria-label="{{ environment.translate('Select table: %s')|format(table.title) }}">
+        </td>
+        <td class="dtgs-col-id">{{ table.id }}</td>
+        <td class="dtgs-col-title">
+            <a href="{{ table.edit_url }}" title="{{ environment.translate('Edit table: %s')|format(table.title) }}">
+                {{ table.title }}
+            </a>
+        </td>
+        <td class="dtgs-col-type">
+            <span class="dtgs-type-badge dtgs-type-{{ table.type_key }}">{{ table.type_label }}</span>
+        </td>
+        <td class="dtgs-col-created">{{ table.created_label|default('—') }}</td>
+        <td class="dtgs-col-code">
+            <input type="text" readonly class="dtgs-copy-code shortcode" value="{{ table.shortcode }}" aria-label="{{ environment.translate('Shortcode') }}">
+        </td>
+        <td class="dtgs-col-code">
+            <input type="text" readonly class="dtgs-copy-code phpcode" value="{{ table.phpcode }}" aria-label="{{ environment.translate('PHP code') }}">
+        </td>
+        <td class="dtgs-col-actions">
+            <a class="button dtgs-row-action" href="{{ table.edit_url }}">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                {{ environment.translate('Edit') }}
+            </a>
+            <button type="button" class="button dtgs-row-action dtgs-delete-table"
+                    data-table-id="{{ table.id }}" data-table-title="{{ table.title }}"
+                    aria-label="{{ environment.translate('Delete table: %s')|format(table.title) }}"
+                    title="{{ environment.translate('Delete table: %s')|format(table.title) }}">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </button>
+        </td>
+    </tr>
+{% else %}
+    <tr class="dtgs-empty-row">
+        <td colspan="8">
+            <i class="fa fa-table" aria-hidden="true"></i>
+            <strong>{{ environment.translate('No tables found') }}</strong>
+            <span>{{ environment.translate('Try another search or create a new table.') }}</span>
+        </td>
+    </tr>
+{% endfor %}

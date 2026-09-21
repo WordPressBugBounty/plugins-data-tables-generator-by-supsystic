@@ -133,7 +133,7 @@
 
 .supsystic-plugin .supsystic-navigation ul li a i {
   display: block;
-  color: #6d6d71;
+  color: #fff;
   font-size: 1.8em !important;
   margin: 0 auto 5px auto;
 }
@@ -352,10 +352,6 @@ input[type='color'] {
 .supsystic-item p {
   padding: 0;
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -o-text-overflow: ellipsis;
 }
 
 .supsystic-item.supsystic-plugin-promo p,

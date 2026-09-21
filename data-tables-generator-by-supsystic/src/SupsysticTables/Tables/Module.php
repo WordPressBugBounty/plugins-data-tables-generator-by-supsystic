@@ -277,6 +277,9 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!$table) {
       return sprintf($environment->translate('The table with ID %d not exists.'), $id);
     }
+    if ($table->table_type === 'pricing_table') {
+      return $environment->getModule('pricing')->render($table);
+    }
     $table->isDB = $environment->isPro() && !$this->isSingleCell && !$this->isTablePart && isset($table->settings['source']) && isset($table->settings['source']['database']) && $table->settings['source']['database'] == 'on';
 
     if ($settings) {
@@ -958,6 +961,10 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
   {
     parent::afterUiLoaded($ui);
     $environment = $this->getEnvironment();
+    $pricing = $environment->getModule('pricing');
+    if ($pricing && $pricing->isPricingTableView()) {
+      return;
+    }
     $version = $environment->getConfig()->get('plugin_version');
     $cachingAllowed = $environment->isProd();
     $coreModulePath = untrailingslashit(plugin_dir_url(dirname(__FILE__)) . 'Core');
@@ -1031,9 +1038,9 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $ui->add($ui->createScript('jquery-ui-autocomplete')->setHookName($hookName));
 
       if ($environment->isAction('index')) {
-        $ui->add($ui->createScript('supsystic-tables-tables-index-list')->setHookName($hookName)->setModuleSource($this, 'js/tables.admin.list.js')->setCachingAllowed($cachingAllowed)->setVersion($version)->addDependency('jquery-ui-dialog'));
-        $ui->add($ui->createScript('supsystic-tables-tables-index')->setHookName($hookName)->setModuleSource($this, 'js/tables.index.js')->setCachingAllowed($cachingAllowed)->setVersion($version)->addDependency('jquery-ui-dialog'));
-        $ui->add($ui->createStyle('supsystic-tables-tables-index-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.index.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
+        $listAssetVersion = $version . '-native-ssp-2';
+        $ui->add($ui->createScript('supsystic-tables-tables-index-list')->setHookName($hookName)->setModuleSource($this, 'js/tables.admin.list.js')->setCachingAllowed($cachingAllowed)->setVersion($listAssetVersion)->addDependency('jquery-ui-dialog'));
+        $ui->add($ui->createStyle('supsystic-tables-tables-index-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.index.css')->setCachingAllowed($cachingAllowed)->setVersion($listAssetVersion));
         $ui->add($ui->createStyle('jquery-slider')->setHookName($hookName)->setLocalSource('css/jquery-slider.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
         $ui->add($ui->createStyle('jquery-ui-min')->setHookName($hookName)->setLocalSource('css/jquery-ui.min.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
         /*$ui->add(

@@ -1,0 +1,280 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="supsystic-item st-pricing-editor" data-table-id="{{ table.id }}" data-nonce="{{ nonce }}">
+  <header class="st-pricing-toolbar">
+    <div class="st-pricing-toolbar-title">
+      <span class="st-pricing-eyebrow">{{ environment.translate('Pricing Tables') }}</span>
+      <h2>{{ table.title }}</h2>
+      <input class="st-pricing-shortcode" value="{{ shortcode }}" readonly aria-label="Shortcode" />
+    </div>
+    <div class="st-pricing-actions">
+      <button type="button" class="button button-primary" id="st-pricing-save">{{ environment.translate('Save') }}</button>
+      <button type="button" class="button" id="st-pricing-clone">{{ environment.translate('Clone') }}</button>
+      <button type="button" class="button" id="st-pricing-export">{{ environment.translate('Export') }}</button>
+      <button type="button" class="button" id="st-pricing-import">{{ environment.translate('Import') }}</button>
+      {% if capabilities.source %}
+      <button type="button" class="button st-pricing-source-tab" data-source-mode="html" aria-pressed="false">HTML</button>
+      <button type="button" class="button st-pricing-source-tab" data-source-mode="css" aria-pressed="false">CSS</button>
+      {% endif %}
+      <input type="file" id="st-pricing-import-file" accept="application/json,.json" hidden>
+    </div>
+  </header>
+
+  <section class="st-pricing-collapsible st-pricing-global-setting-toolbar" data-collapsible-toolbar="global">
+    <button type="button" class="st-pricing-collapsible-heading" data-collapse-toolbar="global" aria-expanded="true">
+      <span><i class="fa fa-sliders" aria-hidden="true"></i> {{ environment.translate('Global settings') }}</span>
+      <i class="fa fa-chevron-up st-pricing-collapse-icon" aria-hidden="true"></i>
+    </button>
+    <div class="st-pricing-global-settings-content st-pricing-collapsible-content">
+      <section class="st-pricing-global-group st-pricing-sections-group">
+        <h3>{{ environment.translate('Sections') }}</h3>
+        <div class="st-pricing-check-grid">
+          <label><input type="checkbox" id="st-pricing-header" {% if builder.showHeader %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Show header') }}</label>
+          <label><input type="checkbox" id="st-pricing-description" {% if builder.showDescription %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Show description') }}</label>
+          <label><input type="checkbox" id="st-pricing-footer" {% if builder.showFooter %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Show footer') }}</label>
+          <label><input type="checkbox" id="st-pricing-animation" {% if builder.hoverAnimation %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Animate cards on hover') }}</label>
+          <label><input type="checkbox" id="st-pricing-description-column" {% if builder.descriptionColumn %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Show description column') }}</label>
+        </div>
+        <div class="st-pricing-section-ajax">
+          <h3>{{ environment.translate('Ajax Server Side Toggle') }}{% if not capabilities.ajaxToggle %} <span class="st-pricing-pro-badge">PRO</span>{% endif %}</h3>
+          {% if capabilities.ajaxToggle %}
+          <label class="st-pricing-inline-check"><input type="checkbox" id="st-pricing-ajax-toggle" {% if builder.ajaxToggle %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Enable server-side loading') }}</label>
+          <label class="st-pricing-ajax-text-setting"{% if not builder.ajaxToggle %} hidden{% endif %}>{{ environment.translate('Open button text') }}<input type="text" id="st-pricing-ajax-toggle-text" value="{{ builder.ajaxToggleText }}" /></label>
+          {% else %}
+          <p>{{ environment.translate('Load the complete pricing table from the server after the visitor opens it.') }}</p>
+          {% if capabilities.proInstalled %}
+          <a class="button" href="{{ proLicenseUrl }}">{{ environment.translate('Activate PRO license') }}</a>
+          {% else %}
+          <a class="button" target="_blank" rel="noopener" href="https://supsystic.com/plugins/wordpress-data-table-plugin/?utm_source=plugin&utm_medium=pricing_ajax_toggle&utm_campaign=data-tables">{{ environment.translate('Available in PRO') }}</a>
+          {% endif %}
+          {% endif %}
+        </div>
+      </section>
+      {% if capabilities.toggle %}
+      <section class="st-pricing-global-group st-pricing-switcher-group">
+        <h3>{{ environment.translate('Toggler (Pricing Switcher)') }}</h3>
+        <p class="st-pricing-global-description">{{ environment.translate('Switch between complete pricing variants with independent text, images and video.') }}</p>
+        <label class="st-pricing-inline-check"><input type="checkbox" id="st-pricing-toggle" {% if builder.toggle %}checked{% endif %}><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Enable switcher') }}</label>
+        <div class="st-pricing-toggle-settings"{% if not builder.toggle %} hidden{% endif %}>
+          <label>{{ environment.translate('Heading') }}<input type="text" id="st-pricing-toggle-text" value="{{ builder.toggleText }}" /></label>
+          <label>{{ environment.translate('Type') }}
+            <select id="st-pricing-toggle-style">
+              <option value="rounded"{% if builder.toggleStyle == 'rounded' %} selected{% endif %}>Rounded</option>
+              <option value="checkbox"{% if builder.toggleStyle == 'checkbox' %} selected{% endif %}>Checkbox</option>
+              <option value="select"{% if builder.toggleStyle == 'select' %} selected{% endif %}>Select</option>
+            </select>
+          </label>
+          <div id="st-pricing-toggle-options"></div>
+          <button type="button" class="button" id="st-pricing-add-toggle-option">{{ environment.translate('Add option') }}</button>
+        </div>
+      </section>
+      {% else %}
+      <section class="st-pricing-global-group st-pricing-locked-group st-pricing-switcher-group">
+        <h3>{{ environment.translate('Toggler (Pricing Switcher)') }} <span class="st-pricing-pro-badge">PRO</span></h3>
+        <span class="st-pricing-lock-icon"><i class="fa fa-toggle-on" aria-hidden="true"></i></span>
+        <p>{{ environment.translate('Create multiple complete pricing variants and switch between them using Rounded, Checkbox or Select controls.') }}</p>
+        {% if capabilities.proInstalled %}
+        <p class="st-pricing-license-note">{{ environment.translate('Data Tables PRO is installed, but its license is not active.') }}</p>
+        <a class="button" href="{{ proLicenseUrl }}">{{ environment.translate('Activate PRO license') }}</a>
+        {% else %}
+        <a class="button" target="_blank" rel="noopener" href="https://supsystic.com/plugins/wordpress-data-table-plugin/?utm_source=plugin&utm_medium=pricing_switcher&utm_campaign=data-tables">{{ environment.translate('Available in PRO') }}</a>
+        {% endif %}
+      </section>
+      {% endif %}
+      <section class="st-pricing-global-group st-pricing-typography-group">
+        <h3>{{ environment.translate('General') }}</h3>
+        <div class="st-pricing-font-control">
+          <label for="st-pricing-table-font">{{ environment.translate('Table font') }}</label>
+          <div class="st-pricing-font-input-wrap">
+            <input type="text" id="st-pricing-table-font" list="st-pricing-font-list" autocomplete="off" value="{{ builder.fontFamily }}" placeholder="Search 700+ fonts" />
+            <button type="button" class="st-pricing-font-clear" id="st-pricing-clear-table-font" aria-label="{{ environment.translate('Reset table font') }}" title="{{ environment.translate('Reset table font') }}"{% if not builder.fontFamily %} hidden{% endif %}><i class="fa fa-times" aria-hidden="true"></i></button>
+          </div>
+          <button type="button" class="button" id="st-pricing-apply-table-font">{{ environment.translate('Apply font') }}</button>
+        </div>
+        <div class="st-pricing-width-control">
+          <label for="st-pricing-max-width">{{ environment.translate('Max width') }}</label>
+          <input type="number" id="st-pricing-max-width" min="10" max="5000" value="{{ builder.maxWidth }}" />
+          <select id="st-pricing-max-width-unit" aria-label="{{ environment.translate('Max width unit') }}">
+            <option value="px"{% if builder.maxWidthUnit == 'px' %} selected{% endif %}>px</option>
+            <option value="%"{% if builder.maxWidthUnit == '%' %} selected{% endif %}>%</option>
+          </select>
+          <button type="button" class="button" id="st-pricing-apply-max-width">{{ environment.translate('Apply') }}</button>
+        </div>
+        <button type="button" class="button st-pricing-add-column" id="st-pricing-add-column"><i class="fa fa-plus" aria-hidden="true"></i> {{ environment.translate('Add column') }}</button>
+      </section>
+      <section class="st-pricing-global-group st-pricing-themes-group">
+        <h3>{{ environment.translate('Themes') }} <span class="st-pricing-theme-count">3 FREE + {{ premiumTemplates|length }} PRO</span></h3>
+        <div class="st-pricing-template-list">
+          {% for key, template in templates %}
+          <button type="button" class="button st-pricing-template{% if key == builder.template %} is-active{% endif %}" data-template="{{ key }}" style="--st-theme-accent:{{ template.accent }};--st-theme-surface:{{ template.surface }}"><span class="st-pricing-theme-name">{{ template.label }}</span>{% if template.premium and not capabilities.premiumTemplates %}<span class="st-pricing-pro-badge">PRO</span>{% endif %}</button>
+          {% endfor %}
+          {% if not capabilities.premiumTemplates %}
+            {% for key, template in premiumTemplates %}
+          <a class="button st-pricing-template is-locked" data-template="{{ key }}" style="--st-theme-accent:{{ template.accent }};--st-theme-surface:{{ template.surface }}" target="_blank" rel="noopener" title="{{ environment.translate('Available in PRO') }}" href="https://supsystic.com/plugins/wordpress-data-table-plugin/?utm_source=plugin&utm_medium=pricing_theme_locked&utm_campaign=data-tables"><span class="st-pricing-theme-name">{{ template.label }}</span><span class="st-pricing-pro-badge">PRO</span></a>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="st-pricing-collapsible st-pricing-blocks-toolbar" data-collapsible-toolbar="blocks">
+    <button type="button" class="st-pricing-collapsible-heading" data-collapse-toolbar="blocks" aria-expanded="true">
+      <span><i class="fa fa-th-large" aria-hidden="true"></i> {{ environment.translate('Blocks') }} <small>{{ environment.translate('Drag an element into the table') }}</small></span>
+      <i class="fa fa-chevron-up st-pricing-collapse-icon" aria-hidden="true"></i>
+    </button>
+    <div class="st-pricing-collapsible-content"><div id="st-pricing-blocks"></div></div>
+  </section>
+
+  <div class="st-pricing-workspace">
+    <main class="st-pricing-stage">
+      <div class="st-pricing-canvas-view">
+      <div class="st-pricing-stage-bar">
+        <span class="st-pricing-stage-label">{{ environment.translate('Canvas') }}</span>
+        <div class="st-pricing-devices" aria-label="Preview size">
+          <button type="button" data-device="Desktop" class="is-active">Desktop</button>
+          <button type="button" data-device="Tablet">Tablet</button>
+          <button type="button" data-device="Mobile">Mobile</button>
+        </div>
+        <div class="st-pricing-stage-actions">
+          <span id="st-pricing-status" role="status" aria-live="polite"></span>
+          <button type="button" id="st-pricing-undo" disabled>{{ environment.translate('Undo') }}</button>
+          <button type="button" id="st-pricing-redo" disabled>{{ environment.translate('Redo') }}</button>
+          <button type="button" id="st-pricing-preview">{{ environment.translate('Preview') }}</button>
+        </div>
+      </div>
+      <div id="st-pricing-grapes"></div>
+      </div>
+      {% if capabilities.source %}
+      <section class="st-pricing-source-workspace" data-source-pane="html" hidden>
+        <header><div><span class="st-pricing-eyebrow">{{ environment.translate('Source editor') }}</span><h3>HTML</h3></div><div><button type="button" class="button st-pricing-close-source">{{ environment.translate('Back to canvas') }}</button><button type="button" class="button button-primary" id="st-pricing-apply-html">{{ environment.translate('Apply HTML') }}</button></div></header>
+        <textarea id="st-pricing-html-source" spellcheck="false" aria-label="HTML source"></textarea>
+      </section>
+      <section class="st-pricing-source-workspace" data-source-pane="css" hidden>
+        <header><div><span class="st-pricing-eyebrow">{{ environment.translate('Source editor') }}</span><h3>CSS</h3></div><div><button type="button" class="button st-pricing-close-source">{{ environment.translate('Back to canvas') }}</button><button type="button" class="button button-primary" id="st-pricing-apply-css">{{ environment.translate('Apply CSS') }}</button></div></header>
+        <textarea id="st-pricing-css-source" spellcheck="false" aria-label="CSS source"></textarea>
+      </section>
+      {% endif %}
+    </main>
+
+    <div class="st-pricing-right-rail">
+      <aside class="st-pricing-inspector" aria-label="Pricing table editor">
+        <section class="st-pricing-panel st-pricing-settings-panel">
+          <div class="st-pricing-panel-heading"><span><i class="fa fa-cog" aria-hidden="true"></i> {{ environment.translate('Settings') }}</span></div>
+          <p class="description" id="st-pricing-settings-hint">{{ environment.translate('Select an element to edit its links, image, price or schedule.') }}</p>
+          <div class="st-pricing-subsection st-pricing-column-setting" id="st-pricing-featured-setting" hidden>
+            <h3><i class="fa fa-star" aria-hidden="true"></i> {{ environment.translate('Column') }}</h3>
+            <label class="st-pricing-inline-check"><input type="checkbox" id="st-pricing-featured"><span class="st-pricing-checkbox-ui" aria-hidden="true"></span> {{ environment.translate('Highlighted / Featured') }}</label>
+            <small>{{ environment.translate('Emphasize this plan with a subtle zoom and extra spacing.') }}</small>
+          </div>
+          <div class="st-pricing-subsection" id="st-pricing-woo-settings" hidden>
+            <h3><i class="fa fa-shopping-cart" aria-hidden="true"></i> {{ environment.translate('WooCommerce cart') }}</h3>
+            {% if woocommerceActive %}
+            <label class="st-pricing-woo-product-picker">{{ environment.translate('Products and quantities') }}<select id="st-pricing-woo-products" class="chosen-select" multiple size="7" data-placeholder="{{ environment.translate('Search and select products') }}"></select></label>
+            <div id="st-pricing-woo-quantities"></div>
+            <label>{{ environment.translate('Coupon (optional)') }}<input type="text" id="st-pricing-woo-coupon" autocomplete="off" /></label>
+            <label>{{ environment.translate('Button text') }}<input type="text" id="st-pricing-woo-button-text" value="Add package to cart" /></label>
+            <label>{{ environment.translate('After successful add URL') }}<input type="url" id="st-pricing-woo-redirect" placeholder="https://example.com/thank-you" autocomplete="url" /><small>{{ environment.translate('Leave empty to stay on the current page.') }}</small></label>
+            <label>{{ environment.translate('Open redirect') }}<select id="st-pricing-woo-redirect-target"><option value="_self">{{ environment.translate('In the same tab') }}</option><option value="_blank">{{ environment.translate('In a new tab') }}</option></select></label>
+            {% else %}<p class="description">{{ environment.translate('WooCommerce is inactive. Existing cart blocks are preserved, but a new one cannot be inserted.') }}</p>{% endif %}
+          </div>
+          <div class="st-pricing-subsection" id="st-pricing-countdown-settings" hidden>
+            <h3><i class="fa fa-clock-o" aria-hidden="true"></i> {{ environment.translate('Countdown timer') }}</h3>
+            <label>{{ environment.translate('Start mode') }}<select id="st-pricing-countdown-mode"><option value="duration">When visible</option><option value="date">Fixed date</option></select></label>
+            <div id="st-pricing-countdown-duration-fields"><label>{{ environment.translate('Duration') }}<span class="st-pricing-setting-row"><input type="number" id="st-pricing-countdown-duration" min="1" value="10" /><select id="st-pricing-countdown-duration-unit"><option value="1">seconds</option><option value="60">minutes</option><option value="3600">hours</option><option value="86400">days</option></select></span></label></div>
+            <label id="st-pricing-countdown-target-wrap" hidden>{{ environment.translate('End date and time') }} <small>H:i:s d.m.Y</small><input type="datetime-local" id="st-pricing-countdown-target" step="1" /></label>
+            <label>{{ environment.translate('Label') }}<input type="text" id="st-pricing-countdown-label" value="Offer ends in" /></label>
+            <label>{{ environment.translate('Expired text') }}<input type="text" id="st-pricing-countdown-expired" value="Offer ended" /></label>
+          </div>
+          <div id="st-pricing-traits"></div>
+          <button type="button" class="button" id="st-pricing-media" hidden disabled>{{ environment.translate('Choose image') }}</button>
+          <label id="st-pricing-image-size-wrap" hidden>{{ environment.translate('Image size') }}<select id="st-pricing-image-size"></select></label>
+          <button type="button" class="button" id="st-pricing-icon-library" hidden disabled>{{ environment.translate('Choose icon') }}</button>
+          {% if capabilities.toggle %}
+          <div id="st-pricing-price-fields" hidden>
+            <label>{{ environment.translate('Monthly price') }}<input type="text" id="st-pricing-monthly" /></label>
+            <label>{{ environment.translate('Yearly price') }}<input type="text" id="st-pricing-yearly" /></label>
+          </div>
+          {% endif %}
+          {% if capabilities.schedule %}
+          <div class="st-pricing-subsection" id="st-pricing-schedule-section" hidden>
+            <h3>{{ environment.translate('Plan schedule') }}</h3>
+            <div id="st-pricing-schedule-fields">
+              <label>{{ environment.translate('Show from') }}<input type="date" id="st-pricing-visible-from" /></label>
+              <label>{{ environment.translate('Show until') }}<input type="date" id="st-pricing-visible-until" /></label>
+            </div>
+          </div>
+          {% endif %}
+        </section>
+        <section class="st-pricing-panel st-pricing-style-panel">
+          <div class="st-pricing-panel-heading"><span><i class="fa fa-paint-brush" aria-hidden="true"></i> {{ environment.translate('Style') }}</span><span id="st-pricing-selected-name"></span></div>
+          <p class="description" id="st-pricing-style-hint">{{ environment.translate('Select an element on the canvas to edit its style.') }}</p>
+          <div class="st-pricing-font-control" id="st-pricing-element-font" hidden>
+            <label for="st-pricing-element-font-input">{{ environment.translate('Element font') }}</label>
+            <div class="st-pricing-font-input-wrap">
+              <input type="text" id="st-pricing-element-font-input" list="st-pricing-font-list" autocomplete="off" placeholder="Search 700+ fonts" />
+              <button type="button" class="st-pricing-font-clear" id="st-pricing-clear-element-font" aria-label="{{ environment.translate('Reset element font') }}" title="{{ environment.translate('Reset element font') }}" hidden><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+            <button type="button" class="button" id="st-pricing-apply-element-font">{{ environment.translate('Apply font') }}</button>
+          </div>
+          <div id="st-pricing-styles"></div>
+        </section>
+      </aside>
+      <aside class="st-pricing-layers-sidebar st-pricing-collapsible is-collapsed" data-collapsible-toolbar="layers">
+        <button type="button" class="st-pricing-panel-heading st-pricing-layers-heading" data-collapse-toolbar="layers" aria-expanded="false">
+          <span><i class="fa fa-bars" aria-hidden="true"></i> {{ environment.translate('Layers') }}</span>
+          <i class="fa fa-chevron-down st-pricing-collapse-icon" aria-hidden="true"></i>
+        </button>
+        <div class="st-pricing-layer-content st-pricing-collapsible-content">
+          <p class="description">{{ environment.translate('Select and reorder the parts of your pricing table.') }}</p>
+          <div id="st-pricing-layers"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <div class="st-pricing-dialog" id="st-pricing-clone-dialog" role="dialog" aria-modal="true" aria-labelledby="st-pricing-clone-title" hidden>
+    <div class="st-pricing-dialog-card">
+      <h3 id="st-pricing-clone-title">{{ environment.translate('Clone pricing table') }}</h3>
+      <p>{{ environment.translate('Create a copy of the saved table with a new name.') }}</p>
+      <form id="st-pricing-clone-form">
+        <label for="st-pricing-clone-title-input">{{ environment.translate('Table name') }}</label>
+        <input type="text" id="st-pricing-clone-title-input" maxlength="120" required />
+        <span id="st-pricing-clone-error" role="status" aria-live="polite"></span>
+        <div class="st-pricing-dialog-actions">
+          <button type="button" class="button" id="st-pricing-clone-cancel">{{ environment.translate('Cancel') }}</button>
+          <button type="submit" class="button button-primary" id="st-pricing-clone-submit">{{ environment.translate('Create copy') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="st-pricing-dialog" id="st-pricing-icon-dialog" role="dialog" aria-modal="true" aria-labelledby="st-pricing-icon-title" hidden>
+    <div class="st-pricing-dialog-card st-pricing-icon-card">
+      <h3 id="st-pricing-icon-title">{{ environment.translate('Choose icon') }}</h3>
+      <input type="search" id="st-pricing-icon-search" placeholder="Search icons" autocomplete="off" />
+      <div id="st-pricing-icon-grid"></div>
+      <div class="st-pricing-dialog-actions"><button type="button" class="button" id="st-pricing-icon-cancel">{{ environment.translate('Cancel') }}</button></div>
+    </div>
+  </div>
+  <div class="st-pricing-dialog" id="st-pricing-video-dialog" role="dialog" aria-modal="true" aria-labelledby="st-pricing-video-title" hidden>
+    <div class="st-pricing-dialog-card">
+      <h3 id="st-pricing-video-title">{{ environment.translate('Video source') }}</h3>
+      <p>{{ environment.translate('Paste a YouTube, Vimeo or direct video URL, or choose a video from WordPress Media Library.') }}</p>
+      <label for="st-pricing-video-url">{{ environment.translate('Video URL') }}</label>
+      <input type="text" id="st-pricing-video-url" placeholder="https://" autocomplete="off" />
+      <div class="st-pricing-dialog-actions">
+        <button type="button" class="button" id="st-pricing-video-media"><i class="fa fa-wordpress" aria-hidden="true"></i> {{ environment.translate('Media Library') }}</button>
+        <button type="button" class="button" id="st-pricing-video-cancel">{{ environment.translate('Cancel') }}</button>
+        <button type="button" class="button button-primary" id="st-pricing-video-apply">{{ environment.translate('Apply') }}</button>
+      </div>
+    </div>
+  </div>
+  <datalist id="st-pricing-font-list"></datalist>
+  <script type="application/json" id="st-pricing-data">{{ builderJson|raw }}</script>
+  <script type="application/json" id="st-pricing-canvas-css">{{ canvasCssJson|raw }}</script>
+  <script type="application/json" id="st-pricing-font-library">{{ fontLibraryJson|raw }}</script>
+  <script type="application/json" id="st-pricing-icon-library-data">{{ iconLibraryJson|raw }}</script>
+  <script type="application/json" id="st-pricing-woocommerce-products">{{ woocommerceProductsJson|raw }}</script>
+  <script type="application/json" id="st-pricing-woocommerce-active">{% if woocommerceActive %}true{% else %}false{% endif %}</script>
+</div>
+{% endblock %}

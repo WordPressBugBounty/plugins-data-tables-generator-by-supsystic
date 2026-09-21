@@ -1,0 +1,8 @@
+<div id="supsystic-pricing-{{ table.id }}" class="st-pricing-table st-pricing-{{ builder.template }}{% if builder.hoverAnimation %} st-pricing-animated{% endif %}{% if builder.descriptionColumn %} st-pricing-has-description{% endif %}" data-id="{{ table.id }}" data-woo-active="{% if wooActive %}1{% else %}0{% endif %}" data-woo-url="{{ ajaxUrl }}" data-woo-nonce="{{ wooNonce }}"{% if builder.fontFamily %} style="font-family:'{{ builder.fontFamily|e('html_attr') }}',sans-serif"{% endif %}>
+  {% if builder.ajaxToggle and capabilities.ajaxToggle %}
+  <button type="button" class="st-pricing-ajax-toggle" data-url="{{ ajaxUrl }}" data-nonce="{{ ajaxNonce }}" data-id="{{ table.id }}" aria-expanded="false"><span>{{ builder.ajaxToggleText }}</span><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+  <div class="st-pricing-ajax-content" hidden aria-live="polite"></div>
+  {% else %}
+    {% include '@pricing/content.twig' %}
+  {% endif %}
+</div>

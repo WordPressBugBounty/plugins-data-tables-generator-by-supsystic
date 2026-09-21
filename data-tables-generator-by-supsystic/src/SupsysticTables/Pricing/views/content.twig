@@ -1,0 +1,33 @@
+{% if builder.toggle and capabilities.toggle %}
+  {% set options = builder.toggleOptions|length ? builder.toggleOptions : [{'key':'monthly','label':'Monthly'},{'key':'yearly','label':'Yearly'}] %}
+  <div class="st-pricing-toggle st-pricing-toggle-{{ builder.toggleStyle }}" data-default="{{ builder.toggleDefault }}">
+    {% if builder.toggleText %}<span class="st-pricing-toggle-label">{{ builder.toggleText }}</span>{% endif %}
+    {% if builder.toggleStyle == 'select' %}
+      <select aria-label="Pricing option">
+        {% for option in options %}<option value="{{ option.key }}"{% if option.key == builder.toggleDefault %} selected{% endif %}>{{ option.label }}</option>{% endfor %}
+      </select>
+    {% elseif builder.toggleStyle == 'checkbox' %}
+      {% for option in options %}<label><input type="radio" name="st-pricing-option-{{ table.id }}" value="{{ option.key }}"{% if option.key == builder.toggleDefault %} checked{% endif %}> {{ option.label }}</label>{% endfor %}
+    {% else %}
+      <div class="st-pricing-toggle-buttons" role="group" aria-label="Pricing option">
+      {% for option in options %}<button type="button" data-period="{{ option.key }}" class="{% if option.key == builder.toggleDefault %}is-active{% endif %}" aria-pressed="{% if option.key == builder.toggleDefault %}true{% else %}false{% endif %}">{{ option.label }}</button>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+{% set initialHtml = builder.html %}
+{% if builder.toggle and capabilities.toggle and builder.toggleVariants[builder.toggleDefault] is defined %}
+  {% set initialHtml = builder.toggleVariants[builder.toggleDefault] %}
+{% endif %}
+<div class="st-pricing-variant-content"{% if builder.toggle and capabilities.toggle %} data-variant="{{ builder.toggleDefault }}"{% endif %}>{{ initialHtml|raw }}</div>
+{% if builder.toggle and capabilities.toggle %}<script type="application/json" class="st-pricing-variants">{{ toggleVariantsJson|raw }}</script>{% endif %}
+{% if builder.toggle and capabilities.toggle %}<script type="application/json" class="st-pricing-variant-styles">{{ toggleVariantStylesJson|raw }}</script>{% endif %}
+{% if not builder.showHeader or not builder.showDescription or not builder.showFooter %}
+<style>
+  {% if not builder.showHeader %}#supsystic-pricing-{{ table.id }} .st-pricing-header{display:none}{% endif %}
+  {% if not builder.showDescription %}#supsystic-pricing-{{ table.id }} .st-pricing-header p{display:none}{% endif %}
+  {% if not builder.showFooter %}#supsystic-pricing-{{ table.id }} .st-pricing-footer{display:none}{% endif %}
+</style>
+{% endif %}
+{% if scopedCss %}<style>{{ scopedCss|raw }}</style>{% endif %}
+{% if builder.toggle and capabilities.toggle %}<style class="st-pricing-active-variant-style"></style>{% endif %}

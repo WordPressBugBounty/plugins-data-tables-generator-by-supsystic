@@ -7,7 +7,7 @@ Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.14.3
+Stable tag: 1.15.0
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 
 == Description ==
@@ -71,6 +71,29 @@ Free version includes:
 * and many other advanced features
 
 Use a WooCommerce Product Table to build searchable product catalogues, comparison tables, and pricing lists, without writing code and without leaving WordPress.
+
+= 💲 Pricing Tables — Build Plans, Packages, and Comparison Pricing =
+
+Data Tables Generator also includes a dedicated Pricing Table type. Choose it in the Table Creation Wizard to open a visual, drag-and-drop canvas builder made specifically for plans, packages, and comparison pricing — instead of typing data into rows and columns like a regular Data Table.
+
+Free version includes:
+
+* Drag-and-drop canvas builder with Desktop, Tablet, and Mobile previews
+* Ready-made blocks: heading, description, price, cross-out price, feature, button, badge, icon, image, and countdown timer
+* Show/hide header, description, and footer sections, plus optional hover animation on cards
+* Custom table font and adjustable table width
+* 3 free themes to start from
+* HTML/CSS source view and custom CSS for advanced styling
+* Import, export, and clone existing pricing tables
+
+[Upgrade to Pro](https://supsystic.com/plugins/wordpress-data-table-plugin/) and unlock advanced pricing table tools:
+
+* Toggler (Pricing Switcher) — let visitors switch between multiple complete pricing variants, such as Monthly and Yearly, using rounded, checkbox, or select controls
+* Ajax Server Side Toggle — load the complete pricing table from the server only after a visitor opens it, for a faster initial page load
+* 100+ premium themes, including seasonal and niche collections (Black Friday, Christmas, Valentine's Day, Halloween, Ramadan, gaming, SaaS, real estate, and more)
+* A WooCommerce cart block, so pricing plans can add products straight to the cart
+
+Use Pricing Tables to present subscription plans, service packages, or feature comparisons, without writing code and without leaving WordPress.
 
 = 📊 Turn Data Into Usable Tables (and Visuals) =
 
@@ -243,6 +266,18 @@ Yes. The free version includes manual product assignment, column sorting, and lo
 
 Yes. Both table types are created and managed from the same plugin, so you can use a regular Data Table for general content and a WooCommerce Product Table for store products, side by side.
 
+= What is a Pricing Table? =
+
+It is a dedicated table type for presenting plans, packages, or subscription tiers. You build it visually on a drag-and-drop canvas using ready-made blocks for headings, prices, features, buttons, and more, instead of entering data into rows and columns like a regular Data Table.
+
+= Is Pricing Tables available in the free version? =
+
+Yes. The free version includes the full drag-and-drop builder, all core pricing blocks, 3 themes, and custom CSS. The Pro version adds the Pricing Switcher (multiple plans in one table), Ajax loading, 100+ additional premium themes, and a WooCommerce cart block.
+
+= Can I let visitors switch between monthly and yearly pricing? =
+
+Yes, with the Pro version's Toggler (Pricing Switcher). It lets you create multiple complete pricing variants, such as Monthly and Yearly, and switch between them using rounded, checkbox, or select controls.
+
 = What AI assistants does this work with? =
 
 Data Tables Generator connects to any AI assistant that supports the MCP standard, including ChatGPT, Claude, Gemini, Microsoft Copilot, and Cursor. If your AI tool supports MCP, it works.
@@ -300,6 +335,11 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 == Changelog ==
 
 = 2026 =
+
+= 1.15.0 — September 21, 2026 =
+
+* Added new Pricing Table type.
+* General security hardening and code improvements.
 
 = 1.14.3 — September 3, 2026 =
 

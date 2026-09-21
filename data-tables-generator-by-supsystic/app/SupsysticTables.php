@@ -21,7 +21,7 @@ class SupsysticTables
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.14.3', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.15.0', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -124,7 +124,7 @@ class SupsysticTables
           	`settings` TEXT NOT NULL,
             `woo_settings` TEXT NULL DEFAULT NULL,
             `history_settings` TEXT NULL DEFAULT NULL,
-          	`meta` TEXT NULL,
+            `meta` LONGTEXT NULL,
           	PRIMARY KEY (`id`)
           ) $charset_collate";
       $this->safeDbDelta($sql);

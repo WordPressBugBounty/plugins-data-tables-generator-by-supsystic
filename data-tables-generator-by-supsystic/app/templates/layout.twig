@@ -94,6 +94,11 @@
                                             {% endif %}
                                         </span>
                                     </label>
+                                    <label class="dtgs-create-option">
+                                        <input type="radio" name="dtgs_table_type" value="pricing">
+                                        <strong>{{ environment.translate('Pricing Tables') }}</strong>
+                                        <span>{{ environment.translate('Design pricing plans with the visual builder. 100+ templates, switcher and AJAX loading.') }}</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="dtgs-create-step dtgs-wizard-step" data-wizard-step="2">
@@ -115,6 +120,9 @@
                                 </div>
                                 <div id="dtgsWizardWooReady" class="dtgs-create-note" style="display:none;">
                                     {{ environment.translate('WooCommerce Product Table will be created immediately after you click Create. You will configure columns, products, and catalog settings on the next screen.') }}
+                                </div>
+                                <div id="dtgsWizardPricingReady" class="dtgs-create-note" style="display:none;">
+                                    {{ environment.translate('Pricing Tables will open in the visual builder after you click Create. Add and edit plans there.') }}
                                 </div>
                             </div>
                         </div>

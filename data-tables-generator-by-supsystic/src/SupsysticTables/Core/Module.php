@@ -152,10 +152,10 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
         ->setModuleSource($this, 'js/create-table.js')
         ->setDependencies(['jquery', 'jquery-ui-dialog'])
         ->setCachingAllowed($cachingAllowed)
-        ->setVersion($pluginVersion),
+        ->setVersion($pluginVersion . '-pricing-wizard'),
     );
 
-    $ui->add($ui->createStyle('supsystic-tables-base')->setHookName($hookName)->setModuleSource($this, 'css/base.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
+    $ui->add($ui->createStyle('supsystic-tables-base')->setHookName($hookName)->setModuleSource($this, 'css/base.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-shared-shell-6'));
 
     /* Tooltipster */
     $ui->add($ui->createStyle('tables-tooltipster')->setHookName($hookName)->setModuleSource($this, 'css/tooltipster.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
@@ -185,7 +185,9 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
     $ui->add($ui->createScript('tables-ui')->setHookName($hookName)->setLocalSource('js/supsystic.ui.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
 
-    if ($environment->isAction('index')) {
+    // The Tables index uses its own native SSP list. Keep jqGrid available
+    // only for legacy index screens in other modules that still require it.
+    if ($environment->isAction('index') && !$environment->isModule('tables')) {
       $appAssetsPath = plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'app/assets/';
       $locale = $environment->getLangCode2Letter();
       $locale = file_exists($appAssetsPath . 'js/i18n/grid.locale-' . $locale . '.js') ? $locale : 'en';

@@ -1,267 +1,376 @@
-jQuery(document).ready(function () {
-  // Fallback for case if library was not loaded
-  if (!jQuery.fn.jqGrid) {
-    return;
-  }
-  var tblId = 'ddtTableTbl';
-  var sortableColumns = ['id', 'title', 'table_type'];
+(function ($, app) {
+  'use strict';
 
-  function bindManualHeaderSorting() {
-    var grid = jQuery('#' + tblId);
-    var headers = grid.closest('.ui-jqgrid').find('.ui-jqgrid-htable th');
+  $(function () {
+    var $section = $('#dtgs-tables-list');
 
-    headers.each(function () {
-      var header = jQuery(this);
-      var columnName = header.attr('id') || '';
+    if (!$section.length) {
+      return;
+    }
 
-      columnName = columnName.replace(/^jqgh_/, '');
-      if (columnName.indexOf(tblId + '_') === 0) {
-        columnName = columnName.substring((tblId + '_').length);
-      }
-
-      if (jQuery.inArray(columnName, sortableColumns) === -1) {
-        return;
-      }
-
-      header.css('cursor', 'pointer');
-      header.off('click.stbManualSort').on('click.stbManualSort', function (e) {
-        e.preventDefault();
-
-        var currentSortName = grid.jqGrid('getGridParam', 'sortname') || 'id';
-        var currentSortOrder = (grid.jqGrid('getGridParam', 'sortorder') || 'desc').toLowerCase();
-        var nextSortOrder = currentSortName === columnName && currentSortOrder === 'asc' ? 'desc' : 'asc';
-
-        grid.jqGrid('setGridParam', {
-          sortname: columnName,
-          sortorder: nextSortOrder,
-          page: 1,
-        });
-        grid.trigger('reloadGrid');
-
-        return false;
-      });
-    });
-  }
-
-  jQuery('body').on('click', '#cb_ddtTableTbl', function () {
-    setTimeout(() => {
-      jQuery('#export-group').removeAttr('disabled');
-      jQuery('#ddtTableRemoveGroupBtn').removeAttr('disabled');
-    }, 300);
-  });
-
-  jQuery('#' + tblId).jqGrid({
-    // 	url: dttTblDataUrl
-    // ,
-    datatype: function (postdata) {
-      window.supsystic.Tables.request(
-        {
-          module: 'tables',
-          action: 'getListForTbl',
-          nonce: DTGS_NONCE,
-        },
-        {
-          data: postdata,
-        }
-      )
-        .done(function (res) {
-          var grid = jQuery('#' + tblId)[0];
-          grid.addJSONData(res);
-        })
-        .fail(function (error) {
-          console.log(error);
-        });
-    },
-    mtype: 'GET',
-    autowidth: true,
-    shrinkToFit: true,
-    colNames: ['ID', 'Title', 'Type', 'Shortcode', 'Phpcode'],
-    colModel: [
-      { name: 'id', index: 'id', sortable: true, searchoptions: { sopt: ['eq'] }, width: '50', align: 'center' },
-      { name: 'title', index: 'title', sortable: true, searchoptions: { sopt: ['eq'] }, align: 'center' },
-      { name: 'table_type', index: 'table_type', sortable: true, searchoptions: { sopt: ['eq'] }, align: 'center' },
-      { name: 'shortcode', index: 'shortcode', sortable: false, searchoptions: { sopt: ['eq'] }, align: 'center' },
-      { name: 'phpcode', index: 'phpcode', sortable: false, searchoptions: { sopt: ['eq'] }, align: 'center' },
-    ],
-    postData: {
-      search: {
-        text_like: jQuery('#' + tblId + 'SearchTxt').val(),
+    var $table = $('#dtgs-tables-table'),
+      $tbody = $('#dtgs-tables-tbody'),
+      $checkAll = $('#dtgs-check-all'),
+      $deleteSelected = $('#ddtTableRemoveGroupBtn'),
+      $exportSelected = $('#export-group'),
+      $status = $('#dtgs-list-status'),
+      state = {
+        page: parseInt($section.attr('data-page'), 10) || 1,
+        perPage: parseInt($section.attr('data-per-page'), 10) || 20,
+        sort: $section.attr('data-sort') || 'id',
+        dir: $section.attr('data-dir') === 'asc' ? 'asc' : 'desc',
+        recordsTotal: parseInt($section.attr('data-records-total'), 10) || 0,
+        search: '',
       },
-    },
-    rowNum: 10,
-    rowList: [10, 20, 30, 1000],
-    pager: '#' + tblId + 'Nav',
-    sortname: 'id',
-    sortable: true,
-    viewrecords: true,
-    sortorder: 'desc',
-    jsonReader: { repeatitems: false, id: '0' },
-    height: '100%',
-    emptyrecords: 'You have no Tables for now.',
-    multiselect: true,
-    onSelectRow: function (rowid, e) {
-      var tblId = jQuery(this).attr('id'),
-        selectedRowIds = jQuery('#' + tblId).jqGrid('getGridParam', 'selarrrow'),
-        totalRows = jQuery('#' + tblId).getGridParam('reccount'),
-        totalRowsSelected = selectedRowIds.length;
-      if (totalRowsSelected) {
-        jQuery('#ddtTableRemoveGroupBtn').removeAttr('disabled');
-        jQuery('#export-group').removeAttr('disabled');
+      searchTimer = null,
+      activeRequest = null,
+      requestSequence = 0;
 
-        if (totalRowsSelected == totalRows) {
-          jQuery('#cb_' + tblId).prop('indeterminate', false);
-          jQuery('#cb_' + tblId).attr('checked', 'checked');
-        } else {
-          jQuery('#cb_' + tblId).prop('indeterminate', true);
+    function totalPages() {
+      return Math.max(1, Math.ceil(state.recordsTotal / state.perPage));
+    }
+
+    function setStatus(message, type) {
+      $status.removeClass('is-error is-visible').text(message || '');
+      if (message) {
+        $status.addClass('is-visible');
+        if (type === 'error') {
+          $status.addClass('is-error');
         }
-      } else {
-        jQuery('#export-group').attr('disabled', 'disabled');
-        jQuery('#ddtTableRemoveGroupBtn').attr('disabled', 'disabled');
-        jQuery('#cb_' + tblId).prop('indeterminate', false);
-        jQuery('#cb_' + tblId).removeAttr('checked');
       }
-      ddtCheckUpdate(
-        jQuery(this)
-          .find('tr:eq(' + rowid + ')')
-          .find('input[type=checkbox].cbox')
-      );
-      ddtCheckUpdate('#cb_' + tblId);
-    },
-    gridComplete: function (a, b, c) {
-      var tblId = jQuery(this).attr('id');
-      jQuery('#ddtTableRemoveGroupBtn').attr('disabled', 'disabled');
-      jQuery('#cb_' + tblId).prop('indeterminate', false);
-      jQuery('#cb_' + tblId).removeAttr('checked');
-      ddtCheckUpdate('#cb_' + jQuery(this).attr('id'));
-    },
-    loadComplete: function () {
-      var tblId = jQuery(this).attr('id');
-      if (this.p.reccount === 0) {
-        jQuery(this).hide();
-        jQuery('#' + tblId + 'EmptyMsg').show();
-      } else {
-        jQuery(this).show();
-        jQuery('#' + tblId + 'EmptyMsg').hide();
+    }
+
+    function normalizeNativeCheckboxes($context) {
+      var $checkboxes = $context.find('.dtgs-native-check').addBack('.dtgs-native-check');
+
+      $checkboxes.each(function () {
+        var $input = $(this);
+        if ($input.parent().hasClass('icheckbox_minimal') && $.fn.iCheck) {
+          $input.iCheck('destroy');
+        }
+        $input.addClass('dtgs-native-check');
+      });
+    }
+
+    function updateSortHeaders() {
+      $table.find('.dtgs-sortable').each(function () {
+        var $header = $(this),
+          key = $header.attr('data-sort-key'),
+          $icon = $header.find('.dtgs-sort-icon');
+
+        $header.removeClass('dtgs-sort-active').attr('aria-sort', 'none');
+        $icon.removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+
+        if (key === state.sort) {
+          $header
+            .addClass('dtgs-sort-active')
+            .attr('aria-sort', state.dir === 'asc' ? 'ascending' : 'descending');
+          $icon.removeClass('fa-sort').addClass(state.dir === 'asc' ? 'fa-sort-asc' : 'fa-sort-desc');
+        }
+      });
+    }
+
+    function getPageItems(pages, current) {
+      var items = [],
+        page;
+
+      if (pages <= 7) {
+        for (page = 1; page <= pages; page += 1) {
+          items.push(page);
+        }
+        return items;
       }
 
-      bindManualHeaderSorting();
-    },
-  });
-  bindManualHeaderSorting();
-  jQuery('#' + tblId).setColProp('id', { sortable: true });
-  jQuery('#' + tblId).setColProp('title', { sortable: true });
-  jQuery('#' + tblId).setColProp('table_type', { sortable: true });
-  jQuery('#' + tblId).setColProp('phpcode', { sortable: false });
-  jQuery('#' + tblId).setColProp('shortcode', { sortable: false });
-  jQuery('#' + tblId + 'NavShell').append(jQuery('#' + tblId + 'Nav'));
-  jQuery('#' + tblId + 'Nav')
-    .find('.ui-pg-selbox')
-    .insertAfter(jQuery('#' + tblId + 'Nav').find('.ui-paging-info'));
-  jQuery('#' + tblId + 'Nav')
-    .find('.ui-pg-table td:first')
-    .remove();
-  // Make navigation tabs to be with our additional buttons - in one row
-  jQuery('#' + tblId + 'Nav_center')
-    .prepend(jQuery('#' + tblId + 'NavBtnsShell'))
-    .css({
-      width: '80%',
-      'white-space': 'normal',
-      'padding-top': '8px',
-    });
-  jQuery('#' + tblId + 'SearchTxt').keyup(function () {
-    var searchVal = jQuery.trim(jQuery(this).val());
-    if (true /*searchVal && searchVal != ''*/) {
-      ddtGridDoListSearch(
-        {
-          text_like: searchVal,
-        },
-        tblId
-      );
+      items.push(1);
+      if (current > 3) {
+        items.push('start-ellipsis');
+      }
+      for (page = Math.max(2, current - 1); page <= Math.min(pages - 1, current + 1); page += 1) {
+        items.push(page);
+      }
+      if (current < pages - 2) {
+        items.push('end-ellipsis');
+      }
+      items.push(pages);
+      return items;
     }
-  });
 
-  jQuery('#' + tblId + 'EmptyMsg').insertAfter(jQuery('#' + tblId + '').parent());
-  jQuery('#' + tblId + '').jqGrid('navGrid', '#' + tblId + 'Nav', { edit: false, add: false, del: false });
-  jQuery('#cb_' + tblId + '').change(function () {
-    jQuery(this).attr('checked') ? jQuery('#ddtTableRemoveGroupBtn').removeAttr('disabled') : jQuery('#ddtTableRemoveGroupBtn').attr('disabled', 'disabled');
+    function updatePagination() {
+      var pages = totalPages(),
+        from = state.recordsTotal ? (state.page - 1) * state.perPage + 1 : 0,
+        to = Math.min(state.page * state.perPage, state.recordsTotal),
+        $numbers = $('#dtgs-page-numbers').empty();
 
-    jQuery(this).attr('checked') ? jQuery('#export-group').removeAttr('disabled') : jQuery('#export-group').attr('disabled', 'disabled');
-  });
+      $('#dtgs-pagination-info').text(from + '–' + to + ' / ' + state.recordsTotal);
 
-  jQuery('#ddtTableRemoveGroupBtn').click(function () {
-    var selectedRowIds = jQuery('#ddtTableTbl').jqGrid('getGridParam', 'selarrrow'),
-      listIds = [];
-    for (var i in selectedRowIds) {
-      var rowData = jQuery('#ddtTableTbl').jqGrid('getRowData', selectedRowIds[i]);
-      listIds.push(rowData.id);
+      $.each(getPageItems(pages, state.page), function (_, item) {
+        if (typeof item === 'string') {
+          $('<span class="dtgs-page-ellipsis" aria-hidden="true">…</span>').appendTo($numbers);
+          return;
+        }
+
+        $('<button type="button" class="dtgs-page-number"></button>')
+          .text(item)
+          .toggleClass('dtgs-page-active', item === state.page)
+          .attr({
+            'data-page': item,
+            'aria-label': 'Page ' + item,
+            'aria-current': item === state.page ? 'page' : null,
+          })
+          .appendTo($numbers);
+      });
+
+      $section.find('.dtgs-page-btn[data-page-action="prev"]').prop('disabled', state.page <= 1);
+      $section.find('.dtgs-page-btn[data-page-action="next"]').prop('disabled', state.page >= pages);
+      $('#dtgs-per-page').val(String(state.perPage));
     }
-    var popupLabel = '';
-    if (listIds.length == 1) {
-      // In table label cell there can be some additional links
-      var labelCellData = ddtGetGridColDataById(listIds[0], 'title', 'ddtTableTbl');
-      popupLabel = jQuery(labelCellData).text();
+
+    function selectedIds() {
+      return $tbody
+        .find('.dtgs-row-checkbox:checked')
+        .map(function () {
+          return parseInt($(this).attr('data-table-id'), 10);
+        })
+        .get()
+        .filter(function (id) {
+          return id > 0;
+        });
     }
-    var confirmMsg = listIds.length > 1 ? 'Are you sure want to remove ' + listIds.length + ' Tables?' : 'Are you sure want to remove "' + popupLabel + '" Table?';
-    if (confirm(confirmMsg)) {
-      jQuery
-        .post(ajaxurl, {
+
+    function updateSelection() {
+      var selected = selectedIds().length,
+        available = $tbody.find('.dtgs-row-checkbox').length,
+        allSelected = available > 0 && selected === available;
+
+      $checkAll.prop({
+        checked: allSelected,
+        indeterminate: selected > 0 && !allSelected,
+      });
+      $deleteSelected.prop('disabled', selected === 0);
+      $exportSelected.prop('disabled', selected === 0);
+    }
+
+    function resetSelection() {
+      $checkAll.prop({ checked: false, indeterminate: false });
+      $deleteSelected.prop('disabled', true);
+      $exportSelected.prop('disabled', true);
+    }
+
+    function setLoading(loading) {
+      $section.toggleClass('is-loading', loading);
+      $table.attr('aria-busy', loading ? 'true' : 'false');
+      $section.find('button, select, input[type="search"]').prop('disabled', loading);
+
+      if (!loading) {
+        $('#ddtTableTblSearchTxt').prop('disabled', false);
+        $('#dtgs-per-page').prop('disabled', false);
+        $('#import-group').prop('disabled', false);
+        updateSelection();
+        updatePagination();
+      }
+    }
+
+    function fetchAndRender() {
+      var sequence = ++requestSequence;
+
+      if (activeRequest && activeRequest.readyState !== 4) {
+        activeRequest.abort();
+      }
+
+      setLoading(true);
+      setStatus('Loading tables…');
+
+      activeRequest = $.ajax({
+        url: window.ajaxurl,
+        method: 'POST',
+        dataType: 'json',
+        data: {
           action: 'supsystic-tables',
           route: {
             module: 'tables',
-            action: 'remove',
-            nonce: DTGS_NONCE,
+            action: 'tablesData',
+            nonce: window.DTGS_NONCE,
           },
-          id: listIds,
+          page: state.page,
+          perPage: state.perPage,
+          sort: state.sort,
+          dir: state.dir,
+          search: state.search,
+        },
+      })
+        .done(function (response) {
+          if (sequence !== requestSequence) {
+            return;
+          }
+          if (!response || response.success !== true) {
+            setStatus((response && response.message) || 'Could not load the tables list.', 'error');
+            return;
+          }
+
+          state.recordsTotal = parseInt(response.recordsTotal, 10) || 0;
+          state.page = parseInt(response.page, 10) || 1;
+          state.perPage = parseInt(response.perPage, 10) || state.perPage;
+          state.sort = response.sort || state.sort;
+          state.dir = response.dir === 'asc' ? 'asc' : 'desc';
+          $tbody.html(response.html || '');
+          normalizeNativeCheckboxes($tbody);
+          resetSelection();
+          updateSortHeaders();
+          updatePagination();
+          setStatus('');
         })
-        .success(function (res) {
-          if (!res.error) {
-            jQuery('#ddtTableTbl').trigger('reloadGrid');
+        .fail(function (xhr, status) {
+          if (status !== 'abort' && sequence === requestSequence) {
+            setStatus('Could not load the tables list. Please try again.', 'error');
+          }
+        })
+        .always(function () {
+          if (sequence === requestSequence) {
+            setLoading(false);
           }
         });
     }
-    return false;
-  });
-  function ddtCheckUpdate(checkbox) {
-    if (!jQuery.fn.iCheck) return;
-    jQuery(checkbox).iCheck('update');
-  }
-  function strpos(haystack, needle, offset) {
-    var i = haystack.indexOf(needle, offset); // returns -1
-    return i >= 0 ? i : false;
-  }
-  function str_replace(haystack, needle, replacement) {
-    var temp = haystack.split(needle);
-    return temp.join(replacement);
-  }
-  function ddtGridDoListSearch(param, gridSelectorId) {
-    ddtGridSetListSearch(param, gridSelectorId);
-    jQuery('#' + gridSelectorId).trigger('reloadGrid');
-  }
-  function ddtGridSetListSearch(param, gridSelectorId) {
-    jQuery('#' + gridSelectorId).setGridParam({
-      postData: {
-        search: param,
-      },
+
+    function applySort($header) {
+      var key = $header.attr('data-sort-key');
+
+      if (state.sort === key) {
+        state.dir = state.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sort = key;
+        state.dir = 'asc';
+      }
+      state.page = 1;
+      fetchAndRender();
+    }
+
+    $table.on('click', '.dtgs-sortable', function () {
+      applySort($(this));
     });
-  }
-  function ddtGetGridColDataById(id, column, gridSelectorId) {
-    var rowId = getGridRowId(id, gridSelectorId);
-    if (rowId) {
-      return jQuery('#' + gridSelectorId).jqGrid('getCell', rowId, column);
+
+    $table.on('keydown', '.dtgs-sortable', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        applySort($(this));
+      }
+    });
+
+    $section.on('click', '.dtgs-page-btn', function () {
+      var action = $(this).attr('data-page-action');
+
+      if (action === 'prev' && state.page > 1) {
+        state.page -= 1;
+        fetchAndRender();
+      } else if (action === 'next' && state.page < totalPages()) {
+        state.page += 1;
+        fetchAndRender();
+      }
+    });
+
+    $section.on('click', '.dtgs-page-number', function () {
+      var page = parseInt($(this).attr('data-page'), 10);
+      if (page && page !== state.page) {
+        state.page = page;
+        fetchAndRender();
+      }
+    });
+
+    $('#dtgs-per-page').on('change', function () {
+      state.perPage = parseInt($(this).val(), 10) || 20;
+      state.page = 1;
+      fetchAndRender();
+    });
+
+    $('#ddtTableTblSearchTxt').on('input', function () {
+      var value = $.trim($(this).val());
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () {
+        state.search = value;
+        state.page = 1;
+        fetchAndRender();
+      }, 350);
+    });
+
+    $checkAll.on('change', function () {
+      $tbody.find('.dtgs-row-checkbox').prop('checked', $(this).is(':checked'));
+      updateSelection();
+    });
+
+    $tbody.on('change', '.dtgs-row-checkbox', updateSelection);
+
+    function removeTables(ids, $trigger) {
+      if (!ids.length) {
+        return;
+      }
+
+      if (!window.confirm(ids.length > 1 ? 'Delete ' + ids.length + ' selected tables?' : 'Delete this table?')) {
+        return;
+      }
+
+      if ($trigger && $trigger.length) {
+        $trigger.prop('disabled', true).find('i').removeClass('fa-trash-o').addClass('fa-spinner fa-spin');
+      }
+      setLoading(true);
+
+      app
+        .request(
+          { module: 'tables', action: 'remove', nonce: window.DTGS_NONCE },
+          { id: ids }
+        )
+        .done(function () {
+          state.page = Math.min(state.page, totalPages());
+          fetchAndRender();
+        })
+        .fail(function (message) {
+          setStatus(typeof message === 'string' ? message : 'Could not delete the table.', 'error');
+          setLoading(false);
+          if ($trigger && $trigger.length) {
+            $trigger.prop('disabled', false).find('i').removeClass('fa-spinner fa-spin').addClass('fa-trash-o');
+          }
+        });
     }
-    return false;
-  }
-  function getGridRowId(id, gridSelectorId) {
-    var rowId = parseInt(
-      jQuery('#' + gridSelectorId)
-        .find('[aria-describedby=' + gridSelectorId + '_id][title=' + id + ']')
-        .parent('tr:first')
-        .index()
-    );
-    if (!rowId) {
-      console.log('CAN NOT FIND ITEM WITH ID  ' + id);
-      return false;
-    }
-    return rowId;
-  }
-});
+
+    $deleteSelected.on('click', function () {
+      removeTables(selectedIds(), $(this));
+    });
+
+    $tbody.on('click', '.dtgs-delete-table', function () {
+      removeTables([parseInt($(this).attr('data-table-id'), 10)], $(this));
+    });
+
+    $tbody.on('click', '.dtgs-copy-code', function () {
+      this.focus();
+      this.select();
+    });
+
+    $('.pro-notify[data-dialog]').each(function () {
+      var $button = $(this),
+        $dialog = $($button.attr('data-dialog'));
+
+      if (!$dialog.length || !$dialog.dialog) {
+        return;
+      }
+      $dialog.dialog({
+        autoOpen: false,
+        title: $button.attr('data-dtitle'),
+        width: parseInt($button.attr('data-dwidth'), 10) || 480,
+        modal: true,
+        buttons: {
+          Close: function () {
+            $(this).dialog('close');
+          },
+        },
+      });
+    });
+
+    $('.pro-notify[data-dialog]').on('click', function (event) {
+      event.preventDefault();
+      $($(this).attr('data-dialog')).dialog('open');
+    });
+
+    normalizeNativeCheckboxes($section);
+    resetSelection();
+    updateSortHeaders();
+    updatePagination();
+  });
+})(window.jQuery, window.supsystic.Tables);

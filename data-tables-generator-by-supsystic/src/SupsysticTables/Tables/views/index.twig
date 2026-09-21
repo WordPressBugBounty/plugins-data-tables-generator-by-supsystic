@@ -3,70 +3,109 @@
 {% block content %}
     <div class="supsystic-item supsystic-item-autoheight">
         <div class="supContainer-fluid">
-            <section>
-                <div class="supsystic-item supsystic-panel">
-                    <div id="containerWrapper">
-                        <ul id="ddtTableTblNavBtnsShell" class="supsystic-bar-controls">
-                            <li title="Delete selected">
-                                <button class="button" id="ddtTableRemoveGroupBtn" disabled data-toolbar-button>
-                                    <i class="fa fa-fw fa-trash-o"></i>
-                                   Delete selected
-                                </button>
-                            </li>
-                            <li title="Export selected">
-                                <button class="button pro-notify" id="export-group" disabled
-                                        data-toolbar-button
-                                        {% if environment.isPro() == false %}
+            <section id="dtgs-tables-list"
+                     data-page="{{ page }}"
+                     data-per-page="{{ perPage }}"
+                     data-sort="{{ sort }}"
+                     data-dir="{{ dir }}"
+                     data-records-total="{{ recordsTotal }}">
+                <div class="supsystic-item supsystic-panel dtgs-list-panel">
+                    <div class="dtgs-table-toolbar">
+                        <div class="dtgs-table-toolbar-left">
+                            <button class="button dtgs-toolbar-button" id="ddtTableRemoveGroupBtn" type="button" disabled>
+                                <i class="fa fa-fw fa-trash-o" aria-hidden="true"></i>
+                                {{ environment.translate('Delete selected') }}
+                            </button>
+                            <button class="button pro-notify dtgs-toolbar-button" id="export-group" type="button" disabled
+                                    {% if environment.isPro() == false %}
                                         data-dtitle="{{ environment.translate('Import / Export') }}"
                                         data-dwidth="480"
                                         data-dialog="#import_exportProFeatureDialog"
-                                        {% endif %}
-                                >
-                                    <i class="fa fa-fw fa-upload"></i>
-                                    Export selected
-                                </button>
-                            </li>
-                            <li title="Import">
-                                <button class="button pro-notify" id="import-group"
-                                        data-toolbar-button
-                                        {% if environment.isPro() == false %}
+                                    {% endif %}>
+                                <i class="fa fa-fw fa-upload" aria-hidden="true"></i>
+                                {{ environment.translate('Export selected') }}
+                            </button>
+                            <button class="button pro-notify dtgs-toolbar-button" id="import-group" type="button"
+                                    {% if environment.isPro() == false %}
                                         data-dtitle="{{ environment.translate('Import / Export') }}"
                                         data-dwidth="480"
                                         data-dialog="#import_exportProFeatureDialog"
-                                        {% endif %}
-                                >
-                                    <i class="fa fa-fw fa-download"></i>
-                                    Import selected
+                                    {% endif %}>
+                                <i class="fa fa-fw fa-download" aria-hidden="true"></i>
+                                {{ environment.translate('Import') }}
+                            </button>
+                            <label class="dtgs-tables-search" for="ddtTableTblSearchTxt">
+                                <input id="ddtTableTblSearchTxt" type="search" name="tbl_search"
+                                       placeholder="{{ environment.translate('Search tables…') }}" autocomplete="off">
+                            </label>
+                        </div>
+
+                        <div class="dtgs-pagination" aria-label="{{ environment.translate('Table list pagination') }}">
+                            <div class="dtgs-pagination-info" id="dtgs-pagination-info" aria-live="polite"></div>
+                            <div class="dtgs-pagination-controls">
+                                <button type="button" class="dtgs-page-btn" data-page-action="prev" title="{{ environment.translate('Previous') }}">
+                                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                    <span class="screen-reader-text">{{ environment.translate('Previous') }}</span>
                                 </button>
-                            </li>
-                            <li title="Search">
-                                <input id="ddtTableTblSearchTxt" type="text" name="tbl_search" placeholder="Search">
-                            </li>
-                        </ul>
-                        <div id="ddtTableTblNavShell" class="supsystic-tbl-pagination-shell"></div>
-                        <div style="clear: both;"></div>
-                        <hr />
-                        <table id="ddtTableTbl"></table>
-                        <div id="ddtTableTblNav"></div>
-                        <div id="ddtTableTblEmptyMsg" style="display: none;">
-                            {#<h3><?php printf(__('You have no Filters for now. <a href="%s" style="font-style: italic;">Create</a> your Filter!', ddt_LANG_CODE), $this->addNewLink)?></h3>#}
+                                <span class="dtgs-page-numbers" id="dtgs-page-numbers"></span>
+                                <button type="button" class="dtgs-page-btn" data-page-action="next" title="{{ environment.translate('Next') }}">
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                    <span class="screen-reader-text">{{ environment.translate('Next') }}</span>
+                                </button>
+                                <label class="dtgs-per-page-label" for="dtgs-per-page">
+                                    <span>{{ environment.translate('Rows') }}</span>
+                                    <select id="dtgs-per-page">
+                                        <option value="10">10</option>
+                                        <option value="20" selected>20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div style="clear: both;"></div>
-                    <div id="prewiew" style="margin-top: 30px"></div>
+
+                    <div id="dtgs-list-status" class="dtgs-list-status" role="status" aria-live="polite"></div>
+
+                    <div class="dtgs-table-scroll">
+                        <table id="dtgs-tables-table" class="dtgs-tables-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="dtgs-col-check">
+                                        <input type="checkbox" id="dtgs-check-all" class="dtgs-native-check" aria-label="{{ environment.translate('Select all tables on this page') }}">
+                                    </th>
+                                    <th scope="col" class="dtgs-col-id dtgs-sortable" data-sort-key="id" tabindex="0" aria-sort="none">
+                                        {{ environment.translate('ID') }} <i class="fa fa-sort dtgs-sort-icon" aria-hidden="true"></i>
+                                    </th>
+                                    <th scope="col" class="dtgs-sortable" data-sort-key="title" tabindex="0" aria-sort="none">
+                                        {{ environment.translate('Title') }} <i class="fa fa-sort dtgs-sort-icon" aria-hidden="true"></i>
+                                    </th>
+                                    <th scope="col" class="dtgs-sortable" data-sort-key="table_type" tabindex="0" aria-sort="none">
+                                        {{ environment.translate('Type') }} <i class="fa fa-sort dtgs-sort-icon" aria-hidden="true"></i>
+                                    </th>
+                                    <th scope="col" class="dtgs-sortable" data-sort-key="created_at" tabindex="0" aria-sort="none">
+                                        {{ environment.translate('Created') }} <i class="fa fa-sort dtgs-sort-icon" aria-hidden="true"></i>
+                                    </th>
+                                    <th scope="col">{{ environment.translate('Shortcode') }}</th>
+                                    <th scope="col">{{ environment.translate('PHP code') }}</th>
+                                    <th scope="col" class="dtgs-col-actions">{{ environment.translate('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dtgs-tables-tbody">
+                                {% include '@tables/includes/list_rows.twig' with {'tables': tables} %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </div>
-        <!-- /.container-fluid -->
 
-		{# PRO notification dialogs #}
         <div id="import_exportProFeatureDialog" class="supsystic-plugin" style="display: none;">
             {% set url = '<a target="_blank" href="' ~ build_pro_url({ 'utm_medium': notify }) ~ '" style="color: #000;">' ~ environment.translate('PRO version') ~ '</a>' %}
             {% set url2 = '<a target="_blank" href="' ~ build_pro_url({ 'utm_medium': notify }) ~ '" style="color: #000;" class="button"><span class="ui-button-text">' ~ environment.translate('Get PRO') ~ '</span></a>' %}
             <p>{{ environment.translate('Please be advised that this feature available only in %s.')|format(url)|raw }}</p>
             <p>{{ environment.translate('You can %s today and have all PRO features of data tables!')|format(url2)|raw }}</p>
         </div>
-		{{ environment.getDispatcher().dispatch('tables-index-footer') }}
+        {{ environment.getDispatcher().dispatch('tables-index-footer') }}
     </div>
-    <!-- /.supsystic-item -->
 {% endblock %}

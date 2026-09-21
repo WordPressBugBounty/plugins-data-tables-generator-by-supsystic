@@ -1,193 +1,279 @@
 {% extends 'layout.twig' %}
 
+{% block header %}
+    <nav id="supsystic-breadcrumbs" class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('tables') }}">{{ translate('Tables') }}</a>
+        <i class="fa fa-angle-right"></i>
+        <a href="{{ environment.generateUrl('overview') }}">{{ translate('Overview') }}</a>
+    </nav>
+{% endblock %}
+
 {% block content %}
-    <div class="supsystic-overview">
-        <div class="full-page">
-          <div class="plugin-title"><img src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/plugin-icon.png">Data Tables by Supsystic</div>
-          <div class="plugin-description">Creating tables and charts on a WordPress website has never been easier thanks to this powerful data table maker plugin. With just a few clicks, WordPress users can have their data table online quickly and displayed exactly the way they want it.  And the best part? Data Tables Generator is lightweight and fast.</div>
-        </div>
-        <div class="supsystic-overview-flex">
-        <div class="half-page half-page-left">
-            <div class="border-wrapper">
-              <ul>
-                <li class="overview-section-btn" data-section="faq"><i class="fa fa-info-circle"></i> FAQ and Documentation</li>
-                <li class="overview-section-btn" data-section="video"><i class="fa fa-play"></i> Video tutorial</li>
-                <li class="overview-section-btn" data-section="settings"><i class="fa fa-cog"></i> Server Settings</li>
-                <li class="overview-section-btn" data-section="support"><i class="fa fa-life-ring"></i> Support</li>
-                <li class="overview-section-btn" data-section="promo_video"><i class="fa fa-star"></i> Our promo video</li>
-                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="//supsystic.com/plugins/data-tables-generator-plugin/?utm_source=plugin&utm_campaign=tables"> Plugin page on supsystic.com <sup><i class="fa fa-external-link"></i></sup></a></li>
-                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="//supsystic.com/plugins/data-tables-generator-plugin/?utm_source=plugin&utm_campaign=tables"> Compare FREE and PRO features <sup><i class="fa fa-external-link"></i></sup></a></li>
-                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="//supsystic.com/all-plugins/?utm_source=plugin&utm_campaign=tables"> Check other supsystic FREE plugins <sup><i class="fa fa-external-link"></i></sup></a></li>
-              </ul>
-            </div>
+    {% set isPro = environment.isPro() %}
+    {% set proUrl = build_pro_url({ 'utm_medium': 'overview', 'utm_campaign': 'tables' }) %}
+    {% set dataProUrl = build_pro_url({ 'utm_medium': 'overview', 'utm_campaign': 'unlock_pro', 'utm_content': 'data_tables_suite' }) %}
+    {% set pricingProUrl = build_pro_url({ 'utm_medium': 'overview', 'utm_campaign': 'unlock_pro', 'utm_content': 'pricing_tables_suite' }) %}
+    {% set wooProUrl = build_pro_url({ 'utm_medium': 'overview', 'utm_campaign': 'unlock_pro', 'utm_content': 'woocommerce_tables_suite' }) %}
 
-            <div class="border-wrapper">
-            <div class="overview-contact-form overview-section" data-section="support">
-                <h3><i class="fa fa-life-ring"></i> Support</h3>
-                <div class="contact-info-section">
-                  <p>
-                  If you are experiencing any issues with the plugin, would like to request a new feature or improvement, or have any other questions, please contact our technical support team through our website:
-                  <a href="//supsystic.com/contact-us/" target="_blank">https://supsystic.com/contact-us/</a>
-                  </p>
+    <div class="dtgs-overview">
+        <section class="dtgs-overview-hero">
+            <div class="dtgs-overview-hero-copy">
+                <div class="dtgs-overview-kicker">
+                    <img src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/plugin-icon.png" alt="">
+                    <span>{{ isPro ? 'Data Tables PRO by Supsystic' : 'Data Tables by Supsystic' }}</span>
                 </div>
-                <div class="clear"></div>
+                <h1>Turn WordPress data into tables that work for your visitors.</h1>
+                <p>Create responsive data grids, visual pricing offers and live WooCommerce catalogs from one familiar workspace. Import existing data, style every detail and publish anywhere with a shortcode.</p>
+                <div class="dtgs-overview-actions">
+                    <a class="button button-primary button-hero dtgs-overview-create-table" href="#add"><i class="fa fa-plus"></i> Create table</a>
+                    <a class="button button-secondary button-hero" href="{{ environment.generateUrl('tables') }}"><i class="fa fa-table"></i> View tables</a>
+                    {% if not isPro %}
+                        <a class="button button-secondary button-hero dtgs-overview-pro-button" href="{{ proUrl }}" target="_blank" rel="noopener"><i class="fa fa-star"></i> Unlock PRO</a>
+                    {% endif %}
+                </div>
+                <div class="dtgs-overview-trust">
+                    <span><i class="fa fa-check"></i> No code required</span>
+                    <span><i class="fa fa-check"></i> Responsive by design</span>
+                    <span><i class="fa fa-check"></i> WordPress native</span>
+                </div>
             </div>
 
-            <div data-section="faq" class="faq-list overview-section">
-                  <h3>FAQ and Documentation</h3>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      Data Tables Plugin Installation
-                      <div class="description" hidden>
-                          One more advantage of Data Tables WordPress Plugin is an easy installation. To install it, you should make three following steps:
-                          1. Download Data Tables Generator by Supsystic plugin.<br/>
-                          2. Upload to your WordPress plugins directory. <br/>
-                          3. Activate and enjoy.
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to use Data Tables Generator plugin?
-                      <div class="description" hidden>
-                          <strong>Step 1: Creating Responsive Data Table</strong><br/>
-                          1. On the left navigation menu click “Add new table”.
-                          <br/>
-                          2. Enter the title of table, set the number of Rows and Columns.
-                          <br/>
-                          3. Click “OK”. <br/>
-                          <strong>Step 2: Adding data to the Tables by Supsystic</strong>
-                          <br/>
-                          More detail information you can find here –
-                          <a href="//supsystic.com/how-to-create-data-tables-in-wordpress/">How to Create Data Tables in WordPress</a>
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to make table responsive?
-                      <div class="description" hidden>
-                          Data Tables Generator by Supsystic automatically creates responsive tables. So you don’t need to activate for this any options, it will be responsive by default. <br>Besides on Settings tab you can find “Responsive mode” option with which you are able to choose different responsive modes for your table (Standard Responsive mode, Automatic column hiding, Horizontal scroll or simply disable it).
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to search by the table?
-                      <div class="description" hidden>
-                          1. In the Settings of a table go to “Features” section.
-                          <br/>
-                          2. Find “Searching” option and activate it. <br/>
-                          3. Over the table will appear the search field.
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to sort the table?
-                      <div class="description" hidden>
-                          With Data Tables by Supsystic you can alter the ordering characteristics of the table. Using ordering (sorting) option, you can set the table to display the data in exactly the order that you want.
-                          <br/>
-                          1. In the Settings of a table go to “Features” section.
-                          <br/>
-                          2. Find “Ordering” option and activate it.
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to use formulas in the table?
-                      <div class="description" hidden>
-                          1. In the Settings of a table go to “Features” section.Go to Editor of Data Table.
-                          <br/>
-                          2. Select a cell and start typing. In a cell, type an equal sign “=” to start the formula.
-              						<br/>
-              						3. Fill in the rest of the formula.
-              						<br/>
-                          4. Save the changes of table.
-              						<br/>
-                          5. Check the result of formula in the table on your site.
-              						<br/>
-              						<br/>
-              						Learn more about how to do this <a href="//supsystic.com/docs/data-tables/" target="_blank">here</a>.
-                      </div>
-                  </div>
-                  <div class="faq-title">
-                      <i class="fa fa-info-circle"></i>
-                      How to format content of the table?
-                      <div class="description" hidden>
-                          In order to format content of the table – click “Editor” button. Here you can:
-                          <br/>
-                           - insert row and column to the table <br/>
-                           - set the font of text – bold and italic <br/>
-                           - choose text and background color <br/>
-                           - specify horizontal and vertical alignment <br/>
-                           Besides, by clicking the right button of the mouse (choose the certain cell, column or row and click the right button of mouse) you have such abilities –
-                          <br/>
-                           - cancel or restore your actions <br/>
-                           - insert row or column where you want <br/>
-                           - remove row or column <br/>
-                           - enable “Read only” mode for any cells, rows and columns and even for the whole table
-                          <br/>
-                           - set the alignment of text <br/>
-                           - Also you have the ability to change the column / row width – use your mouse, move the cursor on right side of the column boundary / (bottom side of the row boundary) you want until it becomes a resize cursor, and then drag the boundary.
-                      </div>
-                  </div>
-                  <div style="clear: both;"></div>
-                  <a href="//supsystic.com/docs/data-tables/#faq?utm_source=plugin&utm_medium=faq&utm_campaign=tables" class="button button-primary button-hero">
-                      <i class="fa fa-info-circle"></i>
-                      Check all FAQs
-                  </a>
-                  <div style="clear: both;"></div>
-                <div class="clear"></div>
+            <div class="dtgs-overview-hero-media" aria-hidden="true">
+                <div class="dtgs-overview-browser">
+                    <div class="dtgs-overview-browser-bar"><span></span><span></span><span></span><b>Revenue overview</b></div>
+                    <div class="dtgs-overview-dashboard">
+                        <div class="dtgs-overview-metric"><small>Total sales</small><strong>$48,290</strong><em>+18.4%</em></div>
+                        <div class="dtgs-overview-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                        <div class="dtgs-overview-mini-table">
+                            <span>Product</span><span>Sales</span><span>Status</span>
+                            <b>Starter Plan</b><b>$8,420</b><em>Growing</em>
+                            <b>Business Plan</b><b>$21,560</b><em>Popular</em>
+                            <b>Enterprise</b><b>$18,310</b><em>Stable</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% if isPro %}
+            <section class="dtgs-overview-license-banner">
+                <div class="dtgs-overview-license-banner-aside" aria-hidden="true"><i class="fa fa-check-circle"></i><strong>PRO</strong><span>toolkit active</span></div>
+                <div class="dtgs-overview-license-banner-content">
+                    <span class="dtgs-overview-pill">PRO enabled</span>
+                    <h2>Your complete table toolkit is active.</h2>
+                    <p>Advanced data sources, exports, frontend editing, charts, pricing experiences and WooCommerce catalog controls are ready to use.</p>
+                    <a class="button button-primary" href="{{ environment.generateUrl('tables') }}"><i class="fa fa-arrow-right"></i> Open your tables</a>
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="dtgs-overview-layout">
+            <div class="dtgs-overview-main">
+                <div class="dtgs-overview-section-heading">
+                    <div><span class="dtgs-overview-pill">Three builders. One plugin.</span><h2>Choose the right table for every job.</h2></div>
+                    <p>From a small comparison to a live catalog with thousands of products.</p>
+                </div>
+
+                <div class="dtgs-overview-product-grid">
+                    <article class="dtgs-overview-product-card is-data">
+                        <div class="dtgs-overview-product-icon"><i class="fa fa-table"></i></div>
+                        <div class="dtgs-overview-product-title"><span>Data Tables</span><small>Structured data, reports and directories</small></div>
+                        <div class="dtgs-overview-product-preview is-table"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                        <ul>
+                            <li><i class="fa fa-check"></i> Spreadsheet-style visual editor</li>
+                            <li><i class="fa fa-check"></i> Search, sorting, pagination and filters</li>
+                            <li><i class="fa fa-check"></i> Formulas, charts and conditional formatting</li>
+                            <li><i class="fa fa-check"></i> Excel, CSV, Google Sheets, SQL and database sources</li>
+                        </ul>
+                        <a href="#dtgs-data-suite">Explore Data Tables <i class="fa fa-arrow-down"></i></a>
+                    </article>
+
+                    <article class="dtgs-overview-product-card is-pricing">
+                        <div class="dtgs-overview-product-icon"><i class="fa fa-columns"></i></div>
+                        <div class="dtgs-overview-product-title"><span>Pricing Tables</span><small>Plans, packages and conversion-focused offers</small></div>
+                        <div class="dtgs-overview-product-preview is-pricing"><span><b>$19</b></span><span class="is-featured"><b>$49</b></span><span><b>$99</b></span></div>
+                        <ul>
+                            <li><i class="fa fa-check"></i> Visual drag-and-drop builder</li>
+                            <li><i class="fa fa-check"></i> 100+ polished responsive templates</li>
+                            <li><i class="fa fa-check"></i> Monthly, annual and custom switchers</li>
+                            <li><i class="fa fa-check"></i> AJAX loading and WooCommerce cart actions</li>
+                        </ul>
+                        <a href="#dtgs-pricing-suite">Explore Pricing Tables <i class="fa fa-arrow-down"></i></a>
+                    </article>
+
+                    <article class="dtgs-overview-product-card is-woo">
+                        <div class="dtgs-overview-product-icon"><i class="fa fa-shopping-cart"></i></div>
+                        <div class="dtgs-overview-product-title"><span>WooCommerce Tables</span><small>Fast, searchable product catalogs</small></div>
+                        <div class="dtgs-overview-product-preview is-products"><span><i></i><b>Classic Tee</b><em>$24</em></span><span><i></i><b>Runner Pro</b><em>$89</em></span></div>
+                        <ul>
+                            <li><i class="fa fa-check"></i> Live WooCommerce product data</li>
+                            <li><i class="fa fa-check"></i> Images, descriptions, prices and stock</li>
+                            <li><i class="fa fa-check"></i> Categories, attributes, filters and search</li>
+                            <li><i class="fa fa-check"></i> Variations, quantities and add to cart</li>
+                        </ul>
+                        <a href="#dtgs-woo-suite">Explore WooCommerce <i class="fa fa-arrow-down"></i></a>
+                    </article>
+                </div>
+
+                <section id="dtgs-data-suite" class="dtgs-overview-suite is-data-suite">
+                    <div class="dtgs-overview-suite-head">
+                        <div class="dtgs-overview-suite-icon"><i class="fa fa-database"></i></div>
+                        <div><span class="dtgs-overview-pill">Data Tables</span><h2>Publish complex data without making it hard to use.</h2><p>Build comparison tables, reports, directories, schedules, research results, inventories and public datasets in an editor that feels like a spreadsheet.</p></div>
+                    </div>
+                    <div class="dtgs-overview-capability-grid">
+                        <article><i class="fa fa-file-excel-o"></i><h3>Import and export</h3><p>Move data between WordPress and CSV, XLS, XLSX, JSON and PDF. Keep spreadsheet values, formatting, formulas and images where supported.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-cloud-download"></i><h3>Live data sources</h3><p>Connect Google Sheets, SQL queries, WordPress databases and scheduled remote imports. Refresh data automatically instead of rebuilding tables by hand.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-calculator"></i><h3>Spreadsheet formulas</h3><p>Calculate totals, percentages, averages and business metrics directly in cells with spreadsheet-style formulas and reusable table logic.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-bar-chart"></i><h3>Charts and diagrams</h3><p>Turn selected rows and columns into visual charts so trends, comparisons and changes are easier to understand at a glance.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-search"></i><h3>Find the right row fast</h3><p>Give visitors instant search, sorting, pagination, column filters and responsive navigation even when the dataset grows large.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-edit"></i><h3>Frontend editing</h3><p>Let approved users submit or update data from the frontend. Control editable fields, user roles, row removal and change visibility.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-clock-o"></i><h3>Scheduled refresh</h3><p>Keep reports current with automatic Google Sheets, database or remote-source updates on the schedule that fits your workflow.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-mobile"></i><h3>Responsive presentation</h3><p>Choose automatic column hiding, horizontal scroll or responsive stacking and set priorities so essential information stays visible.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                    </div>
+
+                    <div class="dtgs-overview-ai-promo">
+                        <div class="dtgs-overview-ai-copy">
+                            <div class="dtgs-overview-ai-label"><i class="fa fa-bolt"></i> AI inside · MCP</div>
+                            <h3>Work with your WordPress tables in plain English.</h3>
+                            <p>Connect an MCP-compatible assistant such as ChatGPT, Claude, Gemini, Copilot or Cursor. Your assistant works with the table data stored in WordPress, so you can ask for an answer instead of building another export.</p>
+                            <div class="dtgs-overview-ai-levels">
+                                <div>
+                                    <span class="dtgs-overview-tag dtgs-overview-tag-free">INCLUDED</span>
+                                    <strong>Read and analyse</strong>
+                                    <small>List tables, summarise rows, calculate averages, find outliers and answer questions about your data with Free or PRO.</small>
+                                </div>
+                                <div>
+                                    <span class="dtgs-overview-tag dtgs-overview-tag-ai">AI ADD-ON</span>
+                                    <strong>Create, edit and manage</strong>
+                                    <small>Create tables, update rows, add formulas, change formatting, clean data and run imports or exports by conversation.</small>
+                                </div>
+                            </div>
+                            <div class="dtgs-overview-ai-actions">
+                                <a class="button button-primary" href="https://supsystic.com/documentation/data-table-ai-setup-guide/?utm_source=plugin&amp;utm_medium=overview&amp;utm_campaign=tables_ai" target="_blank" rel="noopener"><i class="fa fa-plug"></i> Connect AI via MCP</a>
+                                <a class="button button-secondary" href="https://supsystic.com/product/data-tables-generator-ai/?utm_source=plugin&amp;utm_medium=overview&amp;utm_campaign=tables_ai" target="_blank" rel="noopener"><i class="fa fa-magic"></i> Explore AI Add-On</a>
+                            </div>
+                        </div>
+                        <div class="dtgs-overview-ai-console" aria-hidden="true">
+                            <div class="dtgs-overview-ai-console-head"><span></span><span></span><span></span><b>Data Tables AI</b></div>
+                            <div class="dtgs-overview-ai-message is-user"><small>You</small><p>Find products below minimum stock and summarise the risk.</p></div>
+                            <div class="dtgs-overview-ai-message is-assistant"><small><i class="fa fa-magic"></i> AI</small><p>12 products are below minimum stock. Four may sell out this week.</p><em><i class="fa fa-check"></i> Read directly from WordPress</em></div>
+                            <div class="dtgs-overview-ai-message is-user"><small>You</small><p>Increase their reorder quantity by 20%.</p></div>
+                            <div class="dtgs-overview-ai-message is-addon"><small>AI Add-On</small><p>12 rows updated. Reorder quantities were rounded to whole units.</p><em><i class="fa fa-check"></i> Changes applied</em></div>
+                        </div>
+                    </div>
+                    {% if not isPro %}
+                        <div class="dtgs-overview-suite-upgrade">
+                            <div><strong>Unlock the complete Data Tables toolkit</strong><span>Connect live sources, automate updates, export professional files, build charts and edit data from the frontend.</span></div>
+                            <a class="button dtgs-overview-suite-upgrade-button" href="{{ dataProUrl }}" target="_blank" rel="noopener"><i class="fa fa-star"></i> Unlock PRO</a>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section id="dtgs-pricing-suite" class="dtgs-overview-suite is-pricing-suite">
+                    <div class="dtgs-overview-suite-head">
+                        <div class="dtgs-overview-suite-icon"><i class="fa fa-magic"></i></div>
+                        <div><span class="dtgs-overview-pill">Pricing Tables</span><h2>Build an offer visitors can compare and act on.</h2><p>Design complete pricing experiences in a visual canvas, from a simple three-plan comparison to interactive product packages with rich content.</p></div>
+                    </div>
+                    <div class="dtgs-overview-capability-grid">
+                        <article><i class="fa fa-paint-brush"></i><h3>100+ themes</h3><p>Start from business, seasonal, luxury, gaming, technology and ecommerce designs, then customize colors, typography, spacing and every content block.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-toggle-on"></i><h3>Pricing switcher</h3><p>Present monthly, annual, quarterly or custom variants with buttons, radio controls or a select menu. Each variant keeps independent content and media.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-bolt"></i><h3>AJAX server loading</h3><p>Load the complete pricing table only after a visitor opens it. Keep large offers out of the initial page payload and choose the call-to-action text.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-arrows-alt"></i><h3>Adaptive comparison</h3><p>Plans resize and stack intelligently. Feature descriptions stay paired with their values on tablet and mobile instead of becoming detached columns.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-cubes"></i><h3>Rich content blocks</h3><p>Combine headings, prices, crossed prices, badges, features, icons, images, video, countdowns, buttons and nested content in each plan.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-shopping-basket"></i><h3>WooCommerce actions</h3><p>Attach multiple products, quantities and an optional coupon to a plan button, show the result inline and redirect after a successful add to cart.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                    </div>
+                    {% if not isPro %}
+                        <div class="dtgs-overview-suite-upgrade">
+                            <div><strong>Turn every pricing offer into a conversion experience</strong><span>Unlock 100+ themes, independent pricing variants, AJAX loading and advanced WooCommerce plan actions.</span></div>
+                            <a class="button dtgs-overview-suite-upgrade-button" href="{{ pricingProUrl }}" target="_blank" rel="noopener"><i class="fa fa-star"></i> Unlock PRO</a>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section id="dtgs-woo-suite" class="dtgs-overview-suite is-woo-suite">
+                    <div class="dtgs-overview-suite-head">
+                        <div class="dtgs-overview-suite-icon"><i class="fa fa-shopping-bag"></i></div>
+                        <div><span class="dtgs-overview-pill">WooCommerce Product Tables</span><h2>Make a large catalog feel quick and easy to shop.</h2><p>Generate a dynamic product table from WooCommerce and let shoppers compare products, filter the catalog and add the right variation without opening every product page.</p></div>
+                    </div>
+                    <div class="dtgs-overview-capability-grid">
+                        <article><i class="fa fa-refresh"></i><h3>Always-current product data</h3><p>Use live names, SKUs, prices, sale prices, stock, categories, descriptions, images, ratings and custom product attributes.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-filter"></i><h3>Catalog filters</h3><p>Help shoppers narrow results by category, tag, price and attributes such as size, color or brand, with search and column ordering built in.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-picture-o"></i><h3>Visual product rows</h3><p>Combine product thumbnails, galleries, formatted descriptions, badges and purchase controls in a dense layout that remains easy to scan.</p><span class="dtgs-overview-tag dtgs-overview-tag-free">FREE</span></article>
+                        <article><i class="fa fa-cart-plus"></i><h3>Faster ordering</h3><p>Expose quantity, variations and add-to-cart actions inside the table so customers can assemble an order with fewer page changes.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-tachometer"></i><h3>Large-catalog performance</h3><p>Use pagination, controlled columns and server-side catalog queries to keep browsing practical as your product range grows.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                        <article><i class="fa fa-sliders"></i><h3>Precise merchandising</h3><p>Select products and categories, choose column order, hide fields, set responsive priorities and shape the catalog around the buying decision.</p><span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span></article>
+                    </div>
+                    {% if not isPro %}
+                        <div class="dtgs-overview-suite-upgrade">
+                            <div><strong>Build a faster WooCommerce buying workflow</strong><span>Unlock advanced catalog filters, variations, quantity controls, server-side performance and precise merchandising.</span></div>
+                            <a class="button dtgs-overview-suite-upgrade-button" href="{{ wooProUrl }}" target="_blank" rel="noopener"><i class="fa fa-star"></i> Unlock PRO</a>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="dtgs-overview-pro-panel">
+                    <div>
+                        <span class="dtgs-overview-pill">{{ isPro ? 'PRO enabled' : 'Built for serious data' }}</span>
+                        <h2>{{ isPro ? 'Everything is ready for your next table.' : 'Go beyond a static table.' }}</h2>
+                        <p>{{ isPro ? 'Create a table, connect its data source and publish the result from the same workflow.' : 'PRO brings your data, sales presentation and product catalog into one toolkit: automated sources, professional exports, charts, frontend workflows, 100+ pricing designs, interactive plan switchers and advanced WooCommerce controls.' }}</p>
+                    </div>
+                    <div class="dtgs-overview-pro-list">
+                        <span><i class="fa fa-check"></i> Excel, CSV, PDF and JSON workflows</span>
+                        <span><i class="fa fa-check"></i> Google Sheets, SQL and scheduled updates</span>
+                        <span><i class="fa fa-check"></i> Charts and frontend data editing</span>
+                        <span><i class="fa fa-check"></i> 100+ pricing templates and switchers</span>
+                        <span><i class="fa fa-check"></i> Advanced WooCommerce catalog controls</span>
+                    </div>
+                    {% if not isPro %}
+                        <a class="button button-primary button-hero dtgs-overview-upgrade-cta" href="{{ proUrl }}" target="_blank" rel="noopener"><i class="fa fa-star"></i> Compare FREE and PRO</a>
+                    {% endif %}
+                </section>
+
+                <section id="dtgs-overview-videos" class="dtgs-overview-video-grid">
+                    <article class="dtgs-overview-card">
+                        <div class="dtgs-overview-card-head"><div><span class="dtgs-overview-pill">Learn</span><h2>Data Tables tutorial</h2></div></div>
+                        <div class="dtgs-overview-video-frame"><iframe title="Data Tables tutorial" src="https://www.youtube.com/embed/Fa3EI7-oBfc" frameborder="0" allowfullscreen loading="lazy"></iframe></div>
+                    </article>
+                    <article class="dtgs-overview-card">
+                        <div class="dtgs-overview-card-head"><div><span class="dtgs-overview-pill">Discover</span><h2>Supsystic overview</h2></div></div>
+                        <div class="dtgs-overview-video-frame"><iframe title="Supsystic overview" src="https://www.youtube.com/embed/dKd_9g6JzfU" frameborder="0" allowfullscreen loading="lazy"></iframe></div>
+                    </article>
+                </section>
+
+                <section id="dtgs-overview-server" class="dtgs-overview-card">
+                    <div class="dtgs-overview-card-head"><div><span class="dtgs-overview-pill">Diagnostics</span><h2>Server settings</h2></div><p>Useful environment details for troubleshooting.</p></div>
+                    <div class="dtgs-overview-server-grid">
+                        {% for title, element in serverSettings %}
+                            <div class="dtgs-overview-server-item {{ element.error|default(false) ? 'is-error' : '' }}"><span>{{ title|trim }}</span><strong>{{ element.value|trim }}</strong></div>
+                        {% endfor %}
+                    </div>
+                </section>
             </div>
 
-            <div data-section="video" class="video overview-section">
-                <h3><i class="fa fa-play"></i> Video tutorial</h3>
-                <iframe type="text/html"
-                        width="100%"
-                        height="350px"
-                        src="//www.youtube.com/embed/Fa3EI7-oBfc"
-                        frameborder="0">
-                </iframe>
-                <div class="clear"></div>
-            </div>
+            <aside class="dtgs-overview-sidebar">
+                <section class="dtgs-overview-card dtgs-overview-resource-card">
+                    <span class="dtgs-overview-pill">Resources</span><h2>Useful links</h2>
+                    <a class="dtgs-overview-resource-link dtgs-overview-create-table" href="#add"><i class="fa fa-plus-circle"></i> Create a new table</a>
+                    <a class="dtgs-overview-resource-link" href="{{ environment.generateUrl('tables') }}"><i class="fa fa-table"></i> Manage tables</a>
+                    <a class="dtgs-overview-resource-link" href="#dtgs-data-suite"><i class="fa fa-database"></i> Data Tables features</a>
+                    <a class="dtgs-overview-resource-link" href="#dtgs-pricing-suite"><i class="fa fa-columns"></i> Pricing Tables features</a>
+                    <a class="dtgs-overview-resource-link" href="#dtgs-woo-suite"><i class="fa fa-shopping-cart"></i> WooCommerce features</a>
+                    <a class="dtgs-overview-resource-link" href="#dtgs-overview-videos"><i class="fa fa-play"></i> Video tutorials</a>
+                    <a class="dtgs-overview-resource-link" href="#dtgs-overview-server"><i class="fa fa-cog"></i> Server settings</a>
+                    <a class="dtgs-overview-resource-link" href="https://supsystic.com/docs/data-tables/" target="_blank" rel="noopener"><i class="fa fa-book"></i> Documentation</a>
+                    <a class="dtgs-overview-resource-link" href="{{ proUrl }}" target="_blank" rel="noopener"><i class="fa fa-balance-scale"></i> Compare FREE and PRO</a>
+                </section>
 
-            <div data-section="promo_video" class="video overview-section">
-                <h3><i class="fa fa-star"></i> Our promo video</h3>
-                <iframe type="text/html"
-                        width="100%"
-                        height="350px"
-                        src="//www.youtube.com/embed/dKd_9g6JzfU"
-                        frameborder="0">
-                </iframe>
-                <div class="clear"></div>
-            </div>
+                <section class="dtgs-overview-card dtgs-overview-outcome-card">
+                    <span class="dtgs-overview-pill">Popular uses</span><h2>One toolkit, many outcomes</h2>
+                    <ul><li>Product comparisons</li><li>Financial and research reports</li><li>Directories and schedules</li><li>Pricing and subscription plans</li><li>Restaurant and service menus</li><li>Wholesale order forms</li><li>WooCommerce product catalogs</li></ul>
+                </section>
 
-            <div data-section="settings" class="server-settings overview-section">
-                <h3><i class="fa fa-cog"></i> Server settings</h3>
-                <ul class="settings-list">
-                    {% for title, element in serverSettings %}
-                        <li class="settings-line" style="float: none;">
-                            <div class="settings-title">{{ title|trim }}:</div>
-                            <span>{{ element.value|trim }}</span>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="clear"></div>
-            </div>
-            </div>
-
-        </div>
-
-        <div class="half-page half-page-right">
-            <a href="https://supsystic.com/data-tables-generator-now-supports-ai-via-mcp-claude-cursor-ide/?utm_source=supsystic_plugin&utm_campaign=ai_banner" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/supsystic-dt-mpc-claude-cursor.webp"></a>
-            {% if environment.isPro() == true %}
-            <a href="https://supsystic.com/contact-us/" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-upgrade.png"></a>
-            {% endif %}
-            {% if environment.isPro() == false %}
-            <a href="https://supsystic.com/?mod=user&action=addToCart&pid=23243&addQty=1&goto=checkout&lang=en" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-trial.png"></a>
-            {% endif %}
-            <a href="https://supsystic.com/pricing/?utm_source=plugin&utm_campaign=tables" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-01.png"></a>
-            <a href="https://supsystic.com/plugins/plugins-bundle/?utm_source=plugin&utm_campaign=tables" target="_blank"><img class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-02.png"></a>
-            <a href="https://supsystic.com/all-plugins/?utm_source=plugin&utm_campaign=tables" target="_blank"><img style="margin-top:20px;"  class="overview-supsystic-img" src="{{ DTGS_PLUGIN_URL }}/src/SupsysticTables/Overview/assets/img/overview-03.png"></a>
-            <div class="clear"></div>
-        </div>
-        </div>
+                <section id="dtgs-overview-support" class="dtgs-overview-card dtgs-overview-support-card">
+                    <span class="dtgs-overview-pill">Support</span><h2>Need help with a table?</h2><p>Send us your question, issue or feature request. The Supsystic support team will help you choose the right setup.</p>
+                    <a class="button button-primary" href="https://supsystic.com/contact-us/" target="_blank" rel="noopener"><i class="fa fa-life-ring"></i> Contact support</a>
+                </section>
+            </aside>
+        </section>
     </div>
 {% endblock %}

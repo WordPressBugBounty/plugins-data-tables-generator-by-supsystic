@@ -10,11 +10,27 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
   {
     try {
       $this->getEnvironment()->getModule('tables')->setIniLimits();
-      $tables = $this->getModel('tables')->getAll([
-        'order' => 'DESC',
-        'order_by' => 'id',
+      $page = 1;
+      $perPage = 20;
+      $sort = 'id';
+      $dir = 'desc';
+      $model = $this->getModel('tables');
+      $recordsTotal = $model->getTablesCount();
+      $tables = $model->getListTbl([
+        'orderBy' => $sort,
+        'sortOrder' => $dir,
+        'rowsLimit' => $perPage,
+        'limitStart' => 0,
+        'search' => [],
       ]);
-      return $this->response('@tables/index.twig', ['tables' => $tables]);
+      return $this->response('@tables/index.twig', [
+        'tables' => $this->prepareAdminListRows($tables),
+        'recordsTotal' => $recordsTotal,
+        'page' => $page,
+        'perPage' => $perPage,
+        'sort' => $sort,
+        'dir' => $dir,
+      ]);
     } catch (Throwable $e) {
       return $this->response('error.twig', ['exception' => $e]);
     }
@@ -174,6 +190,9 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $table = $this->getModel('tables')->getById($id);
     } catch (Throwable $e) {
       return $this->response('error.twig', ['exception' => $e]);
+    }
+    if ($table && $table->table_type === 'pricing_table') {
+      return $this->getEnvironment()->getModule('pricing')->getController()->viewAction($request);
     }
     if (isset($table->settings['features']['after_table_loaded_script']) && !empty($table->settings['features']['after_table_loaded_script'])) {
       $table->settings['features']['after_table_loaded_script'] = base64_decode($table->settings['features']['after_table_loaded_script']);
@@ -821,7 +840,9 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       }
       $tableId = $tablesModel->add($tableData);
       $newTableMeta = $clonedTable->meta;
-      $newTableMeta['css'] = preg_replace('/#supsystic-table-(\d+)/', '#supsystic-table-' . $tableId, $clonedTable->meta['css']);
+      if (isset($clonedTable->meta['css'])) {
+        $newTableMeta['css'] = preg_replace('/#supsystic-table-(\d+)/', '#supsystic-table-' . $tableId, $clonedTable->meta['css']);
+      }
       $tablesModel->setMeta($tableId, $newTableMeta);
       $tablesModel->setRows($tableId, $clonedTable->rows);
       $tablesModule->additionalCloningActions($clonedTable, $tableId);
@@ -942,6 +963,105 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     ]);
   }
 
+  /**
+   * Server-side data endpoint for the native admin tables list.
+   * Returns rendered rows and paging metadata, keeping the first page and
+   * every subsequent interaction on the same query path.
+   *
+   * @param RscDtgs_Http_Request $request
+   * @return RscDtgs_Http_Response
+   */
+  public function tablesDataAction(RscDtgs_Http_Request $request)
+  {
+    if (!$this->_checkNonce($request)) {
+      die();
+    }
+
+    $allowedPerPage = [10, 20, 50, 100];
+    $allowedSort = ['id', 'title', 'table_type', 'created_at'];
+    $page = max(1, absint($request->post->get('page', 1)));
+    $requestedPerPage = absint($request->post->get('perPage', 20));
+    $perPage = in_array($requestedPerPage, $allowedPerPage, true) ? $requestedPerPage : 20;
+    $requestedSort = sanitize_key($request->post->get('sort', 'id'));
+    $sort = in_array($requestedSort, $allowedSort, true) ? $requestedSort : 'id';
+    $dir = strtolower(sanitize_text_field($request->post->get('dir', 'desc'))) === 'asc' ? 'asc' : 'desc';
+    $searchText = sanitize_text_field($request->post->get('search', ''));
+    $search = ['text_like' => $searchText];
+
+    try {
+      $model = $this->getModel('tables');
+      $recordsTotal = $model->getTablesCount($search);
+      $totalPages = max(1, (int) ceil($recordsTotal / $perPage));
+      $page = min($page, $totalPages);
+      $tables = $model->getListTbl([
+        'orderBy' => $sort,
+        'sortOrder' => $dir,
+        'rowsLimit' => $perPage,
+        'limitStart' => ($page - 1) * $perPage,
+        'search' => $search,
+      ]);
+
+      $html = $this->getEnvironment()->getTwig()->render('@tables/includes/list_rows.twig', [
+        'tables' => $this->prepareAdminListRows($tables),
+      ]);
+
+      return $this->ajaxSuccess([
+        'html' => $html,
+        'recordsTotal' => $recordsTotal,
+        'page' => $page,
+        'perPage' => $perPage,
+        'sort' => $sort,
+        'dir' => $dir,
+        'search' => $searchText,
+      ]);
+    } catch (Throwable $e) {
+      return $this->ajaxError($e->getMessage());
+    }
+  }
+
+  /**
+   * Adds display-only fields shared by the initial page and SSP responses.
+   * Raw titles stay raw so Twig performs the final context-aware escaping.
+   *
+   * @param array $data
+   * @return array
+   */
+  private function prepareAdminListRows(array $data)
+  {
+    $tableShortcode = $this->getEnvironment()->getConfig()->get('shortcode_name');
+
+    foreach ($data as $key => $row) {
+      $id = absint($row['id']);
+      $tableType = !empty($row['table_type']) ? sanitize_key($row['table_type']) : 'default';
+      if ($tableType === 'pricing_table') {
+        $tableTypeLabel = $this->translate('Pricing Table');
+      } elseif ($tableType === 'woo_product_table') {
+        $tableTypeLabel = $this->translate('WooCommerce Product Table');
+      } else {
+        $tableTypeLabel = $this->translate('Data Table');
+      }
+
+      $createdLabel = '';
+      if (!empty($row['created_at']) && strpos($row['created_at'], '0000-00-00') !== 0) {
+        $createdLabel = mysql2date(get_option('date_format'), $row['created_at']);
+      }
+
+      $data[$key]['id'] = $id;
+      $data[$key]['title'] = isset($row['title']) ? (string) $row['title'] : '';
+      $data[$key]['edit_url'] = $this->generateUrl('tables', 'view', [
+        'id' => $id,
+        'nonce' => wp_create_nonce('dtgs_nonce'),
+      ]);
+      $data[$key]['type_key'] = $tableType;
+      $data[$key]['type_label'] = $tableTypeLabel;
+      $data[$key]['created_label'] = $createdLabel;
+      $data[$key]['shortcode'] = '[' . $tableShortcode . ' id=' . $id . ']';
+      $data[$key]['phpcode'] = sprintf('<?php echo supsystic_tables_get("%d"); ?>', $id);
+    }
+
+    return $data;
+  }
+
   public function _prepareListForTbl($data)
   {
     $config = $this->getEnvironment()->getConfig();
@@ -954,9 +1074,9 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       $phpcode = htmlspecialchars($shortcodePhp);
       $titleUrl = '<a href="' . esc_url($this->generateUrl('tables', 'view', ['id' => $id, 'nonce' => wp_create_nonce('dtgs_nonce')])) . '">' . esc_html($row['title']) . " <i class='fa fa-fw fa-pencil'></i></a>";
       $tableType = !empty($row['table_type']) ? sanitize_key($row['table_type']) : 'default';
-      $tableTypeLabel = $tableType === 'woo_product_table'
-        ? $this->translate('WooCommerce Product Table')
-        : $this->translate('Default');
+      $tableTypeLabel = $tableType === 'pricing_table'
+        ? $this->translate('Pricing Table')
+        : ($tableType === 'woo_product_table' ? $this->translate('WooCommerce Product Table') : $this->translate('Default'));
       $data[$key]['shortcode'] = $shortcode;
       $data[$key]['phpcode'] = $phpcode;
       $data[$key]['title'] = $titleUrl;
