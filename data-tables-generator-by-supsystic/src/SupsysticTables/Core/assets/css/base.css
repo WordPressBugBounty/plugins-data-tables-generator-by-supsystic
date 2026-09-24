@@ -1,7 +1,3 @@
-#toplevel_page_supsystic-tables .wp-submenu.wp-submenu-wrap .wp-first-item {
-  display: none;
-}
-
 /* Shared plugin shell. These elements are rendered on every Data Tables page. */
 .supsystic-plugin {
   width: 100%;

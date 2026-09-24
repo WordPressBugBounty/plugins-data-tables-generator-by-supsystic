@@ -21,13 +21,13 @@ class SupsysticTables
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.15.0', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.15.1', $pluginPath);
 
     /* Configure */
     $environment->configure([
       'optimizations' => 1,
       'environment' => $this->getPluginEnvironment(),
-      'default_module' => 'tables',
+      'default_module' => $this->resolveDefaultModule(),
       'lang_domain' => 'supsystic_tables',
       'lang_path' => plugin_basename(dirname(__FILE__)) . '/langs',
       'plugin_prefix' => 'SupsysticTables',
@@ -53,12 +53,41 @@ class SupsysticTables
       'plugin_db_update' => true,
       'revision_key' => '_supsystic_tables_rev',
       'revision' => 65,
-      'welcome_page_was_showed' => get_option('supsystic_tbl_welcome_page_was_showed'),
+      // The old Promo "welcome aboard" interstitial (vendor/Rsc/Mvc/Module::handle())
+      // is retired; forcing this true keeps that interception permanently
+      // disabled. resolveDefaultModule() below is what shows new users an
+      // Overview landing now.
+      'welcome_page_was_showed' => 1,
       'promo_controller' => 'SupsysticTables_Promo_Controller',
     ]);
 
     $this->environment = $environment;
     $this->initFilesystem();
+  }
+
+  /**
+   * Decides which module renders when the plugin's own menu link is opened
+   * with no ?module= in the URL. On a brand new install this shows the
+   * Overview page exactly once (welcome aboard); every visit after that
+   * lands straight on the Tables list. SupsysticTables_Core_Module::update()
+   * marks 'supsystic_tbl_default_page_visited' for us whenever it detects
+   * this is an existing site upgrading rather than a genuinely fresh
+   * install, so reaching this point with the option still unset means:
+   * show the welcome once.
+   *
+   * @return string
+   */
+  private function resolveDefaultModule()
+  {
+    $isDefaultLanding = is_admin() && isset($_GET['page']) && $_GET['page'] === 'supsystic-tables' && !isset($_GET['module']);
+
+    if (!$isDefaultLanding || get_option('supsystic_tbl_default_page_visited', false)) {
+      return 'tables';
+    }
+
+    update_option('supsystic_tbl_default_page_visited', 1);
+
+    return 'overview';
   }
 
   public function run()

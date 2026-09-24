@@ -1140,7 +1140,14 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $coreModulePath = untrailingslashit(plugin_dir_url(dirname(__FILE__)) . 'Core');
     $tablesModulePath = untrailingslashit(plugin_dir_url(dirname(__FILE__)) . 'Tables');
 
-    if (is_admin() && !$this->getEnvironment()->isModule('tables')) {
+    // The Elementor widget and Gutenberg block render a table outside of the
+    // plugin's own admin page (Elementor's editor ajax round-trip, Gutenberg's
+    // block-renderer REST preview), both of which are is_admin()=true / non
+    // "tables" module requests that this guard would otherwise skip - leaving
+    // tables.shortcode.js without its DataTables dependency and the table
+    // stuck on its loading spinner. Those integrations force this filter true
+    // for their own render.
+    if (is_admin() && !$this->getEnvironment()->isModule('tables') && !apply_filters('supsystic_tables_force_load_display_assets', false)) {
       return;
     }
 

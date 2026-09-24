@@ -59,7 +59,7 @@
                 <!-- /.clear -->
             </nav>
             <!-- /.supsystic-navigation supsystic-sticky supsystic-sticky-active -->
-            <div class="supsystic-container">
+            <div class="supsystic-container{% if environment.isModule('tables', 'index') %} dtgs-list-page{% endif %}">
                 {{ environment.getDispatcher().dispatch('notices') }}
                 {{ environment.getDispatcher().dispatch('messages') }}
                 <div class="clear"></div>

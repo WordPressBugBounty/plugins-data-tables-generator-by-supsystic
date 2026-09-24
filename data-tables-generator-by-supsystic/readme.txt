@@ -7,7 +7,7 @@ Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.15.0
+Stable tag: 1.15.1
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 
 == Description ==
@@ -171,7 +171,7 @@ Built to handle real-world data without slowing down your site. The plugin is [r
 = ⚙️ Beginner Friendly. Developer Capable. =
 
 * Visual table builder UI
-* Insert tables using shortcodes or blocks
+* Insert tables using shortcodes, the Gutenberg block, or the Elementor widget
 * Extend behaviour with custom CSS or JavaScript
 
 Suitable for site owners, agencies, and developers alike.
@@ -222,7 +222,7 @@ This makes it easy to turn existing spreadsheet data into interactive tables on 
 
 = How do I add a table to a page or post? =
 
-Tables can be added to pages or posts using shortcodes or blocks.
+Tables can be added to pages or posts using a shortcode, the Gutenberg block, or the Elementor widget.
 
 Once inserted, the table will automatically reflect any updates made in the table editor.
 
@@ -335,6 +335,12 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 == Changelog ==
 
 = 2026 =
+
+= 1.15.1 — September 22, 2026 =
+
+* General code improvements.
+* Added an Elementor widget and a Gutenberg block: pick a table from a dropdown and insert it, in addition to the existing shortcode and classic widget.
+* Fixed the classic "Tables Widget" table dropdown, which was rendering as escaped text instead of real options.
 
 = 1.15.0 — September 21, 2026 =
 

@@ -1,7 +1,6 @@
 {% extends 'layout.twig' %}
 
 {% block content %}
-    <div class="supsystic-item supsystic-item-autoheight">
         <div class="supContainer-fluid">
             <section id="dtgs-tables-list"
                      data-page="{{ page }}"
@@ -107,5 +106,4 @@
             <p>{{ environment.translate('You can %s today and have all PRO features of data tables!')|format(url2)|raw }}</p>
         </div>
         {{ environment.getDispatcher().dispatch('tables-index-footer') }}
-    </div>
 {% endblock %}

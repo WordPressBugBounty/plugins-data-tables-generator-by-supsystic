@@ -40,6 +40,11 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $this->registerMainRequestHandler();
     $this->registerTwigFunctions();
     $this->update();
+
+    // Runs after the plugin's own submenu items are registered (both use
+    // the default admin_menu priority), so the whole list is gone by the
+    // time WordPress renders the sidebar.
+    add_action('admin_menu', [$this, 'removeDefaultSubMenu'], 999);
   }
 
   public function enquieAjaxUrl()
@@ -219,11 +224,17 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     return $this->modelsFactory;
   }
 
+  /**
+   * The plugin's own in-page sidebar (.supsystic-navigation) already
+   * duplicates every link WordPress would otherwise render as the native
+   * flyout submenu under our top-level menu icon, so drop that whole WP
+   * submenu list instead of showing both.
+   */
   public function removeDefaultSubMenu()
   {
     global $submenu;
     if (is_admin()) {
-      unset($submenu[$this->getEnvironment()->getMenu()->getMenuSlug()][0]);
+      unset($submenu[$this->getEnvironment()->getMenu()->getMenuSlug()]);
     }
   }
 
@@ -448,6 +459,12 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $oldVersion = get_option($optionName);
 
     if (version_compare($oldVersion, $currentVersion) === -1) {
+      if ($oldVersion !== false) {
+        // Existing site updating, not a fresh install - skip the one-time
+        // Overview welcome landing (see SupsysticTables::resolveDefaultModule()).
+        update_option('supsystic_tbl_default_page_visited', 1);
+      }
+
       if (function_exists('is_multisite') && is_multisite()) {
         global $wpdb;
         $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");

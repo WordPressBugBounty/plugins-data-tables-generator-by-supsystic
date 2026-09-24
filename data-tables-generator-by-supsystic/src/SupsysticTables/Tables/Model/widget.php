@@ -14,6 +14,14 @@ class SupsysticTables_Widget extends WP_Widget
   }
 
   /**
+   * @return array id => label
+   */
+  private function getTableOptions()
+  {
+    return $this->tables->getOptionsForSelect();
+  }
+
+  /**
    * Front-end display of widget.
    *
    * @see WP_Widget::widget()
@@ -46,35 +54,22 @@ class SupsysticTables_Widget extends WP_Widget
       $title = 'Title';
     }
 
-    $idTables = [];
+    $options = $this->getTableOptions();
 
-    if ($this->tables->getList()) {
-      foreach ($this->tables->getList() as $table) {
-        if (!empty($table->title) && isset($table->title)) {
-          array_push($idTables, [
-            'name' => $table->title,
-            'value' => $table->id,
-          ]);
-        }
-      }
-    } else {
+    if (!$options) {
       echo "<h4 style='color:red;text-align: center;'>No tables</h4>";
       echo wp_kses_post("<a href='" . DTGS_PLUGIN_ADMIN_URL . "?page=supsystic-tables'>Create table</a>");
     }
     ?>
 
         <p>
-            <label for="<?php esc_attr_e($this->get_field_id('title')); ?>"><?php esc_html_e('Title:'); ?></label>
-            <input class="widefat" id="<?php esc_attr_e($this->get_field_id('title')); ?>" name="<?php esc_attr_e($this->get_field_name('title')); ?>" type="text" value="<?php esc_attr_e($title); ?>">
-            <label for="<?php esc_attr_e($this->get_field_id('id')); ?>"><?php esc_html_e('Select table: '); ?></label>
-            <select id="<?php esc_attr_e($this->get_field_id('id')); ?>" class="widefat" name="<?php esc_attr_e($this->get_field_name('id')); ?>" type="text">
-                <?php foreach ($idTables as $element) {
-                  if (!empty($instance['id']) && $instance['id'] == $element['value'] && isset($element['value'])) {
-                    esc_html_e('<option value=' . esc_attr($element['value']) . ' selected>' . esc_attr($element['name']) . '</option>');
-                  } else {
-                    esc_html_e('<option value=' . esc_attr($element['value']) . '>' . esc_attr($element['name']) . '</option>');
-                  }
-                } ?>
+            <label for="<?php echo esc_attr($this->get_field_id('title')); ?>"><?php esc_html_e('Title:'); ?></label>
+            <input class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>" name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text" value="<?php echo esc_attr($title); ?>">
+            <label for="<?php echo esc_attr($this->get_field_id('id')); ?>"><?php esc_html_e('Select table: '); ?></label>
+            <select id="<?php echo esc_attr($this->get_field_id('id')); ?>" class="widefat" name="<?php echo esc_attr($this->get_field_name('id')); ?>">
+                <?php foreach ($options as $id => $label) { ?>
+                    <option value="<?php echo esc_attr($id); ?>" <?php selected(!empty($instance['id']) ? (int) $instance['id'] : 0, $id); ?>><?php echo esc_html($label); ?></option>
+                <?php } ?>
             </select>
         </p>
     <?php

@@ -118,7 +118,12 @@ class SupsysticTables_Ui_Module extends SupsysticTables_Core_BaseModule
       return;
     }
 
-    $isPluginPage = $this->getEnvironment()->isPluginPage();
+    // See the matching comment in SupsysticTables_Tables_Module::loadDataTables():
+    // the Elementor widget and Gutenberg block need this plugin's display
+    // assets on admin pages that aren't the plugin's own (Elementor's editor,
+    // the post/widgets/site editor screens), which this isPluginPage() gate
+    // would otherwise skip entirely.
+    $isPluginPage = $this->getEnvironment()->isPluginPage() || apply_filters('supsystic_tables_force_load_display_assets', false);
     foreach ($this->assets as $asset) {
       if ('admin_enqueue_scripts' !== $asset->getHookName() || $isPluginPage) {
         $asset->register();

@@ -97,6 +97,28 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     return $this->db->get_results($query->build());
   }
 
+  /**
+   * Returns tables as id => label pairs, ready for a <select> dropdown
+   * (classic widget, Elementor widget, Gutenberg block).
+   *
+   * @return array
+   */
+  public function getOptionsForSelect()
+  {
+    $options = [];
+
+    foreach ((array) $this->getList() as $table) {
+      if (empty($table->id)) {
+        continue;
+      }
+
+      $title = !empty($table->title) ? wp_strip_all_tags($table->title) : sprintf('Table #%d', $table->id);
+      $options[(int) $table->id] = sprintf('%s (ID: %d)', $title, (int) $table->id);
+    }
+
+    return $options;
+  }
+
   public function getListTbl($params)
   {
     global $wpdb;

@@ -1,3 +1,12 @@
+/* .supsystic-container's own padding+background (supsystic-ui.css) doubles
+   up with .dtgs-list-panel's own padding/border/background below - cancel
+   it out on this page only, via the dtgs-list-page class layout.twig adds
+   when viewing the tables list. */
+.supsystic-container.dtgs-list-page {
+  padding: 0;
+  background: transparent;
+}
+
 #dtgs-tables-list {
   --dtgs-navy: #223146;
   --dtgs-navy-deep: #182536;
@@ -12,8 +21,6 @@
 #dtgs-tables-list .dtgs-list-panel {
   box-sizing: border-box;
   margin: 0;
-  padding: 18px;
-  border: 1px solid #e2e8ef;
   border-radius: 10px;
   background: #f7f9fb;
   box-shadow: 0 8px 24px rgba(30, 49, 70, 0.07);

@@ -15,7 +15,10 @@ class SupsysticTables_Promo_Module extends SupsysticTables_Core_BaseModule
     parent::onInit();
 
     if (is_admin()) {
-      add_action('admin_init', [$this, 'loadAdminPromoAssets']);
+      // Disabled for now: the step-by-step pointer tour targets old editor
+      // markup (.tabs-wrapper, #addDialog, .control-buttons) that no longer
+      // exists in the current UI, so it points at nothing / breaks mid-tour.
+      // add_action('admin_init', [$this, 'loadAdminPromoAssets']);
       add_action('wp_ajax_supsystic-tables-tutorial-close', [$this, 'endTutorial']);
 
       $this->_checkFirstRun();
