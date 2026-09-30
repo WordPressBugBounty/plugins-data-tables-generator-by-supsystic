@@ -148,7 +148,8 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
         }
       }
       if (!$this->isPreview) {
-        $customStyles .= str_replace('supsystic-table-{id}', 'supsystic-table-' . $tableObj->id, $tableObj->settings['styles']['customCss']);
+        $customCss = $this->getController()->getModel('tables')->sanitizeCss($tableObj->settings['styles']['customCss']);
+        $customStyles .= str_replace('supsystic-table-{id}', 'supsystic-table-' . $tableObj->id, $customCss);
       }
     }
 
@@ -296,6 +297,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if ($table->isWooProductTable) {
       $table->settings = $this->normalizeWooProductTableFrontendSettings($table->settings);
     }
+    $table->settings = $tables->sanitizeOutputSettings($table->settings);
     $table->isSSP = !$this->isSingleCell && !$this->isTablePart && isset($table->settings['features']['paging']) && $table->settings['features']['paging'] == 'on' && isset($table->settings['serverSideProcessing']) && $table->settings['serverSideProcessing'] == 'on';
 
     if (!isset($table->isPageRows)) {

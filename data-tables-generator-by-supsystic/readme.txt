@@ -7,7 +7,7 @@ Tags: table, tables, datatable, product table, table-builder, table-plugin,
 License: GNU General Public License v2.0 or later
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.15.1
+Stable tag: 1.15.3
 Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
 
 == Description ==
@@ -335,6 +335,14 @@ The Patchstack team help validate, triage and handle any security vulnerabilitie
 == Changelog ==
 
 = 2026 =
+
+= 1.15.3 — September 30, 2026 =
+
+* Maintenance release with minor stability improvements.
+
+= 1.15.2 — September 30, 2026 =
+
+* General security hardening and code improvements.
 
 = 1.15.1 — September 22, 2026 =
 

@@ -91,10 +91,26 @@ abstract class SupsysticTables_Core_BaseController extends RscDtgs_Mvc_Controlle
     if (!empty($request->query->get('nonce'))) {
       $nonce = $request->query->get('nonce');
     }
-    if (!empty($nonce) && wp_verify_nonce($nonce, 'dtgs_nonce')) {
+    // A nonce alone is not a permission: also require the same rights the nonce is issued for
+    // (administrators and the roles allowed in the plugin's "access_roles" setting).
+    if (!empty($nonce) && wp_verify_nonce($nonce, 'dtgs_nonce') && $this->_currentUserCanUsePlugin()) {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Administrators, and roles listed in the plugin's "access_roles" setting.
+   */
+  public function _currentUserCanUsePlugin()
+  {
+    if (current_user_can('manage_options') || current_user_can('administrator')) {
+      return true;
+    }
+    $settings = get_option('supsystic_tbl_settings');
+    $allowedRoles = $settings && !empty($settings['access_roles']) ? (array) $settings['access_roles'] : [];
+    $user = wp_get_current_user();
+    return $user && $user->ID && array_intersect((array) $user->roles, $allowedRoles) ? true : false;
   }
 
   public function _checkNonceFrontend($request)

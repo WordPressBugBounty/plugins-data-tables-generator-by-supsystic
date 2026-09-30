@@ -351,7 +351,10 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function sanitize_array(&$array)
   {
     foreach ($array as $key => &$value) {
-      if (!is_array($value)) {
+      if ($key === 'customCss' && is_string($value)) {
+        // CSS is not HTML: HTML filtering would break selectors like "a > b".
+        $value = $this->sanitizeCss($value);
+      } elseif (!is_array($value)) {
         $value = $this->sanitizeString($value);
       } else {
         self::sanitize_array($value);
@@ -364,12 +367,74 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   {
     $allowedHtml = $this->getAllowedHtml();
     if (!empty($str) && is_string($str)) {
-      $str = htmlspecialchars_decode((string) $str, ENT_COMPAT);
+      // Decode every layer of entity encoding BEFORE wp_kses(), so the filter sees the real
+      // markup. The final decode is kept (stored values stay exactly as before), but it may
+      // not create markup: entity-encoded text used to come back as live tags here.
+      $str = $this->decodeAllEntities($str);
       $str = wp_kses($str, $allowedHtml);
       $str = str_replace('"&#039;', '&#39;', $str);
       $str = str_replace('&#039;"', '&#39;', $str);
-      $str = html_entity_decode($str, ENT_COMPAT);
+      $str = $this->decodeWithoutNewMarkup($str, html_entity_decode($str, ENT_COMPAT));
     }
+    return $str;
+  }
+
+  /**
+   * Returns $decoded unless decoding $filtered produced a new tag opening ("<" followed by a
+   * letter, "/", "!" or "?"; "2 < 4" is plain text); in that case it is filtered again.
+   */
+  private function decodeWithoutNewMarkup($filtered, $decoded)
+  {
+    $tagStart = '/<[a-zA-Z\/!?]/';
+    if (preg_match_all($tagStart, $decoded) > preg_match_all($tagStart, $filtered)) {
+      return wp_kses($decoded, $this->getAllowedHtml());
+    }
+    return $decoded;
+  }
+
+  /**
+   * Custom CSS is printed inside a <style> element, where HTML filtering does not apply
+   * (it would turn "a > b" into "a &gt; b"). CSS never needs "<", and without it the
+   * value cannot close the <style> element.
+   */
+  public function sanitizeCss($css)
+  {
+    return str_replace('<', '', $this->decodeAllEntities((string) $css));
+  }
+
+  /**
+   * Settings printed as raw HTML (description, signature) or inside <style> (custom CSS).
+   * Applied on output too, so values saved by older versions and preview settings are safe.
+   */
+  public function sanitizeOutputSettings($settings)
+  {
+    if (!is_array($settings)) {
+      return $settings;
+    }
+    foreach (['descriptionText', 'signatureText'] as $key) {
+      if (isset($settings['elements'][$key]) && is_string($settings['elements'][$key])) {
+        $settings['elements'][$key] = $this->sanitizeString($settings['elements'][$key]);
+      }
+    }
+    if (isset($settings['styles']['customCss']) && is_string($settings['styles']['customCss'])) {
+      $settings['styles']['customCss'] = $this->sanitizeCss($settings['styles']['customCss']);
+    }
+    return $settings;
+  }
+
+  /**
+   * Decodes entities repeatedly until the string no longer changes (each pass shortens it,
+   * so this always ends), which removes any number of nested encoding layers.
+   * ENT_COMPAT keeps single quotes encoded exactly as before: row data is stored through
+   * queries that rely on "'" never reaching SQL unencoded.
+   */
+  private function decodeAllEntities($str)
+  {
+    $str = (string) $str;
+    do {
+      $previous = $str;
+      $str = html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+    } while ($str !== $previous);
     return $str;
   }
 
@@ -1088,8 +1153,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   private function decodePreparedCellValue($value)
   {
-    $value = htmlspecialchars_decode((string) $value, ENT_QUOTES);
-    return html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+    $value = (string) $value;
+    // The value was filtered before; decoding must not turn escaped text into new markup.
+    return $this->decodeWithoutNewMarkup($value, html_entity_decode(htmlspecialchars_decode($value, ENT_QUOTES), ENT_QUOTES, 'UTF-8'));
   }
 
   /**
