@@ -1,340 +1,221 @@
-=== Data Tables Generator by Supsystic ===
-Contributors: supsystic.com
-Author URI: https://supsystic.com/
-Plugin URI: https://supsystic.com/plugins/data-tables-generator-plugin/
-Donate link: https://supsystic.com/plugins/data-tables-generator-plugin/
-Tags: table, tables, datatable, product table, table-builder, table-plugin,
-License: GNU General Public License v2.0 or later
+=== Data Tables Generator by Supsystic – Excel-like, WooCommerce & Pricing Tables ===
+Contributors: supsysticcom
+Tags: table, datatable, table builder, spreadsheet, product table
 Tested up to: 7.1
-Requires PHP: 7.4
-Stable tag: 1.15.4
-Excel-style tables for WordPress — now with AI. Create, edit and analyse data using ChatGPT, Claude, Gemini and more.
+Requires PHP: 7.3
+Stable tag: 1.15.6
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+Three table types in one plugin: Excel-like data tables with formulas, WooCommerce product tables and pricing tables. Responsive and searchable.
 
 == Description ==
 
-[youtube https://www.youtube.com/watch?v=_iTqniU-4Ec?rel=0]
+**Data Tables Generator by Supsystic** is a WordPress table plugin that turns a pasted spreadsheet into a responsive data table your visitors can sort, search and page through. Build the table in a spreadsheet-style editor with Excel-style formulas, style it to match your theme and publish it with a block, an Elementor widget or a shortcode. No code required.
 
-**Data Tables Generator by Supsystic**
+Unlimited tables, rows and columns are free, and large tables stay fast with server-side processing.
 
-A powerful table builder plugin for WordPress — with built-in charts and graphs. Think of it like **Excel spreadsheets for WordPress websites**, where your data lives in structured tables and can also be visualised with charts when needed.
+= Three table types in one plugin =
 
-Data Tables Generator by Supsystic is a flexible [WordPress table plugin](https://supsystic.com/plugins/wordpress-data-table-plugin/) that lets you create clean, interactive tables and datatables, with integrated charts and graphs to present structured data clearly — without writing code.
+* **Excel-like data tables** – a spreadsheet editor with formulas, cell formatting and merged cells for any data: price lists, schedules, directories and large datasets.
+* **WooCommerce product tables** – build a searchable, sortable product table straight from your store catalogue.
+* **Pricing tables** – plans and packages on a drag-and-drop canvas with payment buttons, badges and ready-made templates.
 
-If your content makes more sense in rows and columns — but benefits from visual insights too — this plugin was built for you.
+All three are created from the same table wizard and added to a page the same way.
 
-= 🤖 Now Works With AI — Control Your Tables by Typing or Talking =
+**Try it in your browser:** [open a live demo in WordPress Playground](https://playground.wordpress.net/?plugin=data-tables-generator-by-supsystic) – no install, no account.
 
-Data Tables Generator now connects directly to the AI tools you already use — including ChatGPT, Claude, Gemini, Copilot, Cursor, and any other AI assistant that supports the MCP standard.
+= What you can build =
 
-Instead of clicking through menus, just ask:
+* Price lists, rate cards and comparison tables
+* Schedules, timetables, league tables and results
+* Staff, member and business directories with photos and links
+* Product specifications and catalogues
+* Reference tables and datasets with thousands of rows
+* WooCommerce product tables built from your store
+* Pricing tables for plans, packages and services
 
-* "What's the average value in column B?"
-* "Which rows have a quantity below 10?"
-* "Give me a summary of this table."
+= A spreadsheet-style table editor =
 
-Your AI assistant reads your WordPress tables and answers instantly. No SQL. No exports. No manual scanning.
+The editor works like Excel or Google Sheets: select cells, copy, paste and fill. Paste a range from a spreadsheet and it lands in the right cells, ready to publish.
 
-Included free: read and analyse any table using AI chat or voice.
+* Excel-style formulas such as SUM, AVERAGE and IF
+* Cell formatting: colours, borders and alignment
+* Merged cells for grouped headers and schedules
+* Images, links, video and HTML inside cells
+* Column visibility and ordering
+* Number, currency, percent and date formats
 
-= ⚡ Pro AI Add-On — Create, Edit and Manage Tables With AI =
+= Sortable, searchable and paginated =
 
-Upgrade to the Pro AI add-on and your AI assistant goes from reader to editor. Just describe what you want done:
+Every table gets column sorting, live search and pagination, so a list of two thousand rows is as easy to use as a list of ten.
 
-* "Create a pricing table with three tiers."
-* "Add a new column for discount percentage."
-* "Apply a formula to calculate totals in the last row."
-* "Export this table as Excel."
+= Responsive tables that work on phones =
 
-No need to open the WordPress dashboard. Non-technical team members can create and update structured data safely, just by asking.
+Choose how each table behaves on small screens: collapse columns, stack rows or scroll. The output is real HTML table markup with keyboard-focusable sortable headers, so your tables stay readable with screen readers too.
 
-Free = ask questions about your data. Pro AI = create, edit and manage it.
+= Server-side processing (SSP) for large tables =
 
-= 🛒 WooCommerce Product Table — Build Product Tables From Your Store =
+Server-side processing loads big datasets page by page while search, sorting and pagination still work across the whole table. It is included in the free plugin, and users report working with tables of 200,000 rows.
 
-Data Tables Generator now includes a dedicated table type for WooCommerce stores. When WooCommerce is active, the Table Creation Wizard lets you choose between a regular Data Table or a WooCommerce Product Table, built specifically for displaying and managing store products.
+= Import, export and auto-update =
 
-Free version includes:
+Paste data straight from any spreadsheet in the free plugin. Pro brings data in from the files and services you already use and keeps it current on its own:
 
-* Manual product assignment
-* Column sorting
-* Loader selection and loader icon colour customisation
+* Import from CSV, Excel (XLSX and XLS), JSON and Google Sheets
+* Auto-update from Google Sheets on a schedule
+* Scheduled imports from FTP and SFTP servers
+* Tables built from MySQL, PostgreSQL and SQLite queries
+* Export to CSV, Excel (XLS and XLSX), JSON and PDF, or print with your logo
+* Export buttons for your visitors on the front end
 
-[Upgrade to Pro](https://supsystic.com/plugins/wordpress-data-table-plugin/) and unlock advanced product table tools:
+= Front-end editing =
 
-* Include Categories
-* Exclude Product IDs
-* Custom Design Templates and Styles
-* Search Columns
-* Attribute Filtering
-* Hide Priority for specific columns in responsive mode
-* Search by Hidden Column
-* and many other advanced features
+With Pro, logged-in users or selected roles can update a table right on the page: editable cells, dropdown and date-picker fields, row removal and a marker on the last edited cell. No dashboard access needed.
 
-Use a WooCommerce Product Table to build searchable product catalogues, comparison tables, and pricing lists, without writing code and without leaving WordPress.
+= Charts and graphs =
 
-= 💲 Pricing Tables — Build Plans, Packages, and Comparison Pricing =
+With Pro, turn table rows into line, bar, pie, area and bubble charts that update when the data changes.
 
-Data Tables Generator also includes a dedicated Pricing Table type. Choose it in the Table Creation Wizard to open a visual, drag-and-drop canvas builder made specifically for plans, packages, and comparison pricing — instead of typing data into rows and columns like a regular Data Table.
+= WooCommerce product tables =
 
-Free version includes:
+When WooCommerce is active, the table wizard offers a dedicated WooCommerce Product Table. Assign your products, sort the columns and choose a loader to turn the catalogue into a searchable product list.
 
-* Drag-and-drop canvas builder with Desktop, Tablet, and Mobile previews
-* Ready-made blocks: heading, description, price, cross-out price, feature, button, badge, icon, image, and countdown timer
-* Show/hide header, description, and footer sections, plus optional hover animation on cards
-* Custom table font and adjustable table width
-* 3 free themes to start from
-* HTML/CSS source view and custom CSS for advanced styling
-* Import, export, and clone existing pricing tables
+= Pricing tables =
 
-[Upgrade to Pro](https://supsystic.com/plugins/wordpress-data-table-plugin/) and unlock advanced pricing table tools:
+A separate table type for plans and packages, built on a drag-and-drop canvas instead of rows of data:
 
-* Toggler (Pricing Switcher) — let visitors switch between multiple complete pricing variants, such as Monthly and Yearly, using rounded, checkbox, or select controls
-* Ajax Server Side Toggle — load the complete pricing table from the server only after a visitor opens it, for a faster initial page load
-* 100+ premium themes, including seasonal and niche collections (Black Friday, Christmas, Valentine's Day, Halloween, Ramadan, gaming, SaaS, real estate, and more)
-* A WooCommerce cart block, so pricing plans can add products straight to the cart
+* Plan columns with header, description and footer rows
+* Payment buttons linked to PayPal, Stripe, WooCommerce or your own checkout
+* Badges and ribbons to highlight a plan
+* Icons, images, video and tooltips in cells
+* Hover animation, comparison layouts and ready-made templates
 
-Use Pricing Tables to present subscription plans, service packages, or feature comparisons, without writing code and without leaving WordPress.
+= Ask AI about your tables =
 
-= 📊 Turn Data Into Usable Tables (and Visuals) =
+Data Tables Generator includes its own MCP server. Connect ChatGPT, Claude, Gemini, Copilot, Cursor or any assistant that supports MCP and ask about your tables in plain language: "What is the average in column B?", "Which rows are below 10?", "Summarise this table." Reading and analysing tables with AI is free.
 
-Create:
+= Use your tables anywhere =
 
-* Simple and complex data tables
-* Comparison and pricing tables
-* Lists, schedules, directories, and datasets
-* Large tables built from spreadsheet-style data
-* [Charts and graphs](https://supsystic.com/blog/how-to-visualize-data-table-information-with/) generated directly from table data
+* Gutenberg block, Elementor widget and shortcode
+* Works with WPBakery, Divi and other page builders through the shortcode
+* One table on many pages: edit it once and every copy updates
+* Custom CSS per table for advanced styling
+* REST API to read and write table data as JSON
 
-Tables are responsive by default and remain readable on all devices.
+= Data Tables Generator Pro =
 
-= 🧩 A Serious Table Builder — Not Just a Block =
+Besides import, export, auto-update, front-end editing and charts, Pro adds:
 
-This is a dedicated table builder, designed for real data.
-
-Built for table-heavy content where structure and usability matter:
-
-* Sorting, searching, and pagination
-* Column control and visibility options
-* Reliable performance with large datatables
-* Visual charts to highlight trends and comparisons
-
-You get structured tables and visual storytelling in one plugin.
-
-= 📥 Import From Spreadsheet & Database Sources =
-
-Create tables manually or [import data](https://supsystic.com/importing-data-into-wordpress-tables/) from:
-
-* CSV files
-* Excel spreadsheets
-* Google Sheets
-* MySQL databases
-
-Ideal if your data already lives outside WordPress.
-
-= 🔄 Work With Dynamic Data =
-
-Data Tables Generator supports tables connected to [external data sources](https://supsystic.com/docs/data-tables/).
-
-When your source data changes — such as a spreadsheet or database — tables can be updated without rebuilding them from scratch. This makes it suitable for data that evolves over time, not just static content.
-
-**For example**:
-
-If you manage a product list, pricing table, availability sheet, or catalogue in a spreadsheet, you can connect it to a table on your site.
-
-When prices, descriptions, or other data change in the source file, the table can be updated without manually editing it inside WordPress.
-
-= 🎨 Style Tables to Match Your Site =
-
-[Customise tables and charts](https://supsystic.com/building-pricing-tables-with-wordpress-plugin/) visually:
-
-* Fonts, colours, borders, and spacing
-* Row and column formatting
-* Links, images, icons, and tooltips
-* Optional custom CSS is available for advanced users.
-
-Table cells can also include images and video, allowing you to build richer layouts — such as:
-
-* Product or feature comparison tables with short demo videos
-* Staff or team directories with profile media
-* Data lists where visuals explain context better than text
-
-= 📘 Learn as You Go =
-
-Data Tables Generator includes a growing library of [step-by-step tutorials](https://supsystic.com/docs/data-tables/).
-
-From your first table to more advanced setups with charts and larger datasets, the guides focus on practical, real-world use cases.
-
-= ⚡ Fast, Stable, and Actively Maintained =
-
-Built to handle real-world data without slowing down your site. The plugin is [regularly updated](https://wordpress.org/plugins/data-tables-generator-by-supsystic/#developers) to stay compatible with the latest versions of WordPress and modern themes.
-
-= ⚙️ Beginner Friendly. Developer Capable. =
-
-* Visual table builder UI
-* Insert tables using shortcodes, the Gutenberg block, or the Elementor widget
-* Extend behaviour with custom CSS or JavaScript
-
-Suitable for site owners, agencies, and developers alike.
-
-= 🔓 Free Version + Pro When You Need More Power =
-
-The free version covers most common table use cases [Upgrade to Pro](https://supsystic.com/plugins/wordpress-data-table-plugin/) and is ideal for getting started — including free AI read and analyse access.
-
-As your data grows or requirements become more advanced, the Pro version unlocks tools designed to save time and reduce manual work, including:
-
-* Formula calculations and computed values
-* Advanced filtering and search logic
-* Front-end table editing
-* Additional import and export options
-* Enhanced chart and visualisation features
-
-= ❤️ Real Support From People Who Know the Plugin =
-
-Data Tables Generator is actively maintained and supported by a team that builds, uses, and supports the plugin every day.
-
-When you need help, you'll be talking to [Get support](https://supsystic.com/contact-us/) who live and breathe tables.
+* Conditional formatting that colours cells by value
+* Collapsible rows, tooltips and an image lightbox
+* Table history to restore an earlier version
+* WooCommerce product table filters, categories, design templates and export
+* Monthly and yearly price switch for pricing tables
+* Control over which user roles can manage tables
+* Create and edit tables with AI (separate add-on)
+
+= Learn more =
+
+* [Official plugin page](https://supsystic.com/plugins/wordpress-data-table-plugin/)
+* [Pro features](https://supsystic.com/plugins/wordpress-data-table-plugin/#compare)
+* [Pricing](https://supsystic.com/plugins/wordpress-data-table-plugin/#pricing)
+* [Documentation](https://supsystic.com/docs/data-tables/)
+
+== Installation ==
+
+1. In your dashboard go to Plugins → Add New Plugin and search for "Data Tables Generator by Supsystic".
+2. Click Install Now, then Activate.
+3. Open the Data Tables menu and click Add New Table. Choose Data Table, WooCommerce Product Table or Pricing Table.
+4. Type or paste your data, adjust the settings and save.
+5. Add the table to a page with the block, the Elementor widget or the shortcode shown above the editor.
 
 == Frequently Asked Questions ==
 
-= How do I create my first table? =
+= Is the free version limited in tables or rows? =
 
-After installing the plugin, go to Data Tables → Add New in your WordPress dashboard.
+No. Unlimited tables, rows and columns, formulas, sorting, search, pagination, responsive modes and server-side processing are all free. The free plugin never expires.
 
-You can start with a blank table or import data from a spreadsheet. The table editor works much like a spreadsheet, so adding rows, columns, and content should feel familiar.
+= Can I paste data from Excel or Google Sheets? =
 
-= How can I edit table data after it's created? =
+Yes. Copy a range in Excel, Google Sheets or LibreOffice and paste it into the editor. Importing whole CSV, Excel or Google Sheets files and keeping a table synced with its source are Pro features.
 
-You can edit table data at any time from the table editor in the WordPress admin area.
+= How large a table can it handle? =
 
-For more advanced workflows, the Pro version also supports front-end table editing, allowing authorised users to update data directly from the site interface.
+Server-side processing loads large tables page by page, so tables with tens of thousands of rows stay fast. Users report working with tables of 200,000 rows.
 
-= Can I style tables to match my site design? =
+= Are the tables responsive and accessible? =
 
-Yes. Tables can be styled visually to match your theme.
+Yes. Each table can collapse columns, stack rows or scroll on small screens. The output is standard HTML table markup with keyboard-focusable sortable headers.
 
-You can control fonts, colours, borders, spacing, and layout options directly in the plugin. Advanced users can also apply custom CSS if needed.
+= Can I add images, links or video to cells? =
 
-= Can I import data from Excel, CSV, or Google Sheets? =
+Yes. Cells can hold images, links, video, icons and HTML, which works well for directories, product comparisons and catalogues.
 
-Yes. Data Tables Generator supports importing data from CSV files, Excel spreadsheets, Google Sheets, and MySQL databases.
+= Does it support formulas? =
 
-This makes it easy to turn existing spreadsheet data into interactive tables on your WordPress site.
+Yes. Excel-style formulas such as SUM, AVERAGE and IF work in the free plugin.
 
 = How do I add a table to a page or post? =
 
-Tables can be added to pages or posts using a shortcode, the Gutenberg block, or the Elementor widget.
+Use the plugin's block in the block editor, the Elementor widget, or paste the table shortcode into any page, post or widget area.
 
-Once inserted, the table will automatically reflect any updates made in the table editor.
+= Does it work with Elementor, Divi and WPBakery? =
 
-= Can I add images, links, or media inside tables? =
+Yes. There is a native Elementor widget, and the shortcode works in Divi, WPBakery and other page builders.
 
-Yes. Table cells can include images, links, icons, videos, and other HTML elements.
+= Can I build a WooCommerce product table? =
 
-This allows you to create richer tables such as product comparisons, staff directories, or feature lists with visual elements.
+Yes. When WooCommerce is active, choose WooCommerce Product Table in the table wizard and assign your products. Pro adds category and attribute filters, design templates and export.
 
-= Does the plugin support formulas and calculations? =
+= Can I create a pricing table? =
 
-Yes — formula calculations and computed values are available in the Pro version.
+Yes. Choose Pricing Table in the table wizard to open the drag-and-drop pricing editor with plan columns, payment buttons, badges and templates.
 
-This is useful for totals, percentages, and other calculated fields that update automatically when table data changes.
+= Which AI assistants does it work with? =
 
-= Does the plugin support dynamic or updating data sources? =
+Any assistant that supports the Model Context Protocol (MCP), including ChatGPT, Claude, Gemini, Microsoft Copilot and Cursor. Reading and analysing tables is free; creating and editing tables with AI needs the Pro AI add-on.
 
-Yes. Tables can be connected to external data sources such as spreadsheets or databases.
+= Can visitors edit or export a table? =
 
-When the source data changes, tables can be updated without rebuilding them from scratch. This makes the plugin suitable for data that evolves over time, not just static content.
+Yes, with Pro: front-end editing for logged-in users or chosen roles, and export buttons for visitors (CSV, Excel, PDF and print).
 
-= Is Data Tables Generator fast and compatible with modern WordPress sites? =
+= Can a table update itself automatically? =
 
-Yes. The plugin is designed to handle real-world datasets while maintaining good performance.
+Yes, with Pro. Connect a Google Sheet, an FTP or SFTP file, or a MySQL, PostgreSQL or SQLite query, and the table refreshes on a schedule instead of being imported again by hand.
 
-It is actively maintained and regularly updated to stay compatible with current versions of WordPress, modern themes, and common page builders.
+= Which file formats can I import and export? =
 
-= What is a WooCommerce Product Table? =
+Pro imports CSV, Excel (XLSX and XLS), JSON and Google Sheets, and exports CSV, Excel (XLS and XLSX), JSON and PDF, plus print.
 
-It is a table type built specifically for WooCommerce stores. Instead of manually entering data, you assign WooCommerce products to the table and display them with sorting, search, and filtering options.
+= Will my tables keep working if I upgrade to Pro? =
 
-= Do I need WooCommerce installed to use this feature? =
+Yes. Pro builds on the free plugin, so every table you have created keeps working and nothing has to be rebuilt.
 
-Yes. The WooCommerce Product Table option only appears in the Table Creation Wizard when WooCommerce is active on your site. Regular Data Tables work with or without WooCommerce.
+= How can I report a security issue? =
 
-= Is WooCommerce Product Table available in the free version? =
-
-Yes. The free version includes manual product assignment, column sorting, and loader customisation. The Pro version adds category and product filtering, custom design templates, attribute filtering, search by hidden columns, and other advanced features.
-
-= Can I mix regular Data Tables and WooCommerce Product Tables on the same site? =
-
-Yes. Both table types are created and managed from the same plugin, so you can use a regular Data Table for general content and a WooCommerce Product Table for store products, side by side.
-
-= What is a Pricing Table? =
-
-It is a dedicated table type for presenting plans, packages, or subscription tiers. You build it visually on a drag-and-drop canvas using ready-made blocks for headings, prices, features, buttons, and more, instead of entering data into rows and columns like a regular Data Table.
-
-= Is Pricing Tables available in the free version? =
-
-Yes. The free version includes the full drag-and-drop builder, all core pricing blocks, 3 themes, and custom CSS. The Pro version adds the Pricing Switcher (multiple plans in one table), Ajax loading, 100+ additional premium themes, and a WooCommerce cart block.
-
-= Can I let visitors switch between monthly and yearly pricing? =
-
-Yes, with the Pro version's Toggler (Pricing Switcher). It lets you create multiple complete pricing variants, such as Monthly and Yearly, and switch between them using rounded, checkbox, or select controls.
-
-= What AI assistants does this work with? =
-
-Data Tables Generator connects to any AI assistant that supports the MCP standard, including ChatGPT, Claude, Gemini, Microsoft Copilot, and Cursor. If your AI tool supports MCP, it works.
-
-= Do I need technical skills to use the AI features? =
-
-No. Once connected, you simply type (or speak) what you want in your AI assistant — just like sending a message. No SQL, no coding, no exporting data manually.
-
-= What can I do with AI for free? =
-
-The free version lets you read and analyse any of your WordPress tables using AI. You can ask questions, run calculations, and get summaries — but cannot create or edit tables via AI. That requires the Pro AI add-on.
-
-= What does the Pro AI add-on let me do that the free version doesn't? =
-
-With the Pro AI add-on your AI assistant can create new tables, edit existing ones, apply formulas, change formatting, and import or export data — all just by describing what you want done.
-
-= Do I need the Pro base plugin before I can get the AI add-on? =
-
-Yes. The Pro AI add-on requires the Pro version of Data Tables Generator to be installed first.
-
-= Is the AI add-on included in the Pro plugin price? =
-
-No. The Pro AI add-on is a separate module, available at an additional cost. You can purchase them together as a bundle.
-
-= Will this work with future AI assistants, not just the ones listed? =
-
-Yes. The integration is built on MCP — an open standard being adopted broadly across the AI industry, including natively in WordPress from version 7.0 onwards. Any AI assistant that supports MCP will work automatically.
-
-= Where can I find tutorials, documentation, and support? =
-
-You'll find step-by-step documentation and tutorials on the Supsystic website.
-
-Some guides are written walkthroughs, while others are available as video tutorials.
-
-If you need help, support is provided by real people who build and use the plugin every day.
-
-📘 Documentation & tutorials: https://supsystic.com/docs/data-tables/
-🛟 Support: https://supsystic.com/support/
+Please report security issues through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic). The Patchstack team validates and triages each report and notifies us.
 
 == Screenshots ==
 
-1. Spreadsheet-style tables with images and charts generated from table data
-2. Charts and graphs created directly from table data
-3. Data Tables with Sorting, Searchin, Pagination; Images, Video & Links; Collapsible rows on front-end (pro); Front-end Editing (pro) and more.
-4. Data Tables Plugin admin panel. Main Settings
-5. Data Tables Plugin admin panel. Features
-6. Data Tables Plugin admin panel. Appearance
-
-= How can I report security bugs? =
-
-You can report security bugs through the Patchstack Vulnerability Disclosure Program.
-The Patchstack team help validate, triage and handle any security vulnerabilities.
-[Report a security vulnerability.](https://patchstack.com/database/vdp/data-tables-generator-by-supsystic)
+1. Data table with photos, coloured cells, column search and pagination, next to charts built from the same rows (charts and conditional formatting are Pro).
+2. Charts and graphs created from table data (Pro).
+3. Front-end examples: sorting, search and pagination, video and images in cells, collapsible rows and front-end editing (the last two are Pro).
+4. Table settings: caption, header and footer, fixed columns and number, currency and date formats.
+5. Table features: responsive mode, sorting, pagination, search and export options.
+6. Table appearance: width, borders, row striping, hover highlighting and loader.
 
 == Changelog ==
 
 = 2026 =
+
+= 1.15.6 — October 16, 2026 =
+
+* Maintenance release with minor stability improvements.
+
+= 1.15.5 — October 15, 2026 =
+
+* General security hardening and code improvements.
 
 = 1.15.4 — October 9, 2026 =
 
