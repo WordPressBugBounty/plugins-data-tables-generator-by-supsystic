@@ -496,6 +496,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     // Connect scripts and styles depending on table settings and table's cells settings
     $dispatcher->apply('before_table_render', [$table]);
     if ($table->isSSP) {
+      $table->rowsNonce = $this->getRowsNonce($id);
       $dispatcher->apply('before_table_render_ssp', [$table]);
     }
     $searchValue = '';
@@ -521,6 +522,27 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $this->checkSpreadsheet = false;
 
     return $renderData;
+  }
+
+  /**
+   * Nonce bound to one table. It is printed only where the table is rendered with server-side processing,
+   * so a front-end request for the table's rows proves that the table was shown to the visitor.
+   * @param int $id
+   * @return string
+   */
+  public function getRowsNonce($id)
+  {
+    return wp_create_nonce('dtgs_table_rows_' . (int) $id);
+  }
+
+  /**
+   * @param mixed $nonce
+   * @param int $id
+   * @return bool
+   */
+  public function verifyRowsNonce($nonce, $id)
+  {
+    return is_string($nonce) && $nonce !== '' && wp_verify_nonce($nonce, 'dtgs_table_rows_' . (int) $id) !== false;
   }
 
   private function normalizeWooProductTableFrontendSettings($settings)

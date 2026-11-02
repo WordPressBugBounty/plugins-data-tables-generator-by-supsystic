@@ -268,10 +268,12 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
    */
   public function getPageRowsAction(RscDtgs_Http_Request $request)
   {
-    if (!$this->_checkNonce($request) && !$this->_checkNonceFrontend($request)) {
+    $id = (int) $request->post->get('id');
+    // The front-end nonce is printed on every page, so it only guards against CSRF. Visitors also need the nonce
+    // bound to this table, which is printed only where the table itself is rendered.
+    if (!$this->_checkNonce($request) && !($this->_checkNonceFrontend($request) && $this->getEnvironment()->getModule('tables')->verifyRowsNonce($request->post->get('rowsNonce'), $id))) {
       die();
     }
-    $id = (int) $request->post->get('id');
     $tables = $this->getModel('tables');
 
     try {

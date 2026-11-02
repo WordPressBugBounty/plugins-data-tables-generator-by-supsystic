@@ -1714,6 +1714,7 @@ var g_stbServerSideProcessingIsActive = false;
                 action: 'supsystic-tables',
                 route: route,
                 id: $table.data('id'),
+                rowsNonce: $table.attr('data-rows-nonce'),
                 searchParams: currentSearchParams,
                 searchValue: input.length ? input.val() : '',
                 header: headerRowsCount,
