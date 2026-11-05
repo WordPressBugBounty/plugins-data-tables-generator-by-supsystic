@@ -30,7 +30,7 @@
         $(cal).data('colorpicker').fields.eq(1).val(rgb.r).end().eq(2).val(rgb.g).end().eq(3).val(rgb.b).end();
       },
       fillHSBFields = function (hsb, cal) {
-        $(cal).data('colorpicker').fields.eq(4).val(hsb.h).end().eq(5).val(hsb.s).end().eq(6).val(hsb.b).end();
+        $(cal).data('colorpicker').fields.eq(4).val(Math.round(hsb.h)).end().eq(5).val(Math.round(hsb.s)).end().eq(6).val(Math.round(hsb.b)).end();
       },
       fillHexFields = function (hsb, cal) {
         $(cal).data('colorpicker').fields.eq(0).val(HSBToHex(hsb)).end();

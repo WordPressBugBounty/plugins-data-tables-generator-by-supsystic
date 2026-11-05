@@ -1442,16 +1442,33 @@
     return rows;
   }
 
+  // A spreadsheet runs text that starts with these signs as a formula. Plain numbers such as -5 or +1.5 stay numbers.
+  function isWooFormulaText(text) {
+    return /^[=+\-@\t\r]/.test(text) && !/^[+\-]?\d[\d\s.,]*%?$/.test(text);
+  }
+
   function buildWooCsvContent(rows) {
     return $.map(rows, function (row) {
       return $.map(row, function (cell) {
         cell = cell == null ? '' : String(cell);
+        if (isWooFormulaText(cell)) {
+          cell = "'" + cell;
+        }
         return '"' + cell.replace(/"/g, '""') + '"';
       }).join(',');
     }).join('\r\n');
   }
 
   function buildWooExcelHtml(table, title) {
+    var safeTable = table.clone();
+
+    // The Excel file is HTML: such a cell is marked as text, so it is not run as a formula
+    safeTable.find('th, td').each(function () {
+      if (isWooFormulaText($.trim($(this).text()))) {
+        $(this).attr('style', ($(this).attr('style') || '') + ";mso-number-format:'\\@';");
+      }
+    });
+
     var html = [
       '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">',
       '<head>',
@@ -1468,7 +1485,7 @@
       '</style>',
       '</head>',
       '<body>',
-      $('<div/>').append(table.clone()).html(),
+      $('<div/>').append(safeTable).html(),
       '</body>',
       '</html>',
     ];
@@ -2049,6 +2066,10 @@
 
       $curTable.on('beforeShowTable', function () {
         app._beforeShowWooTable($curTable);
+      });
+      // The first cell of a collapsed table opens the row, and the checkbox of the multiple add to cart can stand in this cell
+      $curTable.children('tbody').on('click', '.stAddMulty', function (e) {
+        e.stopPropagation();
       });
     });
   };

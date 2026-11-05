@@ -377,6 +377,11 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
      * rows resent just because a setting changed.
      */
     TablesModel.prototype.saveSettingsOnly = function () {
+      if (isProGuardArmed()) {
+        window.stbProGuard.run(this.saveSettingsOnly.bind(this));
+        return;
+      }
+
       var self = this,
         id = app.getParameterByName('id'),
         editor = self.getEditor(),
@@ -728,7 +733,16 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
       }
     };
 
+    // In the free version a save resets the PRO settings of the table, so it asks first
+    function isProGuardArmed() {
+      return !!(window.stbProGuard && window.stbProGuard.isArmed());
+    }
+
     TablesModel.prototype.saveTable = function (preview, rerender) {
+      if (!preview && isProGuardArmed()) {
+        window.stbProGuard.run(this._saveTable.bind(this, preview, rerender));
+        return;
+      }
       this._saveTable(preview, rerender);
     };
 
@@ -765,8 +779,11 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
           g_stbNeedPreview = true;
           return;
         }
+        // A preview does not ask: until the answer it shows the table and writes no settings
+        var keepProSettings = isProGuardArmed();
+
         for (var key in g_stbIsDataEdited) {
-          if (g_stbIsDataEdited[key] && (rerender == 2 || key != 'settings')) {
+          if (g_stbIsDataEdited[key] && (rerender == 2 || key != 'settings') && !(keepProSettings && (key == 'settings' || key == 'source' || key == 'woocommerce'))) {
             lastSave = key;
           }
         }
@@ -987,7 +1004,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
 
         // Request to save settings, meta and rows
         var ajaxPromise = new $.Deferred().resolve();
-        if (!isWooProductTable && (!preview || g_stbIsDataEdited['settings'] || (g_stbIsDataEdited['source'] && !skipFtpSourcePreviewSave))) {
+        if (!isWooProductTable && (!preview || (!keepProSettings && (g_stbIsDataEdited['settings'] || (g_stbIsDataEdited['source'] && !skipFtpSourcePreviewSave))))) {
           if (sourceData.length) {
             sourceData.find('input[name="source[dbSQL]"]').val(sourceData.find('#source-db-sql').val());
           }
@@ -1015,7 +1032,7 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
             });
           }
         }
-        if (!preview || g_stbIsDataEdited['woocommerce'] || isWooProductTable) {
+        if (!preview || (!keepProSettings && (g_stbIsDataEdited['woocommerce'] || isWooProductTable))) {
           ajaxPromise = ajaxPromise.then(function () {
             try {
               if (SDT_DATA.isWooCatalogEnabled || SDT_DATA.isWooPro) {
@@ -1140,7 +1157,6 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
       // Put textareas data into the hidden fields before the saving of table settings
       formData.find('input[name="elements[descriptionText]"]').val(formData.find('#descriptionText').val());
       formData.find('input[name="elements[signatureText]"]').val(formData.find('#signatureText').val());
-      formData.find('input[name="features[after_table_loaded_script]"]').val(this._b64EncodeUnicode(formData.find('#after-table-loaded-script-text').val()));
 
       var customCss = '',
         obj = document.getElementById('stb-preview-css'),
@@ -1559,14 +1575,6 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
           }, 750);
         });
       }
-    };
-
-    TablesModel.prototype._b64EncodeUnicode = function (str) {
-      return btoa(
-        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-          return String.fromCharCode('0x' + p1);
-        })
-      );
     };
 
     return TablesModel;

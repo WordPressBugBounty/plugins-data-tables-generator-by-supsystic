@@ -3,7 +3,7 @@ Contributors: supsysticcom
 Tags: table, datatable, table builder, spreadsheet, product table
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.15.8
+Stable tag: 1.16.01
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,10 @@ The editor works like Excel or Google Sheets: select cells, copy, paste and fill
 
 Every table gets column sorting, live search and pagination, so a list of two thousand rows is as easy to use as a list of ten.
 
+= Smart column filters =
+
+With Pro, give every column the filter that suits its data: dropdowns, multi-select lists, clickable buttons, number ranges with a slider, and date and time pickers with quick periods. One click on Suggest filters reads your data and sets up the whole table. Visitors see their active filters, reset them in one click and always know how many rows match, even on large server-side tables.
+
 = Responsive tables that work on phones =
 
 Choose how each table behaves on small screens: collapse columns, stack rows or scroll. The output is real HTML table markup with keyboard-focusable sortable headers, so your tables stay readable with screen readers too.
@@ -69,13 +73,25 @@ Paste data straight from any spreadsheet in the free plugin. Pro brings data in 
 * Export to CSV, Excel (XLS and XLSX), JSON and PDF, or print with your logo
 * Export buttons for your visitors on the front end
 
+= One-click migration from Ninja Tables =
+
+Moving from Ninja Tables? Data Tables Generator finds your tables right in your database, even when that plugin is switched off or removed, and moves them in a few clicks. Your original tables stay as they are.
+
+* Rows, columns, sorting, pagination, hidden columns, widths and alignment move as they are
+* Large tables keep loading page by page with server-side processing
+* Drag and drop tables become data tables with the same cells
+* You see what will happen to every option before you import
+* With Pro, custom filters, conditional formatting, export buttons and editing on the site move too
+
+Look for the import offer on the plugin pages, or use the Import Tables button on the Settings page. Import from other table plugins is on the way.
+
 = Front-end editing =
 
 With Pro, logged-in users or selected roles can update a table right on the page: editable cells, dropdown and date-picker fields, row removal and a marker on the last edited cell. No dashboard access needed.
 
 = Charts and graphs =
 
-With Pro, turn table rows into line, bar, pie, area and bubble charts that update when the data changes.
+With Pro, turn table rows into any of 29 chart types that update when the data changes: bars, lines, pies, radar, bubbles, gauges, waterfalls, geo maps, 3D charts and more.
 
 = WooCommerce product tables =
 
@@ -107,13 +123,14 @@ Data Tables Generator includes its own MCP server. Connect ChatGPT, Claude, Gemi
 
 Besides import, export, auto-update, front-end editing and charts, Pro adds:
 
+* Smart column filters: dropdowns, multi-select, buttons, number ranges and date pickers
 * Conditional formatting that colours cells by value
 * Collapsible rows, tooltips and an image lightbox
 * Table history to restore an earlier version
 * WooCommerce product table filters, categories, design templates and export
 * Monthly and yearly price switch for pricing tables
 * Control over which user roles can manage tables
-* Create and edit tables with AI (separate add-on)
+* Create and edit tables with AI assistants
 
 = Learn more =
 
@@ -143,6 +160,14 @@ Yes. Copy a range in Excel, Google Sheets or LibreOffice and paste it into the e
 = How large a table can it handle? =
 
 Server-side processing loads large tables page by page, so tables with tens of thousands of rows stay fast. Users report working with tables of 200,000 rows.
+
+= Can visitors filter a column by dropdown, number range or date? =
+
+Yes, with Pro. Choose a filter for each column: dropdown, multi-select, buttons, number range, date or time. Show the filters under the column titles, below the table or in a panel above it. Suggest filters sets up the whole table for you in one click, and it all works on server-side tables too.
+
+= Can I move my tables from Ninja Tables? =
+
+Yes, and it is free. The plugin finds your Ninja Tables in your database, even when that plugin is switched off, and offers to move them. You can also start from the Import Tables button on the Settings page. Your original tables are not changed. Options we have only in Pro, such as custom filters and conditional formatting, are listed before the import, and you can import without them. Tables that are built on the fly from posts, WooCommerce products, form entries or an SQL query have no rows to copy yet.
 
 = Are the tables responsive and accessible? =
 
@@ -174,7 +199,7 @@ Yes. Choose Pricing Table in the table wizard to open the drag-and-drop pricing 
 
 = Which AI assistants does it work with? =
 
-Any assistant that supports the Model Context Protocol (MCP), including ChatGPT, Claude, Gemini, Microsoft Copilot and Cursor. Reading and analysing tables is free; creating and editing tables with AI needs the Pro AI add-on.
+Any assistant that supports the Model Context Protocol (MCP), including ChatGPT, Claude, Gemini, Microsoft Copilot and Cursor. Reading and analysing tables is free; creating and editing tables with AI comes with Pro.
 
 = Can visitors edit or export a table? =
 
@@ -198,16 +223,42 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 
 == Screenshots ==
 
-1. Data table with photos, coloured cells, column search and pagination, next to charts built from the same rows (charts and conditional formatting are Pro).
-2. Charts and graphs created from table data (Pro).
-3. Front-end examples: sorting, search and pagination, video and images in cells, collapsible rows and front-end editing (the last two are Pro).
-4. Table settings: caption, header and footer, fixed columns and number, currency and date formats.
-5. Table features: responsive mode, sorting, pagination, search and export options.
-6. Table appearance: width, borders, row striping, hover highlighting and loader.
+1. Table Wizard: answer a few questions and get a finished table with sample data, a design and the right settings in about a minute.
+2. A data table on your site and on a phone: search, sorting, column filters, photos and totals.
+3. Smart column filters: dropdowns, multi-select, buttons, number ranges and date pickers, set up in one click.
+4. The spreadsheet editor: paste from Excel or Google Sheets, then add formulas, colors, merged cells and images.
+5. 110 ready-made table designs.
+6. 29 chart and diagram types built from your table data.
+7. The chart window: select your cells, pick a type and see a live preview.
+8. WooCommerce product table with add to cart, quantities and buying several products at once.
+9. 120 WooCommerce table designs with a live preview on desktop, tablet and phone.
+10. A pricing table that loads on click and switches between monthly and yearly prices.
+11. 105 pricing table themes.
+12. The visual pricing table builder with drag-and-drop blocks.
+13. The Source tab keeps a table in sync with Google Sheets, a database or an FTP file.
+14. Table History: every signed-in user gets a personal copy of the table.
+15. The AI tab connects ChatGPT, Claude, Gemini, Copilot or Cursor to your tables.
+16. Settings with clear tabs, quick search and a live preview.
 
 == Changelog ==
 
 = 2026 =
+
+= 1.16.01 — November 6, 2026 =
+
+* New Table Wizard: answer a few simple questions and get a finished table with sample data, a design and the right settings in about a minute.
+* A completely new look: every tab, setting and dialog is cleaner, faster and easier to use.
+* Ready-made table designs: pick a color palette and watch your table change before you save it.
+* Bigger upgrades for WooCommerce product tables and pricing tables, plus a modern new charts experience in Pro.
+* New column filters in Pro: dropdowns, multi-select, number ranges and date pickers for every column, set up in one click.
+* One-click migration from Ninja Tables: your tables are found right in the database and moved with their rows and settings.
+* Fixed: server-side tables with a column that cannot be sorted lost their cell formats.
+* Fixed: on server-side tables, sorting and search by column now work correctly with hidden columns and the index column, and the search of the table skips hidden columns unless you turn on Search by Hidden Fields.
+* Your existing tables and settings stay exactly as they were, so updating is safe.
+
+= 1.15.9 — November 5, 2026 =
+
+* General security fixes and code improvements.
 
 = 1.15.8 — November 2, 2026 =
 

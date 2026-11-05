@@ -16,6 +16,7 @@ class SupsysticTables_Pricing_Controller extends SupsysticTables_Core_BaseContro
     }
     return $this->response('@pricing/editor.twig', [
       'table' => $table,
+      'proGuard' => $this->getModel('proGuard', 'tables')->getWarning($table),
       'builder' => $builder,
       'builderJson' => wp_json_encode($builder, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
       'capabilities' => $pricing->getCapabilities(),

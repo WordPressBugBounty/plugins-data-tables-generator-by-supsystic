@@ -232,7 +232,7 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
       'scopedCss' => $builder->scopeCss($data['css'], $table->id),
       'capabilities' => $this->getCapabilities(),
       'ajaxUrl' => admin_url('admin-ajax.php'),
-      'ajaxNonce' => wp_create_nonce('supsystic_pricing_ajax'),
+      'ajaxNonce' => wp_create_nonce('supsystic_pricing_ajax_' . (int) $table->id),
       'toggleVariantsJson' => wp_json_encode((object) ($data['toggleVariants'] ?? []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
       'toggleVariantStylesJson' => $this->getVariantStylesJson($data, $builder, $table->id),
       'wooActive' => $this->isWooCommerceAvailable(),
@@ -242,16 +242,20 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
 
   public function ajaxRender()
   {
-    if (!$this->getCapabilities()['ajaxToggle'] || !check_ajax_referer('supsystic_pricing_ajax', 'nonce', false)) {
+    $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+    // The nonce is bound to the table, so only a table rendered on the page with server-side loading can be loaded
+    if (!$this->getCapabilities()['ajaxToggle'] || !check_ajax_referer('supsystic_pricing_ajax_' . $id, 'nonce', false)) {
       wp_send_json_error(['message' => 'Invalid request.'], 403);
     }
-    $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
     $table = $this->getEnvironment()->getModule('core')->getModelsFactory()->get('tables')->getById($id);
     if (!$table || $table->table_type !== 'pricing_table') {
       wp_send_json_error(['message' => 'Pricing table not found.'], 404);
     }
     $builder = $this->getEnvironment()->getModule('core')->getModelsFactory()->get('builder', 'pricing');
     $data = $builder->getBuilder($table);
+    if (empty($data['ajaxToggle'])) {
+      wp_send_json_error(['message' => 'Invalid request.'], 403);
+    }
     $html = $this->getEnvironment()->getTwig()->render('@pricing/content.twig', [
       'table' => $table,
       'builder' => $data,
@@ -371,10 +375,10 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
     $version = $environment->getConfig()->get('plugin_version') . '-pricing-ui-92';
     $ui->add($ui->createStyle('supsystic-pricing-grapes-css')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'css/grapes.min.css')->setVersion($version));
     $ui->add($ui->createStyle('supsystic-pricing-icons-css')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'css/font-awesome.min.css')->setVersion($version));
-    $ui->add($ui->createStyle('supsystic-pricing-editor-css')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'css/pricing.editor.css')->setVersion($version));
+    $ui->add($ui->createStyle('supsystic-pricing-editor-css')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'css/pricing.editor.css')->setVersion($version . '-palette-1'));
     $ui->add($ui->createScript('supsystic-pricing-grapes-js')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'js/grapes.js')->setVersion($version));
     $ui->add($ui->createScript('supsystic-pricing-style-bg-js')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'js/grapes.style.bg.min.js')->setVersion($version)->addDependency('supsystic-pricing-grapes-js'));
-    $ui->add($ui->createScript('supsystic-pricing-editor-js')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'js/pricing.editor.js')->setVersion($version)->addDependency('jquery')->addDependency('tables-core')->addDependency('tables-chosen')->addDependency('supsystic-pricing-grapes-js')->addDependency('supsystic-pricing-style-bg-js'));
+    $ui->add($ui->createScript('supsystic-pricing-editor-js')->setHookName('admin_enqueue_scripts')->setModuleSource($this, 'js/pricing.editor.js')->setVersion($version . '-guard-1')->addDependency('jquery')->addDependency('tables-core')->addDependency('tables-chosen')->addDependency('supsystic-pricing-grapes-js')->addDependency('supsystic-pricing-style-bg-js'));
   }
 
   public function enqueueEditorDependencies()

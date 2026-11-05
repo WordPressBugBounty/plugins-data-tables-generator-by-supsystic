@@ -4,7 +4,7 @@
  * Plugin Name: Data Tables Generator by Supsystic
  * Plugin URI: http://supsystic.com
  * Description: Three table types in one plugin: Excel-like data tables with formulas, WooCommerce product tables and pricing tables. Responsive and searchable.
- * Version: 1.15.8
+ * Version: 1.16.01
  * Author: supsystic.com
  * Author URI: http://supsystic.com
  * Text Domain: supsystic_tables
@@ -55,21 +55,6 @@ $supsysticTables->run();
 
 $supsysticTables->activate(__FILE__);
 $supsysticTables->deactivate(__FILE__);
-
-/**
- * Spooky Sale banner on the plugin admin pages
- */
-if (is_admin()) {
-  require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'promo' . DIRECTORY_SEPARATOR . 'spooky-sale.php';
-  SupsysticSpookySale2026::register('supsystic-tables', plugin_dir_url(__FILE__) . 'promo/', [
-    'proPid' => 3443,
-    'proUrl' => 'https://supsystic.com/plugins/wordpress-data-table-plugin/',
-    'isPro' => function () use ($supsysticTables) {
-      return $supsysticTables->getEnvironment()->isPro() || (function_exists('is_plugin_active') && is_plugin_active('tables-generator-pro/index.php'));
-    },
-    'utmCampaign' => 'data-tables',
-  ]);
-}
 
 if (!function_exists('supsystic_tables_get')) {
   function supsystic_tables_get($id)

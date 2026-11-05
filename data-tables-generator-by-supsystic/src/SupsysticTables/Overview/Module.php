@@ -38,6 +38,24 @@ class SupsysticTables_Overview_Module extends SupsysticTables_Core_BaseModule
 
     $ui->add($ui->createStyle('supsystic-tables-overview-css')->setHookName($hook)->setModuleSource($this, 'css/overview.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-overview-7'));
     $ui->add($ui->createScript('supsystic-tables-overview-js')->setHookName($hook)->setModuleSource($this, 'js/overview.settings.js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-overview-7'));
+    $ui->add($ui->createStyle('supsystic-tables-overview-classic-demo')->setHookName($hook)->setModuleSource($this, 'css/classic-demo.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-demo-2'));
+    $ui->add($ui->createScript('supsystic-tables-overview-classic-demo')->setHookName($hook)->setModuleSource($this, 'js/classic-demo.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($version . '-demo-2'));
+    if ($this->showProOffer()) {
+      $ui->add($ui->createStyle('supsystic-tables-overview-pro-offer-css')->setHookName($hook)->setModuleSource($this, 'css/pro-offer.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-pro-offer-3'));
+      $ui->add($ui->createScript('supsystic-tables-overview-pro-offer-js')->setHookName($hook)->setModuleSource($this, 'js/pro-offer.js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-pro-offer-2'));
+    }
+  }
+
+  /**
+   * The Free vs PRO comparison and the PRO pricing are shown while PRO is not active: its plugin is not loaded (not
+   * installed or deactivated) and the PRO features are off.
+   * @return bool
+   */
+  public function showProOffer()
+  {
+    $show = !$this->getEnvironment()->isPro() && !class_exists('SupsysticTablesPro_Loader', false);
+
+    return (bool) apply_filters('supsystic_tables_show_pro_offer', $show);
   }
 
   private function registerMenu()

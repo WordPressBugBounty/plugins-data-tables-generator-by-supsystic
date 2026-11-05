@@ -1,136 +1,192 @@
 <div class="supRow row-tab" id="row-tab-source">
     {% block content %}
-        {% import '@ui/tooltip.twig' as tooltip %}
+        {% set img = environment.getModule('tables').getLocationUrl() ~ '/assets/img/source/' %}
+        {% set url = build_pro_url({ 'utm_medium': 'table_source' }) %}
+        {% set rows = [
+            ['Wireless mouse', '128', '$24.90'],
+            ['USB-C hub', '64', '$39.00'],
+            ['Laptop stand', '31', '$45.50'],
+            ['Webcam HD', '12', '$59.00']
+        ] %}
+        {% set uses = [
+            {'icon': 'fa-cubes', 'title': 'Stock and inventory', 'text': 'Show stock levels straight from your shop or warehouse database.'},
+            {'icon': 'fa-tags', 'title': 'Price lists', 'text': 'Your team edits prices in Google Sheets, the site shows them.'},
+            {'icon': 'fa-file-excel-o', 'title': 'Daily exports', 'text': 'Your ERP or CRM drops a CSV or XLSX on FTP, the table reads it.'},
+            {'icon': 'fa-address-book-o', 'title': 'Directories', 'text': 'Members, partners or locations from any database table.'},
+            {'icon': 'fa-line-chart', 'title': 'Live dashboards', 'text': 'Combine live data with charts that follow every change.'},
+            {'icon': 'fa-pencil-square-o', 'title': 'Editable records', 'text': 'Visitors fix a row on the page and it is saved to the database.'}
+        ] %}
+
         <div class="supXs12">
-            <section class="tabs-content row-settings-block">
-                <div class="stbSourceHub" data-source-hub data-source-default="default">
-                    <div class="stbSourceHubIntro">
-                        <h3>{{ environment.translate('Source') }}</h3>
-                        <p>{{ environment.translate('Choose how this table gets its data.') }}</p>
+        <div class="stb-showcase stb-showcase-source stb-sc-brand" data-showcase>
+            <section class="stb-sc-hero">
+                <div class="stb-sc-hero-text">
+                    <span class="stb-sc-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ environment.translate('Live data in PRO') }}</span>
+                    <h2>{{ environment.translate('Connect this table to live data') }}</h2>
+                    <p>{{ environment.translate('Show rows straight from a database, a Google Sheet or a file on FTP. The data stays where it is and the table follows it, no copy and paste.') }}</p>
+                    <div class="stb-sc-actions">
+                        <a class="stb-sc-cta" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                        <a class="stb-sc-link" href="#stb-sc-src-database">{{ environment.translate('See the sources') }}<i class="fa fa-angle-down" aria-hidden="true"></i></a>
                     </div>
-
-                    <div class="stbSourceTiles" role="tablist" aria-label="{{ environment.translate('Source types') }}">
-                        <button type="button" class="stbSourceTile is-active" data-source-target="default" role="tab" aria-selected="true">
-                            <span class="stbSourceTileIcon"><i class="fa fa-table" aria-hidden="true"></i></span>
-                            <span class="stbSourceTileBody">
-                                <span class="stbSourceTileTitle">{{ environment.translate('Default') }}</span>
-                                <span class="stbSourceTileDesc">{{ environment.translate('Use the table data from the Editor tab and standard manual workflow.') }}</span>
-                            </span>
-                        </button>
-                        <button type="button" class="stbSourceTile" data-source-target="database" role="tab" aria-selected="false">
-                            <span class="stbSourceTileIcon"><i class="fa fa-database" aria-hidden="true"></i></span>
-                            <span class="stbSourceTileBody">
-                                <span class="stbSourceTileTitle">{{ environment.translate('Database Source') }}</span>
-                                <span class="stbSourceTileDesc">{{ environment.translate('WordPress tables, MySQL, PostgreSQL, external databases, and SQL queries.') }}</span>
-                            </span>
-                        </button>
-                        <button type="button" class="stbSourceTile" data-source-target="google" role="tab" aria-selected="false">
-                            <span class="stbSourceTileIcon"><i class="fa fa-google" aria-hidden="true"></i></span>
-                            <span class="stbSourceTileBody">
-                                <span class="stbSourceTileTitle">{{ environment.translate('Google Sheets Sync') }}</span>
-                                <span class="stbSourceTileDesc">{{ environment.translate('Sync table content with a Google Sheet.') }}</span>
-                            </span>
-                        </button>
-                        <button type="button" class="stbSourceTile" data-source-target="ftp" role="tab" aria-selected="false">
-                            <span class="stbSourceTileIcon"><i class="fa fa-server" aria-hidden="true"></i></span>
-                            <span class="stbSourceTileBody">
-                                <span class="stbSourceTileTitle">{{ environment.translate('FTP Source') }}</span>
-                                <span class="stbSourceTileDesc">{{ environment.translate('Load CSV, JSON, XLS or XLSX data from a remote FTP file.') }}</span>
-                            </span>
-                        </button>
+                    <ul class="stb-sc-stats">
+                        <li><strong>3</strong><span>{{ environment.translate('live sources') }}</span></li>
+                        <li><strong>SQL</strong><span>{{ environment.translate('MySQL and PostgreSQL') }}</span></li>
+                        <li><strong>4</strong><span>{{ environment.translate('file formats') }}</span></li>
+                    </ul>
+                </div>
+                <div class="stb-sc-flow" aria-hidden="true">
+                    <div class="stb-sc-flow-sources">
+                        <span class="stb-sc-flow-source" style="--src: #0ea5e9;"><i class="fa fa-database"></i><span>MySQL<small>{{ environment.translate('WordPress or external') }}</small></span></span>
+                        <span class="stb-sc-flow-source" style="--src: #6366f1;"><i class="fa fa-database"></i><span>PostgreSQL<small>{{ environment.translate('Tables or SQL query') }}</small></span></span>
+                        <span class="stb-sc-flow-source" style="--src: #16a34a;"><i class="fa fa-table"></i><span>Google Sheets<small>{{ environment.translate('Synced on the page') }}</small></span></span>
+                        <span class="stb-sc-flow-source" style="--src: #f59e0b;"><i class="fa fa-server"></i><span>FTP / FTPS<small>CSV · XLS · XLSX · JSON</small></span></span>
                     </div>
-
-                    <div class="stbSourcePanels">
-                        <section class="stbSourcePanel is-active" data-source-panel="default" role="tabpanel">
-                            <div class="setting-title">
-                                <h3>{{ environment.translate('Default') }}</h3>
-                            </div>
-                            <div class="setting-wrapper">
-                                <div class="setting-label">
-                                    <label>{{ environment.translate('Editor Data Source') }}</label>
-                                    <div class="description" style="margin-top: 8px;">
-                                        {{ environment.translate('The table will use the data and formatting managed directly in the Editor tab.') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="stbSourcePanel" data-source-panel="database" role="tabpanel">
-                            <div class="setting-title">
-                                <h3>
-                                    {{ environment.translate('Database Source') }}
-                                    <a href="{{ build_pro_url({ 'utm_medium': 'table-source-database' }) }}" class="stbSourceProTag" target="_blank">
-                                        <i class="fa fa-lock" aria-hidden="true"></i>
-                                        <span>{{ environment.translate('PRO') }}</span>
-                                    </a>
-                                </h3>
-                            </div>
-                            <div class="setting-wrapper">
-                                <div class="setting-label">
-                                    <label>{{ environment.translate('Database Source') }}</label>
-                                    <div class="description" style="margin-top: 8px;">
-                                        {{ environment.translate('Use WordPress database tables, MySQL, PostgreSQL, external databases, or SQL queries as the source for your table data.') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="stbSourcePanel" data-source-panel="google" role="tabpanel">
-                            <div class="setting-title">
-                                <h3>
-                                    {{ environment.translate('Google Sheets Sync') }}
-                                    <a href="{{ build_pro_url({ 'utm_medium': 'google_tables_automatically_update' }) }}" class="stbSourceProTag" target="_blank">
-                                        <i class="fa fa-lock" aria-hidden="true"></i>
-                                        <span>{{ environment.translate('PRO') }}</span>
-                                    </a>
-                                </h3>
-                            </div>
-                            <div class="setting-wrapper">
-                                <div class="setting-label">
-                                    <label for="google-tables-automatically-update-unavailable-source">
-                                        {{ environment.translate('Autoimport from Google Sheet') }}
-                                        {{ tooltip.icon(environment.translate('If checked, table data on the frontend will be automatically loaded from the selected Google Sheet.')) }}
-                                    </label>
-                                </div>
-                                <div class="setting-check">
-                                    <input type="checkbox" disabled="disabled" id="google-tables-automatically-update-unavailable-source" />
-                                </div>
-                            </div>
-                            <div class="setting-wrapper">
-                                <div class="setting-label">
-                                    <label for="google-tables-link-unavailable-source">
-                                        {{ environment.translate('Link from Google Tables') }}
-                                        {{ tooltip.icon(environment.translate('Type Google Sheet url to import data from sheet to table')) }}
-                                    </label>
-                                </div>
-                                <div class="setting-input">
-                                    <input type="text" disabled="disabled" id="google-tables-link-unavailable-source" placeholder="{{ environment.translate('Paste Google Sheet URL here') }}">
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="stbSourcePanel" data-source-panel="ftp" role="tabpanel">
-                            <div class="setting-title">
-                                <h3>
-                                    {{ environment.translate('FTP Source') }}
-                                    <a href="{{ build_pro_url({ 'utm_medium': 'source_ftp' }) }}" class="stbSourceProTag" target="_blank">
-                                        <i class="fa fa-lock" aria-hidden="true"></i>
-                                        <span>{{ environment.translate('PRO') }}</span>
-                                    </a>
-                                </h3>
-                            </div>
-                            <div class="setting-wrapper">
-                                <div class="setting-label">
-                                    <label>{{ environment.translate('FTP Source') }}</label>
-                                    <div class="description" style="margin-top: 8px;">
-                                        {{ environment.translate('Load table data from remote CSV, JSON, XLS and XLSX files over an FTP connection.') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                    <div class="stb-sc-flow-pipe"><span class="stb-sc-flow-sync"><i class="fa fa-refresh"></i></span></div>
+                    <div class="stb-sc-flow-table">
+                        <div class="stb-sc-flow-table-head">
+                            <strong>{{ environment.translate('Products') }}</strong>
+                            <span class="stb-sc-live"><i></i>{{ environment.translate('Live') }}</span>
+                        </div>
+                        <table>
+                            <thead><tr><th>{{ environment.translate('Product') }}</th><th>{{ environment.translate('Stock') }}</th><th>{{ environment.translate('Price') }}</th></tr></thead>
+                            <tbody>
+                                {% for row in rows %}
+                                    <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
+
+            <section class="stb-sc-sources" aria-label="{{ environment.translate('Source types') }}">
+                <div class="stb-sc-source is-current">
+                    <span class="stb-sc-source-icon"><i class="fa fa-th" aria-hidden="true"></i></span>
+                    <span class="stb-sc-source-body">
+                        <strong>{{ environment.translate('Editor') }}<em class="stb-sc-source-badge">{{ environment.translate('Current source') }}</em></strong>
+                        <span>{{ environment.translate('This table uses the data and formatting from the Editor tab.') }}</span>
+                    </span>
+                </div>
+                <a class="stb-sc-source" href="#stb-sc-src-database">
+                    <span class="stb-sc-source-icon"><i class="fa fa-database" aria-hidden="true"></i></span>
+                    <span class="stb-sc-source-body">
+                        <strong>{{ environment.translate('Database') }}<em class="stb-sc-source-badge is-pro">PRO</em></strong>
+                        <span>{{ environment.translate('WordPress tables, MySQL, PostgreSQL, external databases and SQL queries.') }}</span>
+                    </span>
+                </a>
+                <a class="stb-sc-source" href="#stb-sc-src-google">
+                    <span class="stb-sc-source-icon"><i class="fa fa-google" aria-hidden="true"></i></span>
+                    <span class="stb-sc-source-body">
+                        <strong>{{ environment.translate('Google Sheets') }}<em class="stb-sc-source-badge is-pro">PRO</em></strong>
+                        <span>{{ environment.translate('The table loads the data of a Google Sheet on the page.') }}</span>
+                    </span>
+                </a>
+                <a class="stb-sc-source" href="#stb-sc-src-ftp">
+                    <span class="stb-sc-source-icon"><i class="fa fa-server" aria-hidden="true"></i></span>
+                    <span class="stb-sc-source-body">
+                        <strong>{{ environment.translate('FTP file') }}<em class="stb-sc-source-badge is-pro">PRO</em></strong>
+                        <span>{{ environment.translate('CSV, JSON, XLS or XLSX from a remote server.') }}</span>
+                    </span>
+                </a>
+            </section>
+
+            <section class="stb-sc-feature" id="stb-sc-src-database">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('Database source') }}</span>
+                    <h3>{{ environment.translate('Any database table or SQL query as a table') }}</h3>
+                    <p>{{ environment.translate('Pick a database table and its fields, or write your own query. The rows come from the database every time the table is shown.') }}</p>
+                    <ul class="stb-sc-checks">
+                        <li>{{ environment.translate('MySQL and PostgreSQL, the WordPress database or an external one') }}</li>
+                        <li>{{ environment.translate('Only the fields you choose, in the order you need') }}</li>
+                        <li>{{ environment.translate('Visitors can edit rows and save them back to the database') }}</li>
+                        <li>{{ environment.translate('Editing for signed-in users or chosen roles only') }}</li>
+                        <li>{{ environment.translate('Charts from the database data') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot">
+                    <div class="stb-sc-shot-tabs" role="group">
+                        <button type="button" class="is-active" data-shot="0" aria-pressed="true">{{ environment.translate('SQL query') }}</button>
+                        <button type="button" data-shot="1" aria-pressed="false">{{ environment.translate('Table and fields') }}</button>
+                    </div>
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}source-panel-sql.webp" data-caption="{{ environment.translate('Database source') ~ ' · ' ~ environment.translate('SQL query') }}"><img src="{{ img }}source-panel-sql.webp" alt="{{ environment.translate('Database source with an SQL query') }}" width="1288" height="866" loading="lazy" /></button>
+                        <button type="button" class="stb-sc-zoom" data-full="{{ img }}source-panel-database.webp" data-caption="{{ environment.translate('Database source') ~ ' · ' ~ environment.translate('Table and fields') }}"><img src="{{ img }}source-panel-database.webp" alt="{{ environment.translate('Database table, fields and frontend editing') }}" width="1288" height="850" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-feature stb-sc-feature-reverse" id="stb-sc-src-google">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('Google Sheets') }}</span>
+                    <h3>{{ environment.translate('Edit in Google Sheets, publish on your site') }}</h3>
+                    <p>{{ environment.translate('Paste the link of a sheet. The table loads its data on the page, so your team keeps working where it already works.') }}</p>
+                    <ul class="stb-sc-checks">
+                        <li>{{ environment.translate('No export and import after every change') }}</li>
+                        <li>{{ environment.translate('With the sheet formatting or as plain data') }}</li>
+                        <li>{{ environment.translate('Charts from the synced data') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot">
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}source-panel-google-sheets.webp" data-caption="{{ environment.translate('Google Sheets Sync') }}"><img src="{{ img }}source-panel-google-sheets.webp" alt="{{ environment.translate('Google Sheets Sync settings') }}" width="1288" height="492" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-feature" id="stb-sc-src-ftp">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('FTP file') }}</span>
+                    <h3>{{ environment.translate('Reports from a file on your server') }}</h3>
+                    <p>{{ environment.translate('Point the table to a CSV, XLS, XLSX or JSON file. The file is read before the table is shown, so a new export means new rows on the site.') }}</p>
+                    <ul class="stb-sc-checks">
+                        <li>{{ environment.translate('FTP and FTPS, passive mode') }}</li>
+                        <li>{{ environment.translate('File type detected by itself, any CSV delimiter') }}</li>
+                        <li>{{ environment.translate('Connection check in one click') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot">
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}source-panel-ftp.webp" data-caption="{{ environment.translate('FTP Source') }}"><img src="{{ img }}source-panel-ftp.webp" alt="{{ environment.translate('FTP Source settings') }}" width="1288" height="796" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <h3>{{ environment.translate('What people build with it') }}</h3>
+                        <p>{{ environment.translate('Any table whose data already lives somewhere else.') }}</p>
+                    </div>
+                </header>
+                <div class="stb-sc-uses">
+                    {% for use in uses %}
+                        <div class="stb-sc-use">
+                            <span class="stb-sc-use-icon"><i class="{{ use.icon }} fa fa-fw" aria-hidden="true"></i></span>
+                            <strong>{{ environment.translate(use.title) }}</strong>
+                            <span>{{ environment.translate(use.text) }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="stb-sc-final">
+                <div>
+                    <h3>{{ environment.translate('Stop copying data into tables') }}</h3>
+                    <p>{{ environment.translate('Your tables and their settings stay as they are. PRO adds live sources on top.') }}</p>
+                </div>
+                <a class="stb-sc-cta stb-sc-cta-light" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </section>
+
+            <div class="stb-sc-lightbox" hidden role="dialog" aria-modal="true" aria-label="{{ environment.translate('Picture') }}">
+                <button type="button" class="stb-sc-lightbox-close" aria-label="{{ environment.translate('Close') }}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-prev" aria-label="{{ environment.translate('Previous') }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                <figure><img alt="" /><figcaption></figcaption></figure>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-next" aria-label="{{ environment.translate('Next') }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+            </div>
+        </div>
         </div>
     {% endblock %}
 </div>

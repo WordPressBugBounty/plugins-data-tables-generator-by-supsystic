@@ -2095,19 +2095,28 @@
     });
     $('#st-pricing-save').on('click', function () {
       if (!ensureSourceApplied()) { return; }
-      var $button = $(this).prop('disabled', true);
-      status.text('Saving…');
-      var data = collectBuilder();
-      window.supsystic.Tables.request(
-        { module: 'pricing', action: 'save', nonce: nonce },
-        { id: tableId, builder: data }
-      ).done(function (response) {
-        status.text(response && response.success === false ? response.message : 'Saved');
-      }).fail(function () {
-        status.text('Could not save the pricing table');
-      }).always(function () {
-        $button.prop('disabled', false);
-      });
+      var $button = $(this);
+      function save() {
+        $button.prop('disabled', true);
+        status.text('Saving…');
+        var data = collectBuilder();
+        window.supsystic.Tables.request(
+          { module: 'pricing', action: 'save', nonce: nonce },
+          { id: tableId, builder: data }
+        ).done(function (response) {
+          status.text(response && response.success === false ? response.message : 'Saved');
+        }).fail(function () {
+          status.text('Could not save the pricing table');
+        }).always(function () {
+          $button.prop('disabled', false);
+        });
+      }
+      // In the free version a save resets the PRO settings of the table, so it asks first
+      if (window.stbProGuard) {
+        window.stbProGuard.run(save);
+      } else {
+        save();
+      }
     });
   });
 })(window.jQuery);

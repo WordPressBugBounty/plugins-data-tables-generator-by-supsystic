@@ -160,3 +160,29 @@
 .colorpicker_slider {
   background-position: bottom;
 }
+/* WordPress sets a minimum height and padding on text inputs. The bitmap
+   picker has fixed 22px slots; reset its inputs inside those slots. */
+.colorpicker input[type='text'] {
+  box-sizing: border-box !important;
+  width: 32px !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 20px !important;
+  min-height: 0 !important;
+  line-height: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 1px !important;
+  right: 12px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #b8b8b8 !important;
+  font: 11px/20px Arial, Helvetica, sans-serif !important;
+  text-align: right !important;
+}
+.colorpicker .colorpicker_hex input[type='text'] {
+  width: 53px !important;
+  right: 5px !important;
+}

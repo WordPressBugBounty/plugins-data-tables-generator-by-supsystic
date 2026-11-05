@@ -15,12 +15,24 @@ class SupsysticTables_Overview_Controller extends SupsysticTables_Core_BaseContr
         'email' => $current_user->user_email,
         'website' => get_bloginfo('url'),
       ],
+      'showProOffer' => $this->getEnvironment()->getModule('overview')->showProOffer(),
     ]);
   }
 
   public function sendMailAction(RscDtgs_Http_Request $request)
   {
-    $mail = $request->post['route']['data'];
+    if (!$this->_checkNonce($request)) {
+      die();
+    }
+    $route = $request->post->get('route');
+    $input = is_array($route) && isset($route['data']) && is_array($route['data']) ? $route['data'] : [];
+    // The values end up in mail headers, so line breaks and markup are removed
+    $mail = [];
+    foreach (['name', 'website', 'subject', 'question'] as $key) {
+      $mail[$key] = isset($input[$key]) && is_scalar($input[$key]) ? sanitize_text_field((string) $input[$key]) : '';
+    }
+    $mail['email'] = isset($input['email']) && is_scalar($input['email']) ? sanitize_email((string) $input['email']) : '';
+    $mail['message'] = isset($input['message']) && is_scalar($input['message']) ? esc_html((string) $input['message']) : '';
 
     $headers = ['Content-Type: text/html; charset=UTF-8', 'From: ' . $mail['name'] . ' <' . $mail['email'] . '>'];
 

@@ -2,9 +2,13 @@
 
 class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 {
+  const SCRIPT_KEY = 'after_table_loaded_code';
+  const OLD_SCRIPT_KEY = 'after_table_loaded_script';
+
   private $tableHistoryModel = null;
   private $allowedHtml = [];
-  private $tablesTableColumns = null;
+  private $tablesTableColumns = [];
+  private $tablesSchemasChecked = [];
 
   public function add(array $fields)
   {
@@ -18,6 +22,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     if (count($fields) === 0) {
       return;
     }
+    if (isset($fields['settings'])) {
+      $fields['settings'] = $this->keepAfterLoadedScript($fields['settings'], $id);
+    }
 
     return parent::set($id, $fields);
   }
@@ -25,6 +32,13 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function ensureTablesSchema()
   {
     $tableName = $this->getTable('tables');
+    if (isset($this->tablesSchemasChecked[$tableName])) {
+      return true;
+    }
+    if ((int) get_option($this->environment->getConfig()->get('db_prefix') . 'tables_schema_version', 0) >= SupsysticTables::TABLES_SCHEMA_VERSION) {
+      $this->tablesSchemasChecked[$tableName] = true;
+      return true;
+    }
     $columns = $this->getTablesTableColumns(true);
     if (!is_array($columns) || count($columns) === 0) {
       return false;
@@ -59,6 +73,7 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       );
     }
 
+    $this->tablesSchemasChecked[$tableName] = true;
     return true;
   }
 
@@ -351,7 +366,12 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
   public function sanitize_array(&$array)
   {
     foreach ($array as $key => &$value) {
-      if ($key === 'customCss' && is_string($value)) {
+      if ($key === self::SCRIPT_KEY || $key === self::OLD_SCRIPT_KEY) {
+        // Code stays as written, and only those who may publish unfiltered HTML can send it
+        if (!is_string($value) || !current_user_can('unfiltered_html')) {
+          unset($array[$key]);
+        }
+      } elseif ($key === 'customCss' && is_string($value)) {
         // CSS is not HTML: HTML filtering would break selectors like "a > b".
         $value = $this->sanitizeCss($value);
       } elseif (!is_array($value)) {
@@ -361,6 +381,68 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
       }
     }
     return $array;
+  }
+
+  /**
+   * @return string The script of "Execute JS Script After Table Load" when it is switched on
+   */
+  public function getAfterLoadedScript($settings)
+  {
+    if (!isset($settings['features']['enable_after_table_loaded_script']) || $settings['features']['enable_after_table_loaded_script'] !== 'on') {
+      return '';
+    }
+
+    return $this->getAfterLoadedCode($settings);
+  }
+
+  /**
+   * @return string The code as written. Versions before 1.16.01 kept it in Base64 under the old key: it is read
+   * here only for tables not saved since then, and the next save stores plain text.
+   */
+  public function getAfterLoadedCode($settings)
+  {
+    $features = isset($settings['features']) && is_array($settings['features']) ? $settings['features'] : [];
+    if (isset($features[self::SCRIPT_KEY])) {
+      return (string) $features[self::SCRIPT_KEY];
+    }
+    if (!empty($features[self::OLD_SCRIPT_KEY]) && is_string($features[self::OLD_SCRIPT_KEY])) {
+      $code = base64_decode($features[self::OLD_SCRIPT_KEY], true);
+
+      return $code === false ? '' : $code;
+    }
+
+    return '';
+  }
+
+  /**
+   * Every save of settings comes through set(), the ones PRO makes too.
+   * A user without the right to change the script can't change it and doesn't lose the one the table has.
+   * @param string $settings The settings in the stored format
+   * @return string The settings to store
+   */
+  private function keepAfterLoadedScript($settings, $id)
+  {
+    if (!is_string($settings) || current_user_can('unfiltered_html')) {
+      return $settings;
+    }
+    $decoded = unserialize($this->fixIncorrectSerialize(htmlspecialchars_decode($settings, ENT_QUOTES)), ['allowed_classes' => false]);
+    if (!is_array($decoded)) {
+      return $settings;
+    }
+    $table = $this->getById((int) $id);
+    $stored = $table && is_array($table->settings) && isset($table->settings['features']) ? $table->settings['features'] : [];
+    $features = isset($decoded['features']) && is_array($decoded['features']) ? $decoded['features'] : [];
+    foreach ([self::SCRIPT_KEY, self::OLD_SCRIPT_KEY, 'enable_after_table_loaded_script'] as $key) {
+      unset($features[$key]);
+      if (isset($stored[$key])) {
+        $features[$key] = $stored[$key];
+      }
+    }
+    if ($features) {
+      $decoded['features'] = $features;
+    }
+
+    return htmlspecialchars(serialize($decoded), ENT_QUOTES);
   }
 
   public function sanitizeString($str)
@@ -1416,11 +1498,11 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
    * Calc rows for AJAX page
    * @return array
    */
-  public function getRowsByPart($id, $searchAll, $searchCols, $orderCol, $orderAsc, $start, $length, $header, $footer, $searchParams, $table)
+  public function getRowsByPart($id, $searchAll, $searchCols, $orderCol, $orderAsc, $start, $length, $header, $footer, $searchParams, $table, $rowFilter = null)
   {
     $sort = $orderCol !== false;
     $sorter = [];
-    $search = sizeof($searchCols) > 0 || $searchAll !== false;
+    $search = sizeof($searchCols) > 0 || $searchAll !== false || $rowFilter !== null;
     $isWord = isset($searchParams['strictMatching']) && $searchParams['strictMatching'] == 'on';
     if ($isWord) {
       $searchAll = '~\b' . preg_quote($searchAll, '~') . '~i';
@@ -1448,6 +1530,9 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
       $query->limit($limit)->offset($offset);
     } else {
+      $printed = $this->getPrintedColumns($id, is_array($table->settings) ? $table->settings : []);
+      $searchable = array_flip(array_filter($printed, 'is_int'));
+      $orderCell = $sort && isset($printed[(int) $orderCol]) ? $printed[(int) $orderCol] : null;
       $offset = $bodyStart;
       $limit = 1000;
       $query->limit($limit);
@@ -1466,21 +1551,24 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
           $filterCols = true;
 
           foreach ($searchCols as $j => $s) {
-            if ($table->settings['autoIndex'] === 'new') {
-              $j = $j - 1;
+            if (!isset($printed[$j])) {
+              continue;
             }
-            if (!$this->searchInValue($cells[$j]['data'], $s)) {
+            if (!$this->searchInValue(isset($cells[$printed[$j]]['data']) ? $cells[$printed[$j]]['data'] : '', $s)) {
               $filterCols = false;
               break;
             }
           }
-          if (!$filterCols) {
+          if (!$filterCols || ($rowFilter !== null && !call_user_func($rowFilter, $cells))) {
             continue;
           }
 
           $filterAll = $searchAll === false;
           if (!$filterAll) {
             foreach ($cells as $j => $cell) {
+              if (!isset($searchable[$j])) {
+                continue;
+              }
               $filterAll = $isWord ? preg_match($searchAll, $cell['data']) == 1 : stripos($cell['data'], $searchAll) !== false;
               if ($filterAll) {
                 break;
@@ -1488,7 +1576,8 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
             }
           }
           if ($filterAll) {
-            $sorter[$row->id] = $cells[$orderCol]['data'];
+            // The index column has no cell of its own: it keeps the order of the rows
+            $sorter[$row->id] = $orderCell === null ? (int) $row->id : (isset($cells[$orderCell]['data']) ? $cells[$orderCell]['data'] : '');
           }
         }
         unset($rows);
@@ -1541,6 +1630,61 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
     }
     return ['data' => $data, 'recordsTotal' => $recordsTotal, 'recordsFiltered' => $recordsFiltered];
   }
+  /**
+   * The browser counts the columns it prints: the index column is one more, and a hidden cell is one less
+   * (unless the table is set to search by hidden fields, then those cells are printed too).
+   * @param int $id Table id
+   * @param array $settings Settings of the table
+   * @return array Number of a printed column => number of its cell, null for the index column.
+   */
+  private function getPrintedColumns($id, array $settings)
+  {
+    $columns = isset($settings['autoIndex']) && $settings['autoIndex'] === 'new' ? [null] : [];
+    $printHidden = isset($settings['searching']['searchByHiddenField']) && $settings['searching']['searchByHiddenField'] === 'on';
+    $rows = $this->getRows($id, 1);
+    $cells = isset($rows[0]['cells']) && is_array($rows[0]['cells']) ? $rows[0]['cells'] : [];
+    foreach ($cells as $index => $cell) {
+      if ($printHidden || empty($cell['hiddenCell'])) {
+        $columns[] = (int) $index;
+      }
+    }
+
+    return $columns;
+  }
+
+  /**
+   * Walks through the cells of all rows of the table body, part by part.
+   * @param int $id Table id
+   * @param int $header Rows in the header
+   * @param int $footer Rows in the footer
+   * @param callable $callback Takes the cells of a row
+   */
+  public function eachBodyRow($id, $header, $footer, $callback)
+  {
+    $stop = $this->getCountRows($id) - (int) $footer;
+    $offset = (int) $header;
+    $limit = 1000;
+    $query = $this->getQueryBuilder()->select('id, data')->from($this->getTable('rows'))->where('table_id', '=', (int) $id)->orderBy($this->getField('rows', 'id'))->limit($limit);
+    while ($offset < $stop) {
+      $query->offset($offset);
+      $rows = $this->db->get_results($query->build());
+      if ($this->db->last_error) {
+        throw new RuntimeException($this->db->last_error);
+      }
+      foreach ($rows as $index => $row) {
+        if ($offset + $index >= $stop) {
+          break;
+        }
+        $values = $this->prepareRowsData(@unserialize($row->data, ['allowed_classes' => false]), false);
+        call_user_func($callback, isset($values['cells']) ? $values['cells'] : []);
+      }
+      if (count($rows) < $limit) {
+        break;
+      }
+      $offset += $limit;
+    }
+  }
+
   private function searchInValue($value, $searchs)
   {
     foreach ($searchs as $i => $search) {
@@ -2048,19 +2192,15 @@ class SupsysticTables_Tables_Model_Tables extends SupsysticTables_Core_BaseModel
 
   private function getTablesTableColumns($refresh = false)
   {
-    if ($this->tablesTableColumns !== null && !$refresh) {
-      return $this->tablesTableColumns;
-    }
-
     global $wpdb;
     $tableName = $this->getTable('tables');
-    $this->tablesTableColumns = $wpdb->get_col("DESC {$tableName}", 0);
-
-    if (!is_array($this->tablesTableColumns)) {
-      $this->tablesTableColumns = [];
+    if (isset($this->tablesTableColumns[$tableName]) && !$refresh) {
+      return $this->tablesTableColumns[$tableName];
     }
+    $columns = $wpdb->get_col("DESC {$tableName}", 0);
 
-    return $this->tablesTableColumns;
+    $this->tablesTableColumns[$tableName] = is_array($columns) ? $columns : [];
+    return $this->tablesTableColumns[$tableName];
   }
 
   private function filterFieldsByTablesSchema(array $fields)

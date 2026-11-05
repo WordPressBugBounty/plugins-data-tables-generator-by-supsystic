@@ -8,6 +8,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
    */
   protected $isSingleCell = [];
   protected $isTablePart = [];
+  const MAX_PART_COLUMNS = 1024;
   /**
    * Data for loading tables' rows from history
    */
@@ -31,6 +32,29 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
   public $isPreview = false;
 
+  public function getClassicDesignFields()
+  {
+    return SupsysticTables_Tables_ClassicDesign::fields();
+  }
+
+  public function getClassicDesignPresets()
+  {
+    return SupsysticTables_Tables_ClassicDesign::presets();
+  }
+
+  public function getClassicDesignPaletteLibrary()
+  {
+    return array_merge($this->getClassicDesignPresets(), SupsysticTables_Tables_ClassicDesignLibrary::presets());
+  }
+
+  public function getClassicDesignVariables($settings)
+  {
+    if (!empty($settings['tableType']) && in_array($settings['tableType'], ['woo_product_table', 'pricing_table'], true)) {
+      return '';
+    }
+    return SupsysticTables_Tables_ClassicDesign::variables($settings);
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -50,7 +74,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $this->cacheDirectory = $this->getConfig()->get('plugin_cache_tables');
 
     if ($this->isPluginPage()) {
-      $this->reviewNoticeCheck();
+      // The review request is the Review module's card
       $this->aiNoticeCheck();
       // $this->wooProAddonAds();
     }
@@ -391,7 +415,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       unset($table->settings['features']['ordering']);
       unset($table->settings['features']['paging']);
       unset($table->settings['features']['searching']);
-      unset($table->settings['features']['after_table_loaded_script']);
+      unset($table->settings['features']['after_table_loaded_script'], $table->settings['features']['after_table_loaded_code']);
 
       $table->meta['css'] =
         $table->meta['css'] .
@@ -438,10 +462,12 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       }
     }
     if ($this->isTablePart) {
+      $partRows = array_flip($this->isTablePart['row']);
+      $partCols = array_flip($this->isTablePart['col']);
       foreach ($table->rows as $key => $row) {
-        if (empty($this->isTablePart['row']) || in_array($key + 1, $this->isTablePart['row'])) {
+        if (empty($partRows) || isset($partRows[$key + 1])) {
           foreach ($row['cells'] as $index => $cell) {
-            if (empty($this->isTablePart['col']) || in_array($index + 1, $this->isTablePart['col'])) {
+            if (empty($partCols) || isset($partCols[$index + 1])) {
               // For correct work of saving data through editable fields
               $table->rows[$key]['cells'][$index]['row'] = $key + 1;
               $table->rows[$key]['cells'][$index]['col'] = $index;
@@ -474,7 +500,8 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
             }
           }
           if (strpos($table->rows[$key]['cells'][$index]['data'], '%3C') !== false) {
-            $table->rows[$key]['cells'][$index]['data'] = do_shortcode(urldecode($table->rows[$key]['cells'][$index]['data']));
+            // Decoding makes new markup, so it passes the same filter as a cell that is saved
+            $table->rows[$key]['cells'][$index]['data'] = do_shortcode($tables->sanitizeString(urldecode($table->rows[$key]['cells'][$index]['data'])));
           } else {
             $table->rows[$key]['cells'][$index]['data'] = do_shortcode($table->rows[$key]['cells'][$index]['data']);
           }
@@ -514,6 +541,10 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     if (!in_array($table->view_id, $tablesStyles)) {
       $renderData = $this->addDataTableStyles($table) . $renderData;
     }
+    // After the spaces of the page are collapsed above: line breaks matter in a script
+    if (!$this->isSingleCell && !$table->isPageRows) {
+      $renderData = $this->getAfterLoadedScriptTag($table, $tables) . $renderData;
+    }
     if (!$table->isWooProductTable && !$this->isSingleCell && !$this->isTablePart && !$this->checkSpreadsheet && !$this->isFromHistory && isset($this->cacheDirectory)) {
       file_put_contents($cachePath, $renderData);
     }
@@ -522,6 +553,23 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $this->checkSpreadsheet = false;
 
     return $renderData;
+  }
+
+  /**
+   * The script of "Execute JS Script After Table Load", as readable code on the page.
+   * The table runs this function when it is ready (see showTable in core.js).
+   */
+  private function getAfterLoadedScriptTag($table, $tables)
+  {
+    $code = $tables->getAfterLoadedScript($table->settings);
+    if (trim($code) === '') {
+      return '';
+    }
+    // A closing tag or a comment opening inside the code must not end this element
+    $code = str_ireplace(['</script', '<!--'], ['<\/script', '<\!--'], $code);
+    $script = '(window.stbAfterTableLoaded = window.stbAfterTableLoaded || {})[' . (int) $table->id . "] = function () {\n" . $code . "\n};";
+
+    return function_exists('wp_get_inline_script_tag') ? wp_get_inline_script_tag($script) : '<script>' . $script . "</script>\n";
   }
 
   /**
@@ -828,11 +876,11 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $show_edit_link = false;
       $user = wp_get_current_user();
       $roles = is_array($user->roles) ? $user->roles : [$user->roles];
-      $pluginSettings = get_option($this->getController()->getConfig()->get('db_prefix') . 'settings', 'access_roles');
-      if (!empty($roles) && !empty($pluginSettings)) {
-        !is_array($pluginSettings) && ($pluginSettings = [$pluginSettings]);
+      // Only the roles of the "access_roles" setting (none when it is missing or damaged), compared exactly
+      $accessRoles = SupsysticTables_Core_BaseController::getAccessRoles();
+      if (!empty($roles) && !empty($accessRoles)) {
         foreach ($roles as $role) {
-          if (in_array($role, $pluginSettings)) {
+          if (is_string($role) && in_array($role, $accessRoles, true)) {
             $show_edit_link = $this->_getTblLink($tableId);
             break;
           }
@@ -844,7 +892,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       }
 
       if ($show_edit_link) {
-        wp_localize_script('tables-core', 'g_stbTblEditLink_' . $tableId, (array) base64_encode($show_edit_link));
+        wp_localize_script('tables-core', 'g_stbTblEditLink_' . $tableId, [$show_edit_link]);
       }
     }
 
@@ -904,38 +952,48 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       }
     }
 
-    $rowsResult = [];
-    $rows = array_filter(explode(',', $attributes['row']));
-    foreach ($rows as $row) {
-      if (strpos($row, '-') !== false) {
-        $minMaxVals = explode('-', $row);
-        foreach (range($minMaxVals[0], $minMaxVals[1]) as $item) {
-          $rowsResult[] = (string) $item;
-        }
-      } else {
-        $rowsResult[] = (string) $row;
-      }
-    }
-
-    $colsResult = [];
-    $cols = array_filter(explode(',', $attributes['col']));
-    foreach ($cols as $col) {
-      if (strpos($col, '-') !== false) {
-        $minMaxVals = explode('-', $col);
-        foreach (range($minMaxVals[0], $minMaxVals[1]) as $item) {
-          $colsResult[] = $this->_lettersToNumbers((string) $item);
-        }
-      } else {
-        $colsResult[] = $this->_lettersToNumbers((string) $col);
-      }
-    }
-
+    $rowCount = $environment->getModule('core')->getModelsFactory()->get('tables')->getCountRows((int) $attributes['id']);
     $this->isTablePart = [
-      'row' => $rowsResult,
-      'col' => $colsResult,
+      'row' => $this->getPartItems(isset($attributes['row']) ? $attributes['row'] : '', $rowCount, false),
+      'col' => $this->getPartItems(isset($attributes['col']) ? $attributes['col'] : '', self::MAX_PART_COLUMNS, true),
     ];
 
     return $this->render((int) $attributes['id']);
+  }
+
+  /**
+   * The rows or columns named in the table part shortcode: "1-5,7" or "A-C,E".
+   * A range stops at the size of the table, so it costs nothing beyond what the table has.
+   * @param string $list The value of the attribute
+   * @param int $limit The last number that exists
+   * @param bool $letters Columns can be named by letters
+   * @return array Empty only for an empty attribute: that means the whole table
+   */
+  private function getPartItems($list, $limit, $letters)
+  {
+    $items = [];
+    $parts = array_slice(array_filter(array_map('trim', explode(',', (string) $list)), 'strlen'), 0, self::MAX_PART_COLUMNS);
+    foreach ($parts as $part) {
+      if (strpos($part, '-') === false) {
+        $items[] = $letters ? $this->_lettersToNumbers($part) : $part;
+        continue;
+      }
+      $ends = array_map('trim', explode('-', $part));
+      $format = $letters ? '/^(\d+|[A-Za-z]{1,3})$/' : '/^\d+$/';
+      if (count($ends) !== 2 || !preg_match($format, $ends[0]) || !preg_match($format, $ends[1])) {
+        continue;
+      }
+      $from = (int) ($letters ? $this->_lettersToNumbers($ends[0]) : $ends[0]);
+      $to = (int) ($letters ? $this->_lettersToNumbers($ends[1]) : $ends[1]);
+      if ($from > $to) {
+        list($from, $to) = [$to, $from];
+      }
+      for ($item = max(1, $from), $last = min($to, (int) $limit); $item <= $last; $item++) {
+        $items[] = $item;
+      }
+    }
+    // Named but not in the table: nothing to show, which is not the same as showing all of it
+    return !$items && $parts ? [0] : $items;
   }
 
   protected function registerShortcodes()
@@ -1000,6 +1058,8 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $ui->add($ui->createStyle('supsystic-tables-tables-loaders-css')->setHookName($dynamicHookName)->setModuleSource($this, 'css/loaders.css')->setVersion('1.1.0')->setCachingAllowed($cachingAllowed));
 
     $ui->add($ui->createStyle('supsystic-tables-shortcode-css')->setHookName($dynamicHookName)->setModuleSource($this, 'css/tables.shortcode.css')->setVersion($version)->setCachingAllowed($cachingAllowed));
+    $ui->add($ui->createStyle('supsystic-tables-classic-design-css')->setHookName($dynamicHookName)->setModuleSource($this, 'css/tables.classic-design.css')->setVersion($version . '-classic-4')->setCachingAllowed($cachingAllowed));
+    $ui->add($ui->createScript('supsystic-tables-classic-design-frontend')->setHookName($dynamicHookName)->setModuleSource($this, 'js/tables.classic-design.frontend.js')->addDependency('jquery')->setVersion($version . '-classic-4')->setCachingAllowed($cachingAllowed));
 
     // Scripts
     if (!$isWooProductTableView) {
@@ -1062,8 +1122,9 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $ui->add($ui->createScript('jquery-ui-autocomplete')->setHookName($hookName));
 
       if ($environment->isAction('index')) {
-        $listAssetVersion = $version . '-native-ssp-2';
+        $listAssetVersion = $version . '-native-ssp-3';
         $ui->add($ui->createScript('supsystic-tables-tables-index-list')->setHookName($hookName)->setModuleSource($this, 'js/tables.admin.list.js')->setCachingAllowed($cachingAllowed)->setVersion($listAssetVersion)->addDependency('jquery-ui-dialog'));
+        $ui->add($ui->createStyle('supsystic-tables-modals-ui-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.modals-ui.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-modals-3'));
         $ui->add($ui->createStyle('supsystic-tables-tables-index-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.index.css')->setCachingAllowed($cachingAllowed)->setVersion($listAssetVersion));
         $ui->add($ui->createStyle('jquery-slider')->setHookName($hookName)->setLocalSource('css/jquery-slider.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
         $ui->add($ui->createStyle('jquery-ui-min')->setHookName($hookName)->setLocalSource('css/jquery-ui.min.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
@@ -1079,8 +1140,11 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
       if ($environment->isAction('view')) {
         $ui->add($ui->createStyle('supsystic-tables-tables-view')->setHookName($hookName)->setModuleSource($this, 'css/tables.view.css')->setCachingAllowed($cachingAllowed)->setVersion($version));
+        $ui->add($ui->createStyle('supsystic-tables-modals-ui-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.modals-ui.css')->setCachingAllowed($cachingAllowed)->setVersion($version . '-modals-9'));
+        $ui->add($ui->createStyle('supsystic-tables-header-ui-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.header-ui.css')->addDependency('supsystic-tables-tables-view')->setCachingAllowed($cachingAllowed)->setVersion($version . '-header-ui-6'));
+        $ui->add($ui->createScript('supsystic-tables-header-ui-js')->setHookName($hookName)->setModuleSource($this, 'js/tables.header-ui.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($version . '-header-ui-6'));
 
-        $ui->add($ui->createScript('supsystic-tables-tables-model')->setHookName($hookName)->setModuleSource($this, 'js/tables.model.js')->setCachingAllowed($cachingAllowed)->setVersion($version));
+        $ui->add($ui->createScript('supsystic-tables-tables-model')->setHookName($hookName)->setModuleSource($this, 'js/tables.model.js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-guard-1'));
 
         if ($isWooProductTableView) {
           $ui->add(
@@ -1090,8 +1154,11 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
               ->setModuleSource($this, 'js/tables.view.woo-product.js')
               ->setDependencies(['jquery', 'jquery-ui-dialog', 'tables-core', 'supsystic-tables-tables-model'])
               ->setCachingAllowed($cachingAllowed)
-              ->setVersion($version),
+              ->setVersion($version . '-woo-ui-3'),
           );
+          $ui->add($ui->createStyle('supsystic-tables-classic-design-admin-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.classic-design.admin.css')->setVersion($version)->setCachingAllowed($cachingAllowed));
+          $ui->add($ui->createStyle('supsystic-tables-settings-ui-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.settings-ui.css')->addDependency('supsystic-tables-header-ui-css')->setVersion($version . '-settings-ui-11')->setCachingAllowed($cachingAllowed));
+          $ui->add($ui->createScript('supsystic-tables-settings-ui-js')->setHookName($hookName)->setModuleSource($this, 'js/tables.settings-ui.js')->addDependency('jquery')->setVersion($version . '-settings-ui-11')->setCachingAllowed($cachingAllowed));
           return;
         }
 
@@ -1105,13 +1172,23 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
         $ui->add($ui->createScript('supsystic-tables-moment-duration-js')->setHookName($hookName)->setModuleSource($this, 'libraries/moment-duration-format.js')->setCachingAllowed(true)->setVersion('1.3.0')->addDependency('moment'));
         $ui->add($ui->createScript('supsystic-tables-slimscroll-js')->setHookName($hookName)->setModuleSource($this, 'libraries/slimscroll.min.js')->setCachingAllowed(true)->setVersion('1.3.8'));
 
-        $ui->add($ui->createScript('supsystic-tables-editor-init-js')->setHookName($hookName)->setModuleSource($this, 'js/editor/tables.editor.js')->setCachingAllowed($cachingAllowed)->setVersion($version));
+        $ui->add($ui->createScript('supsystic-tables-editor-init-js')->setHookName($hookName)->setModuleSource($this, 'js/editor/tables.editor.js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-range-1'));
 
         $ui->add($ui->createScript('supsystic-tables-editor-toolbar-js')->setHookName($hookName)->setModuleSource($this, 'js/editor/tables.editor.toolbar.js')->setCachingAllowed($cachingAllowed)->setVersion($version));
 
         $ui->add($ui->createScript('supsystic-tables-editor-formula-js')->setHookName($hookName)->setModuleSource($this, 'js/editor/tables.editor.formula.js')->setCachingAllowed($cachingAllowed)->setVersion($version)->addDependency('jquery-ui-autocomplete'));
 
-        $ui->add($ui->createScript('supsystic-tables-tables-view')->setHookName($hookName)->setModuleSource($this, 'js/tables.view.js')->addDependency('supsystic-tables-editor-init-js')->setCachingAllowed($cachingAllowed)->setVersion($version));
+        $ui->add($ui->createScript('supsystic-tables-tables-view')->setHookName($hookName)->setModuleSource($this, 'js/tables.view.js')->addDependency('supsystic-tables-editor-init-js')->setCachingAllowed($cachingAllowed)->setVersion($version . '-source-4'));
+        $ui->add($ui->createStyle('supsystic-tables-classic-design-admin-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.classic-design.admin.css')->setVersion($version . '-classic-4')->setCachingAllowed($cachingAllowed));
+        $ui->add($ui->createScript('supsystic-tables-classic-design-admin-js')->setHookName($hookName)->setModuleSource($this, 'js/tables.classic-design.js')->addDependency('supsystic-tables-tables-view')->setVersion($version . '-classic-5')->setCachingAllowed($cachingAllowed));
+        // Table settings layout: section tabs, cards, search, PRO tab (free)
+        $ui->add($ui->createStyle('supsystic-tables-settings-ui-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.settings-ui.css')->setDependencies(['supsystic-tables-header-ui-css', 'supsystic-tables-classic-design-admin-css'])->setVersion($version . '-settings-ui-11')->setCachingAllowed($cachingAllowed));
+        $ui->add($ui->createScript('supsystic-tables-settings-ui-js')->setHookName($hookName)->setModuleSource($this, 'js/tables.settings-ui.js')->addDependency('supsystic-tables-classic-design-admin-js')->setVersion($version . '-settings-ui-11')->setCachingAllowed($cachingAllowed));
+        if (!$environment->isPro()) {
+          // PRO showcase on the Diagrams and Table History tabs of the free version
+          $ui->add($ui->createStyle('supsystic-tables-pro-showcase-css')->setHookName($hookName)->setModuleSource($this, 'css/tables.pro-showcase.css')->setVersion($version . '-showcase-11')->setCachingAllowed($cachingAllowed));
+          $ui->add($ui->createScript('supsystic-tables-pro-showcase-js')->setHookName($hookName)->setModuleSource($this, 'js/tables.pro-showcase.js')->addDependency('jquery')->setVersion($version . '-showcase-11')->setCachingAllowed($cachingAllowed));
+        }
       }
     }
   }
@@ -1358,9 +1435,9 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       return;
     }
 
-    $ui->add($ui->createStyle('supsystic-tables-colorpicker-css')->setHookName($hookName)->setModuleSource($this, 'libraries/colorpicker/colorpicker.css')->setCachingAllowed(true));
+    $ui->add($ui->createStyle('supsystic-tables-colorpicker-css')->setHookName($hookName)->setModuleSource($this, 'libraries/colorpicker/colorpicker.css')->setVersion('1.0.1-classic')->setCachingAllowed(true));
 
-    $ui->add($ui->createScript('supsystic-tables-colorpicker-js')->setHookName($hookName)->setModuleSource($this, 'libraries/colorpicker/colorpicker.js')->setCachingAllowed(true));
+    $ui->add($ui->createScript('supsystic-tables-colorpicker-js')->setHookName($hookName)->setModuleSource($this, 'libraries/colorpicker/colorpicker.js')->setVersion('1.0.1-classic')->setCachingAllowed(true));
   }
 
   private function loadJqueryToolbar(SupsysticTables_Ui_Module $ui)
@@ -2203,25 +2280,6 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     return (bool) preg_match($pattern, $userAgent);
   }
 
-  public function reviewNoticeCheck()
-  {
-    $option = $this->config('db_prefix') . 'reviewNotice';
-    $notice = get_option($option);
-    if (!$notice) {
-      update_option($option, [
-        'time' => time() + 60 * 60 * 24 * 7,
-        'shown' => false,
-      ]);
-    } elseif ($notice['shown'] === false && time() > $notice['time']) {
-      add_action('admin_notices', [$this, 'showReviewNotice']);
-    }
-  }
-
-  public function showReviewNotice()
-  {
-    print wp_kses_post($this->getTwig()->render('@tables/notice/review.twig'));
-  }
-
   public function aiNoticeCheck()
   {
     $option = $this->config('db_prefix') . 'aiNotice';
@@ -2308,7 +2366,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
   }
 
   /**
-   * Renders the "TableHistory" and "Source" tab.
+   * Renders the "TableHistory", "Source" and "AI" tabs.
    * @param \stdClass $table Current table
    */
   public function afterTabsRendered($table = null)
@@ -2320,10 +2378,11 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $twig = $this->getEnvironment()->getTwig();
     $twig->display('@tables/partials/historyTab.twig', []);
     $twig->display('@tables/partials/sourceTab.twig', []);
+    $twig->display('@tables/partials/aiTab.twig', []);
   }
 
   /**
-   * Renders the "TableHistory" and "Source" tabs content.
+   * Renders the "TableHistory", "Source" and "AI" tabs content.
    * @param \stdClass $table Current table
    */
   public function afterTabsContentRendered($table)
@@ -2337,6 +2396,22 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
     $twig->display($dispatcher->apply('table_history_tabs_content_template', ['@tables/partials/historyTabContent.twig']), $dispatcher->apply('table_history_tabs_content_data', [['table' => $table]]));
     $twig->display($dispatcher->apply('table_source_tabs_content_template', ['@tables/partials/sourceTabContent.twig']), $dispatcher->apply('table_source_tabs_content_data', [['table' => $table]]));
+    $twig->display($dispatcher->apply('table_ai_tabs_content_template', ['@tables/partials/aiTabContent.twig']), $dispatcher->apply('table_ai_tabs_content_data', [['table' => $table, 'ai' => $this->getAiConnection()]]));
+  }
+
+  /**
+   * How an AI assistant connects to this site, for the "AI" tab.
+   * @return array
+   */
+  private function getAiConnection()
+  {
+    return [
+      'mcpUrl' => 'https://mcp.supsystic.com/dt/mcp',
+      'guideUrl' => 'https://supsystic.com/documentation/data-table-ai-setup-guide/',
+      'siteUrl' => home_url(),
+      'passwordsUrl' => admin_url('profile.php#application-passwords-section'),
+      'passwordsAvailable' => function_exists('wp_is_application_passwords_available') && wp_is_application_passwords_available(),
+    ];
   }
 
   private function isWooProductTable($table)
@@ -2421,3 +2496,4 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 }
 
 require_once 'Model/widget.php';
+

@@ -1,0 +1,41 @@
+{# The "PRO features" tab of the table settings (free version only). #}
+{% set stbProPalettes = 0 %}
+{% for preset in environment.getModule('tables').getClassicDesignPaletteLibrary() %}
+    {% if preset.pro %}{% set stbProPalettes = stbProPalettes + 1 %}{% endif %}
+{% endfor %}
+{% set stbProFeatures = [
+    {'icon': 'fa-pencil-square-o', 'utm': 'settings_pro_frontend_editing', 'title': environment.translate('Frontend editing'), 'text': environment.translate('Visitors edit cells, add and remove rows right on the page. Allow it only for logged-in users or chosen roles.')},
+    {'icon': 'fa-download', 'utm': 'settings_pro_export', 'title': environment.translate('Export buttons'), 'text': environment.translate('PDF, CSV, Excel and print buttons above the table, with paper size, orientation and your logo.')},
+    {'icon': 'fa-bar-chart', 'utm': 'settings_pro_charts', 'title': environment.translate('Charts from the table'), 'text': environment.translate('Line, bar, pie, area, 3D and other interactive charts that follow the table data.')},
+    {'icon': 'fa-adjust', 'utm': 'settings_pro_conditional', 'title': environment.translate('Conditional formatting'), 'text': environment.translate('Color cells by their values: highlight numbers, text and dates that match your rules.')},
+    {'icon': 'fa-database', 'utm': 'settings_pro_sources', 'title': environment.translate('Live data sources'), 'text': environment.translate('Build the table from WordPress or external databases, SQL queries, Google Sheets or files on FTP.')},
+    {'icon': 'fa-exchange', 'utm': 'settings_pro_import', 'title': environment.translate('Import and export'), 'text': environment.translate('Bring data from CSV, Excel, JSON or Google Sheets into the editor and export the table in one click.')},
+    {'icon': 'fa-paint-brush', 'utm': 'settings_pro_palettes', 'title': environment.translate('All style palettes'), 'text': environment.translate('%d more palettes for the table, its filters and buttons, every color still editable.')|format(stbProPalettes)},
+    {'icon': 'fa-history', 'utm': 'settings_pro_history', 'title': environment.translate('Personal tables'), 'text': environment.translate('Every signed-in user can keep an own copy of the table data. All copies are on the Table History tab.')}
+] %}
+<section class="supRow-settings-block stb-pro-panel" id="stb-anl-pro">
+    <div class="stb-pro-hero">
+        <div class="stb-pro-hero-text">
+            <span class="stb-pro-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i> Data Tables PRO</span>
+            <h3>{{ environment.translate('Do more with this table') }}</h3>
+            <p>{{ environment.translate('Let visitors edit and export the data, show it as charts and keep it in sync with live sources.') }}</p>
+            <div class="stb-pro-hero-actions">
+                <a class="stb-pro-cta" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': 'settings_pro_tab' }) }}">{{ environment.translate('Get PRO') }} <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+        <ul class="stb-pro-promises">
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('Your tables and settings stay as they are') }}</li>
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('PRO options appear right in these tabs') }}</li>
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('Locked options are marked with PRO') }}</li>
+        </ul>
+    </div>
+    <div class="stb-pro-grid">
+        {% for feature in stbProFeatures %}
+            <a class="stb-pro-feature-card" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': feature.utm }) }}">
+                <span class="stb-pro-feature-icon"><i class="{{ feature.icon }} fa fa-fw" aria-hidden="true"></i></span>
+                <strong>{{ feature.title }}</strong>
+                <span>{{ feature.text }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</section>

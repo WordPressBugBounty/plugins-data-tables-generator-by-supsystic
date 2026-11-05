@@ -1,0 +1,1045 @@
+/* Free vs PRO comparison and PRO pricing for the Overview page (styles of the supsystic.com plugin page, scoped). */
+.dtgs-pro-offer {
+  
+  --dt-brand: #0d838d;
+  --dt-brand-light: #52bac5;
+  --dt-brand-dark: #0a6b74;
+  --dt-brand-glow: rgba(13, 131, 141, 0.28);
+  --dt-amber: #ffbe2b;
+  --dt-amber-dark: #e6a800;
+  --dt-amber-glow: rgba(255, 190, 43, 0.35);
+
+  
+  --dt-navy: #2e3e58;
+  --dt-dark: #1a2333;
+  --dt-dark2: #0f1720;
+  --dt-white: #ffffff;
+  --dt-off: #ebf1f8;
+  --dt-off2: #dde6f0;
+  --dt-border: #cdd9e8;
+  --dt-text: #1e2d3d;
+  --dt-text-2: #4a6078;
+  --dt-text-3: #7f96ae;
+
+  
+  --dt-font: "Inter", system-ui, -apple-system, sans-serif;
+  --dt-font-h: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  
+  --dt-r: 14px;
+  --dt-r-lg: 22px;
+  --dt-r-xl: 30px;
+  --dt-sh: 0 2px 16px rgba(30, 45, 61, 0.07);
+  --dt-sh-lg: 0 12px 48px rgba(30, 45, 61, 0.13);
+  --dt-sh-xl: 0 24px 80px rgba(30, 45, 61, 0.18);
+  --dt-max: 1180px;
+  --dt-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dt-t: 0.28s var(--dt-ease);
+}
+.dtgs-pro-offer .dtPrsSectionInner {
+  max-width: var(--dt-max);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+.dtgs-pro-offer .dtBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--dt-amber);
+  color: #1a1a1a;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 40px;
+  box-shadow: 0 6px 24px var(--dt-amber-glow);
+  transition: var(--dt-t);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtBtnPrimary:hover,
+.dtgs-pro-offer .dtBtnPrimary:focus {
+  background: var(--dt-amber-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(255, 190, 43, 0.5);
+  color: #1a1a1a;
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtBtnPrimary svg {
+  width: 16px;
+  height: 16px;
+}
+.dtgs-pro-offer .dtBtnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 13px 26px;
+  border-radius: 40px;
+  transition: var(--dt-t);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtBtnGhost:hover,
+.dtgs-pro-offer .dtBtnGhost:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--dt-white);
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtBtnGhost svg {
+  width: 16px;
+  height: 16px;
+}
+.dtgs-pro-offer .dtMtxTryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dt-brand-light);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(82, 186, 197, 0.35);
+  padding-bottom: 2px;
+  align-self: flex-start;
+  transition: var(--dt-t);
+}
+.dtgs-pro-offer .dtMtxTryLink:hover,
+.dtgs-pro-offer .dtMtxTryLink:focus {
+  color: var(--dt-white);
+  border-bottom-color: var(--dt-white);
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtMtxTryLink svg {
+  width: 13px;
+  height: 13px;
+}
+.dtgs-pro-offer .dtSectionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--dt-brand);
+  margin-bottom: 10px;
+}
+.dtgs-pro-offer .dtSectionLabel::before {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+.dtgs-pro-offer .dtHiwSection .dtSectionLabel {
+  color: rgba(255, 255, 255, 0.5);
+}
+.dtgs-pro-offer .dtCapSection .dtSectionLabel {
+  display: inline-flex;
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtCmpNewFooter .dtBtnPrimary {
+  font-size: 13px;
+  padding: 11px 24px;
+}
+.dtgs-pro-offer .dtMtxSection {
+  background: var(--dt-white);
+}
+.dtgs-pro-offer .dtMtxTop {
+  
+  background:
+    radial-gradient(ellipse 110% 130% at 72% -18%, #22344f 0%, transparent 60%),
+    linear-gradient(158deg, var(--dt-dark) 0%, #141f33 54%, var(--dt-dark2) 100%);
+  padding: 88px 0 128px;
+  position: relative;
+  overflow: hidden;
+}
+.dtgs-pro-offer .dtMtxTop::before {
+  content: "";
+  position: absolute;
+  top: -140px;
+  left: -120px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(13, 131, 141, 0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+.dtgs-pro-offer .dtMtxTop .dtSectionLabel {
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxBottom {
+  background: var(--dt-white);
+  
+  padding-bottom: 56px;
+}
+.dtgs-pro-offer .dtMtxSectionInner {
+  max-width: var(--dt-max);
+  margin-inline: auto;
+  padding-inline: 24px;
+  position: relative;
+  z-index: 1;
+}
+.dtgs-pro-offer .dtMtxSectionTitle {
+  font-family: var(--dt-font-h);
+  font-size: clamp(26px, 3.2vw, 44px);
+  font-weight: 800;
+  color: var(--dt-white);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  text-wrap: balance;
+}
+.dtgs-pro-offer .dtMtxSectionSubtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.7;
+  max-width: 640px;
+  margin-bottom: 48px;
+}
+.dtgs-pro-offer .dtMtxScore {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.dtgs-pro-offer .dtMtxPlan {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--dt-r-xl);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.dtgs-pro-offer .dtMtxPlanPro {
+  background: rgba(13, 131, 141, 0.12);
+  border-color: rgba(13, 131, 141, 0.36);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
+}
+.dtgs-pro-offer .dtMtxPlanPro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--dt-brand-light), #a0eaf3);
+}
+.dtgs-pro-offer .dtMtxPlanTop {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.dtgs-pro-offer .dtMtxRing {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+}
+.dtgs-pro-offer .dtMtxRing svg {
+  width: 92px;
+  height: 92px;
+  transform: rotate(-90deg);
+  display: block;
+}
+.dtgs-pro-offer .dtMtxRingTrack {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 8;
+}
+.dtgs-pro-offer .dtMtxRingFill {
+  fill: none;
+  stroke: var(--dt-brand-light);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 251.33;
+  stroke-dashoffset: 153.25; 
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dtgs-pro-offer .dtMtxPlanPro .dtMtxRingFill {
+  stroke-dashoffset: 0;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxRingFill {
+  stroke-dashoffset: 251.33;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlan.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 153.25;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlanPro.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+.dtgs-pro-offer .dtMtxRingFill {
+    transition: none;
+}
+}
+.dtgs-pro-offer .dtMtxPlanPro .dtMtxRingFill {
+  stroke: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxPlan:not(.dtMtxPlanPro) .dtMtxRingFill {
+  stroke: var(--dt-brand);
+}
+.dtgs-pro-offer .dtMtxRingLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--dt-font-h);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.dtgs-pro-offer .dtMtxRingNum {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--dt-white);
+}
+.dtgs-pro-offer .dtMtxRingOf {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.42);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.dtgs-pro-offer .dtMtxPlanName {
+  font-family: var(--dt-font-h);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--dt-white);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.dtgs-pro-offer .dtMtxPlanPrice {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxPlanPro .dtMtxPlanPrice {
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxPlanPrice span {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.42);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-left: 4px;
+}
+.dtgs-pro-offer .dtMtxPlanPriceAlt {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 11px;
+  border-radius: 100px;
+  background: rgba(82, 186, 197, 0.1);
+  border: 1px solid rgba(82, 186, 197, 0.3);
+}
+.dtgs-pro-offer .dtMtxPlanPriceAlt span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.dtgs-pro-offer .dtMtxPlanPriceAlt b {
+  font-family: var(--dt-font-h);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--dt-brand-light);
+  font-variant-numeric: tabular-nums;
+}
+.dtgs-pro-offer .dtMtxHeadPlanAlt {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxPlanText {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.65;
+  flex: 1;
+}
+.dtgs-pro-offer .dtMtxPlan .dtBtnGhost,
+.dtgs-pro-offer .dtMtxPlan .dtBtnPrimary {
+  align-self: flex-start;
+}
+.dtgs-pro-offer .dtMtxControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--dt-border);
+  background: var(--dt-off);
+}
+.dtgs-pro-offer .dtMtxControlsTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--dt-text-3);
+}
+.dtgs-pro-offer .dtMtxFilters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dtgs-pro-offer .dtMtxFilter {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dt-text-2);
+  background: var(--dt-white);
+  border: 1.5px solid var(--dt-border);
+  border-radius: 100px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: var(--dt-t);
+}
+.dtgs-pro-offer .dtMtxFilter:hover {
+  border-color: var(--dt-brand);
+  color: var(--dt-brand);
+}
+.dtgs-pro-offer .dtMtxFilterActive,
+.dtgs-pro-offer .dtMtxFilterActive:hover {
+  background: var(--dt-brand);
+  border-color: var(--dt-brand);
+  color: var(--dt-white);
+  box-shadow: 0 4px 14px var(--dt-brand-glow);
+}
+.dtgs-pro-offer .dtMtxTableWrap {
+  margin-top: -80px;
+  background: var(--dt-white);
+  border: 1.5px solid var(--dt-border);
+  border-radius: var(--dt-r-xl);
+  box-shadow: var(--dt-sh-xl);
+  
+  overflow: hidden;
+  overflow: clip;
+}
+.dtgs-pro-offer .dtMtxTable {
+  width: 100%;
+}
+.dtgs-pro-offer .dtMtxTable [hidden] {
+  display: none !important;
+}
+.dtgs-pro-offer .dtMtxRow {
+  display: grid;
+  grid-template-columns: 1fr 168px 168px;
+  border-top: 1px solid var(--dt-border);
+  align-items: stretch;
+}
+.dtgs-pro-offer .dtMtxCell {
+  padding: 5px 20px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dtgs-pro-offer .dtMtxCellFeature {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding-left: 28px;
+  color: var(--dt-navy);
+  font-weight: 600;
+}
+.dtgs-pro-offer .dtMtxHint {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--dt-text-3);
+  line-height: 1.5;
+}
+.dtgs-pro-offer .dtMtxHeadRow {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  border-top: none;
+  background: var(--dt-navy);
+}
+.dtgs-pro-offer .dtMtxHeadRow .dtMtxCell {
+  padding: 18px 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  justify-content: center;
+}
+.dtgs-pro-offer .dtMtxHeadRow .dtMtxCellFeature {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 28px;
+}
+.dtgs-pro-offer .dtMtxHeadPlan {
+  flex-direction: column;
+  gap: 2px;
+}
+.dtgs-pro-offer .dtMtxHeadPlan strong {
+  font-family: var(--dt-font-h);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--dt-white);
+}
+.dtgs-pro-offer .dtMtxHeadPro {
+  background: linear-gradient(160deg, #0d2040 0%, #112840 100%);
+  position: relative;
+}
+.dtgs-pro-offer .dtMtxHeadPro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--dt-brand), var(--dt-brand-light));
+}
+.dtgs-pro-offer .dtMtxHeadPro strong {
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtMtxGroup {
+  display: grid;
+  grid-template-columns: 1fr 336px;
+  align-items: center;
+  gap: 20px;
+  background: var(--dt-off);
+  border-top: 1px solid var(--dt-border);
+  padding: 16px 28px;
+}
+.dtgs-pro-offer .dtMtxGroupName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--dt-font-h);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--dt-navy);
+  letter-spacing: -0.01em;
+}
+.dtgs-pro-offer .dtMtxGroupIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(13, 131, 141, 0.1);
+  border: 1.5px solid rgba(13, 131, 141, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dtgs-pro-offer .dtMtxGroupIcon svg {
+  width: 17px;
+  height: 17px;
+  color: var(--dt-brand);
+}
+.dtgs-pro-offer .dtMtxGroupMeter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dtgs-pro-offer .dtMtxGroupBar {
+  flex: 1;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--dt-off2);
+  overflow: hidden;
+  min-width: 80px;
+}
+.dtgs-pro-offer .dtMtxGroupBarFill {
+  display: block;
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--dt-brand-light), var(--dt-brand));
+}
+.dtgs-pro-offer .dtMtxGroupCount {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dt-text-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.dtgs-pro-offer .dtMtxGroupCount b {
+  color: var(--dt-brand);
+  font-weight: 800;
+}
+.dtgs-pro-offer .dtMtxGroupCountEmpty b {
+  color: var(--dt-text-3);
+}
+.dtgs-pro-offer .dtMtxCellFree,
+.dtgs-pro-offer .dtMtxCellPro {
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  color: var(--dt-text-2);
+}
+.dtgs-pro-offer .dtMtxCellPro {
+  background: rgba(13, 131, 141, 0.05);
+}
+.dtgs-pro-offer .dtMtxYes,
+.dtgs-pro-offer .dtMtxNo {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dtgs-pro-offer .dtMtxYes {
+  background: rgba(13, 131, 141, 0.13);
+  border: 1.5px solid rgba(13, 131, 141, 0.3);
+}
+.dtgs-pro-offer .dtMtxYes svg {
+  width: 14px;
+  height: 14px;
+  color: var(--dt-brand);
+}
+.dtgs-pro-offer .dtMtxCellPro .dtMtxYes {
+  background: rgba(13, 131, 141, 0.2);
+  border-color: rgba(13, 131, 141, 0.45);
+}
+.dtgs-pro-offer .dtMtxNo {
+  background: #f1f4f9;
+  border: 1.5px solid var(--dt-border);
+}
+.dtgs-pro-offer .dtMtxNo svg {
+  width: 12px;
+  height: 12px;
+  color: var(--dt-text-3);
+}
+.dtgs-pro-offer .dtMtxVal {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--dt-text-2);
+  line-height: 1.4;
+}
+.dtgs-pro-offer .dtMtxCellPro .dtMtxVal {
+  color: var(--dt-brand-dark);
+}
+.dtgs-pro-offer .dtMtxValMuted {
+  color: var(--dt-text-3);
+  font-weight: 600;
+}
+.dtgs-pro-offer .dtMtxFootRow {
+  border-top: 2px solid var(--dt-border);
+  background: var(--dt-white);
+}
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCell {
+  padding: 22px 16px;
+  justify-content: center;
+}
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCellFeature {
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: 28px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--dt-text-3);
+}
+.dtgs-pro-offer .dtMtxFootRow .dtBtnPrimary {
+  font-size: 12.5px;
+  padding: 11px 20px;
+}
+.dtgs-pro-offer .dtMtxFootFree {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dt-brand);
+  text-decoration: none;
+  border-bottom: 2px solid rgba(13, 131, 141, 0.25);
+  transition: var(--dt-t);
+}
+.dtgs-pro-offer .dtMtxFootFree:hover,
+.dtgs-pro-offer .dtMtxFootFree:focus {
+  color: var(--dt-brand-dark);
+  border-bottom-color: var(--dt-brand);
+  text-decoration: none;
+}
+.dtgs-pro-offer .dtMtxNote {
+  margin-top: 24px;
+  font-size: 13.5px;
+  color: var(--dt-text-3);
+  line-height: 1.65;
+  text-align: center;
+}
+.dtgs-pro-offer .dtMtxNote b {
+  color: var(--dt-text-2);
+}
+.dtgs-pro-offer .dtMtxEmpty {
+  padding: 40px 28px;
+  text-align: center;
+  font-size: 14.5px;
+  color: var(--dt-text-3);
+  border-top: 1px solid var(--dt-border);
+}
+@media (max-width: 900px) {
+.dtgs-pro-offer .dtMtxScore {
+    grid-template-columns: 1fr;
+}
+.dtgs-pro-offer .dtMtxRow {
+    grid-template-columns: 1fr 118px 118px;
+}
+.dtgs-pro-offer .dtMtxGroup {
+    grid-template-columns: 1fr 236px;
+}
+}
+@media (max-width: 640px) {
+.dtgs-pro-offer .dtMtxTop {
+    padding: 72px 0 110px;
+}
+.dtgs-pro-offer .dtMtxRow {
+    grid-template-columns: 1fr 76px 76px;
+}
+.dtgs-pro-offer .dtMtxCell {
+    padding: 13px 8px;
+    font-size: 13.5px;
+}
+.dtgs-pro-offer .dtMtxCellFeature,
+.dtgs-pro-offer .dtMtxHeadRow .dtMtxCellFeature,
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCellFeature {
+    padding-left: 16px;
+    padding-right: 10px;
+}
+.dtgs-pro-offer .dtMtxHeadRow .dtMtxCell {
+    padding: 14px 6px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+}
+.dtgs-pro-offer .dtMtxHeadPlan strong {
+    font-size: 13px;
+}
+.dtgs-pro-offer .dtMtxHeadPlanSub,
+.dtgs-pro-offer .dtMtxHeadPlanAlt {
+    display: none;
+}
+.dtgs-pro-offer .dtMtxGroup {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 16px;
+}
+.dtgs-pro-offer .dtMtxVal {
+    font-size: 11px;
+    line-height: 1.35;
+}
+.dtgs-pro-offer .dtMtxYes,
+.dtgs-pro-offer .dtMtxNo {
+    width: 22px;
+    height: 22px;
+}
+.dtgs-pro-offer .dtMtxControls {
+    padding: 18px 16px;
+}
+.dtgs-pro-offer .dtMtxFootRow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 22px 16px;
+}
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCell,
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCellFeature {
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.dtgs-pro-offer .dtMtxFootRow .dtMtxCellPro {
+    background: transparent;
+}
+.dtgs-pro-offer .dtMtxFootRow .dtBtnPrimary {
+    padding: 12px 26px;
+    font-size: 12px;
+}
+.dtgs-pro-offer .dtMtxVal {
+    overflow-wrap: break-word;
+}
+}
+.dtgs-pro-offer .dtRevSection .dtSectionLabel {
+  color: var(--dt-brand-light);
+}
+.dtgs-pro-offer .dtPrsIncluded {
+  background: var(--dt-off);
+  border: 1.5px solid var(--dt-border);
+  border-radius: var(--dt-r-xl);
+  padding: 26px 30px;
+  
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.dtgs-pro-offer .dtPrsIncludedIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--dt-white);
+  border: 1.5px solid rgba(13, 131, 141, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dtgs-pro-offer .dtPrsIncludedIcon svg {
+  width: 26px;
+  height: 26px;
+  color: var(--dt-brand);
+}
+.dtgs-pro-offer .dtPrsIncludedTitle {
+  font-family: var(--dt-font-h);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--dt-navy);
+  letter-spacing: -0.01em;
+  margin-bottom: 5px;
+}
+.dtgs-pro-offer .dtPrsIncludedText {
+  font-size: 14.5px;
+  color: var(--dt-text-2);
+  line-height: 1.65;
+}
+@media (max-width: 640px) {
+.dtgs-pro-offer .dtPrsIncluded {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 22px 20px;
+}
+}
+.dtgs-pro-offer .dtPrsSection {
+  background: var(--dt-white);
+  padding: 88px 0;
+}
+.dtgs-pro-offer .dtPrsSectionTitle {
+  font-family: var(--dt-font-h);
+  font-size: clamp(26px, 3.2vw, 44px);
+  font-weight: 800;
+  color: var(--dt-navy);
+  letter-spacing: -0.025em;
+  margin-bottom: 10px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.dtgs-pro-offer .dtPrsSectionSubtitle {
+  font-size: 16px;
+  color: var(--dt-text-2);
+  line-height: 1.7;
+  margin-bottom: 48px;
+  max-width: 600px;
+}
+.dtgs-pro-offer .dtPrsSectionSubtitle2 {
+  font-size: 14px;
+  color: var(--dt-text-3);
+  text-align: center;
+  margin-top: 20px;
+}
+.dtgs-pro-offer .dtSupSection .dtSectionLabel {
+  color: var(--dt-brand-light);
+}
+@media (max-width: 640px) {
+.dtgs-pro-offer .dtHeroCtaRow .dtBtnPrimary,
+.dtgs-pro-offer .dtHeroCtaRow .dtBtnGhost {
+    justify-content: center;
+}
+}
+@media (max-width: 480px) {
+.dtgs-pro-offer {
+    --dt-r-xl: 20px;
+}
+}
+.dtgs-pro-offer .dtWooCta .dtBtnGhost {
+  border-color: rgba(13, 131, 141, 0.4);
+  color: var(--dt-brand);
+}
+.dtgs-pro-offer .dtWooCta .dtBtnGhost:hover,
+.dtgs-pro-offer .dtWooCta .dtBtnGhost:focus {
+  background: rgba(13, 131, 141, 0.08);
+  border-color: var(--dt-brand);
+  color: var(--dt-brand-dark);
+}
+.dtgs-pro-offer .dtMtxRingFill,
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlan.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 121.01;
+}
+.dtgs-pro-offer .dtMtxPlanPro .dtMtxRingFill,
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlanPro.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 0;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxRingFill {
+  stroke-dashoffset: 251.33;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlan.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 121.01;
+}
+.dtgs-pro-offer .dtMtxAnimReady .dtMtxPlanPro.dtIsIn .dtMtxRingFill {
+  stroke-dashoffset: 0;
+}
+.dtgs-pro-offer .dtMtxCellFeature a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(13, 131, 141, 0.45);
+}
+.dtgs-pro-offer .dtMtxCellFeature a:hover {
+  color: var(--dt-brand);
+  border-bottom-style: solid;
+}
+.dtgs-pro-offer .dtMtxYes svg,
+.dtgs-pro-offer .dtMtxNo svg {
+  display: inline-block;
+}
+.dtgs-pro-offer .dtMtxYes svg,
+.dtgs-pro-offer .dtMtxNo svg {
+  width: 14px;
+  height: 14px;
+}
+.dtgs-pro-offer .supPricing {max-width:1100px;margin:0 auto;font-family:Montserrat,Arial,sans-serif;color:#1f2a44
+}
+.dtgs-pro-offer .supPricing,
+.dtgs-pro-offer .supPricing * {box-sizing:border-box
+}
+.dtgs-pro-offer .sptHead {text-align:center;margin:0 0 22px
+}
+.dtgs-pro-offer .supPricing .sptEyebrow {display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 14px;font-size:12px;line-height:1;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#0d838d
+}
+.dtgs-pro-offer .supPricing .sptEyebrow::before,
+.dtgs-pro-offer .supPricing .sptEyebrow::after {content:"";flex:0 0 48px;height:2px;border-radius:2px
+}
+.dtgs-pro-offer .supPricing .sptEyebrow::before {background:linear-gradient(90deg,rgba(82,186,197,0),#52bac5)
+}
+.dtgs-pro-offer .supPricing .sptEyebrow::after {background:linear-gradient(90deg,#52bac5,rgba(82,186,197,0))
+}
+.dtgs-pro-offer .supPricing .sptTitle {font-family:inherit;font-size:clamp(22px,2vw,28px);line-height:1.15;font-weight:800;letter-spacing:-0.025em;color:#1f2a44;margin:0 0 10px;padding:0;text-align:center;text-transform:none
+}
+.dtgs-pro-offer .sptSubtitle {font-size:15px;line-height:1.5;color:#6b7385;margin:0
+}
+.dtgs-pro-offer .sptTabs {display:flex;justify-content:center;gap:10px;margin:0 auto
+}
+.dtgs-pro-offer .supPricing .sptTab {appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:14px;flex:0 1 178px;min-width:0;margin:0;padding:10px 16px;background:#fff;border:1px solid #dfe3ea;border-radius:8px;box-shadow:none;cursor:pointer;font:inherit;text-align:left;text-transform:none;letter-spacing:normal;line-height:1.25;color:#1f2a44;transition:border-color .15s,background-color .15s
+}
+.dtgs-pro-offer .supPricing .sptTab:hover {border-color:#b9c3d3
+}
+.dtgs-pro-offer .supPricing .sptTab:focus-visible {outline:2px solid #2B72C6;outline-offset:2px
+}
+.dtgs-pro-offer .supPricing .sptTab.is-active {background:#eef8ec;border:2px solid #4A8D22;padding:9px 15px
+}
+.dtgs-pro-offer .sptTabIcon {flex:0 0 30px;width:30px;height:30px;color:#2B72C6
+}
+.dtgs-pro-offer .sptTabIcon svg {display:block;width:100%;height:100%
+}
+.dtgs-pro-offer .sptTab.is-active .sptTabIcon {color:#3f7f1d
+}
+.dtgs-pro-offer .sptTabName {display:block;font-size:14px;font-weight:700;color:#1f2a44
+}
+.dtgs-pro-offer .sptTabSites {display:block;font-size:12px;font-weight:400;color:#6b7385;margin-top:2px
+}
+.dtgs-pro-offer .sptTab.is-active .sptTabSites {color:#3f7f1d
+}
+.dtgs-pro-offer .sptHint {text-align:center;font-size:13px;color:#6b7385;margin:12px 0 18px
+}
+.dtgs-pro-offer .sptPanel[hidden] {display:none
+}
+.dtgs-pro-offer .sptGrid {display:flex;justify-content:center;align-items:stretch;gap:18px
+}
+.dtgs-pro-offer .sptCard {flex:0 1 calc((100% - 36px) / 3);display:flex;flex-direction:column;background:#f5f7fb;border:1px solid #e3e7ee;border-radius:8px;box-shadow:0 2px 10px rgba(31,42,68,.06);text-align:center;overflow:hidden
+}
+.dtgs-pro-offer .sptCardHead {padding:8px 10px;font-size:19px;font-weight:700;letter-spacing:.3px;color:#fff
+}
+.dtgs-pro-offer .sptTermYear .sptCardHead,
+.dtgs-pro-offer .sptTermYear .sptBtn {background:#2B72C6
+}
+.dtgs-pro-offer .sptTermThree .sptCardHead,
+.dtgs-pro-offer .sptTermThree .sptBtn {background:#4A8D22
+}
+.dtgs-pro-offer .sptTermLife .sptCardHead,
+.dtgs-pro-offer .sptTermLife .sptBtn {background:#E58B07
+}
+.dtgs-pro-offer .sptPrice {flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px 14px 14px;background:#fff
+}
+.dtgs-pro-offer .sptBadge {display:inline-flex;align-items:center;gap:6px;padding:4px 12px;margin-bottom:4px;border-radius:5px;background:#e2f3df;color:#2f6f18;font-size:12px;font-weight:600;line-height:1.3
+}
+.dtgs-pro-offer .sptBadge svg {width:13px;height:13px;flex:0 0 13px
+}
+.dtgs-pro-offer .sptRegular {font-size:13px;color:#6b7385;line-height:1.3
+}
+.dtgs-pro-offer .sptRegularOld {position:relative;display:inline-block;margin:0 2px 0 4px;font-size:22px;font-weight:700;color:#8a94a6
+}
+.dtgs-pro-offer .sptRegularOld::after {content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2px;background:#e0443e;transform:rotate(-8deg)
+}
+.dtgs-pro-offer .sptAmountRow {display:flex;align-items:baseline;justify-content:center;gap:8px;line-height:1
+}
+.dtgs-pro-offer .sptAmount {position:relative;font-size:46px;font-weight:700;color:#111827;letter-spacing:-.5px
+}
+.dtgs-pro-offer .sptCur {font-size:24px;font-weight:600;vertical-align:top;position:relative;top:4px;margin-right:2px;color:#111827
+}
+.dtgs-pro-offer .sptPer {font-size:18px;font-weight:400;color:#6b7385
+}
+.dtgs-pro-offer .sptNote {font-size:13px;color:#6b7385;line-height:1.35
+}
+.dtgs-pro-offer .sptFeatures {margin:0;padding:10px 12% 6px;text-align:left
+}
+.dtgs-pro-offer .sptFeature {display:flex;align-items:center;gap:12px;padding:6px 4px;font-size:14px;font-weight:400;color:#1f2a44;border-bottom:1px solid #e1e5ec
+}
+.dtgs-pro-offer .sptFeature:last-child {border-bottom:0
+}
+.dtgs-pro-offer .sptFeature svg {flex:0 0 16px;width:16px;height:16px;color:#3a8a1c
+}
+.dtgs-pro-offer .sptCta {padding:8px 14px 12px
+}
+.dtgs-pro-offer .supPricing a.sptBtn,
+.dtgs-pro-offer .supPricing a.sptBtn:hover,
+.dtgs-pro-offer .supPricing a.sptBtn:focus {display:block;width:84%;margin:0 auto;padding:8px 10px;border-radius:6px;color:#fff;font-size:17px;font-weight:700;letter-spacing:.3px;text-decoration:none;line-height:1.3
+}
+.dtgs-pro-offer .supPricing a.sptBtn:hover {filter:brightness(1.07)
+}
+.dtgs-pro-offer .sptGuarantee {margin-top:6px;font-size:11.5px;color:#6b7385
+}
+.dtgs-pro-offer .sptFooterNote {text-align:center;font-size:14px;color:#56708f;margin:18px 0 0
+}
+@media (max-width:860px) {
+.dtgs-pro-offer .sptGrid {flex-direction:column;align-items:center
+}
+.dtgs-pro-offer .sptCard {flex:none;width:100%;max-width:420px
+}
+}
+@media (max-width:600px) {
+.dtgs-pro-offer .sptTabs {gap:6px
+}
+.dtgs-pro-offer .supPricing .sptTab {flex:1 1 0;flex-direction:column;gap:6px;padding:10px 6px;text-align:center
+}
+.dtgs-pro-offer .supPricing .sptTab.is-active {padding:9px 5px
+}
+.dtgs-pro-offer .sptTabIcon {flex-basis:26px;width:26px;height:26px
+}
+.dtgs-pro-offer .sptTabName {font-size:13px
+}
+.dtgs-pro-offer .sptTabSites {font-size:11px
+}
+}
+.dtgs-pro-offer {
+  font-family: var(--dt-font);
+  color: var(--dt-text);
+  margin: 32px 0;
+}
+.dtgs-pro-offer a:focus { box-shadow: none; }

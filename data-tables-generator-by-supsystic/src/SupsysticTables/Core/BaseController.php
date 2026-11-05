@@ -100,6 +100,28 @@ abstract class SupsysticTables_Core_BaseController extends RscDtgs_Mvc_Controlle
   }
 
   /**
+   * Roles of the plugin's "access_roles" setting. Anything that is not a list of role names (the option is missing, empty,
+   * damaged or of another type) gives no roles at all, so that then only administrators can use the plugin.
+   * @return string[]
+   */
+  public static function getAccessRoles()
+  {
+    $settings = get_option('supsystic_tbl_settings');
+    if (!is_array($settings) || empty($settings['access_roles'])) {
+      return [];
+    }
+    $roles = is_array($settings['access_roles']) ? $settings['access_roles'] : [$settings['access_roles']];
+    $clean = [];
+    foreach ($roles as $role) {
+      if (is_string($role) && trim($role) !== '') {
+        $clean[] = $role;
+      }
+    }
+
+    return array_values(array_unique($clean));
+  }
+
+  /**
    * Administrators, and roles listed in the plugin's "access_roles" setting.
    */
   public function _currentUserCanUsePlugin()
@@ -107,10 +129,19 @@ abstract class SupsysticTables_Core_BaseController extends RscDtgs_Mvc_Controlle
     if (current_user_can('manage_options') || current_user_can('administrator')) {
       return true;
     }
-    $settings = get_option('supsystic_tbl_settings');
-    $allowedRoles = $settings && !empty($settings['access_roles']) ? (array) $settings['access_roles'] : [];
+    $allowedRoles = self::getAccessRoles();
     $user = wp_get_current_user();
-    return $user && $user->ID && array_intersect((array) $user->roles, $allowedRoles) ? true : false;
+    if (!$allowedRoles || !$user || empty($user->ID) || !is_array($user->roles)) {
+      return false;
+    }
+    foreach ($user->roles as $role) {
+      // Exact comparison: a loose one would let some odd values in the setting (0, false) match every role
+      if (is_string($role) && in_array($role, $allowedRoles, true)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public function _checkNonceFrontend($request)

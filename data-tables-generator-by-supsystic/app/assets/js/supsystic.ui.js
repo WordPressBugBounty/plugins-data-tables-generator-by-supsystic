@@ -6,11 +6,18 @@
  *
  */
 (function ($, window, vendor, undefined) {
-  jQuery(document).one('click', '.supsystic-admin-notice a, .supsystic-admin-notice button', function (event) {
+  // Every notice saves its own answer (the WordPress close button counts as "hide")
+  jQuery(document).on('click', '.supsystic-admin-notice [data-response-code], .supsystic-admin-notice .notice-dismiss', function (event) {
+    var $notice = jQuery(this).closest('.supsystic-admin-notice');
     var responseCode = jQuery(this).data('response-code') || 'hide';
-    var responseType = jQuery(this).data('response-type');
+    var responseType = jQuery(this).data('response-type') || $notice.find('[data-response-type]').first().data('response-type');
 
-    jQuery(this).closest('.supsystic-admin-notice').slideUp(200, function () {
+    if (!responseType || $notice.data('responded')) {
+      return;
+    }
+    $notice.data('responded', true);
+
+    $notice.slideUp(200, function () {
       jQuery(this).remove();
     });
 
@@ -65,24 +72,26 @@
       hideOnClick: 1,
     });
 
-    $('[data-target-toggle]').on('click change ifChanged', function (event) {
-      event.preventDefault();
-      var $this = $(this);
+    // The options of a checkbox follow its state, so a double click or a change from code
+    // cannot leave them out of step. With data-target-toggle-invert they show while it is off.
+    $('[data-target-toggle]')
+      .each(function () {
+        $(this).data('toggleOn', this.checked);
+      })
+      .on('change ifChanged', function () {
+        var $this = $(this),
+          isOn = $this.is(':checked');
 
-      // Checkbox/iCheck inputs fire more than one of click/change/ifChanged per
-      // single user interaction; without this guard fadeToggle() runs twice in
-      // the same tick and cancels itself out, so the panel never visibly toggles.
-      if ($this.data('toggling')) {
-        return;
-      }
-      $this.data('toggling', true);
+        // One click fires both events
+        if ($this.data('toggleOn') === isOn) {
+          return;
+        }
+        $this.data('toggleOn', isOn);
 
-      $($this.data('target-toggle'))
-        .stop(true, true)
-        .fadeToggle(400, function () {
-          $this.removeData('toggling');
-        });
-    });
+        $($this.data('target-toggle'))
+          .stop(true, true)
+          [isOn !== Boolean($this.data('target-toggle-invert')) ? 'fadeIn' : 'fadeOut'](200);
+      });
 
     $('input.stbCopyTextCode').click(function () {
       this.select();

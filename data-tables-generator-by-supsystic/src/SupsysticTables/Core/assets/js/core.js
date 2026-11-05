@@ -92,7 +92,8 @@ var g_stbServerSideProcessingIsActive = false;
       var rootElem = table.closest('.supsystic-tables-wrap'),
         viewId = table.data('view-id');
 
-      ruleJSInstances[viewId] = new ruleJS(rootElem.attr('id'));
+      // The WooCommerce editor renders its preview without the formula engine: a product table has no formulas
+      ruleJSInstances[viewId] = typeof ruleJS === 'function' ? new ruleJS(rootElem.attr('id')) : { init: function () {} };
       ruleJSInstances[viewId].instanceTable = table;
       return ruleJSInstances[viewId];
     };
@@ -1295,7 +1296,9 @@ var g_stbServerSideProcessingIsActive = false;
           if (inputTop && hasHeader) {
             showColumnLabel = false;
           }
-          if (!$table.find('.stbColumnsSearchWrapper').length) {
+          // A panel of filters above the table stands in for the row of inputs
+          var usesFilterPanel = !!(vendor[appName].ColumnFilters && vendor[appName].ColumnFilters.isPanel($table));
+          if (!usesFilterPanel && !$table.find('.stbColumnsSearchWrapper').length) {
             var headerRow = $table.find('thead tr:first').find('th');
             if (headerRow.length) {
               if (inlineTopSearch) {
@@ -1404,6 +1407,16 @@ var g_stbServerSideProcessingIsActive = false;
         }
         if (disableSorting && disableSorting.length) {
           sortingDisable = disableSorting;
+          // These numbers count all columns of the editor, DataTables counts only the printed ones.
+          // Merged cells in the header leave no way to tell them apart, so such a header keeps the numbers as they are.
+          var firstHeadCells = $table.find('thead tr:first th');
+          if (firstHeadCells.filter('[data-x]').length && !firstHeadCells.filter('[colspan]:not([colspan="1"])').length) {
+            sortingDisable = $.map(disableSorting, function (target) {
+              var cell = firstHeadCells.filter('[data-x="' + parseInt(target, 10) + '"]');
+
+              return cell.length ? cell.index() : null;
+            });
+          }
         }
         if (multipleSorting && multipleSorting.length) {
           aaSorting = $.grep(multipleSorting, function (sortItem) {
@@ -1759,6 +1772,11 @@ var g_stbServerSideProcessingIsActive = false;
         if (typeof config.aoColumnDefs == 'undefined' || jQuery.isEmptyObject(config.aoColumnDefs)) {
           config.aoColumnDefs = [];
         }
+        // DataTables reads only one of the two lists: rules from columnDefs (no sorting, hidden from search) must not push these out
+        if (config.columnDefs && config.columnDefs.length) {
+          config.aoColumnDefs = config.columnDefs.concat(config.aoColumnDefs);
+          delete config.columnDefs;
+        }
         config.aoColumnDefs.push({
           targets: '_all',
           cellType: 'td',
@@ -1977,6 +1995,95 @@ var g_stbServerSideProcessingIsActive = false;
       return typeof finalCallback == 'function' ? finalCallback(tableInstance) : tableInstance;
     };
 
+    // FixedColumns measures its cloned rows before the first SSP draw has
+    // finished applying cell formats and scroll widths. Settle the geometry
+    // after that work, without drawing again or fetching the page again.
+    vendor[appName].syncFixedColumnsLayout = function ($table) {
+      var api = $table.api(), settings = api.settings()[0];
+      if (!settings || !settings.oInit.fixedColumns) return;
+      var previous = $table.data('stbFixedLayout');
+      if (previous) { previous.schedule(); return; }
+      var wrap = $table.closest('.supsystic-tables-wrap');
+      wrap.css('visibility', 'hidden').attr('aria-busy', 'true');
+      if (!settings._oFixedColumns) {
+        // initComplete runs before FixedColumns' document-level init handler.
+        $table.one('init.dt.stbFixedWait', function () {
+          setTimeout(function () {
+            if (document.documentElement.contains($table[0])) vendor[appName].syncFixedColumnsLayout($table);
+          }, 0);
+        });
+        return;
+      }
+      var frame = null, running = false, disposed = false, observer;
+      var lastWidth = wrap.width();
+      var raf = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 16); };
+      var caf = window.cancelAnimationFrame || clearTimeout;
+
+      function matchRows(selector, leftSelector, rightSelector) {
+        var source = wrap.find(selector), left = wrap.find(leftSelector), right = wrap.find(rightSelector);
+        if ((!left.length && !right.length) || (left.length && left.length !== source.length) || (right.length && right.length !== source.length)) return;
+        source.each(function (index) {
+          var rows = [this, left[index], right[index]].filter(Boolean);
+          // offsetHeight rounds fractional line heights. Repeated rounding
+          // otherwise makes the fixed panel drift further on every row.
+          var height = Math.max.apply(null, rows.map(function (row) { return row.getBoundingClientRect().height; }));
+          rows.forEach(function (row) { row.style.height = height + 'px'; });
+        });
+      }
+
+      function settle() {
+        frame = null;
+        if (disposed || !document.documentElement.contains($table[0])) { cleanup(); return; }
+        if (!wrap.is(':visible') || !wrap.width()) return;
+        running = true;
+        try {
+          api.columns.adjust();
+          api.fixedColumns().relayout();
+          matchRows('.dataTables_scrollBody > table > tbody > tr', '.DTFC_LeftBodyLiner > table > tbody > tr', '.DTFC_RightBodyLiner > table > tbody > tr');
+          matchRows('.dataTables_scrollHead > .dataTables_scrollHeadInner > table > thead > tr', '.DTFC_LeftHeadWrapper > table > thead > tr', '.DTFC_RightHeadWrapper > table > thead > tr');
+          matchRows('.dataTables_scrollFoot > .dataTables_scrollFootInner > table > tfoot > tr', '.DTFC_LeftFootWrapper > table > tfoot > tr', '.DTFC_RightFootWrapper > table > tfoot > tr');
+        } finally {
+          running = false;
+          lastWidth = wrap.width();
+          wrap.css('visibility', 'visible').attr('aria-busy', 'false');
+        }
+      }
+      function schedule() {
+        if (running || disposed || frame !== null) return;
+        // The second frame lets header controls and custom CSS finish layout.
+        frame = raf(function () { frame = raf(settle); });
+      }
+      function resourceLoaded(event) {
+        // Relayout recreates fixed clones. Their copied images must not queue
+        // another relayout indefinitely when they finish loading.
+        if (!jQuery(event.target).closest('.DTFC_Cloned').length) schedule();
+      }
+      function cleanup() {
+        disposed = true;
+        if (frame !== null) caf(frame);
+        if (observer) observer.disconnect();
+        wrap[0].removeEventListener('load', resourceLoaded, true);
+        $table.off('.stbFixedLayout');
+      }
+      $table.data('stbFixedLayout', { schedule: schedule });
+      $table.on('draw.dt.stbFixedLayout column-sizing.dt.stbFixedLayout column-visibility.dt.stbFixedLayout', schedule);
+      $table.on('destroy.dt.stbFixedLayout', cleanup);
+      wrap[0].addEventListener('load', resourceLoaded, true);
+      if (window.ResizeObserver) {
+        observer = new ResizeObserver(function () { if (wrap.width() !== lastWidth) schedule(); });
+        observer.observe(wrap[0]);
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+      schedule();
+    };
+
+    jQuery(document).on('stb:classic-design.stbFixedLayout', function () {
+      jQuery('.supsystic-tables-wrap table.supsystic-table:not(.DTFC_Cloned)').each(function () {
+        var state = jQuery(this).data('stbFixedLayout');
+        if (state) state.schedule();
+      });
+    });
+
     /** Callback for displaying table after initializing
      * @param {object} settings - DataTables settings object
      * @param {object} json - JSON data retrieved from the server if the ajax option was set. Otherwise undefined.
@@ -1986,7 +2093,6 @@ var g_stbServerSideProcessingIsActive = false;
         $table = this instanceof $ ? this : settings, // for compatibility with old pro versions
         $tableWrap = $table.closest('.supsystic-tables-wrap'),
         tableSelector = '#supsystic-table-' + $table.data('view-id') + ' #supsystic-table-' + $table.data('id'),
-        afterTableLoadedScriptString = $table.attr('data-after-table-loaded-script'),
         _ruleJS = self.setRuleJSInstance($table),
         responsiveMode = $table.data('responsive-mode'),
         fixedHeader = $table.data('fixed-head') == 'on',
@@ -2024,6 +2130,43 @@ var g_stbServerSideProcessingIsActive = false;
         $table.on('draw.dt', function () {
           self.getRuleJSInstance($table).init();
           self.formatDataAtTable($table, true);
+        });
+      } else {
+        // Sorting, searching and filtering bring rows from other pages that were never shown,
+        // so they still hold raw values. Work runs only when such rows are on screen.
+        var markShownRows = function () {
+          $table.find('tbody > tr').each(function () {
+            this.stbRowFormatted = true;
+          });
+        };
+        markShownRows();
+        $table.on('draw.dt.stbFormat', function () {
+          var hasNewRows = false;
+          $table.find('tbody > tr').each(function () {
+            if (!this.stbRowFormatted && !jQuery(this).hasClass('child') && !jQuery(this).children('.dataTables_empty').length) {
+              hasNewRows = true;
+              return false;
+            }
+          });
+          if (hasNewRows) {
+            self.getRuleJSInstance($table).init();
+          } else {
+            // Formulas are recalculated in all rows, also the ones out of sight, and come back as plain results
+            var hasPlainResults = false;
+            $table.find('tbody > tr > td[data-formula]').each(function () {
+              var inner = jQuery(this).children('.stb-cell-dimension-inner:first, .stb-cell-max-height-inner:first'),
+                shown = jQuery.trim(inner.length ? inner.html() : this.innerHTML);
+              if (shown !== this.stbPrintedValue) {
+                hasPlainResults = true;
+                return false;
+              }
+            });
+            if (!hasPlainResults) {
+              return;
+            }
+          }
+          self.formatDataAtTable($table, true);
+          markShownRows();
         });
       }
 
@@ -2190,6 +2333,7 @@ var g_stbServerSideProcessingIsActive = false;
       // Correct width of fixed columns
       if (fixedColumns) {
         $table.api().fixedColumns().relayout();
+        self.syncFixedColumnsLayout($table);
 
         //var tableCaption = jQuery('.dataTables_scrollHead caption');
         //
@@ -2209,18 +2353,12 @@ var g_stbServerSideProcessingIsActive = false;
         });
       }
 
-      // Load user custom scripts
-      if (afterTableLoadedScriptString !== undefined) {
-        afterTableLoadedScriptString = afterTableLoadedScriptString.substring(1, afterTableLoadedScriptString.length - 1);
-
-        var afterTableLoadedScript = b64DecodeUnicode(afterTableLoadedScriptString).replace(/"/g, "'"),
-          executeScript = new Function(afterTableLoadedScript);
-
-        if (typeof executeScript === 'function') {
-          setTimeout(function () {
-            executeScript();
-          }, 1000);
-        }
+      // The script of "Execute JS Script After Table Load": the page prints it as a plain function of this table
+      var afterTableLoaded = window.stbAfterTableLoaded ? window.stbAfterTableLoaded[$table.data('id')] : null;
+      if (typeof afterTableLoaded === 'function') {
+        setTimeout(function () {
+          afterTableLoaded();
+        }, 1000);
       }
 
       if (g_stbServerSideProcessing) {
@@ -2243,21 +2381,11 @@ var g_stbServerSideProcessingIsActive = false;
       });
       self.queueCellDimensions($table);
 
-      var tblEditLink = 'g_stbTblEditLink_' + $table.data('id'),
-        showTblEditLink = eval('typeof ' + tblEditLink) !== 'undefined' ? jQuery(window.atob(eval(tblEditLink))) : false;
+      var tblEditLink = window['g_stbTblEditLink_' + $table.data('id')],
+        showTblEditLink = tblEditLink && tblEditLink[0] ? jQuery(tblEditLink[0]) : false;
 
       if (showTblEditLink && jQuery(tableSelector).closest('.supsystic-tables-wrap').find('.tblEditLink').length === 0) {
         jQuery(tableSelector).closest('.supsystic-tables-wrap').append(showTblEditLink);
-      }
-
-      function b64DecodeUnicode(str) {
-        return decodeURIComponent(
-          Array.prototype.map
-            .call(atob(str), function (c) {
-              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join('')
-        );
       }
     };
 
@@ -2376,6 +2504,7 @@ var g_stbServerSideProcessingIsActive = false;
 
     vendor[appName].setColumnSearch = function (table) {
       if (typeof this.setTableAddFilters === 'function') this.setTableAddFilters(table);
+      if (this.ColumnFilters) this.ColumnFilters.mount(table);
 
       var self = this,
         searchingSettings = table.data('searching-settings'),
@@ -2487,6 +2616,7 @@ var g_stbServerSideProcessingIsActive = false;
           preparedFormat,
           delimiters,
           value = jQuery.trim($dimensionInner.length ? $dimensionInner.html() : $this.html()),
+          shownValue = value,
           noFormat = false;
 
         // function checkIfDate(parts) {
@@ -2512,7 +2642,8 @@ var g_stbServerSideProcessingIsActive = false;
         // }
 
         // Fix data params for cells which use formulas, which depended on cells with shortcodes inside
-        if (correctSorting && toeInArray(formatType, ['date', 'time_duration']) == -1) {
+        // What this function printed itself is not a new value: sorting must keep the raw one, or 0.91 loses to 61.00%
+        if (correctSorting && toeInArray(formatType, ['date', 'time_duration']) == -1 && value !== this.stbPrintedValue) {
           var dataTableInstance = typeof table.api == 'function' ? table : self.getTableInstanceById(table.data('id'));
 
           if ($this.data('original-value') != value) {
@@ -2660,10 +2791,14 @@ var g_stbServerSideProcessingIsActive = false;
             }
           }
         }
-        if ($dimensionInner.length) {
-          $dimensionInner.html(value);
-        } else {
-          $this.html(value);
+        this.stbPrintedValue = String(value);
+        // Writing the same text again would only rebuild the cell and drop what is inside it
+        if (String(value) !== shownValue) {
+          if ($dimensionInner.length) {
+            $dimensionInner.html(value);
+          } else {
+            $this.html(value);
+          }
         }
       });
     };

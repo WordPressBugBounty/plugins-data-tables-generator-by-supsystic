@@ -1,0 +1,40 @@
+{# Asked before a save in the free version resets the PRO settings of the table. tables.pro-guard.js opens it. #}
+<div class="stb-pg" id="stb-pro-guard" hidden>
+    <div class="stb-pg-dialog" role="alertdialog" aria-modal="true" aria-labelledby="stb-pg-title" aria-describedby="stb-pg-text">
+        <div class="stb-pg-head">
+            <span class="stb-pg-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+            <div>
+                <h2 id="stb-pg-title">{{ environment.translate('Saving now will reset your PRO settings') }}</h2>
+                <p id="stb-pg-text">
+                    {% if proGuard.state == 'license' %}
+                        {{ environment.translate('Your PRO license is not active, so the plugin works as the free version.') }}
+                    {% elseif proGuard.state == 'plugin' %}
+                        {{ environment.translate('The PRO plugin is turned off, so the plugin works as the free version.') }}
+                    {% else %}
+                        {{ environment.translate('The plugin works as the free version.') }}
+                    {% endif %}
+                    {{ ' ' ~ environment.translate('It cannot keep these settings of the table, and a save resets them for good:') }}
+                </p>
+            </div>
+        </div>
+        <ul class="stb-pg-list">
+            {% for label in proGuard.labels %}
+                <li><span class="stb-pg-pro">PRO</span><span>{{ label }}</span></li>
+            {% endfor %}
+        </ul>
+        <p class="stb-pg-note"><i class="fa fa-shield" aria-hidden="true"></i><span>{{ environment.translate('Nothing is lost yet. Bring PRO back before you save, and these settings stay as they are.') }}</span></p>
+        <div class="stb-pg-actions">
+            <button type="button" class="stb-pg-btn stb-pg-reset" data-stb-pg="confirm">{{ environment.translate('Reset PRO settings and save') }}</button>
+            <div class="stb-pg-actions-end">
+                <button type="button" class="stb-pg-btn" data-stb-pg="cancel">{{ environment.translate('Cancel') }}</button>
+                {% if proGuard.state == 'license' %}
+                    <a class="stb-pg-btn stb-pg-primary" target="_blank" rel="noopener" href="{{ proGuard.url }}"><span>{{ environment.translate('Activate license') }}</span><i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                {% elseif proGuard.state == 'plugin' %}
+                    <a class="stb-pg-btn stb-pg-primary" target="_blank" rel="noopener" href="{{ proGuard.url }}"><span>{{ environment.translate('Turn on PRO') }}</span><i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                {% else %}
+                    <a class="stb-pg-btn stb-pg-primary" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': 'pro_settings_guard' }) }}"><span>{{ environment.translate('Get PRO') }}</span><i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -162,6 +162,7 @@
     {% set isPageRows = table.isPageRows | default(false) %}
     {% set isDB = table.isDB | default(false) %}
     {% set settingsKeys = table.settings | keys %}
+    {% set classicVariables = environment.getModule('tables').getClassicDesignVariables(table.settings) %}
     {% set languageOverride = table.settings.language|default({}) %}
     {% set wooTextOverrides = table.woo_settings.woocommerce.translations|default({}) %}
     {% if wooTextOverrides.length_menu|default('') %}
@@ -196,17 +197,18 @@
 
     {% if is_feed == false and table.settings.tableLoader.disable is not defined %}
         {% set loaderClass = 'supsystic-table-loader' %}
+        {% set classicLoaderColor = classicVariables ? 'var(--stb-processingColor)' : table.settings.tableLoader.color|default('') %}
         {% if table.settings.tableLoader.iconName | default('default') == 'default' %}
-            <div class="{{ loaderClass }} spinner" {% if table.settings.tableLoader.color is defined %}style="background-color: {{ table.settings.tableLoader.color }}"{% endif %}></div>
+            <div class="{{ loaderClass }} spinner" {% if classicVariables or table.settings.tableLoader.color is defined %}style="{{ classicVariables }}background-color: {{ classicLoaderColor }}"{% endif %}></div>
         {% else %}
-            <div class="{{ loaderClass }} la-{{ table.settings.tableLoader.iconName }} la-2x" style="color: {{ table.settings.tableLoader.color }}">
+            <div class="{{ loaderClass }} la-{{ table.settings.tableLoader.iconName }} la-2x" style="{{ classicVariables }}color: {{ classicLoaderColor }}">
                 {% for i in 1..table.settings.tableLoader.iconItems %}
                     <div></div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endif %}
-    <div id="supsystic-table-{{ table.view_id }}" class="supsystic-tables-wrap  {{ ' ' }}
+    <div id="supsystic-table-{{ table.view_id }}" class="supsystic-tables-wrap{{ ' ' }}{% if classicVariables %}stb-classic-design{{ ' ' }}{% endif %}
         {% if 'paging' in table.settings.features | keys %}
             {{ table.settings.paginationSize | default('pagination-large') }} {# set it here to apply to the pagination block #}
             {% set widthForAll = true %}
@@ -214,7 +216,8 @@
         {% if table.settings.responsiveMode == 3 %}
             disable-responsive
         {% endif %}"
-         style="
+         data-stb-sort-hover="{{ table.settings.styles.showSortHover|default('off') }}"
+         style="{{ classicVariables }}
          {% if tableWidth is defined %}
              {% if tableWidth == 'auto' %}
                      display: inline-block;
@@ -252,7 +255,7 @@
     {% endblock %}
     <table
             id="supsystic-table-{{ table.id }}"
-            class="{{'supsystic-table'}} {{ ' ' }} {{ table.settings.styling | keys | join(' ') }}
+            class="{{'supsystic-table'}}{{ ' ' }}{% if classicVariables %}stb-classic-table{{ ' ' }}{% endif %}{% if table.table_type|default('default') not in ['woo_product_table', 'pricing_table'] %}stb-classic-sortable{{ ' ' }}{% endif %}{{ table.settings.styling | keys | join(' ') }}
             {{ ' ' }}
             {% if 'border' in table.settings.styling | keys %}
                 {{ table.settings.styling.border }}
@@ -268,7 +271,11 @@
             data-search-value="{{ table.search_value }}"
             data-loader-icon-name="{{ table.settings.tableLoader.iconName | default('default') }}"
             data-loader-icon-items="{{ table.settings.tableLoader.iconItems | default('0') }}"
-            data-loader-color="{{ table.settings.tableLoader.color | default('#000000') }}"
+            data-loader-color="{{ classicVariables ? 'var(--stb-processingColor)' : table.settings.tableLoader.color | default('#000000') }}"
+            {% if classicVariables %}
+                data-processing-bg="var(--stb-processingBg)"
+                data-processing-color="var(--stb-processingColor)"
+            {% endif %}
             data-processing-bg="{{ table.woo_settings.woocommerce.design.processing_bg | default('#ffffff') }}"
             data-processing-color="{{ table.woo_settings.woocommerce.design.processing_color | default('#000000') }}"
             {% if table.settings.styling.lfixed is defined %}
@@ -351,12 +358,6 @@
                 data-multiple-sorting="{{ table.meta.columnsSortOrder | json_encode | e  }}"
                 data-disable-sorting="{{ table.meta.columnsDisableSorting | json_encode | e  }}"
             {% endif %}
-            {% if 'after_table_loaded_script' in table.settings.features | keys
-                and 'enable_after_table_loaded_script' in table.settings.features | keys
-                and table.settings.features.enable_after_table_loaded_script == 'on'
-            %}
-                data-after-table-loaded-script="{{ table.settings.features.after_table_loaded_script | json_encode | e }}"
-            {% endif %}
             data-lang="{{ table.settings.language.file | default('default') }}"
             {% if ('language' in settingsKeys) or wooTextOverrides.length_menu|default('') or wooTextOverrides.info|default('') or wooTextOverrides.info_filtered|default('') or wooTextOverrides.previous|default('') or wooTextOverrides.next|default('') %}
                 data-override="{{ languageOverride | json_encode | e }}"
@@ -376,8 +377,8 @@
                 data-history-period="{{ table.history_data.attr_period }}"
             {% endif %}
             {% block table_attributes %}{% endblock %}
-            {% if tableWidth is defined and tableWidth == 'auto' %}
-                style="width: {{ tableWidth }};"
+            {% if classicVariables or (tableWidth is defined and tableWidth == 'auto') %}
+                style="{{ classicVariables }}{% if tableWidth is defined and tableWidth == 'auto' %}width: {{ tableWidth }};{% endif %}"
             {% endif %}
             >
 

@@ -44,6 +44,79 @@ class SupsysticTables_Woocommerce_Controller extends SupsysticTables_Core_BaseCo
     return $this->ajaxSuccess();
   }
 
+  /**
+   * The saved PRO settings of a table that sanitizeSettings() and sanitizeWooTableCommonSettings() reset in the free version.
+   * @param object $table
+   * @return string[] Names of the settings, for people.
+   */
+  public function getProSettingsLabels($table)
+  {
+    $wooSettings = is_array($table->woo_settings) ? $table->woo_settings : $this->maybeUnserializeArray($table->woo_settings);
+    $woo = !empty($wooSettings['woocommerce']) && is_array($wooSettings['woocommerce']) ? $wooSettings['woocommerce'] : [];
+    $settings = $this->getTableSettingsFromTable($table);
+    $hasAny = function ($values, $keys) {
+      foreach ($keys as $key) {
+        if (!empty($values[$key])) {
+          return true;
+        }
+      }
+      return false;
+    };
+    $labels = [];
+
+    if ($hasAny($woo, ['filter_attribute', 'filter_category_list', 'filter_stock_status', 'expand_filter_row', 'filter_attribute_selected'])) {
+      $labels[] = $this->translate('Product filters');
+    }
+    if ($hasAny($woo, ['filter_price_show_inputs', 'filter_price_show_slider'])) {
+      $labels[] = $this->translate('Price filter options');
+    }
+    if ($hasAny($woo, ['auto_categories_enable', 'auto_categories_list'])) {
+      $labels[] = $this->translate('Adding products by category');
+    }
+    if (!empty($woo['exclude_productids'])) {
+      $labels[] = $this->translate('Excluded products');
+    }
+    if (!empty($woo['design']) && is_array($woo['design'])) {
+      foreach ($this->getWooDesignDefaults() as $key => $default) {
+        if (isset($woo['design'][$key]) && is_scalar($woo['design'][$key]) && (string) $woo['design'][$key] !== (string) $default) {
+          $labels[] = $this->translate('Custom design');
+          break;
+        }
+      }
+    }
+    $columns = !empty($woo['order']) ? json_decode($woo['order'], true) : [];
+    foreach (is_array($columns) ? $columns : [] as $column) {
+      if (is_array($column) && $hasAny($column, ['max_width', 'hide_column', 'hide_responsive', 'hide_search_input', 'disable_sorting', 'text_align', 'vertical_align', 'show_price_search_inputs'])) {
+        $labels[] = $this->translate('Column options: width, alignment, hiding');
+        break;
+      }
+    }
+    if ((!empty($settings['features']) && $hasAny($settings['features'], ['searching', 'showHideColumnsList'])) || !empty($settings['searching'])) {
+      $labels[] = $this->translate('Search and the list of columns');
+    }
+    if (!empty($settings['serverSideProcessing'])) {
+      $labels[] = $this->translate('Server-side processing');
+    }
+    if (!empty($settings['updateMode']) && $settings['updateMode'] === 'auto') {
+      $labels[] = $this->translate('Automatic table updates');
+    }
+    if (!empty($settings['designMode']) && $settings['designMode'] === 'templates') {
+      $labels[] = $this->translate('Design templates');
+    }
+
+    return $labels;
+  }
+
+  /**
+   * The settings of a table from the wizard go through the same checks as a save in the editor.
+   * @param array $woocommerce
+   * @return array
+   */
+  public function sanitizeWizardSettings(array $woocommerce)
+  {
+    return $this->sanitizeSettings(['woocommerce' => $woocommerce]);
+  }
+
   public function getSearchProductsAction(RscDtgs_Http_Request $request)
   {
     if (!$this->_checkNonce($request)) {

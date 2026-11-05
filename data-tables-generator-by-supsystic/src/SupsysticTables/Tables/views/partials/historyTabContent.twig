@@ -2,21 +2,150 @@
     {% set url = build_pro_url({ 'utm_medium': 'table_history' })  %}
 
     {% block content %}
-        {% import '@ui/tooltip.twig' as tooltip %}
-            <div class="supXs12">
-            <h3 style="display:inline-block;">
-            {{ environment.translate('Table History') }}&nbsp;
-            {{ tooltip.icon('Сreate editable tables for your logged in users and easily view the changes. Information about table changes will be displayed on this tab, where you can select a user from the available list to check the content, date and time changes.' | raw, 'top', true)}}
-            </h3>
-            </br>
-            <a href="{{ url }}" class="button button-hero" target="_blank">
-                {{ environment.translate('Get PRO') }}
-            </a>
-        </div>
+        {% set img = environment.getModule('tables').getLocationUrl() ~ '/assets/img/history/' %}
+        {% set people = [
+            {'name': 'Emily', 'color': '#377dff', 'rows': [['Mon', 'Wireframes', '4'], ['Tue', 'Client call', '2'], ['Wed', 'Landing page', '7']], 'total': '13'},
+            {'name': 'Jake', 'color': '#14b8c4', 'rows': [['Mon', 'Ticket triage', '8'], ['Tue', 'Customer calls', '6'], ['Wed', 'Help articles', '4']], 'total': '18'},
+            {'name': 'Madison', 'color': '#26384c', 'rows': [['Mon', 'Push notices', '6'], ['Tue', 'QA round', '5'], ['Wed', 'Pricing page', '7']], 'total': '18'}
+        ] %}
+        {% set uses = [
+            {'icon': 'fa-clock-o', 'title': 'Timesheets', 'text': 'Each employee logs own hours in the same table.'},
+            {'icon': 'fa-check-square-o', 'title': 'Checklists', 'text': 'Personal to-do and onboarding lists for every user.'},
+            {'icon': 'fa-shopping-basket', 'title': 'Order forms', 'text': 'Customers fill in quantities, you see every order.'},
+            {'icon': 'fa-graduation-cap', 'title': 'Tests and scores', 'text': 'Students enter answers, teachers review each copy.'},
+            {'icon': 'fa-calculator', 'title': 'Budget planners', 'text': 'Members plan their own numbers in your template.'},
+            {'icon': 'fa-calendar-check-o', 'title': 'Attendance', 'text': 'A new copy every day, week, month or year.'}
+        ] %}
+
         <div class="supXs12">
-            <a href="{{ url }}" target="_blank">
-                <img style="max-width:100%" src="{{ environment.getModule('tables').getLocationUrl() }}/assets/img/table_history.png" alt="Tables History" title="Available in PRO version" style="width: 100%; height: auto;">
-            </a>
+        <div class="stb-showcase stb-showcase-history stb-sc-brand" data-showcase>
+            <section class="stb-sc-hero">
+                <div class="stb-sc-hero-text">
+                    <span class="stb-sc-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ environment.translate('Table History in PRO') }}</span>
+                    <h2>{{ environment.translate('One table, a personal copy for every user') }}</h2>
+                    <p>{{ environment.translate('Publish the table once. Every signed-in user fills in and keeps an own version of it, and you can open any copy right on this tab.') }}</p>
+                    <div class="stb-sc-actions">
+                        <a class="stb-sc-cta" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                        <a class="stb-sc-link" href="#stb-sc-history-how">{{ environment.translate('How it works') }}<i class="fa fa-angle-down" aria-hidden="true"></i></a>
+                    </div>
+                    <ul class="stb-sc-stats">
+                        <li><strong>1</strong><span>{{ environment.translate('table to manage') }}</span></li>
+                        <li><strong>&infin;</strong><span>{{ environment.translate('personal copies') }}</span></li>
+                        <li><strong>4</strong><span>{{ environment.translate('copy periods') }}</span></li>
+                    </ul>
+                </div>
+                <div class="stb-sc-copies" aria-hidden="true">
+                    {% for person in people %}
+                        <div class="stb-sc-copy stb-sc-copy-{{ loop.index }}" style="--copy-color: {{ person.color }};">
+                            <div class="stb-sc-copy-head">
+                                <span class="stb-sc-avatar">{{ person.name|first }}</span>
+                                <strong>{{ person.name }}</strong>
+                                <em>{{ environment.translate('own copy') }}</em>
+                            </div>
+                            <table>
+                                <thead><tr><th>{{ environment.translate('Day') }}</th><th>{{ environment.translate('Task') }}</th><th>{{ environment.translate('Hours') }}</th></tr></thead>
+                                <tbody>
+                                    {% for row in person.rows %}
+                                        <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot><tr><td colspan="2">{{ environment.translate('Total') }}</td><td>{{ person.total }}</td></tr></tfoot>
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="stb-sc-steps" id="stb-sc-history-how" aria-label="{{ environment.translate('How it works') }}">
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">1</span>
+                    <div><strong>{{ environment.translate('Turn on Table History') }}</strong><span>{{ environment.translate('Add frontend fields to the cells visitors may change.') }}</span></div>
+                </div>
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">2</span>
+                    <div><strong>{{ environment.translate('Add the history shortcode') }}</strong><code>[supsystic-tables id={{ table.id|default(1) }} use_history=1]</code></div>
+                </div>
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">3</span>
+                    <div><strong>{{ environment.translate('Users fill in their copy') }}</strong><span>{{ environment.translate('Pick any user on this tab to see what they saved.') }}</span></div>
+                </div>
+            </section>
+
+            <section class="stb-sc-feature">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('This tab in PRO') }}</span>
+                    <h3>{{ environment.translate('Open the copy of any user') }}</h3>
+                    <p>{{ environment.translate('Choose a user and the date of the copy: the table shows exactly what this user saved, with the time of the last change.') }}</p>
+                    <ul class="stb-sc-checks">
+                        <li>{{ environment.translate('Copies are kept for signed-in users only') }}</li>
+                        <li>{{ environment.translate('Visitors change the data with frontend fields, the original table stays untouched') }}</li>
+                        <li>{{ environment.translate('Use it together with frontend editing and export in PRO') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot">
+                    <div class="stb-sc-shot-tabs" role="group">
+                        <button type="button" class="is-active" data-shot="0" aria-pressed="true">Emily Carter</button>
+                        <button type="button" data-shot="1" aria-pressed="false">Jake Morrison</button>
+                        <button type="button" data-shot="2" aria-pressed="false">Madison Reed</button>
+                    </div>
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}history-emily.webp" data-caption="{{ environment.translate('Table History') ~ ' · Emily Carter' }}"><img src="{{ img }}history-emily.webp" alt="{{ environment.translate('Table History tab with the copy of Emily Carter') }}" width="1265" height="832" loading="lazy" /></button>
+                        <button type="button" class="stb-sc-zoom" data-full="{{ img }}history-jake.webp" data-caption="{{ environment.translate('Table History') ~ ' · Jake Morrison' }}"><img src="{{ img }}history-jake.webp" alt="{{ environment.translate('Table History tab with the copy of Jake Morrison') }}" width="1265" height="832" loading="lazy" /></button>
+                        <button type="button" class="stb-sc-zoom" data-full="{{ img }}history-madison.webp" data-caption="{{ environment.translate('Table History') ~ ' · Madison Reed' }}"><img src="{{ img }}history-madison.webp" alt="{{ environment.translate('Table History tab with the copy of Madison Reed') }}" width="1265" height="832" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-feature stb-sc-feature-reverse">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('Copy period') }}</span>
+                    <h3>{{ environment.translate('A fresh copy every day, week, month or year') }}</h3>
+                    <p>{{ environment.translate('With a period, every user starts a new copy when the period begins. Older copies stay and can be shown with the period attribute.') }}</p>
+                    <code class="stb-sc-code">[supsystic-tables id={{ table.id|default(1) }} use_history=1 period="2026-11"]</code>
+                </div>
+                <div class="stb-sc-timeline" aria-hidden="true">
+                    <div class="stb-sc-timeline-row"><span class="stb-sc-period">{{ environment.translate('Day') }}</span><i></i><i></i><i></i><i></i><i class="is-now"></i></div>
+                    <div class="stb-sc-timeline-row"><span class="stb-sc-period">{{ environment.translate('Week') }}</span><i></i><i></i><i class="is-now"></i></div>
+                    <div class="stb-sc-timeline-row"><span class="stb-sc-period">{{ environment.translate('Month') }}</span><i></i><i class="is-now"></i></div>
+                    <div class="stb-sc-timeline-row"><span class="stb-sc-period">{{ environment.translate('Year') }}</span><i class="is-now"></i></div>
+                    <p>{{ environment.translate('Each block is a separate copy of the same table for one user.') }}</p>
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <h3>{{ environment.translate('What people build with it') }}</h3>
+                        <p>{{ environment.translate('Any table where each user needs own numbers, answers or choices.') }}</p>
+                    </div>
+                </header>
+                <div class="stb-sc-uses">
+                    {% for use in uses %}
+                        <div class="stb-sc-use">
+                            <span class="stb-sc-use-icon"><i class="{{ use.icon }} fa fa-fw" aria-hidden="true"></i></span>
+                            <strong>{{ environment.translate(use.title) }}</strong>
+                            <span>{{ environment.translate(use.text) }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="stb-sc-final">
+                <div>
+                    <h3>{{ environment.translate('Give every user their own table') }}</h3>
+                    <p>{{ environment.translate('Your tables and their settings stay as they are. PRO adds Table History on top.') }}</p>
+                </div>
+                <a class="stb-sc-cta stb-sc-cta-light" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </section>
+
+            <div class="stb-sc-lightbox" hidden role="dialog" aria-modal="true" aria-label="{{ environment.translate('Picture') }}">
+                <button type="button" class="stb-sc-lightbox-close" aria-label="{{ environment.translate('Close') }}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-prev" aria-label="{{ environment.translate('Previous') }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                <figure><img alt="" /><figcaption></figcaption></figure>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-next" aria-label="{{ environment.translate('Next') }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+            </div>
+        </div>
         </div>
     {% endblock %}
 </div>

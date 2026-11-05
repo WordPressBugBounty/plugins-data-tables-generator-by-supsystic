@@ -1,0 +1,37 @@
+{# The "PRO features" tab of the WooCommerce table editor (free version only). #}
+{% set wooProFeatures = [
+    {'icon': 'fa-filter', 'utm': 'woo_pro_filters', 'title': environment.translate('Filters for shoppers'), 'text': environment.translate('Category, stock status, price and attribute filters above the table, so shoppers find products faster.')},
+    {'icon': 'fa-magic', 'utm': 'woo_pro_rules', 'title': environment.translate('Automatic catalog'), 'text': environment.translate('Fill the table by categories: new products appear by themselves. Leave out single products or variations.')},
+    {'icon': 'fa-search', 'utm': 'woo_pro_search', 'title': environment.translate('Search and column filters'), 'text': environment.translate('A search field and a separate filter for each column, with strict matching and search by hidden columns.')},
+    {'icon': 'fa-paint-brush', 'utm': 'woo_pro_design', 'title': environment.translate('Custom design'), 'text': environment.translate('10 ready styles and your own colors and typography for the table, buttons, price and filters.')},
+    {'icon': 'fa-download', 'utm': 'woo_pro_export', 'title': environment.translate('Export buttons'), 'text': environment.translate('CSV, Excel, PDF and print buttons for visitors, with paper size and orientation of the PDF.')},
+    {'icon': 'fa-columns', 'utm': 'woo_pro_columns', 'title': environment.translate('Control of each column'), 'text': environment.translate('Hide a column, set its maximum width and alignment, turn off its sorting or its search field.')},
+    {'icon': 'fa-eye-slash', 'utm': 'woo_pro_columns_list', 'title': environment.translate('Columns list for visitors'), 'text': environment.translate('Shoppers choose which columns they want to see with a list above the table.')},
+    {'icon': 'fa-rocket', 'utm': 'woo_pro_server_side', 'title': environment.translate('Large catalogs'), 'text': environment.translate('Server-side processing loads the table page by page, so big stores stay fast.')}
+] %}
+<section class="supRow-settings-block stb-settings-panel stb-panel-custom stb-pro-panel" id="stb-anl-pro">
+    <div class="stb-pro-hero">
+        <div class="stb-pro-hero-text">
+            <span class="stb-pro-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i> Data Tables PRO</span>
+            <h3>{{ environment.translate('Sell more from this table') }}</h3>
+            <p>{{ environment.translate('Give shoppers filters and search, keep the catalog up to date by itself and match the table to the look of your store.') }}</p>
+            <div class="stb-pro-hero-actions">
+                <a class="stb-pro-cta" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': 'woo_pro_tab' }) }}">{{ environment.translate('Get PRO') }} <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+        <ul class="stb-pro-promises">
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('Your tables and settings stay as they are') }}</li>
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('PRO options appear right in these tabs') }}</li>
+            <li><i class="fa fa-check" aria-hidden="true"></i> {{ environment.translate('Locked options are marked with PRO') }}</li>
+        </ul>
+    </div>
+    <div class="stb-pro-grid">
+        {% for feature in wooProFeatures %}
+            <a class="stb-pro-feature-card" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': feature.utm }) }}">
+                <span class="stb-pro-feature-icon"><i class="{{ feature.icon }} fa fa-fw" aria-hidden="true"></i></span>
+                <strong>{{ feature.title }}</strong>
+                <span>{{ feature.text }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</section>

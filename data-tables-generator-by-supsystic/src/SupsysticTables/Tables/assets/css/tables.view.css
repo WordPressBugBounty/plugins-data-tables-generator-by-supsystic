@@ -393,18 +393,6 @@
   box-shadow: none;
 }
 
-.tables-view .woo-settings-sidebar input[type='color'] {
-  width:50px !important;
-  height:50px !important;
-  float:left;
-}
-
-.tables-view .woo-settings-sidebar textarea,
-.tables-view .woo-settings-sidebar input,
-.tables-view .woo-settings-sidebar select {
-  width: 100%; /* !important;*/
-}
-
 .tables-view #settings input,
 .tables-view #settings select,
 .tables-view .tabs-content input,

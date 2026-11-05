@@ -1053,6 +1053,65 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     return '@woocommerce/partials/tabContent.twig';
   }
 
+  /**
+   * The palettes of classic tables in the terms of the design options of this table.
+   */
+  public function getWooClassicPalettes()
+  {
+    $env = $this->getEnvironment();
+    $tables = $env->getModule('tables');
+    if (!$tables || !method_exists($tables, 'getClassicDesignPaletteLibrary')) {
+      return [];
+    }
+
+    $palettes = [];
+    foreach ($tables->getClassicDesignPaletteLibrary() as $key => $preset) {
+      $styles = $preset['styles'];
+      $values = $preset['values'];
+      $palettes[$key] = [
+        'name' => $env->translate($preset['name']),
+        'collection' => $env->translate($preset['collection']),
+        'tone' => $preset['tone'],
+        'description' => $env->translate($preset['description']),
+        'design' => [
+          'header_text' => $styles['headerFontColor'],
+          'header_bg' => $styles['headerBackgroundColor'],
+          'header_font_size' => $styles['headerFontSize'],
+          'header_font_weight' => $values['headerWeight'],
+          'body_text' => $styles['cellFontColor'],
+          'body_bg' => $styles['cellBackgroundColor'],
+          'body_font_size' => $styles['cellFontSize'],
+          'body_font_weight' => $values['bodyWeight'],
+          'input_text' => $values['inputText'],
+          'input_bg' => $values['inputBg'],
+          'select_text' => $values['selectText'],
+          'select_bg' => $values['selectBg'],
+          'button_text' => $values['buttonText'],
+          'button_bg' => $values['buttonBg'],
+          'button_font_size' => $values['buttonSize'],
+          'button_font_weight' => $values['buttonWeight'],
+          'button_hover_text' => $values['buttonHoverText'],
+          'button_hover_bg' => $values['buttonHoverBg'],
+          'stripe_text' => $values['stripeText'],
+          'stripe_bg' => $values['stripeBg'],
+          'hover_text' => $values['hoverText'],
+          'hover_bg' => $values['hoverBg'],
+          'price_text' => $values['linkHover'],
+          'price_bg' => $styles['cellBackgroundColor'],
+          'border_color' => $values['borderColor'],
+          'length_color' => $values['labelColor'],
+          'info_color' => $values['infoColor'],
+          'description_color' => $values['descriptionColor'],
+          'signature_color' => $values['signatureColor'],
+          'processing_bg' => $values['processingBg'],
+          'processing_color' => $values['processingColor'],
+        ],
+      ];
+    }
+
+    return $palettes;
+  }
+
   public function onWoocommerceTabsContentData($data)
   {
     if (empty($data['table']->woo_settings) || !is_array($data['table']->woo_settings)) {
@@ -1067,6 +1126,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
 
     $data['woocommerceActive'] = $this->isWooCommercePluginActivated();
     $data['wooAdvancedAllowed'] = $this->getEnvironment()->isPro();
+    $data['wooClassicPalettes'] = $this->getWooClassicPalettes();
 
     if (!$data['wooAdvancedAllowed'] && !empty($data['table']->settings) && is_array($data['table']->settings)) {
       if (!empty($data['table']->settings['features']) && is_array($data['table']->settings['features'])) {
@@ -1161,7 +1221,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
     $location = untrailingslashit(plugin_dir_url(__FILE__));
 
     if ($this->getEnvironment()->isPluginPage() && $this->getEnvironment()->isModule('tables', 'view') && $this->isWooProductTableView()) {
-      $ui->add($ui->createStyle($prefix . 'woocommerce.admin.css')->setHookName($hookName)->setExternalSource($location . '/assets/css/woocommerce.admin.css'));
+      $ui->add($ui->createStyle($prefix . 'woocommerce.admin.css')->setHookName($hookName)->setExternalSource($location . '/assets/css/woocommerce.admin.css')->addDependency('supsystic-tables-settings-ui-css')->setVersion($version . '-ui-8'));
       $ui->add(
         $ui
           ->createScript($prefix . 'woocommerce.admin.js')
@@ -1174,7 +1234,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
           ->addDependency('supsystic-tables-datatables-js')
           ->addDependency('supsystic-tables-datatables-responsive-js')
           ->addDependency('supsystic-tables-datetime-moment-js')
-          ->setVersion($version),
+          ->setVersion($version . '-ui-6'),
       );
       $ui->add(
         $ui
@@ -1188,7 +1248,7 @@ class SupsysticTables_Woocommerce_Module extends SupsysticTables_Core_BaseModule
       $ui->add($ui->createStyle($prefix . 'multiple-select.css')->setHookName($hookName)->setExternalSource($location . '/assets/css/multiple-select.css'));
     }
 
-    $ui->add($ui->createScript('tables.view.woo.js')->setHookName($dynamicHookName)->setExternalSource($location . '/assets/js/tables.view.woo.pro.js')->addDependency('tables-core')->setVersion($version));
+    $ui->add($ui->createScript('tables.view.woo.js')->setHookName($dynamicHookName)->setExternalSource($location . '/assets/js/tables.view.woo.pro.js')->addDependency('tables-core')->setVersion($version . '-ui-1'));
     $ui->add($ui->createStyle($prefix . 'woocommerce.frontend.css')->setHookName($dynamicHookName)->setExternalSource($location . '/assets/css/woocommerce.frontend.css'));
   }
 

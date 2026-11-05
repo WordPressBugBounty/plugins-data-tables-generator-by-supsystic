@@ -3,164 +3,185 @@
 
 {% block content %}
 
-	<div class="supsystic-item tables-view">
-		<div class="supContainer-fluid">
-			<div class="supRow">
-				<div class="supXs12">
-					<div class="table-title-wrap">
-						<form action="{{ environment.generateUrl('settings', 'saveSettings') }}" method="POST">
-                            {% block beforeSettingsList %}
-								<button class="button">
-									<i class="fa fa-fw fa-save"></i>
-                                    {{ environment.translate('Save') }}
-								</button>
-							{% endblock %}
-							<div class="settings-list">
-								{% block beforeSettings %}{% endblock %}
-								<div class="setting">
-									<div class="table-search-option table-option">
-										<div class="setting-description">
-											<label>{{ environment.translate('Include to Global Search') }}</label>
-                                            {{ tooltip.icon(environment.translate('Enable this option if you want to include the tables data to global site search'), 'top', true) }} </label>
-										</div>
-										<div class="setting-control">
-											<input type="checkbox"  name="settings[table_search]" {% if settings.table_search == 'on' %} checked {%  endif %}>
-										</div>
-									</div>
-                                    <div class="table-disable-wp-footer-fix-option table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Disable WP Footer Fix') }}</label>
-                                            {{ tooltip.icon(environment.translate('Standard WP theme must call the wp_footer() function in site footer (see <a href="%s" target="_blank">Theme Development</a>). But sometimes it is not happen in custom themes. In this case our plugin will call its function forced, because it needs it for correct work as the many other plugins. But if you have the problems in your site because of this feature - just enable this option to disable force call of wp_footer() function by our plugin.') | format('//codex.wordpress.org/Theme_Development'), 'top', true) }} </label>
-                                        </div>
-                                        <div class="setting-control">
-                                            <input type="checkbox"  name="settings[disable_wp_footer_fix]" {% if settings.disable_wp_footer_fix == 'on' %} checked {%  endif %}>
-                                        </div>
-                                    </div>
-									<div class="table-pagination-option table-option">
-										<div class="setting-description">
-											<label>{{ environment.translate('Pagination in Editor') }}</label>
-												{{ tooltip.icon('Add pages to your table in Editor', 'top', true) }}
-											</label>
-										</div>
-										<div class="setting-control">
-											<input type="checkbox" name="settings[editor_pagination]" {% if settings.editor_pagination == 'on' %} checked {%  endif %}>
-											<div style="margin-top: 10px;">
-                                                <input type="text"
-                                                       name="settings[editor_pagination_rows]"
-                                                       id="settings_editor_pagination_rows"
-                                                       style="width:60px"
-                                                       value="{{ settings.editor_pagination_rows | default('500') }}" />
-                                                <label for="settings_editor_pagination_rows"> {{ environment.translate('rows per page') }}</label>
-											</div>
-										</div>
-									</div>
-									<div class="table-pagination-save-option table-option">
-										<div class="setting-description">
-											<label>{{ environment.translate('Save on Page Switch (Editor Pagination)') }}</label>
-											{{ tooltip.icon(environment.translate('When Pagination in Editor is on and you switch to another page of rows, decide what should happen to your unsaved changes on the page you are leaving.'), 'top', true) }}
-										</div>
-										<div class="setting-control">
-											<select name="settings[editor_pagination_save_mode]">
-												<option value="off" {% if (settings.editor_pagination_save_mode | default('off')) == 'off' %} selected {% endif %}>{{ environment.translate('Off - keep changes in memory until I click Save') }}</option>
-												<option value="confirm" {% if settings.editor_pagination_save_mode == 'confirm' %} selected {% endif %}>{{ environment.translate('Ask before switching pages (popup)') }}</option>
-												<option value="autosave" {% if settings.editor_pagination_save_mode == 'autosave' %} selected {% endif %}>{{ environment.translate('Save automatically, no popup') }}</option>
-											</select>
-											<div style="margin-top: 10px;">
-												<select name="settings[editor_pagination_save_algorithm]">
-													<option value="partial" {% if settings.editor_pagination_save_algorithm == 'partial' %} selected {% endif %}>{{ environment.translate('Save only this page - Recommended') }}</option>
-													<option value="full" {% if (settings.editor_pagination_save_algorithm | default('full')) == 'full' %} selected {% endif %}>{{ environment.translate('Full table resave (safe, but can take much longer for large tables)') }}</option>
-												</select>
-											</div>
-										</div>
-									</div>
-									<div class="table-step-option table-option">
-										<div class="setting-description">
-											<label>{{ environment.translate('Rows Count per Request') }}</label>
-                                            {{ tooltip.icon(environment.translate('Set the count of table rows, which will be put into the one saving request. If your table has more rows - as many requests will be sent as need to completely save all table data.<br /><br /> It can be useful if you have a large table and can not improuve your server settings to save the table per single request.<br /><br /> If you do not have problems with saving of tables it is better to left the default value - 400. <a href="https://supsystic.com/documentation/rows-per-request-feature-solution-large-tables/" target="_blank">Read more</a>'), 'top', true) }} </label>
-										</div>
-										<div class="setting-control">
-											<input type="text"  name="settings[table_step]" value="{{ settings.table_step | default(400) }}">
-										</div>
-									</div>
-                                    <div class="table-global-page-search-option table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Global Page Search Form') }}</label>
-                                            {{ tooltip.icon(environment.translate('Use this form to make global search by all tables on page'), 'top', true) }}
-
-                                            {% if environment.isPro() == false %}
-                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'global_page_search' }) }}">
-                                                    {{ environment.translate('PRO option') }}
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="setting-control">
-                                            <input type="text" value="{{ '[supsystic-tables-global-page-search]' }}" class="stbCopyTextCode" readonly="readonly" />
-                                        </div>
-                                    </div>
-                                    <div class="table-load-ajax-enabled table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Load by AJAX enable') }}</label>
-                                            {{ tooltip.icon(environment.translate('Allow loading posts/pages with tables through AJAX. Important: the assets-shortcode must be specified in the parent page.'), 'top', true) }}
-
-                                            {% if environment.isPro() == false %}
-                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'load_by_ajax_enabled' }) }}">
-                                                    {{ environment.translate('PRO option') }}
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="setting-control">
-                                            {% if environment.isPro() == false %}
-                                                <input type="checkbox" disabled value=""/>
-                                            {% else %}
-                                                <input type="checkbox" name="settings[load_by_ajax_enabled]" {% if settings.load_by_ajax_enabled == 'on' %} checked {%  endif %}>
-                                                <input type="text" value="{{ '[supsystic-tables-assets]' }}" class="stbCopyTextCode" readonly="readonly" style="width:250px"/>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="table-roles-option table-option">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Roles') }}</label>
-                                            {{ tooltip.icon(environment.translate('Set the users roles, to add permission to use the plugin. The Administrator role has set by default.'), 'top', true) }}
-
-                                            {% if environment.isPro() == false %}
-                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}">
-                                                    {{ environment.translate('PRO option') }}
-                                                </a>
-                                            {% endif %}
-
-                                        </div>
-                                        <div class="setting-control">
-                                            {% if environment.isPro() != false %}
-                                                <select multiple="multiple" name="settings[access_roles][]" class="chosen-select" data-placeholder="{{ environment.translate('Select avalilable roles to use tables')}}">
-                                                    <option value="administrator" disabled selected>Administrator</option>
-                                                    {% for role, title in wpRoles %}
-                                                        {% if role != 'administrator' %}
-                                                            <option value="{{ role }}"
-                                                                    {% if role in settings.access_roles %}
-                                                                        selected="selected"
-                                                                    {% endif %}
-                                                                    >{{ title }}
-                                                            </option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-								</div>
-
-								{% block afterSettings %}{% endblock %}
-							</div>
-							{% block afterSettingsList %}{% endblock %}
-						</form>
-						<div class="clear"></div>
-						<!-- /.clear -->
+	<div class="supsystic-item tables-view stb-gs">
+		<form class="stb-gs-form" action="{{ environment.generateUrl('settings', 'saveSettings') }}" method="POST">
+			<header class="stb-gs-head">
+				<div class="stb-gs-title">
+					<span class="stb-gs-title-icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+					<div>
+						<h2>{{ environment.translate('Settings') }}</h2>
+						<p>{{ environment.translate('These options apply to all your tables.') }}</p>
 					</div>
-					<!-- /.table-title-wrap -->
 				</div>
-				<!-- /.supXs12 -->
+				<div class="stb-gs-actions">
+					{% block beforeSettingsList %}
+						<button class="button">
+							<i class="fa fa-fw fa-save" aria-hidden="true"></i>
+							{{ environment.translate('Save') }}
+						</button>
+					{% endblock %}
+				</div>
+			</header>
+
+			<div class="settings-list stb-gs-cards">
+				{% block beforeSettings %}{% endblock %}
+
+				<section class="stb-gs-card stb-gs-card-editor">
+					<div class="stb-gs-card-head">
+						<span class="stb-gs-card-icon"><i class="fa fa-table" aria-hidden="true"></i></span>
+						<div>
+							<h3>{{ environment.translate('Table editor') }}</h3>
+							<p>{{ environment.translate('How the editor works with large tables.') }}</p>
+						</div>
+					</div>
+					<div class="stb-gs-card-body">
+						<div class="stb-gs-row table-pagination-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-editor-pagination">{{ environment.translate('Pagination in Editor') }}</label>
+								{{ tooltip.icon('Add pages to your table in Editor', 'top', true) }}
+							</div>
+							<div class="setting-control">
+								<input type="checkbox" id="stb-gs-editor-pagination" name="settings[editor_pagination]" {% if settings.editor_pagination == 'on' %} checked {% endif %}>
+							</div>
+						</div>
+						<div class="stb-gs-row stb-gs-sub stb-gs-pagination-dependent table-option">
+							<div class="setting-description">
+								<label for="settings_editor_pagination_rows">{{ environment.translate('rows per page') }}</label>
+							</div>
+							<div class="setting-control">
+								<input type="text" class="stb-gs-number" name="settings[editor_pagination_rows]" id="settings_editor_pagination_rows" value="{{ settings.editor_pagination_rows | default('500') }}" />
+							</div>
+						</div>
+						<div class="stb-gs-row stb-gs-stacked stb-gs-pagination-dependent table-pagination-save-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-save-mode">{{ environment.translate('Save on Page Switch (Editor Pagination)') }}</label>
+								{{ tooltip.icon(environment.translate('When Pagination in Editor is on and you switch to another page of rows, decide what should happen to your unsaved changes on the page you are leaving.'), 'top', true) }}
+							</div>
+							<div class="setting-control">
+								<select id="stb-gs-save-mode" name="settings[editor_pagination_save_mode]">
+									<option value="off" {% if (settings.editor_pagination_save_mode | default('off')) == 'off' %} selected {% endif %}>{{ environment.translate('Off - keep changes in memory until I click Save') }}</option>
+									<option value="confirm" {% if settings.editor_pagination_save_mode == 'confirm' %} selected {% endif %}>{{ environment.translate('Ask before switching pages (popup)') }}</option>
+									<option value="autosave" {% if settings.editor_pagination_save_mode == 'autosave' %} selected {% endif %}>{{ environment.translate('Save automatically, no popup') }}</option>
+								</select>
+								<select name="settings[editor_pagination_save_algorithm]" aria-label="{{ environment.translate('What to save') }}">
+									<option value="partial" {% if settings.editor_pagination_save_algorithm == 'partial' %} selected {% endif %}>{{ environment.translate('Save only this page - Recommended') }}</option>
+									<option value="full" {% if (settings.editor_pagination_save_algorithm | default('full')) == 'full' %} selected {% endif %}>{{ environment.translate('Full table resave (safe, but can take much longer for large tables)') }}</option>
+								</select>
+							</div>
+						</div>
+						<div class="stb-gs-row table-step-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-table-step">{{ environment.translate('Rows Count per Request') }}</label>
+								{{ tooltip.icon(environment.translate('Set the count of table rows, which will be put into the one saving request. If your table has more rows - as many requests will be sent as need to completely save all table data.<br /><br /> It can be useful if you have a large table and can not improuve your server settings to save the table per single request.<br /><br /> If you do not have problems with saving of tables it is better to left the default value - 400. <a href="https://supsystic.com/documentation/rows-per-request-feature-solution-large-tables/" target="_blank">Read more</a>'), 'top', true) }}
+							</div>
+							<div class="setting-control">
+								<input type="text" class="stb-gs-number" id="stb-gs-table-step" name="settings[table_step]" value="{{ settings.table_step | default(400) }}">
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="stb-gs-card stb-gs-card-site">
+					<div class="stb-gs-card-head">
+						<span class="stb-gs-card-icon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+						<div>
+							<h3>{{ environment.translate('Your site') }}</h3>
+							<p>{{ environment.translate('How tables work on the pages of your site.') }}</p>
+						</div>
+					</div>
+					<div class="stb-gs-card-body">
+						<div class="stb-gs-row table-search-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-table-search">{{ environment.translate('Include to Global Search') }}</label>
+								{{ tooltip.icon(environment.translate('Enable this option if you want to include the tables data to global site search'), 'top', true) }}
+							</div>
+							<div class="setting-control">
+								<input type="checkbox" id="stb-gs-table-search" name="settings[table_search]" {% if settings.table_search == 'on' %} checked {% endif %}>
+							</div>
+						</div>
+						<div class="stb-gs-row table-disable-wp-footer-fix-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-footer-fix">{{ environment.translate('Disable WP Footer Fix') }}</label>
+								{{ tooltip.icon(environment.translate('Standard WP theme must call the wp_footer() function in site footer (see <a href="%s" target="_blank">Theme Development</a>). But sometimes it is not happen in custom themes. In this case our plugin will call its function forced, because it needs it for correct work as the many other plugins. But if you have the problems in your site because of this feature - just enable this option to disable force call of wp_footer() function by our plugin.') | format('//codex.wordpress.org/Theme_Development'), 'top', true) }}
+							</div>
+							<div class="setting-control">
+								<input type="checkbox" id="stb-gs-footer-fix" name="settings[disable_wp_footer_fix]" {% if settings.disable_wp_footer_fix == 'on' %} checked {% endif %}>
+							</div>
+						</div>
+						<div class="stb-gs-row table-global-page-search-option table-option">
+							<div class="setting-description">
+								<label for="stb-gs-page-search">{{ environment.translate('Global Page Search Form') }}</label>
+								{{ tooltip.icon(environment.translate('Use this form to make global search by all tables on page'), 'top', true) }}
+								{% if environment.isPro() == false %}
+									<a class="stb-gs-pro" target="_blank" title="{{ environment.translate('PRO option') }}" href="{{ build_pro_url({ 'utm_medium': 'global_page_search' }) }}">PRO</a>
+								{% endif %}
+							</div>
+							<div class="setting-control">
+								<input type="text" id="stb-gs-page-search" value="{{ '[supsystic-tables-global-page-search]' }}" class="stbCopyTextCode" readonly="readonly" />
+							</div>
+						</div>
+						<div class="stb-gs-row table-load-ajax-enabled table-option">
+							<div class="setting-description">
+								<label for="stb-gs-load-ajax">{{ environment.translate('Load by AJAX enable') }}</label>
+								{{ tooltip.icon(environment.translate('Allow loading posts/pages with tables through AJAX. Important: the assets-shortcode must be specified in the parent page.'), 'top', true) }}
+								{% if environment.isPro() == false %}
+									<a class="stb-gs-pro" target="_blank" title="{{ environment.translate('PRO option') }}" href="{{ build_pro_url({ 'utm_medium': 'load_by_ajax_enabled' }) }}">PRO</a>
+								{% endif %}
+							</div>
+							<div class="setting-control">
+								{% if environment.isPro() == false %}
+									<input type="checkbox" id="stb-gs-load-ajax" disabled value=""/>
+								{% else %}
+									<input type="checkbox" id="stb-gs-load-ajax" name="settings[load_by_ajax_enabled]" {% if settings.load_by_ajax_enabled == 'on' %} checked {% endif %}>
+									<input type="text" value="{{ '[supsystic-tables-assets]' }}" class="stbCopyTextCode" readonly="readonly" aria-label="{{ environment.translate('Load by AJAX enable') }}" />
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="stb-gs-card stb-gs-card-access">
+					<div class="stb-gs-card-head">
+						<span class="stb-gs-card-icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+						<div>
+							<h3>{{ environment.translate('Access') }}</h3>
+							<p>{{ environment.translate('Who can work with the plugin.') }}</p>
+						</div>
+					</div>
+					<div class="stb-gs-card-body">
+						<div class="stb-gs-row stb-gs-stacked table-roles-option table-option">
+							<div class="setting-description">
+								<label>{{ environment.translate('Roles') }}</label>
+								{{ tooltip.icon(environment.translate('Set the users roles, to add permission to use the plugin. The Administrator role has set by default.'), 'top', true) }}
+								{% if environment.isPro() == false %}
+									<a class="stb-gs-pro" target="_blank" title="{{ environment.translate('PRO option') }}" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}">PRO</a>
+								{% endif %}
+							</div>
+							<div class="setting-control">
+								{% if environment.isPro() != false %}
+									<select multiple="multiple" name="settings[access_roles][]" class="chosen-select" data-placeholder="{{ environment.translate('Select avalilable roles to use tables')}}">
+										<option value="administrator" disabled selected>Administrator</option>
+										{% for role, title in wpRoles %}
+											{% if role != 'administrator' %}
+												<option value="{{ role }}" {% if role in settings.access_roles %} selected="selected" {% endif %}>{{ title }}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
+								{% else %}
+									<a class="stb-gs-unlock" target="_blank" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}"><span>{{ environment.translate('Available in PRO') }}</span><strong>{{ environment.translate('Unlock') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></strong></a>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</section>
+
+				{{ environment.getDispatcher().dispatch('settings_cards') }}
+
+				{% block afterSettings %}{% endblock %}
 			</div>
-		</div>
+			{% block afterSettingsList %}{% endblock %}
+		</form>
+		<div class="clear"></div>
 	</div>
 	<!-- /.supsystic-item -->
 {% endblock %}

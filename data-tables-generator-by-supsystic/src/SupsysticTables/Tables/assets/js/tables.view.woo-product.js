@@ -36,149 +36,73 @@
       $group.stop(true, true)[isVisible ? 'slideDown' : 'slideUp'](150);
     }
 
-    function initWooSettingsSidebar() {
-      var $wrap = $('.woo-settings-scroll'),
-        $links = $('.woo-settings-sidebar .stb-anchor-nav-links'),
-        $sections = $wrap.find('> .settings-blocks > .supRow-settings-block');
+    // The preview of classic tables: the table is saved and rendered as on the site
+    function initWooPreview() {
+      var $card = $('#stb-preview-card'),
+        $preview = $('#table-preview'),
+        $start = $('#loadPreviewBtn, #loadPreviewAutoBtn'),
+        autoload = false,
+        timer = null;
 
-      if (!$wrap.length || !$links.length || !$sections.length) {
+      if (!$card.length) {
         return;
       }
 
-      function setActiveLink() {
-        var currentId = '#' + $sections.first().attr('id'),
-          currentScroll = $wrap.scrollTop();
-
-        $sections.each(function () {
-          if (this.offsetTop <= currentScroll + 40) {
-            currentId = '#' + this.id;
-          }
-        });
-
-        $links.removeClass('active');
-        $links.filter('[href="' + currentId + '"]').addClass('active');
-        $('#slimScrollStartPos').val(currentScroll);
+      function refresh() {
+        tablesModel.saveTable('#table-preview', 2);
+        $preview.show();
       }
 
-      $links.on('click', function (e) {
-        var $target = $sections.filter($(this).attr('href'));
+      function onOptionsChanged() {
+        if (autoload) {
+          window.clearTimeout(timer);
+          timer = window.setTimeout(refresh, 400);
+          return;
+        }
+        if ($preview.children().length) {
+          $preview.html('').hide();
+          $start.fadeIn();
+        }
+      }
+
+      $start.on('click', function () {
+        autoload = this.id === 'loadPreviewAutoBtn';
+        refresh();
+        $start.fadeOut();
+      });
+      $start.on('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          $(this).trigger('click');
+        }
+      });
+
+      $('#woocommerce-settings').on('change ifChanged sortupdate', ':input', function () {
+        // Searching in the lists of products and palettes changes nothing in the table
+        if (this.id === 'chooseColumns' || $(this).closest('.dataTables_wrapper, .woo-exclude-search-wrap, .stb-palette-tools, .stb-settings-nav').length) {
+          return;
+        }
+        onOptionsChanged();
+      });
+      $(document.body).on('changeOrderPosition', onOptionsChanged);
+
+      $card.find('.stb-device-switch .stb-anchor-nav-links').on('click', function (e) {
+        var href = $(this).attr('href'),
+          profile = href === '#stb-style-tablet' ? 'tablet' : href === '#stb-style-mobile' ? 'mobile' : 'desktop';
 
         e.preventDefault();
-        if (!$target.length) {
-          return;
-        }
-
-        $links.removeClass('active');
+        $card.find('.stb-device-switch .stb-anchor-nav-links').removeClass('active');
         $(this).addClass('active');
-        $wrap.stop(true).animate(
-          {
-            scrollTop: Math.max(0, $target.get(0).offsetTop - 16),
-          },
-          180,
-          setActiveLink
-        );
+        g_stbMobilePreview = profile !== 'desktop';
+        $preview
+          .css('max-width', profile === 'tablet' ? '768px' : profile === 'mobile' ? '380px' : 'none')
+          .attr('data-responsive-column-profile', profile)
+          .find('table.supsystic-table')
+          .attr('data-responsive-column-preview-profile', profile);
+        if ($preview.find('table').length) {
+          tablesModel.reinitPreview($preview);
+        }
       });
-
-      $wrap.on('scroll', setActiveLink);
-      setTimeout(setActiveLink, 0);
-    }
-
-
-    function initWooStickySidebar() {
-      var $window = $(window),
-        $wooTab = $('#row-tab-woocommerce'),
-        $layout = $wooTab.find('.woo-settings-layout'),
-        $sidebar = $layout.find('.woo-settings-sidebar').first(),
-        $inner = $sidebar.find('.woo-settings-sidebar-inner').first(),
-        stickyTop = 20,
-        resizeTimer = null;
-
-      if (!$wooTab.length || !$layout.length || !$sidebar.length || !$inner.length) {
-        return;
-      }
-
-      function resetStickyState() {
-        $sidebar.removeClass('is-fixed is-stopped').css('min-height', '');
-        $inner.css({
-          width: '',
-          left: '',
-          top: '',
-        });
-      }
-
-      function updateStickyState() {
-        var isDesktop = window.matchMedia ? window.matchMedia('(min-width: 961px)').matches : $window.width() > 960,
-          isVisible = $wooTab.hasClass('active') && $wooTab.is(':visible'),
-          sidebarOffset,
-          layoutOffset,
-          sidebarRect,
-          innerHeight,
-          layoutHeight,
-          startFixAt,
-          stopFixAt,
-          windowTop;
-
-        if (!isDesktop || !isVisible) {
-          resetStickyState();
-          return;
-        }
-
-        sidebarOffset = $sidebar.offset();
-        layoutOffset = $layout.offset();
-        sidebarRect = $sidebar.get(0).getBoundingClientRect();
-        innerHeight = $inner.outerHeight(true);
-        layoutHeight = $layout.outerHeight(true);
-
-        if (!sidebarOffset || !layoutOffset || !innerHeight || !layoutHeight) {
-          resetStickyState();
-          return;
-        }
-
-        startFixAt = sidebarOffset.top - stickyTop;
-        stopFixAt = layoutOffset.top + layoutHeight - innerHeight - stickyTop;
-        windowTop = $window.scrollTop();
-
-        $sidebar.css('min-height', innerHeight);
-
-        if (windowTop <= startFixAt) {
-          resetStickyState();
-          return;
-        }
-
-        if (windowTop >= stopFixAt) {
-          $sidebar.removeClass('is-fixed').addClass('is-stopped');
-          $inner.css({
-            width: $sidebar.outerWidth(),
-            left: '',
-            top: '',
-          });
-          return;
-        }
-
-        $sidebar.removeClass('is-stopped').addClass('is-fixed');
-        $inner.css({
-          width: $sidebar.outerWidth(),
-          left: sidebarRect.left,
-          top: stickyTop,
-        });
-      }
-
-      function queueStickyUpdate() {
-        if (resizeTimer) {
-          window.clearTimeout(resizeTimer);
-        }
-
-        resizeTimer = window.setTimeout(updateStickyState, 20);
-      }
-
-      $window.on('scroll.wooStickySidebar resize.wooStickySidebar', queueStickyUpdate);
-      $(document.body).on('draw.dt.wooStickySidebar changeOrderPosition.wooStickySidebar', queueStickyUpdate);
-      $('.subsubsub.tabs-wrapper .button[href="#row-tab-woocommerce"]').on('click.wooStickySidebar', function () {
-        window.setTimeout(updateStickyState, 20);
-      });
-
-      window.setTimeout(updateStickyState, 0);
-      window.setTimeout(updateStickyState, 300);
     }
 
     function initWooLoaderControls() {
@@ -214,6 +138,7 @@
         autoOpen: false,
         modal: true,
         width: 900,
+        dialogClass: 'stb-modal stb-modal-loader stb-modal-plain',
         open: function () {
           var color = $colorInput.val() || '#000000';
 
@@ -437,6 +362,7 @@
         autoOpen: false,
         width: 480,
         modal: true,
+        dialogClass: 'stb-modal stb-modal-clone',
         open: function () {
           var dialog = $(this);
           dialog.find('.message').remove();
@@ -463,6 +389,10 @@
                   $dialog.find('.input-group').hide();
                   $dialog.find('.input-group').after($('<div>', { class: 'message', html: html }));
                 }
+              })
+              .fail(function (message) {
+                $button.removeAttr('disabled').html('Clone');
+                alert(message);
               });
           },
           Cancel: function () {
@@ -530,12 +460,9 @@
       setSaveButtonDirty();
     });
 
-    initWooSettingsSidebar();
-
-    initWooStickySidebar();
-
     initWooLoaderControls();
     initWooSettingsToggles();
+    initWooPreview();
 
     $('#woocommerce-settings').on('change ifChanged sortupdate', ':input', setSaveButtonDirty);
     $(document.body).on('changeOrderPosition', setSaveButtonDirty);

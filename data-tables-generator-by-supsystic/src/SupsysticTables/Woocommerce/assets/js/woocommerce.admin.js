@@ -2,8 +2,8 @@
   var WOO_DESIGN_PRESETS = {"warm_contrast":{"header_text":"#fff7ed","header_bg":"#7c2d12","header_font_size":"15","header_font_weight":"700","body_text":"#3f3f46","body_bg":"#fffdf8","body_font_size":"14","body_font_weight":"400","input_text":"#451a03","input_bg":"#fff7ed","select_text":"#451a03","select_bg":"#fff7ed","button_text":"#fff7ed","button_bg":"#9a3412","button_font_size":"13","button_font_weight":"700","button_hover_text":"#ffffff","button_hover_bg":"#7c2d12","stripe_text":"#3f3f46","stripe_bg":"#ffedd5","hover_text":"#27272a","hover_bg":"#fed7aa","price_text":"#9a3412","price_bg":"#fff7ed","border_color":"#fdba74"},"mono_slate":{"header_text":"#f8fafc","header_bg":"#334155","header_font_size":"14","header_font_weight":"700","body_text":"#334155","body_bg":"#ffffff","body_font_size":"14","body_font_weight":"400","input_text":"#1e293b","input_bg":"#f8fafc","select_text":"#1e293b","select_bg":"#f8fafc","button_text":"#f8fafc","button_bg":"#0f172a","button_font_size":"13","button_font_weight":"600","button_hover_text":"#ffffff","button_hover_bg":"#334155","stripe_text":"#334155","stripe_bg":"#f8fafc","hover_text":"#0f172a","hover_bg":"#e2e8f0","price_text":"#0f172a","price_bg":"#ffffff","border_color":"#cbd5e1"},"sage_market":{"header_text":"#f6fff8","header_bg":"#3b6b57","header_font_size":"14","header_font_weight":"700","body_text":"#254034","body_bg":"#fbfdf9","body_font_size":"14","body_font_weight":"400","input_text":"#254034","input_bg":"#f6fbf7","select_text":"#254034","select_bg":"#f6fbf7","button_text":"#f6fff8","button_bg":"#4f7c65","button_font_size":"13","button_font_weight":"600","button_hover_text":"#ffffff","button_hover_bg":"#365847","stripe_text":"#254034","stripe_bg":"#eef6f0","hover_text":"#1f3529","hover_bg":"#dbeadf","price_text":"#2f5d46","price_bg":"#fbfdf9","border_color":"#b9d0c0"},"midnight_glow":{"header_text":"#e0f2fe","header_bg":"#1e293b","header_font_size":"15","header_font_weight":"700","body_text":"#e2e8f0","body_bg":"#111827","body_font_size":"14","body_font_weight":"400","input_text":"#e2e8f0","input_bg":"#1f2937","select_text":"#e2e8f0","select_bg":"#1f2937","button_text":"#0f172a","button_bg":"#67e8f9","button_font_size":"13","button_font_weight":"700","button_hover_text":"#082f49","button_hover_bg":"#22d3ee","stripe_text":"#e2e8f0","stripe_bg":"#172033","hover_text":"#f8fafc","hover_bg":"#243447","price_text":"#67e8f9","price_bg":"#111827","border_color":"#334155"},"sandstone_shop":{"header_text":"#fffaf0","header_bg":"#8c5a2b","header_font_size":"14","header_font_weight":"700","body_text":"#5b4636","body_bg":"#fffcf7","body_font_size":"14","body_font_weight":"400","input_text":"#5b4636","input_bg":"#fff7eb","select_text":"#5b4636","select_bg":"#fff7eb","button_text":"#fff8ef","button_bg":"#c2783b","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fff8ef","button_hover_bg":"#9f5d28","stripe_text":"#5b4636","stripe_bg":"#f6ecdf","hover_text":"#493528","hover_bg":"#f2ddc5","price_text":"#9f5d28","price_bg":"#fffcf7","border_color":"#e2c4a4"},"berry_editorial":{"header_text":"#fff1f7","header_bg":"#7a284b","header_font_size":"15","header_font_weight":"700","body_text":"#4b1f31","body_bg":"#fffafc","body_font_size":"14","body_font_weight":"400","input_text":"#4b1f31","input_bg":"#fff2f7","select_text":"#4b1f31","select_bg":"#fff2f7","button_text":"#fff5f8","button_bg":"#c44278","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fff5f8","button_hover_bg":"#a92c5f","stripe_text":"#4b1f31","stripe_bg":"#fde8f0","hover_text":"#3c1827","hover_bg":"#f9d1e0","price_text":"#a92c5f","price_bg":"#fffafc","border_color":"#edb7ca"},"ocean_breeze":{"header_text":"#ecfeff","header_bg":"#0f5f78","header_font_size":"14","header_font_weight":"700","body_text":"#164e63","body_bg":"#f8fdff","body_font_size":"14","body_font_weight":"400","input_text":"#164e63","input_bg":"#f0fbff","select_text":"#164e63","select_bg":"#f0fbff","button_text":"#ecfeff","button_bg":"#0891b2","button_font_size":"13","button_font_weight":"700","button_hover_text":"#ecfeff","button_hover_bg":"#0e7490","stripe_text":"#164e63","stripe_bg":"#e0f7fa","hover_text":"#083344","hover_bg":"#bae6fd","price_text":"#0369a1","price_bg":"#f8fdff","border_color":"#a5d8e6"},"forest_merchant":{"header_text":"#f0fdf4","header_bg":"#14532d","header_font_size":"14","header_font_weight":"700","body_text":"#1f3d2a","body_bg":"#fbfefb","body_font_size":"14","body_font_weight":"400","input_text":"#1f3d2a","input_bg":"#f3fbf4","select_text":"#1f3d2a","select_bg":"#f3fbf4","button_text":"#f0fdf4","button_bg":"#15803d","button_font_size":"13","button_font_weight":"700","button_hover_text":"#f0fdf4","button_hover_bg":"#166534","stripe_text":"#1f3d2a","stripe_bg":"#e7f5ea","hover_text":"#16311f","hover_bg":"#d1fad8","price_text":"#166534","price_bg":"#fbfefb","border_color":"#b7dec0"},"rose_clay":{"header_text":"#fff8f6","header_bg":"#9a5b63","header_font_size":"14","header_font_weight":"700","body_text":"#5c3b41","body_bg":"#fffaf9","body_font_size":"14","body_font_weight":"400","input_text":"#5c3b41","input_bg":"#fff3f0","select_text":"#5c3b41","select_bg":"#fff3f0","button_text":"#fffaf7","button_bg":"#d27d6a","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fffaf7","button_hover_bg":"#b86657","stripe_text":"#5c3b41","stripe_bg":"#f9ece7","hover_text":"#472e33","hover_bg":"#f3d7cf","price_text":"#b86657","price_bg":"#fffaf9","border_color":"#e6c0b8"},"lux_gold":{"header_text":"#fef3c7","header_bg":"#1f2937","header_font_size":"15","header_font_weight":"700","body_text":"#374151","body_bg":"#fffdfa","body_font_size":"14","body_font_weight":"400","input_text":"#374151","input_bg":"#fff9ed","select_text":"#374151","select_bg":"#fff9ed","button_text":"#fffaf0","button_bg":"#c08a1a","button_font_size":"13","button_font_weight":"700","button_hover_text":"#fffaf0","button_hover_bg":"#a16207","stripe_text":"#374151","stripe_bg":"#faf5e6","hover_text":"#1f2937","hover_bg":"#f6e7b7","price_text":"#a16207","price_bg":"#fffdfa","border_color":"#e6cf8b"}};
   var WOO_DESIGN_PRESET_DEFAULTS = {length_color:'#334155',length_font_size:'13',length_font_weight:'400',info_color:'#334155',info_font_size:'13',info_font_weight:'400',description_color:'#334155',description_font_size:'14',description_font_weight:'400',signature_color:'#334155',signature_font_size:'13',signature_font_weight:'400',processing_bg:'#ffffff',processing_color:'#000000',price_font_size:'16',price_font_weight:'600',price_filter_input_text:'#1f2933',price_filter_input_bg:'#ffffff',price_filter_input_font_size:'13',price_filter_input_font_weight:'400',price_filter_track:'#d7dce1',price_filter_fill:'#2271b1',price_filter_thumb:'#2271b1',price_filter_thumb_style:'circle',checkout_button_text:'#2271b1',checkout_button_bg:'#ffffff',checkout_button_font_size:'13',checkout_button_font_weight:'600',checkout_button_hover_text:'#ffffff',checkout_button_hover_bg:'#135e96',reset_button_text:'#334155',reset_button_bg:'#ffffff',reset_button_font_size:'13',reset_button_font_weight:'600',reset_button_hover_text:'#ffffff',reset_button_hover_bg:'#2271b1'};
 
-  $.each(WOO_DESIGN_PRESETS, function (key, preset) {
-    WOO_DESIGN_PRESETS[key] = $.extend({}, WOO_DESIGN_PRESET_DEFAULTS, {
+  function buildWooDesignPreset(preset) {
+    return $.extend({}, WOO_DESIGN_PRESET_DEFAULTS, {
       length_color: preset.body_text || WOO_DESIGN_PRESET_DEFAULTS.length_color,
       info_color: preset.body_text || WOO_DESIGN_PRESET_DEFAULTS.info_color,
       description_color: preset.body_text || WOO_DESIGN_PRESET_DEFAULTS.description_color,
@@ -33,6 +33,10 @@
       reset_button_hover_text: preset.button_hover_text || WOO_DESIGN_PRESET_DEFAULTS.reset_button_hover_text,
       reset_button_hover_bg: preset.button_bg || WOO_DESIGN_PRESET_DEFAULTS.reset_button_hover_bg,
     }, preset);
+  }
+
+  $.each(WOO_DESIGN_PRESETS, function (key, preset) {
+    WOO_DESIGN_PRESETS[key] = buildWooDesignPreset(preset);
   });
 
   function AdminPage() {
@@ -52,6 +56,19 @@
     _thisObj.eventsProperties();
     _thisObj.loadProductsSearchTbl();
     _thisObj.loadProductsContentTbl();
+
+    // Tables that were created in a hidden tab measure their columns when the tab opens
+    $('#row-tab-woocommerce').on('stbSectionChange', function (e, section) {
+      if (section !== 'stb-anl-products') {
+        return;
+      }
+      if (_thisObj.tableSearch) {
+        _thisObj.tableSearch.columns.adjust().responsive.recalc();
+      }
+      if (_thisObj.tableContent) {
+        _thisObj.tableContent.columns.adjust();
+      }
+    });
   };
 
   AdminPage.prototype.initTable = function (tablename) {
@@ -142,6 +159,11 @@
               }
             },
           });
+        // The first cell of a collapsed table opens the row. The checkbox stands in this cell and only selects the row.
+        $(_thisObj.tableSearch.table().body()).on('click', 'input[type="checkbox"]', function (e) {
+          e.stopPropagation();
+          $(this).closest('tr').toggleClass('selected', this.checked);
+        });
         //Added button here
         if (!jQuery('#stSearchTable_wrapper .dt-buttons').length) {
           var buttons = jQuery('.dt-buttons-add-template').removeClass('dt-buttons-add-template stHidden');
@@ -236,7 +258,8 @@
       var enabled = wooForm.find('input[name="woocommerce[design][enabled]"]').is(':checked'),
         rows = wooForm.find('.woo-design-options');
 
-      if (enabled) {
+      // The free version shows these rows locked: this is what PRO gives
+      if (enabled || !advancedAllowed) {
         rows.removeClass('stHidden').stop(true, true).fadeIn();
       } else {
         rows.stop(true, true).fadeOut(function () {
@@ -520,6 +543,224 @@
     });
     WOO_DESIGN_PRESETS.user_default = collectWooDesignValues();
     wooForm.find('#woo-design-preset').val('user_default');
+    initWooPalettes();
+
+    // The ready styles of the catalog and the palettes of classic tables as cards
+    function initWooPalettes() {
+      var panel = $('#stb-woo-palettes');
+
+      if (!panel.length) {
+        return;
+      }
+
+      var gallery = panel.find('.stb-design-gallery'),
+        status = $('#stb-woo-palette-status'),
+        undoButton = $('#stb-woo-palette-undo'),
+        search = $('#stb-woo-palette-search'),
+        collection = $('#stb-woo-palette-collection'),
+        results = $('#stb-woo-palette-results'),
+        clearButton = $('#stb-woo-palette-clear'),
+        emptyNote = panel.find('.stb-palette-empty'),
+        enabledInput = wooForm.find('input[name="woocommerce[design][enabled]"]'),
+        miniTable = '<span class="stb-design-mini" aria-hidden="true"><span class="stb-mini-tools"><i></i><b></b></span><span class="stb-mini-head"><i></i><i></i><i></i></span><span class="stb-mini-row"><i></i><i></i><i></i></span><span class="stb-mini-row"><i></i><i></i><i></i></span><span class="stb-mini-row"><i></i><i></i><i></i></span><span class="stb-mini-pages"><i></i><b></b><i></i></span></span>',
+        palettes = [],
+        collections = [],
+        applying = false,
+        undoState = null;
+
+      function toneOf(color) {
+        var hex = String(color || '#ffffff').replace('#', ''),
+          red = parseInt(hex.substring(0, 2), 16),
+          green = parseInt(hex.substring(2, 4), 16),
+          blue = parseInt(hex.substring(4, 6), 16);
+
+        return red * 0.299 + green * 0.587 + blue * 0.114 < 128 ? 'dark' : 'light';
+      }
+
+      function addCard(palette) {
+        var design = WOO_DESIGN_PRESETS[palette.key],
+          card = $('<button type="button" class="stb-design-card" aria-pressed="false"></button>');
+
+        card
+          .attr({
+            'data-palette': palette.key,
+            'data-collection': palette.collection,
+            'data-tone': palette.tone,
+            'data-locked': advancedAllowed ? '0' : '1',
+            title: palette.description || palette.name,
+          })
+          .append(miniTable)
+          .append($('<span class="stb-design-card-label"></span>').text(palette.name))
+          .append($('<span class="stb-design-card-collection"></span>').text(palette.collection));
+
+        if (!advancedAllowed) {
+          card.addClass('stb-design-locked').attr('title', panel.attr('data-label-locked'));
+          card.find('.stb-design-card-label').append($('<small></small>').text(panel.attr('data-label-pro')));
+        }
+
+        $.each(
+          {
+            '--card-head': design.header_bg,
+            '--card-head-text': design.header_text,
+            '--card-body': design.body_bg,
+            '--card-text': design.body_text,
+            '--card-stripe': design.stripe_bg,
+            '--card-accent': design.button_bg,
+            '--card-radius': '6px',
+            '--card-control-radius': '4px',
+          },
+          function (name, value) {
+            card[0].style.setProperty(name, value);
+          }
+        );
+
+        palette.card = card;
+        gallery.append(card);
+      }
+
+      function matchingPalette() {
+        var values = collectWooDesignValues(),
+          found = null;
+
+        if (!enabledInput.is(':checked')) {
+          return null;
+        }
+
+        $.each(palettes, function (index, palette) {
+          var same = true;
+
+          $.each(WOO_DESIGN_PRESETS[palette.key], function (key, value) {
+            if (typeof values[key] !== 'undefined' && String(values[key]).toLowerCase() !== String(value).toLowerCase()) {
+              same = false;
+              return false;
+            }
+          });
+
+          if (same) {
+            found = palette;
+            return false;
+          }
+        });
+
+        return found;
+      }
+
+      function syncSelection() {
+        var current = matchingPalette();
+
+        gallery.find('.stb-design-card').attr('aria-pressed', 'false');
+        if (current) {
+          current.card.attr('aria-pressed', 'true');
+          status.text(panel.attr('data-label-applied') + ': ' + current.name);
+        } else {
+          status.text(panel.attr(enabledInput.is(':checked') ? 'data-label-custom' : 'data-label-current'));
+        }
+      }
+
+      function filterCards() {
+        var query = $.trim(search.val()).toLowerCase(),
+          words = query ? query.split(/\s+/) : [],
+          chosen = collection.val(),
+          count = 0;
+
+        $.each(palettes, function (index, palette) {
+          var text = (palette.name + ' ' + palette.collection + ' ' + palette.tone + ' ' + (palette.description || '')).toLowerCase(),
+            matches = (!chosen || (chosen.indexOf('tone:') === 0 ? palette.tone === chosen.substring(5) : palette.collection === chosen)) &&
+              words.every(function (word) {
+                return text.indexOf(word) !== -1;
+              });
+
+          palette.card.prop('hidden', !matches);
+          count += matches ? 1 : 0;
+        });
+
+        results.text(count + ' ' + panel.attr('data-label-results'));
+        clearButton.prop('hidden', !query && !chosen);
+        emptyNote.prop('hidden', count !== 0);
+        gallery.scrollTop(0);
+      }
+
+      wooForm.find('#woo-design-preset option').each(function () {
+        var key = $(this).val();
+
+        if (WOO_DESIGN_PRESETS[key] && key !== 'user_default') {
+          palettes.push({ key: key, name: $.trim($(this).text()), collection: panel.attr('data-woo-collection'), tone: toneOf(WOO_DESIGN_PRESETS[key].body_bg) });
+        }
+      });
+      $.each(panel.data('palettes') || {}, function (key, palette) {
+        var presetKey = 'classic_' + key;
+
+        WOO_DESIGN_PRESETS[presetKey] = buildWooDesignPreset(palette.design);
+        palettes.push({ key: presetKey, name: palette.name, collection: palette.collection, tone: palette.tone, description: palette.description });
+      });
+      $.each(palettes, function (index, palette) {
+        addCard(palette);
+        if ($.inArray(palette.collection, collections) === -1) {
+          collections.push(palette.collection);
+          $('#stb-woo-palette-collections').append($('<option></option>').val(palette.collection).text(palette.collection));
+        }
+      });
+
+      gallery.on('click', '.stb-design-card', function () {
+        var card = $(this);
+
+        if (card.attr('data-locked') === '1') {
+          status.text(panel.attr('data-label-locked'));
+          return;
+        }
+
+        undoState = { values: collectWooDesignValues(), enabled: enabledInput.is(':checked') };
+        applying = true;
+        applyWooDesignPreset(card.attr('data-palette'));
+        applying = false;
+        undoButton.prop('disabled', false);
+        syncSelection();
+      });
+
+      undoButton.on('click', function () {
+        if (!undoState) {
+          return;
+        }
+
+        applying = true;
+        $.each(undoState.values, function (key, value) {
+          wooForm.find('[data-design-key="' + key + '"]').val(value).trigger('change');
+        });
+        syncWooCheckbox(enabledInput, undoState.enabled);
+        toggleWooDesignOptions();
+        applying = false;
+        undoState = null;
+        undoButton.prop('disabled', true);
+        syncSelection();
+        status.text(panel.attr('data-label-restored'));
+      });
+
+      wooForm.find('[data-design-key]').on('change input', function () {
+        if (!applying) {
+          syncSelection();
+        }
+      });
+      enabledInput.on('change ifChanged', function () {
+        if (!applying) {
+          syncSelection();
+        }
+      });
+
+      search.on('input search', filterCards).on('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+        }
+      });
+      collection.on('change', filterCards);
+      clearButton.on('click', function () {
+        search.val('');
+        collection.val('');
+        filterCards();
+      });
+
+      filterCards();
+      syncSelection();
+    }
     function checkSubCategories(parent, list) {
       autoSelect.find('option[data-parent="' + parent + '"]').each(function () {
         var value = $(this).val();
@@ -919,9 +1160,17 @@
     $('.stPropertiesWrapp').sortable({
       containment: 'parent',
       cursor: 'move',
+      tolerance: 'pointer',
       stop: _thisObj.saveProperties,
       handle: '.stOptionDragHandler',
     });
+    // The columns stand in a row. jQuery UI looks at the first column to find that out, and it cannot tell while that column is being dragged
+    var columnsSortable = $('.stPropertiesWrapp').sortable('instance');
+    if (columnsSortable) {
+      columnsSortable._isFloating = function () {
+        return true;
+      };
+    }
 
     $('body').on('click', '.stPropertiesHideResponsiveLabel', function (e) {
       e.preventDefault();
@@ -1045,9 +1294,10 @@
       toggleDialogOption(dialogShowPriceSearchInputsLabel, dialogShowPriceSearchInputs, isPriceColumn);
 
       var $dialog = dialogHtml.dialog({
-        width: 360,
+        width: 460,
         modal: true,
         autoOpen: false,
+        dialogClass: 'stb-modal stb-modal-column',
         title: 'Change column title',
         close: function () {
           $dialog.dialog('close');

@@ -194,9 +194,8 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     if ($table && $table->table_type === 'pricing_table') {
       return $this->getEnvironment()->getModule('pricing')->getController()->viewAction($request);
     }
-    if (isset($table->settings['features']['after_table_loaded_script']) && !empty($table->settings['features']['after_table_loaded_script'])) {
-      $table->settings['features']['after_table_loaded_script'] = base64_decode($table->settings['features']['after_table_loaded_script']);
-    }
+    $table->settings['features']['after_table_loaded_code'] = $this->getModel('tables')->getAfterLoadedCode($table->settings);
+    $table->canEditScript = current_user_can('unfiltered_html');
 
     $settings = get_option($this->getConfig()->get('db_prefix') . 'settings');
     $contactForm = $this->getEnvironment()->getModule('contactForm');
@@ -204,6 +203,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     $contactFormList = $contactFormIsInstalled && method_exists($contactForm->getModel(), 'getAllForms') ? $contactForm->getModel()->getAllForms() : [];
     return $this->response('@tables/view.twig', [
       'table' => $table,
+      'proGuard' => $this->getModel('proGuard', 'tables')->getWarning($table),
       'wooAvailable' => class_exists('WooCommerce'),
       'attributes' => [
         'cols' => $request->query->get('cols', 5),
@@ -331,7 +331,7 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         $dbTableModel = $core->getModelsFactory()->get('DBTables', 'tables');
         $rows = $dbTableModel->getRowsByPart($table->settings, $orderCol, $orderAsc, $start, $length, $searchAll['value'] == '' ? false : $searchAll['value'], $searchCols, $searchParams);
       } else {
-        $rows = $tables->getRowsByPart($id, $searchAll['value'] == '' ? false : $searchAll['value'], $searchCols, $orderCol, $orderAsc, $start, $length, $header, $footer, $searchParams, $table);
+        $rows = $tables->getRowsByPart($id, $searchAll['value'] == '' ? false : $searchAll['value'], $searchCols, $orderCol, $orderAsc, $start, $length, $header, $footer, $searchParams, $table, $this->getRowFilter($request, $table));
       }
       $table->rows = $rows['data'];
       $module = $this->getEnvironment()->getModule('tables');
@@ -342,6 +342,17 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
     } catch (Throwable $e) {
       return $this->ajaxError($e->getMessage());
     }
+  }
+
+  /**
+   * Takes the cells of a row and says if the row stays. PRO fills it in for its column filters.
+   * @param RscDtgs_Http_Request $request
+   * @param object $table
+   * @return callable|null
+   */
+  protected function getRowFilter(RscDtgs_Http_Request $request, $table)
+  {
+    return null;
   }
 
   /**
@@ -633,6 +644,10 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
       }
 
       parse_str($data, $settings);
+      // A preview is a page too: the script in it needs the same right as a saved one
+      if (!current_user_can('unfiltered_html')) {
+        unset($settings['features']['after_table_loaded_code'], $settings['features']['after_table_loaded_script'], $settings['features']['enable_after_table_loaded_script']);
+      }
     }
     $preview = $request->post->get('preview');
 
@@ -841,12 +856,14 @@ class SupsysticTables_Tables_Controller extends SupsysticTables_Core_BaseControl
         $tableData['woo_settings'] = $wooSettings;
       }
       $tableId = $tablesModel->add($tableData);
-      $newTableMeta = $clonedTable->meta;
+      $newTableMeta = is_array($clonedTable->meta) ? $clonedTable->meta : [];
       if (isset($clonedTable->meta['css'])) {
         $newTableMeta['css'] = preg_replace('/#supsystic-table-(\d+)/', '#supsystic-table-' . $tableId, $clonedTable->meta['css']);
       }
       $tablesModel->setMeta($tableId, $newTableMeta);
-      $tablesModel->setRows($tableId, $clonedTable->rows);
+      if (!empty($clonedTable->rows)) {
+        $tablesModel->setRows($tableId, $clonedTable->rows);
+      }
       $tablesModule->additionalCloningActions($clonedTable, $tableId);
 
       return $this->ajaxSuccess(['id' => $tableId]);

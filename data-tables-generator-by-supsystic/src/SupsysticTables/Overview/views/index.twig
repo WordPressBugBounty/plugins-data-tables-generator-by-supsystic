@@ -38,20 +38,8 @@
                 </div>
             </div>
 
-            <div class="dtgs-overview-hero-media" aria-hidden="true">
-                <div class="dtgs-overview-browser">
-                    <div class="dtgs-overview-browser-bar"><span></span><span></span><span></span><b>Revenue overview</b></div>
-                    <div class="dtgs-overview-dashboard">
-                        <div class="dtgs-overview-metric"><small>Total sales</small><strong>$48,290</strong><em>+18.4%</em></div>
-                        <div class="dtgs-overview-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                        <div class="dtgs-overview-mini-table">
-                            <span>Product</span><span>Sales</span><span>Status</span>
-                            <b>Starter Plan</b><b>$8,420</b><em>Growing</em>
-                            <b>Business Plan</b><b>$21,560</b><em>Popular</em>
-                            <b>Enterprise</b><b>$18,310</b><em>Stable</em>
-                        </div>
-                    </div>
-                </div>
+            <div class="dtgs-overview-hero-media">
+                {% include '@overview/partials/classic-demo.twig' %}
             </div>
         </section>
 
@@ -115,6 +103,10 @@
                     </article>
                 </div>
 
+                {% if showProOffer %}
+                    {% include '@overview/partials/pro-offer.twig' %}
+                {% endif %}
+
                 <section id="dtgs-data-suite" class="dtgs-overview-suite is-data-suite">
                     <div class="dtgs-overview-suite-head">
                         <div class="dtgs-overview-suite-icon"><i class="fa fa-database"></i></div>
@@ -143,14 +135,16 @@
                                     <small>List tables, summarise rows, calculate averages, find outliers and answer questions about your data with Free or PRO.</small>
                                 </div>
                                 <div>
-                                    <span class="dtgs-overview-tag dtgs-overview-tag-ai">AI ADD-ON</span>
+                                    <span class="dtgs-overview-tag dtgs-overview-tag-pro">PRO</span>
                                     <strong>Create, edit and manage</strong>
                                     <small>Create tables, update rows, add formulas, change formatting, clean data and run imports or exports by conversation.</small>
                                 </div>
                             </div>
                             <div class="dtgs-overview-ai-actions">
                                 <a class="button button-primary" href="https://supsystic.com/documentation/data-table-ai-setup-guide/?utm_source=plugin&amp;utm_medium=overview&amp;utm_campaign=tables_ai" target="_blank" rel="noopener"><i class="fa fa-plug"></i> Connect AI via MCP</a>
-                                <a class="button button-secondary" href="https://supsystic.com/product/data-tables-generator-ai/?utm_source=plugin&amp;utm_medium=overview&amp;utm_campaign=tables_ai" target="_blank" rel="noopener"><i class="fa fa-magic"></i> Explore AI Add-On</a>
+                                {% if not isPro %}
+                                    <a class="button button-secondary" href="{{ build_pro_url({ 'utm_medium': 'overview', 'utm_campaign': 'tables_ai' }) }}" target="_blank" rel="noopener"><i class="fa fa-magic"></i> Get AI with PRO</a>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="dtgs-overview-ai-console" aria-hidden="true">
@@ -158,7 +152,7 @@
                             <div class="dtgs-overview-ai-message is-user"><small>You</small><p>Find products below minimum stock and summarise the risk.</p></div>
                             <div class="dtgs-overview-ai-message is-assistant"><small><i class="fa fa-magic"></i> AI</small><p>12 products are below minimum stock. Four may sell out this week.</p><em><i class="fa fa-check"></i> Read directly from WordPress</em></div>
                             <div class="dtgs-overview-ai-message is-user"><small>You</small><p>Increase their reorder quantity by 20%.</p></div>
-                            <div class="dtgs-overview-ai-message is-addon"><small>AI Add-On</small><p>12 rows updated. Reorder quantities were rounded to whole units.</p><em><i class="fa fa-check"></i> Changes applied</em></div>
+                            <div class="dtgs-overview-ai-message is-addon"><small>AI · PRO</small><p>12 rows updated. Reorder quantities were rounded to whole units.</p><em><i class="fa fa-check"></i> Changes applied</em></div>
                         </div>
                     </div>
                     {% if not isPro %}

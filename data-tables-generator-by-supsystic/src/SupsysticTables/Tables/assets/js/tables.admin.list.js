@@ -355,6 +355,7 @@
         title: $button.attr('data-dtitle'),
         width: parseInt($button.attr('data-dwidth'), 10) || 480,
         modal: true,
+        dialogClass: $button.attr('data-dclass') || '',
         buttons: {
           Close: function () {
             $(this).dialog('close');

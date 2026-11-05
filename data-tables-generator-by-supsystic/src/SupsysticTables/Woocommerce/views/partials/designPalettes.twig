@@ -1,0 +1,27 @@
+{# Style palettes above the design options. The cards are built by woocommerce.admin.js: the ready styles of the catalog and the palettes of classic tables. #}
+<div class="stb-panel-top stb-design-panel stb-woo-palettes" id="stb-woo-palettes" data-palettes="{{ wooClassicPalettes|default({})|json_encode|e('html_attr') }}" data-woo-collection="WooCommerce" data-label-pro="PRO" data-label-applied="{{ environment.translate('Applied') }}" data-label-custom="{{ environment.translate('Custom appearance') }}" data-label-current="{{ environment.translate('Current appearance') }}" data-label-locked="{{ environment.translate('Activate PRO to apply this palette') }}" data-label-restored="{{ environment.translate('Previous appearance restored') }}" data-label-results="{{ environment.translate('palettes') }}">
+    <div class="stb-design-heading">
+        <div><h4>{{ environment.translate('Style palettes') }}</h4></div>
+        {% if not wooAdvancedAllowed %}<span class="stb-pro-badge">PRO</span>{% endif %}
+    </div>
+    <p class="stb-design-intro">{{ environment.translate('One click for your table, filters and buttons. Every color stays editable.') }}</p>
+    <div class="stb-palette-tools" role="search" aria-label="{{ environment.translate('Palette library') }}">
+        <input type="search" id="stb-woo-palette-search" placeholder="{{ environment.translate('Find a palette…') }}" aria-label="{{ environment.translate('Find a palette by name, collection, light or dark') }}" autocomplete="off" />
+        <select id="stb-woo-palette-collection" aria-label="{{ environment.translate('Palette collection or mood') }}">
+            <option value="">{{ environment.translate('All collections') }}</option>
+            <optgroup label="{{ environment.translate('Mood') }}"><option value="tone:light">{{ environment.translate('Light palettes') }}</option><option value="tone:dark">{{ environment.translate('Dark palettes') }}</option></optgroup>
+            <optgroup label="{{ environment.translate('Collection') }}" id="stb-woo-palette-collections"></optgroup>
+        </select>
+        <div class="stb-palette-result-bar"><span id="stb-woo-palette-results" role="status" aria-live="polite"></span><button type="button" id="stb-woo-palette-clear" hidden>{{ environment.translate('Clear filters') }}</button></div>
+    </div>
+    <div class="stb-design-gallery" role="group" aria-label="{{ environment.translate('Style palettes') }}"></div>
+    <p class="stb-palette-empty" hidden>{{ environment.translate('No palettes found. Try another name or collection.') }}</p>
+    <div class="stb-design-actions">
+        <span id="stb-woo-palette-status" role="status" aria-live="polite">{{ environment.translate('Current appearance') }}</span>
+        {% if wooAdvancedAllowed %}
+            <button type="button" class="button" id="stb-woo-palette-undo" disabled>{{ environment.translate('Undo preset') }}</button>
+        {% else %}
+            <a class="stb-card-unlock stb-woo-palette-unlock" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': 'woo_palettes' }) }}"><span>{{ environment.translate('Available in PRO') }}</span><strong>{{ environment.translate('Unlock') }} <i class="fa fa-arrow-right" aria-hidden="true"></i></strong></a>
+        {% endif %}
+    </div>
+</div>

@@ -44,6 +44,36 @@ class SupsysticTables_Pricing_Model_Builder extends SupsysticTables_Core_BaseMod
     return $defaults;
   }
 
+  /**
+   * The saved PRO settings of a table that saveBuilder() resets with the capabilities of the free version.
+   * @param object $table
+   * @return string[] Names of the settings, for people.
+   */
+  public function getProSettingsLabels($table)
+  {
+    $meta = is_array($table->meta) ? $table->meta : [];
+    $builder = !empty($meta['pricingBuilder']) && is_array($meta['pricingBuilder']) ? $meta['pricingBuilder'] : [];
+    $html = isset($builder['html']) ? (string) $builder['html'] : '';
+    $premiumTemplates = $this->environment->getModule('pricing')->getPremiumTemplates();
+    $template = isset($builder['template']) ? $builder['template'] : '';
+    $labels = [];
+
+    if (!empty($builder['toggle']) || !empty($builder['toggleOptions']) || !empty($builder['toggleVariants']) || preg_match('/\sdata-(?:price|period)-(?:monthly|yearly)=/i', $html)) {
+      $labels[] = $this->environment->translate('Pricing switcher');
+    }
+    if (!empty($builder['ajaxToggle'])) {
+      $labels[] = $this->environment->translate('Server-side loading');
+    }
+    if (isset($premiumTemplates[$template])) {
+      $labels[] = sprintf($this->environment->translate('Premium theme: %s'), $premiumTemplates[$template]['label']);
+    }
+    if (preg_match('/\sdata-visible-(?:from|until)=/i', $html)) {
+      $labels[] = $this->environment->translate('Scheduled columns');
+    }
+
+    return $labels;
+  }
+
   public function saveBuilder($table, array $data, array $capabilities, array $templates = [])
   {
     $html = isset($data['html']) ? (string) $data['html'] : '';

@@ -1,0 +1,34 @@
+<section class="stb-gs-card stb-gs-card-import">
+	<div class="stb-gs-card-head">
+		<span class="stb-gs-card-icon"><i class="fa fa-download" aria-hidden="true"></i></span>
+		<div>
+			<h3>{{ environment.translate('Import tables') }}</h3>
+			<p>{{ environment.translate('Move your tables from other table plugins.') }}</p>
+		</div>
+	</div>
+	<div class="stb-gs-card-body">
+		<div class="stb-gs-row stb-gs-stacked">
+			<div class="setting-description">
+				<label>{{ environment.translate('Found on this site') }}</label>
+			</div>
+			<div class="setting-control stbci-card-control">
+				<ul class="stbci-card-sources">
+					{% for source in sources %}
+						<li>
+							<strong>{{ source.name }}</strong>
+							{% if source.count > 0 %}
+								<span>{{ environment.translate('%d tables') | format(source.count) }}</span>
+							{% else %}
+								<span>{{ environment.translate('no tables') }}</span>
+							{% endif %}
+						</li>
+					{% endfor %}
+				</ul>
+				<button type="button" class="button stbci-open" data-stb-import-competitor="1">
+					<i class="fa fa-fw fa-download" aria-hidden="true"></i>
+					{{ environment.translate('Import Tables from...') }}
+				</button>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,286 @@
+{# The PRO buttons of the editor toolbar in the free version: one window for each feature, with a small live picture of it. #}
+{% set chartImages = environment.getModule('diagram').getLocationUrl() ~ '/assets/img/showcase/' %}
+{% set features = {
+    'column_filters': {
+        'medium': 'column_filters',
+        'chip': environment.translate('Filters'),
+        'title': environment.translate('Give every column the filter it deserves'),
+        'text': environment.translate('Dropdowns, multi-select, number ranges and date pickers help people find the right row in seconds.'),
+        'points': [
+            environment.translate('Dropdown, multi-select, buttons, number range, date and time'),
+            environment.translate('One click on Suggest filters sets up the whole table'),
+            environment.translate('Active filters, a reset button and a row counter'),
+            environment.translate('Works with tables of any size, even server-side')
+        ],
+        'uses': [environment.translate('Catalogs'), environment.translate('Directories'), environment.translate('Reports')]
+    },
+    'edit_column': {
+        'medium': 'edit_column',
+        'chip': environment.translate('Headers'),
+        'title': environment.translate('Give every column a name people understand'),
+        'text': environment.translate('Replace A, B, C with your own column names and show them on your page.'),
+        'points': [
+            environment.translate('Set your own name for each column'),
+            environment.translate('Show those names above the table on your page'),
+            environment.translate('Change them any time without touching your data')
+        ],
+        'uses': [environment.translate('Imported data'), environment.translate('Shared reports'), environment.translate('Price lists')]
+    },
+    'diagrams': {
+        'medium': 'diagrams',
+        'chip': environment.translate('Charts'),
+        'title': environment.translate('Turn your table into a chart in three clicks'),
+        'text': environment.translate('Select your cells, pick a chart type and watch the preview draw itself from your own data.'),
+        'points': [
+            environment.translate('29 chart types: bars, lines, pies, radar, gauges, maps and 3D'),
+            environment.translate('A live preview before you add the chart'),
+            environment.translate('Charts update when the table changes'),
+            environment.translate('Place a chart anywhere with its own shortcode')
+        ],
+        'uses': [environment.translate('Sales reports'), environment.translate('Dashboards'), environment.translate('Survey results')]
+    },
+    'conditional_formatting': {
+        'medium': 'conditional_formatting',
+        'chip': environment.translate('Color rules'),
+        'title': environment.translate('Let your numbers color themselves'),
+        'text': environment.translate('Set a rule once, and every cell that matches stands out, now and after each update.'),
+        'points': [
+            environment.translate('Rules for numbers and text: greater than, between, contains and more'),
+            environment.translate('Background, text color, bold, italic and underline'),
+            environment.translate('Apply a rule to any range of cells'),
+            environment.translate('Cells recolor themselves when the values change')
+        ],
+        'uses': [environment.translate('Sales targets'), environment.translate('Stock levels'), environment.translate('Grades')]
+    },
+    'editable_fields': {
+        'medium': 'editable_fields',
+        'chip': environment.translate('Editable cells'),
+        'title': environment.translate('Let people update the table right on your page'),
+        'text': environment.translate('They click a cell, type a new value and it is saved. No dashboard access needed.'),
+        'points': [
+            environment.translate('Edit text and numbers, or upload a file into a cell'),
+            environment.translate('Save the changes straight to the table'),
+            environment.translate('Allow only logged-in users or chosen roles'),
+            environment.translate('Mark the last edited cell so changes stand out')
+        ],
+        'uses': [environment.translate('Timesheets'), environment.translate('Inventory'), environment.translate('Sign-up lists')]
+    },
+    'selectable_fields': {
+        'medium': 'selectable_fields',
+        'chip': environment.translate('Dropdowns'),
+        'title': environment.translate('Swap blank cells for a simple dropdown'),
+        'text': environment.translate('People pick from the options you set, so your data stays clean and consistent.'),
+        'points': [
+            environment.translate('Add your own list of options to any cell'),
+            environment.translate('Save each choice straight to the table'),
+            environment.translate('No typos and no messy answers'),
+            environment.translate('Allow only logged-in users or chosen roles')
+        ],
+        'uses': [environment.translate('Order status'), environment.translate('Task lists'), environment.translate('Approvals')]
+    },
+    'datepicker_fields': {
+        'medium': 'datepicker_fields',
+        'chip': environment.translate('Date pickers'),
+        'title': environment.translate('Pick dates from a calendar, right in the table'),
+        'text': environment.translate('One click opens a calendar on the cell, so nobody has to guess how to type a date.'),
+        'points': [
+            environment.translate('Add a calendar to any cells you select'),
+            environment.translate('Save the picked dates straight to the table'),
+            environment.translate('Allow only logged-in users or chosen roles')
+        ],
+        'uses': [environment.translate('Deadlines'), environment.translate('Bookings'), environment.translate('Schedules')]
+    },
+    'collapsible_fields': {
+        'medium': 'collapsible_fields',
+        'chip': environment.translate('Collapsible'),
+        'title': environment.translate('Keep long tables short and easy to scan'),
+        'text': environment.translate('Group rows under a main row. Visitors open only the part they need.'),
+        'points': [
+            environment.translate('Turn any row into the header of a group'),
+            environment.translate('Start each group open or closed'),
+            environment.translate('One click shows or hides the rows below it')
+        ],
+        'uses': [environment.translate('Product specs'), environment.translate('Price lists'), environment.translate('Regional reports')]
+    },
+    'tooltip_fields': {
+        'medium': 'tooltip_fields',
+        'chip': environment.translate('Tooltips'),
+        'title': environment.translate('Put the details one hover away'),
+        'text': environment.translate('Turn long cell text into a neat icon. The full text appears when someone points at it.'),
+        'points': [
+            environment.translate('Convert any cell into an icon with a tooltip'),
+            environment.translate('Keep rows short and the table tidy'),
+            environment.translate('Give people the extra detail only when they want it')
+        ],
+        'uses': [environment.translate('Plan comparisons'), environment.translate('Glossaries'), environment.translate('Product notes')]
+    },
+    'font_family': {
+        'medium': 'font_family',
+        'chip': environment.translate('Fonts'),
+        'title': environment.translate('Make the table match your brand'),
+        'text': environment.translate('Choose from 700+ fonts for any cell, so your table looks like the rest of your site.'),
+        'points': [
+            environment.translate('700+ Google Fonts plus all the standard fonts'),
+            environment.translate('Change the font of any cells you select'),
+            environment.translate('Use one font for headers and another for data')
+        ],
+        'uses': [environment.translate('Brand sites'), environment.translate('Landing pages'), environment.translate('Reports')]
+    }
+} %}
+{% for id, feature in features %}
+    <div id="{{ id }}ProFeatureDialog" style="display: none;">
+        <div class="stb-upsell stb-feature">
+            <div class="stb-upsell-hero">
+                <span class="stb-upsell-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ environment.translate('PRO feature') }}</span>
+                <div class="stb-upsell-head">
+                    <div>
+                        <h2>{{ feature.title }}</h2>
+                        <p>{{ feature.text }}</p>
+                    </div>
+                    <a class="stb-upsell-cta" href="{{ build_pro_url({ 'utm_medium': feature.medium }) }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </div>
+            <div class="stb-feature-body">
+                <div class="stb-fd" aria-hidden="true">
+                    <div class="stb-fd-bar"><i></i><i></i><i></i><span>{{ environment.translate('On your page') }}</span></div>
+                    <div class="stb-fd-stage stb-fd-{{ id }}">
+                        {% if id == 'column_filters' %}
+                            <table class="stb-fd-table stb-fd-filtered">
+                                <tr><th>{{ environment.translate('Product') }}</th><th>{{ environment.translate('Status') }}</th><th class="is-right">{{ environment.translate('Price') }}</th></tr>
+                                <tr class="is-controls">
+                                    <td><span class="stb-fd-ctl"><i class="fa fa-search"></i></span></td>
+                                    <td class="is-editing is-select"><span>{{ environment.translate('In stock') }}<i class="fa fa-angle-down"></i></span></td>
+                                    <td><span class="stb-fd-ctl stb-fd-range">$20<b></b>$60</span></td>
+                                </tr>
+                                <tr><td>Canvas Tote</td><td>{{ environment.translate('In stock') }}</td><td class="is-right">$24.00</td></tr>
+                                <tr><td>Trail Bottle</td><td>{{ environment.translate('In stock') }}</td><td class="is-right">$38.00</td></tr>
+                            </table>
+                            <ul class="stb-fd-menu stb-fd-menu-filter">
+                                <li>{{ environment.translate('All') }}</li>
+                                <li class="is-on"><i class="fa fa-check"></i>{{ environment.translate('In stock') }}</li>
+                                <li>{{ environment.translate('Sold out') }}</li>
+                            </ul>
+                            <div class="stb-fd-active"><span>{{ environment.translate('Status') ~ ': ' ~ environment.translate('In stock') }} &times;</span><span>{{ environment.translate('Price') ~ ': $20 – $60' }} &times;</span><em>{{ environment.translate('2 of 48 rows') }}</em></div>
+                        {% elseif id == 'edit_column' %}
+                            <span class="stb-fd-caption">{{ environment.translate('Before') }}</span>
+                            <table class="stb-fd-table is-plain">
+                                <tr><th>A</th><th>B</th><th>C</th></tr>
+                            </table>
+                            <i class="fa fa-long-arrow-down stb-fd-down"></i>
+                            <span class="stb-fd-caption">{{ environment.translate('After') }}</span>
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Product') }}</th><th class="is-renamed">{{ environment.translate('Price') }}<i class="fa fa-pencil"></i></th><th>{{ environment.translate('In stock') }}</th></tr>
+                                <tr><td>Canvas Tote</td><td>$24.00</td><td>118</td></tr>
+                                <tr><td>Trail Bottle</td><td>$18.00</td><td>64</td></tr>
+                            </table>
+                        {% elseif id == 'diagrams' %}
+                            <div class="stb-fd-charts">
+                                {% for chart in ['chart-chartjs-column', 'chart-chartjs-doughnut', 'chart-chartjs-line', 'chart-chartjs-radar', 'chart-google-geo', 'chart-3d-pyramid'] %}
+                                    <span><img src="{{ chartImages ~ chart ~ '.webp' }}" alt="" loading="lazy" /></span>
+                                {% endfor %}
+                            </div>
+                            <span class="stb-fd-badge">{{ environment.translate('29 chart types') }}</span>
+                        {% elseif id == 'conditional_formatting' %}
+                            <div class="stb-fd-rules">
+                                <span><b class="is-good"></b>{{ environment.translate('Quota is 100 or more') }}</span>
+                                <span><b class="is-bad"></b>{{ environment.translate('Quota is under 75') }}</span>
+                            </div>
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Rep') }}</th><th>{{ environment.translate('Region') }}</th><th class="is-right">{{ environment.translate('Quota %') }}</th></tr>
+                                <tr><td>Emily Carter</td><td>Northeast</td><td class="is-right is-good">128</td></tr>
+                                <tr><td>Jake Morrison</td><td>West Coast</td><td class="is-right is-good">112</td></tr>
+                                <tr><td>Ava Thompson</td><td>Texas</td><td class="is-right">89</td></tr>
+                                <tr><td>Logan Hayes</td><td>Midwest</td><td class="is-right is-bad">71</td></tr>
+                                <tr><td>Tyler Collins</td><td>Florida</td><td class="is-right is-bad">55</td></tr>
+                            </table>
+                        {% elseif id == 'editable_fields' %}
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Employee') }}</th><th>{{ environment.translate('Project') }}</th><th class="is-right">{{ environment.translate('Hours') }}</th></tr>
+                                <tr><td>Emily Carter</td><td>Website</td><td class="is-right">32</td></tr>
+                                <tr><td>Jake Morrison</td><td>Campaign</td><td class="is-right is-editing"><span>38<em></em></span></td></tr>
+                                <tr><td>Olivia Bennett</td><td>Website</td><td class="is-right">24</td></tr>
+                                <tr><td>Ethan Walker</td><td>Support</td><td class="is-right">40</td></tr>
+                            </table>
+                            <span class="stb-fd-toast"><i class="fa fa-check"></i>{{ environment.translate('Saved') }}</span>
+                        {% elseif id == 'selectable_fields' %}
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Order') }}</th><th>{{ environment.translate('Customer') }}</th><th>{{ environment.translate('Status') }}</th></tr>
+                                <tr><td>#1042</td><td>Emily Carter</td><td>{{ environment.translate('Delivered') }}</td></tr>
+                                <tr><td>#1043</td><td>Jake Morrison</td><td class="is-editing is-select"><span>{{ environment.translate('Shipped') }}<i class="fa fa-angle-down"></i></span></td></tr>
+                                <tr><td>#1044</td><td>Olivia Bennett</td><td></td></tr>
+                                <tr><td>#1045</td><td>Ethan Walker</td><td></td></tr>
+                            </table>
+                            <ul class="stb-fd-menu">
+                                <li>{{ environment.translate('Processing') }}</li>
+                                <li class="is-on"><i class="fa fa-check"></i>{{ environment.translate('Shipped') }}</li>
+                                <li>{{ environment.translate('Delivered') }}</li>
+                            </ul>
+                        {% elseif id == 'datepicker_fields' %}
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Task') }}</th><th>{{ environment.translate('Owner') }}</th><th>{{ environment.translate('Due date') }}</th></tr>
+                                <tr><td>Launch plan</td><td>Emily</td><td class="is-editing is-select"><span>11/18/2026<i class="fa fa-calendar"></i></span></td></tr>
+                                <tr><td>Press kit</td><td>Jake</td><td></td></tr>
+                                <tr><td>Site copy</td><td>Olivia</td><td></td></tr>
+                                <tr><td>Email list</td><td>Ethan</td><td></td></tr>
+                            </table>
+                            <div class="stb-fd-cal">
+                                <strong>November 2026</strong>
+                                <div>
+                                    {% for day in ['S', 'M', 'T', 'W', 'T', 'F', 'S'] %}<b>{{ day }}</b>{% endfor %}
+                                    {% for date in 1..30 %}<span{% if date == 18 %} class="is-on"{% endif %}>{{ date }}</span>{% endfor %}
+                                </div>
+                            </div>
+                        {% elseif id == 'collapsible_fields' %}
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Region') }}</th><th class="is-right">{{ environment.translate('Stores') }}</th><th class="is-right">{{ environment.translate('Sales') }}</th></tr>
+                                <tr class="is-group"><td><i class="fa fa-minus-circle"></i>Northeast</td><td class="is-right">14</td><td class="is-right">$412,500</td></tr>
+                                <tr class="is-child"><td>Boston</td><td class="is-right">6</td><td class="is-right">$186,200</td></tr>
+                                <tr class="is-child"><td>New York</td><td class="is-right">8</td><td class="is-right">$226,300</td></tr>
+                                <tr class="is-group"><td><i class="fa fa-plus-circle"></i>West Coast</td><td class="is-right">11</td><td class="is-right">$386,200</td></tr>
+                                <tr class="is-group"><td><i class="fa fa-plus-circle"></i>Midwest</td><td class="is-right">9</td><td class="is-right">$318,400</td></tr>
+                            </table>
+                        {% elseif id == 'tooltip_fields' %}
+                            <table class="stb-fd-table">
+                                <tr><th>{{ environment.translate('Plan') }}</th><th class="is-right">{{ environment.translate('Price') }}</th><th class="is-center">{{ environment.translate('Details') }}</th></tr>
+                                <tr><td>Starter</td><td class="is-right">$19</td><td class="is-center"><i class="fa fa-info-circle stb-fd-tip"></i></td></tr>
+                                <tr><td>Growth</td><td class="is-right">$49</td><td class="is-center"><i class="fa fa-info-circle stb-fd-tip is-on"></i></td></tr>
+                                <tr><td>Business</td><td class="is-right">$99</td><td class="is-center"><i class="fa fa-info-circle stb-fd-tip"></i></td></tr>
+                            </table>
+                            <span class="stb-fd-bubble">{{ environment.translate('Unlimited projects, priority support and advanced features.') }}</span>
+                        {% elseif id == 'font_family' %}
+                            <div class="stb-fd-fonts">
+                                <span style="font-family: Georgia, 'Times New Roman', serif;"><b>Georgia</b>The quarterly report</span>
+                                <span style="font-family: 'Trebuchet MS', Verdana, sans-serif;"><b>Trebuchet</b>The quarterly report</span>
+                                <span style="font-family: 'Courier New', monospace;"><b>Courier</b>The quarterly report</span>
+                                <span style="font-family: Impact, 'Arial Narrow', sans-serif;"><b>Impact</b>The quarterly report</span>
+                            </div>
+                            <span class="stb-fd-badge">{{ environment.translate('700+ fonts') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stb-feature-info">
+                    <h3>{{ environment.translate('What you get') }}</h3>
+                    <ul>
+                        {% for point in feature.points %}
+                            <li>{{ point }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>{{ environment.translate('Great for') }}</h3>
+                    <div class="stb-feature-uses">
+                        {% for use in feature.uses %}
+                            <span>{{ use }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="stb-feature-more">
+                <span class="stb-feature-more-label">{{ environment.translate('Also in PRO') }}</span>
+                {% for otherId, other in features %}
+                    {% if otherId != id %}
+                        <button type="button" data-stb-upsell-go="#{{ otherId }}ProFeatureDialog">{{ other.chip }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endfor %}

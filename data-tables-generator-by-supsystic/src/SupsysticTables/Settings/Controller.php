@@ -39,8 +39,20 @@ class SupsysticTables_Settings_Controller extends SupsysticTables_Core_BaseContr
     $currentSettings = get_option($optionsName);
     $settings = $request->post->get('settings', []);
 
-    if (!$currentSettings) {
+    if (!is_array($currentSettings)) {
       $currentSettings = [];
+    }
+    if (!is_array($settings)) {
+      $settings = [];
+    }
+
+    // Only administrators change who may use the plugin: for the others the saved roles stay (or stay empty)
+    if (!current_user_can('manage_options')) {
+      if (!empty($currentSettings['access_roles'])) {
+        $settings['access_roles'] = $currentSettings['access_roles'];
+      } else {
+        unset($settings['access_roles']);
+      }
     }
 
     // array_diff()/array_intersect() cast sub-array elements to string for

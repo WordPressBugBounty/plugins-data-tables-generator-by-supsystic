@@ -2,32 +2,202 @@
     {% set url = build_pro_url({ 'utm_medium': 'diagrams' })  %}
 
     {% block content %}
-        {% import '@ui/tooltip.twig' as tooltip %}
+        {% set img = environment.getModule('diagram').getLocationUrl() ~ '/assets/img/showcase/' %}
+        {% set engines = {
+            'google': 'Google Charts',
+            'chartjs': 'Chart.js',
+            '3d': '3D'
+        } %}
+        {% set charts = [
+            {'file': 'google-line', 'engine': 'google', 'name': 'Line chart', 'hint': 'Trends over time'},
+            {'file': 'chartjs-doughnut', 'engine': 'chartjs', 'name': 'Doughnut chart', 'hint': 'Parts as a ring'},
+            {'file': '3d-bar', 'engine': '3d', 'name': '3D bar chart', 'hint': 'Columns with depth'},
+            {'file': 'google-combo', 'engine': 'google', 'name': 'Combo chart', 'hint': 'Bars with a line'},
+            {'file': 'chartjs-column', 'engine': 'chartjs', 'name': 'Column chart', 'hint': 'Rounded columns with values'},
+            {'file': 'google-geo', 'engine': 'google', 'name': 'Geo map', 'hint': 'Values by country'},
+            {'file': 'chartjs-radar', 'engine': 'chartjs', 'name': 'Radar chart', 'hint': 'Compare features'},
+            {'file': 'google-area', 'engine': 'google', 'name': 'Area chart', 'hint': 'Volumes over time'},
+            {'file': '3d-donut', 'engine': '3d', 'name': '3D donut chart', 'hint': 'Share as a ring'},
+            {'file': 'google-waterfall', 'engine': 'google', 'name': 'Waterfall', 'hint': 'Running total'},
+            {'file': 'chartjs-bubble', 'engine': 'chartjs', 'name': 'Bubble chart', 'hint': 'Three values per point'},
+            {'file': 'google-gauge', 'engine': 'google', 'name': 'Gauge', 'hint': 'A value on a dial'},
+            {'file': 'chartjs-polar-area', 'engine': 'chartjs', 'name': 'Polar area', 'hint': 'Sizes by angle'},
+            {'file': 'google-candlestick', 'engine': 'google', 'name': 'Candlestick', 'hint': 'Price movements'},
+            {'file': '3d-pie', 'engine': '3d', 'name': '3D pie chart', 'hint': 'Share with depth'},
+            {'file': 'google-column', 'engine': 'google', 'name': 'Column chart', 'hint': 'Compare periods'},
+            {'file': 'chartjs-line', 'engine': 'chartjs', 'name': 'Line chart', 'hint': 'Smooth animated lines'},
+            {'file': 'google-donut', 'engine': 'google', 'name': 'Donut chart', 'hint': 'Parts of a whole'},
+            {'file': 'chartjs-area', 'engine': 'chartjs', 'name': 'Area chart', 'hint': 'Filled lines'},
+            {'file': 'google-bar', 'engine': 'google', 'name': 'Bar chart', 'hint': 'Compare categories'},
+            {'file': '3d-pyramid', 'engine': '3d', 'name': '3D pyramid', 'hint': 'Stages and levels'},
+            {'file': 'google-bubble', 'engine': 'google', 'name': 'Bubble chart', 'hint': 'Three values per point'},
+            {'file': 'chartjs-pie', 'engine': 'chartjs', 'name': 'Pie chart', 'hint': 'Parts of a whole'},
+            {'file': 'google-stepped-area', 'engine': 'google', 'name': 'Stepped area', 'hint': 'Changes in steps'},
+            {'file': 'chartjs-bar', 'engine': 'chartjs', 'name': 'Bar chart', 'hint': 'Horizontal bars'},
+            {'file': 'google-scatter', 'engine': 'google', 'name': 'Scatter chart', 'hint': 'Relations of values'},
+            {'file': 'google-pie', 'engine': 'google', 'name': 'Pie chart', 'hint': 'Parts of a whole'},
+            {'file': 'chartjs-scatter', 'engine': 'chartjs', 'name': 'Scatter chart', 'hint': 'Relations of values'},
+            {'file': 'google-histogram', 'engine': 'google', 'name': 'Histogram', 'hint': 'Spread of values'}
+        ] %}
+        {% set counts = {'google': 0, 'chartjs': 0, '3d': 0} %}
+        {% for chart in charts %}
+            {% set counts = counts|merge({(chart.engine): attribute(counts, chart.engine) + 1}) %}
+        {% endfor %}
+        {% set shortcode = '[supsystic-table-diagram id=1]' %}
+
         <div class="supXs12">
-            <h3 style="display:inline-block;">
-            {{ environment.translate('Diagrams') }}
-            </h3>
-            <div class="description" style="font-size: 16px;">
-                {{ environment.translate('The Data Table Generator contains all the types of diagrams you need. Сreate, manage and embed interactive charts into your WordPress posts and pages. You can preview the diagram right from a tab on the plugin screen.') }} {{ '<a target="_blank" href="https://supsystic.com/example/table-with-diagram-example/"></br>Read more</a>' | raw }}
+        <div class="stb-showcase stb-sc-brand" data-showcase>
+            <section class="stb-sc-hero">
+                <div class="stb-sc-hero-text">
+                    <span class="stb-sc-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ environment.translate('Charts in PRO') }}</span>
+                    <h2>{{ environment.translate('Turn this table into charts') }}</h2>
+                    <p>{{ environment.translate('Select the cells, pick one of %d chart types and paste one shortcode. The chart is drawn from your table and changes when the table changes.')|format(charts|length) }}</p>
+                    <div class="stb-sc-actions">
+                        <a class="stb-sc-cta" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                        <a class="stb-sc-link" href="#stb-sc-gallery">{{ environment.translate('See all charts') }}<i class="fa fa-angle-down" aria-hidden="true"></i></a>
+                    </div>
+                    <ul class="stb-sc-stats">
+                        <li><strong>{{ charts|length }}</strong><span>{{ environment.translate('chart types') }}</span></li>
+                        <li><strong>3</strong><span>{{ environment.translate('chart engines') }}</span></li>
+                        <li><strong>0</strong><span>{{ environment.translate('lines of code') }}</span></li>
+                    </ul>
+                </div>
+                <div class="stb-sc-hero-visual" aria-hidden="true">
+                    <div class="stb-sc-float stb-sc-float-1"><img src="{{ img }}chart-google-combo.webp" alt="" width="787" height="360" /></div>
+                    <div class="stb-sc-float stb-sc-float-2"><img src="{{ img }}chart-chartjs-doughnut.webp" alt="" width="787" height="360" /></div>
+                    <div class="stb-sc-float stb-sc-float-3"><img src="{{ img }}chart-3d-bar.webp" alt="" width="787" height="360" /></div>
+                </div>
+            </section>
+
+            <section class="stb-sc-steps" aria-label="{{ environment.translate('How it works') }}">
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">1</span>
+                    <div><strong>{{ environment.translate('Select the cells') }}</strong><span>{{ environment.translate('In the Editor tab, select the data and click Add chart.') }}</span></div>
+                </div>
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">2</span>
+                    <div><strong>{{ environment.translate('Pick a chart') }}</strong><span>{{ environment.translate('The preview shows your data in every type at once.') }}</span></div>
+                </div>
+                <div class="stb-sc-step">
+                    <span class="stb-sc-step-num">3</span>
+                    <div><strong>{{ environment.translate('Paste the shortcode') }}</strong><code>{{ shortcode }}</code></div>
+                </div>
+            </section>
+
+            <section class="stb-sc-section" id="stb-sc-gallery">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <h3>{{ environment.translate('%d chart types')|format(charts|length) }}</h3>
+                        <p>{{ environment.translate('Google Charts, Chart.js and 3D charts. Every picture here is a real chart drawn from a table in the plugin.') }}</p>
+                    </div>
+                    <div class="stb-sc-filter" role="group" aria-label="{{ environment.translate('Chart engine') }}">
+                        <button type="button" class="is-active" data-filter="all" aria-pressed="true">{{ environment.translate('All') }}<span>{{ charts|length }}</span></button>
+                        {% for key, label in engines %}
+                            <button type="button" data-filter="{{ key }}" aria-pressed="false">{{ label }}<span>{{ attribute(counts, key) }}</span></button>
+                        {% endfor %}
+                    </div>
+                </header>
+                <div class="stb-sc-grid">
+                    {% for chart in charts %}
+                        <figure class="stb-sc-chart" data-engine="{{ chart.engine }}">
+                            <button type="button" class="stb-sc-zoom" data-full="{{ img }}chart-{{ chart.file }}.webp" data-caption="{{ environment.translate(chart.name) ~ ' · ' ~ attribute(engines, chart.engine) }}" aria-label="{{ environment.translate('Open a larger picture') ~ ': ' ~ environment.translate(chart.name) }}">
+                                <img src="{{ img }}chart-{{ chart.file }}.webp" alt="{{ environment.translate(chart.name) }}" width="787" height="360" loading="lazy" />
+                            </button>
+                            <figcaption>
+                                <span><strong>{{ environment.translate(chart.name) }}</strong><small>{{ environment.translate(chart.hint) }}</small></span>
+                                <em class="stb-sc-engine stb-sc-engine-{{ chart.engine }}">{{ attribute(engines, chart.engine) }}</em>
+                            </figcaption>
+                        </figure>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="stb-sc-feature">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('Step 2 · Chart type') }}</span>
+                    <h3>{{ environment.translate('See your data in any chart before you add it') }}</h3>
+                    <p>{{ environment.translate('Click a type and the preview redraws with the selected cells. Filter by engine, check the data hint and create the chart in one click.') }}</p>
+                    <ul class="stb-sc-checks">
+                        <li>{{ environment.translate('Google Charts: line, area, column, bar, pie, donut, combo, scatter, bubble, histogram, candlestick, waterfall, gauge, geo map') }}</li>
+                        <li>{{ environment.translate('Chart.js: smooth animated line, area, column, bar, pie, doughnut, polar area, radar, scatter, bubble') }}</li>
+                        <li>{{ environment.translate('3D: bar, pie, donut and pyramid') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot" data-switch>
+                    <div class="stb-sc-shot-tabs" role="group">
+                        <button type="button" class="is-active" data-shot="0" aria-pressed="true">Google Charts</button>
+                        <button type="button" data-shot="1" aria-pressed="false">Chart.js</button>
+                    </div>
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}dialog-chart-type.webp" data-caption="{{ environment.translate('Chart type') }}"><img src="{{ img }}dialog-chart-type.webp" alt="{{ environment.translate('Chart type tab of the chart dialog') }}" width="1181" height="837" loading="lazy" /></button>
+                        <button type="button" class="stb-sc-zoom" data-full="{{ img }}dialog-chart-type-chartjs.webp" data-caption="{{ environment.translate('Chart type') }} · Chart.js"><img src="{{ img }}dialog-chart-type-chartjs.webp" alt="{{ environment.translate('Chart.js types in the chart dialog') }}" width="1181" height="837" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-feature stb-sc-feature-reverse">
+                <div class="stb-sc-feature-text">
+                    <span class="stb-sc-kicker">{{ environment.translate('Customize') }}</span>
+                    <h3>{{ environment.translate('Every detail is a setting, not code') }}</h3>
+                    <p>{{ environment.translate('Only the options that fit the chosen chart are shown, and the preview follows every change.') }}</p>
+                    <ul class="stb-sc-tags">
+                        <li><i class="fa fa-arrows-alt" aria-hidden="true"></i>{{ environment.translate('Size presets') }}</li>
+                        <li><i class="fa fa-header" aria-hidden="true"></i>{{ environment.translate('Title and legend') }}</li>
+                        <li><i class="fa fa-line-chart" aria-hidden="true"></i>{{ environment.translate('Axis titles and formats') }}</li>
+                        <li><i class="fa fa-tint" aria-hidden="true"></i>{{ environment.translate('Own colors') }}</li>
+                        <li><i class="fa fa-tag" aria-hidden="true"></i>{{ environment.translate('Values on the chart') }}</li>
+                        <li><i class="fa fa-percent" aria-hidden="true"></i>{{ environment.translate('Stacked and 100% stacked') }}</li>
+                        <li><i class="fa fa-cube" aria-hidden="true"></i>{{ environment.translate('3D angles') }}</li>
+                        <li><i class="fa fa-tachometer" aria-hidden="true"></i>{{ environment.translate('Gauge zones') }}</li>
+                        <li><i class="fa fa-globe" aria-hidden="true"></i>{{ environment.translate('Map regions') }}</li>
+                        <li><i class="fa fa-mouse-pointer" aria-hidden="true"></i>{{ environment.translate('Click to hide a series') }}</li>
+                        <li><i class="fa fa-expand" aria-hidden="true"></i>{{ environment.translate('Padding and layout') }}</li>
+                        <li><i class="fa fa-eye-slash" aria-hidden="true"></i>{{ environment.translate('Leave out rows or columns') }}</li>
+                    </ul>
+                </div>
+                <div class="stb-sc-shot" data-switch>
+                    <div class="stb-sc-shot-tabs" role="group">
+                        <button type="button" class="is-active" data-shot="0" aria-pressed="true">{{ environment.translate('Size and title') }}</button>
+                        <button type="button" data-shot="1" aria-pressed="false">{{ environment.translate('Style and colors') }}</button>
+                    </div>
+                    <div class="stb-sc-window">
+                        <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}dialog-customize.webp" data-caption="{{ environment.translate('Customize') }}"><img src="{{ img }}dialog-customize.webp" alt="{{ environment.translate('Customize tab of the chart dialog') }}" width="1181" height="837" loading="lazy" /></button>
+                        <button type="button" class="stb-sc-zoom" data-full="{{ img }}dialog-customize-style.webp" data-caption="{{ environment.translate('Customize') ~ ' · ' ~ environment.translate('Style and colors') }}"><img src="{{ img }}dialog-customize-style.webp" alt="{{ environment.translate('Chart colors in the chart dialog') }}" width="1181" height="837" loading="lazy" /></button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <span class="stb-sc-kicker">{{ environment.translate('This tab in PRO') }}</span>
+                        <h3>{{ environment.translate('All charts of the table in one place') }}</h3>
+                        <p>{{ environment.translate('Change the range of a chart, preview it and copy its shortcode. Charts always show the current table data.') }}</p>
+                    </div>
+                </header>
+                <div class="stb-sc-window stb-sc-window-wide">
+                    <span class="stb-sc-window-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+                    <button type="button" class="stb-sc-zoom is-active" data-full="{{ img }}diagrams-tab.webp" data-caption="{{ environment.translate('Diagrams tab') }}"><img src="{{ img }}diagrams-tab.webp" alt="{{ environment.translate('Diagrams tab with three charts') }}" width="1540" height="587" loading="lazy" /></button>
+                </div>
+            </section>
+
+            <section class="stb-sc-final">
+                <div>
+                    <h3>{{ environment.translate('Show your numbers as charts today') }}</h3>
+                    <p>{{ environment.translate('Your tables and their settings stay as they are. PRO adds charts on top.') }}</p>
+                </div>
+                <a class="stb-sc-cta stb-sc-cta-light" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </section>
+
+            <div class="stb-sc-lightbox" hidden role="dialog" aria-modal="true" aria-label="{{ environment.translate('Picture') }}">
+                <button type="button" class="stb-sc-lightbox-close" aria-label="{{ environment.translate('Close') }}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-prev" aria-label="{{ environment.translate('Previous') }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                <figure><img alt="" /><figcaption></figcaption></figure>
+                <button type="button" class="stb-sc-lightbox-nav stb-sc-lightbox-next" aria-label="{{ environment.translate('Next') }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
             </div>
-            </br>
-            <a href="{{ url }}" class="button button-hero" target="_blank">
-                {{ environment.translate('Get PRO') }}
-            </a>
         </div>
-        <div class="supXs12">
-            <a href="{{ url }}" target="_blank">
-                <img src="{{ environment.getModule('diagram').getLocationUrl() }}/assets/img/diagrams-min.png" alt="Diagrams" title="Available in PRO version" style="width: 100%; height: auto;">
-            </a>
-            <a href="{{ url }}" target="_blank">
-                <img src="{{ environment.getModule('diagram').getLocationUrl() }}/assets/img/diagrams_dialog_settings_tab.png" alt="Diagrams" title="Available in PRO version" style="width: 100%; height: auto;">
-            </a>
-            <a href="{{ url }}" target="_blank">
-                <img src="{{ environment.getModule('diagram').getLocationUrl() }}/assets/img/diagrams_dialog_type_tab.png" alt="Diagrams" title="Available in PRO version" style="width: 100%; height: auto;">
-            </a>
-            <a href="{{ url }}" target="_blank">
-                <img src="{{ environment.getModule('diagram').getLocationUrl() }}/assets/img/diagrams.png" alt="Diagrams" title="Available in PRO version" style="width: 100%; height: auto;">
-            </a>
         </div>
     {% endblock %}
 </div>

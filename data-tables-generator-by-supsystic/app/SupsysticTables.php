@@ -5,7 +5,9 @@
  */
 class SupsysticTables
 {
+  const TABLES_SCHEMA_VERSION = 3;
   private $environment;
+  private $bootstrap;
 
   public function __construct()
   {
@@ -15,13 +17,13 @@ class SupsysticTables
     }
 
     add_action('init', [$this, 'addShortcodeButton']);
-    if (is_admin()) {
-      add_action('admin_init', [$this, 'maybeUpgradeSchema']);
-    }
+    // Update only the current site's schema, once per schema version. This
+    // also handles plugin updates, which do not fire the activation hook.
+    add_action('plugins_loaded', [$this, 'maybeUpgradeSchema'], 0);
 
     $menuSlug = 'supsystic-tables';
-    $pluginPath = dirname(dirname(__FILE__)); 
-    $environment = new RscDtgs_Environment('st', '1.15.8', $pluginPath);
+    $pluginPath = dirname(dirname(__FILE__));
+    $environment = new RscDtgs_Environment('st', '1.16.01', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -86,6 +88,10 @@ class SupsysticTables
     }
 
     update_option('supsystic_tbl_default_page_visited', 1);
+    // The welcome page opens the table wizard (see SupsysticTables_Wizard_Module)
+    if (!defined('SUPSYSTIC_TBL_WELCOME_LANDING')) {
+      define('SUPSYSTIC_TBL_WELCOME_LANDING', true);
+    }
 
     return 'overview';
   }
@@ -286,7 +292,7 @@ class SupsysticTables
 
   public function maybeUpgradeSchema()
   {
-    if ((int) get_option('supsystic_tbl_tables_schema_version', 0) < 2 || $this->tablesSchemaNeedsUpgrade()) {
+    if ((int) get_option('supsystic_tbl_tables_schema_version', 0) < self::TABLES_SCHEMA_VERSION) {
       $this->createSchema();
     }
   }
@@ -330,6 +336,10 @@ class SupsysticTables
       $this->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `table_type` VARCHAR(64) NOT NULL DEFAULT 'default' AFTER `title`");
       $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
     }
+    if (is_array($columns) && !in_array('history_settings', $columns, true)) {
+      $this->safeQuery("ALTER TABLE {$tablesTable} ADD COLUMN `history_settings` TEXT NULL AFTER `settings`");
+      $columns = $wpdb->get_col("DESC {$tablesTable}", 0);
+    }
     if (is_array($columns) && in_array('table_type', $columns, true) && in_array('woo_settings', $columns, true)) {
       $this->safeQuery(
         "UPDATE {$tablesTable}
@@ -341,8 +351,12 @@ class SupsysticTables
     }
 
     $this->seedWooColumns($wooColumnsTable);
-    update_option('supsystic_tbl_woo_schema_version', 1);
-    update_option('supsystic_tbl_tables_schema_version', 2);
+    // Leave a failed migration pending so the next request can retry it.
+    if (is_array($columns) && !array_diff(['table_type', 'woo_settings', 'history_settings'], $columns)
+      && $this->db_table_exist('supsystic_tbl_woo_columns') && (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wooColumnsTable}") > 0) {
+      update_option('supsystic_tbl_woo_schema_version', 1);
+      update_option('supsystic_tbl_tables_schema_version', self::TABLES_SCHEMA_VERSION);
+    }
   }
 
   protected function seedWooColumns($tableName)
@@ -390,18 +404,48 @@ class SupsysticTables
 
   public function activate($bootstrap)
   {
-    //if is multisite mode
-    if (function_exists('is_multisite') && is_multisite()) {
-      global $wpdb;
-      $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-      foreach ($blog_id as $id) {
-        if (switch_to_blog($id)) {
-          $this->createSchema();
-          restore_current_blog();
+    $this->bootstrap = $bootstrap;
+    register_activation_hook($bootstrap, [$this, 'onActivation']);
+    add_action('wp_initialize_site', [$this, 'initializeSite'], 20);
+  }
+
+  public function onActivation($networkWide = false)
+  {
+    if (is_multisite() && $networkWide) {
+      // Network traversal belongs to activation, never to a normal page load.
+      $offset = 0;
+      do {
+        $siteIds = get_sites(['fields' => 'ids', 'number' => 100, 'offset' => $offset]);
+        foreach ($siteIds as $siteId) {
+          switch_to_blog($siteId);
+          try {
+            $this->createSchema();
+          } finally {
+            restore_current_blog();
+          }
         }
-      }
+        $offset += count($siteIds);
+      } while (count($siteIds) === 100);
     } else {
       $this->createSchema();
+      // First activation on this site: the next admin page takes people to the table wizard
+      if (!get_option('supsystic_tbl_default_page_visited', false)) {
+        update_option('supsystic_tbl_wizard_welcome', 1);
+      }
+    }
+  }
+
+  public function initializeSite($site)
+  {
+    $active = get_site_option('active_sitewide_plugins', []);
+    if (!is_multisite() || !isset($active[plugin_basename($this->bootstrap)])) {
+      return;
+    }
+    switch_to_blog((int) $site->blog_id);
+    try {
+      $this->createSchema();
+    } finally {
+      restore_current_blog();
     }
   }
 

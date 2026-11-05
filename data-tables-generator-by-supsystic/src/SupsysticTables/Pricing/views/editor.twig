@@ -270,6 +270,9 @@
     </div>
   </div>
   <datalist id="st-pricing-font-list"></datalist>
+  {% if proGuard is defined and proGuard %}
+    {% include '@tables/partials/proGuard.twig' %}
+  {% endif %}
   <script type="application/json" id="st-pricing-data">{{ builderJson|raw }}</script>
   <script type="application/json" id="st-pricing-canvas-css">{{ canvasCssJson|raw }}</script>
   <script type="application/json" id="st-pricing-font-library">{{ fontLibraryJson|raw }}</script>

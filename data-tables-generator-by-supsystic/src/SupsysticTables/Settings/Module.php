@@ -19,7 +19,7 @@ class SupsysticTables_Settings_Module extends SupsysticTables_Core_BaseModule
 
     wp_register_script('supsystic-tables-settings-index-js', $modulePath . '/assets/js/settings-index.js', ['supsystic-settings-chosen'], $this->config('plugin_version'), true);
 
-    wp_register_style('supsystic-tables-settings-index-css', $modulePath . '/assets/css/settings.css', [], $this->config('plugin_version'));
+    wp_register_style('supsystic-tables-settings-index-css', $modulePath . '/assets/css/settings.css', [], $this->config('plugin_version') . '-ui-6');
 
     wp_register_script('supsystic-settings-chosen', $appPath . '/assets/js/plugins/chosen.jquery.min.js', [], $this->config('plugin_version'), true);
   }

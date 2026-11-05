@@ -15,7 +15,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
   private $frontendMethods = [
     'ajax' => [
-      'tables' => ['saveEditableFields', 'getPageRows', 'saveEditableFieldsFile', 'deleteEditableFieldsFile', 'sendTableToEmail'],
+      'tables' => ['saveEditableFields', 'getPageRows', 'getColumnFilterData', 'saveEditableFieldsFile', 'deleteEditableFieldsFile', 'sendTableToEmail'],
       'woocommerce' => ['productsAddToCart'],
     ],
     'post' => [
@@ -89,15 +89,12 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
   public function loadDataTablesNonces()
   {
     $userCanEdit = false;
-    $alowedRoles = [];
-    $settings = get_option('supsystic_tbl_settings');
-    if ($settings && isset($settings['access_roles'])) {
-      $alowedRoles = $settings['access_roles'];
-    }
+    // No roles in the setting (or damaged data) means that only administrators get the token
+    $alowedRoles = SupsysticTables_Core_BaseController::getAccessRoles();
     $current_user = wp_get_current_user();
-    if ($current_user) {
+    if ($alowedRoles && $current_user && is_array($current_user->roles)) {
       foreach ($current_user->roles as $role) {
-        if (in_array($role, $alowedRoles)) {
+        if (is_string($role) && in_array($role, $alowedRoles, true)) {
           $userCanEdit = true;
         }
       }
@@ -105,7 +102,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
     $environment = $this->getEnvironment();
     $path = $environment->getConfig()->get('plugin_url') . '/app/assets/js/dtgsnonce.js';
-    if (is_admin() && (current_user_can('administrator') || $userCanEdit)) {
+    if (is_admin() && (current_user_can('manage_options') || current_user_can('administrator') || $userCanEdit)) {
       $nonce = wp_create_nonce('dtgs_nonce');
       wp_register_script('dtgs_nonce', $path, [], '0.01', true);
       wp_enqueue_script('dtgs_nonce');
@@ -142,23 +139,13 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $ui->add($ui->createStyle('jquery-contextmenu')->setHookName($dynamicHookName)->setModuleSource($this, 'css/lib/jquery.contextMenu.min.css')->setVersion('2.6.4'));
 
     /* Core script with common functions in supsystic.Tables namespace */
-    $ui->add($ui->createScript('tables-core')->setHookName($dynamicHookName)->setModuleSource($this, 'js/core.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
+    $ui->add($ui->createScript('tables-core')->setHookName($dynamicHookName)->setModuleSource($this, 'js/core.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-layout-3-cf5'));
 
     add_action('wp_enqueue_scripts', [$this, 'enquieAjaxUrl'], 999);
     add_action($dynamicHookName, [$this, 'addCommonPluginData'], 999);
     add_action($dynamicHookName, [$this, 'addFontsData'], 999);
     add_action($dynamicHookName, [$this, 'loadDataTablesNonces'], 1);
 
-    /* Script for creating new table by click on main plugin tab "Add table" */
-    $ui->add(
-      $ui
-        ->createScript('tables-create-table')
-        ->setHookName($hookName)
-        ->setModuleSource($this, 'js/create-table.js')
-        ->setDependencies(['jquery', 'jquery-ui-dialog'])
-        ->setCachingAllowed($cachingAllowed)
-        ->setVersion($pluginVersion . '-pricing-wizard'),
-    );
 
     $ui->add($ui->createStyle('supsystic-tables-base')->setHookName($hookName)->setModuleSource($this, 'css/base.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-shared-shell-6'));
 
@@ -188,7 +175,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
     $ui->add($ui->createStyle('tables-ui-styles')->setHookName($hookName)->setLocalSource('css/supsystic-ui.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
 
-    $ui->add($ui->createScript('tables-ui')->setHookName($hookName)->setLocalSource('js/supsystic.ui.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
+    $ui->add($ui->createScript('tables-ui')->setHookName($hookName)->setLocalSource('js/supsystic.ui.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-toggles-1'));
 
     // The Tables index uses its own native SSP list. Keep jqGrid available
     // only for legacy index screens in other modules that still require it.
@@ -342,12 +329,35 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       $this->throwHandleMainRequestError($message, $isAjax, $isDebug);
       return;
     }
+    if ($isAjax && !$this->isFrontendRoute($route, 'ajax')) {
+      // WordPress opens wp_ajax_ hooks to every logged-in user, so a route that is not a front-end one needs the plugin rights
+      $controller = $module->getController();
+      if (!method_exists($controller, '_currentUserCanUsePlugin') || !$controller->_currentUserCanUsePlugin()) {
+        wp_send_json_error(['message' => $environment->translate('You are not allowed to do this.')], 403);
+        return;
+      }
+    }
     if ($isAjax) {
       $request->headers->add('X_REQUESTED_WITH', 'XMLHttpRequest');
     }
     if ($isAjax || (!$isAjax && !$isError)) {
       return call_user_func_array([$module->getController(), $actionName], [$request]);
     }
+  }
+
+  /**
+   * Is the route one of the front-end ones (the same exact match that registers them for visitors)?
+   * @param array $route
+   * @param string $type ajax|post
+   * @return bool
+   */
+  private function isFrontendRoute($route, $type)
+  {
+    if (empty($this->frontendMethods[$type]) || !isset($route['module'], $route['action']) || !is_string($route['module']) || !is_string($route['action'])) {
+      return false;
+    }
+
+    return isset($this->frontendMethods[$type][$route['module']]) && in_array($route['action'], $this->frontendMethods[$type][$route['module']], true);
   }
 
   private function throwHandleMainRequestError($message, $isAjax, $isDebug)
@@ -465,20 +475,8 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
         update_option('supsystic_tbl_default_page_visited', 1);
       }
 
-      if (function_exists('is_multisite') && is_multisite()) {
-        global $wpdb;
-        $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-        foreach ($blog_id as $id) {
-          if (switch_to_blog($id)) {
-            $this->cleanTablesCache();
-            update_option($optionName, $currentVersion);
-            restore_current_blog();
-          }
-        }
-      } else {
-        $this->cleanTablesCache();
-        update_option($optionName, $currentVersion);
-      }
+      $this->cleanTablesCache();
+      update_option($optionName, $currentVersion);
     }
 
     $revision = [
@@ -490,18 +488,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       return;
     }
 
-    if (function_exists('is_multisite') && is_multisite()) {
-      global $wpdb;
-      $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-      foreach ($blog_id as $id) {
-        if (switch_to_blog($id)) {
-          $this->makeDbUpdate($revision);
-          restore_current_blog();
-        }
-      }
-    } else {
-      $this->makeDbUpdate($revision);
-    }
+    $this->makeDbUpdate($revision);
   }
 
   private function makeDbUpdate($revision)
@@ -536,22 +523,16 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
 
   private function ensureTablesSchema()
   {
+    $schemaOption = $this->getEnvironment()->getConfig()->get('db_prefix') . 'tables_schema_version';
+    if ((int) get_option($schemaOption, 0) >= SupsysticTables::TABLES_SCHEMA_VERSION) {
+      return;
+    }
+
     if (!function_exists('dbDelta')) {
       require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     }
 
-    if (function_exists('is_multisite') && is_multisite()) {
-      global $wpdb;
-      $blog_id = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-      foreach ($blog_id as $id) {
-        if (switch_to_blog($id)) {
-          $this->ensureTablesSchemaForCurrentBlog();
-          restore_current_blog();
-        }
-      }
-    } else {
-      $this->ensureTablesSchemaForCurrentBlog();
-    }
+    $this->ensureTablesSchemaForCurrentBlog();
   }
 
   private function ensureTablesSchemaForCurrentBlog()

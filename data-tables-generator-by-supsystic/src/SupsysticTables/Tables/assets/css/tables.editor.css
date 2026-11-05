@@ -349,36 +349,6 @@ i.toolbar-word-wrap.word-wrap-visible {
   background: #fff;
 }
 
-/* Add Diagram Pro Feature Dialog */
-#previewDiagramProFeature .tab-switch:after {
-  content: '';
-  display: block;
-  margin-bottom: 1em;
-  border-bottom: 1px solid #999;
-}
-#previewDiagramProFeature .tab-switch a {
-  display: inline-block;
-  margin: 0 5px -1px;
-  border: 1px solid #999;
-  font-size: 15px;
-  color: #28282a;
-  line-height: 31px;
-  padding: 0 8px 1px;
-  text-decoration: none;
-}
-#previewDiagramProFeature .tab-switch a.active {
-  border-bottom: 1px solid white;
-}
-#previewDiagramProFeature .tab-switch a:focus {
-  box-shadow: none;
-  outline: none;
-}
-#previewDiagramProFeature .tabs .tab {
-  display: none;
-}
-#previewDiagramProFeature .tabs .tab.active {
-  display: block;
-}
 @media (max-width: 810px) {
   /*#tableToolbar > ul:after {
 		content: none;

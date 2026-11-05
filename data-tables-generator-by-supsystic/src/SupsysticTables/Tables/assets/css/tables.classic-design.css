@@ -1,0 +1,480 @@
+/* Opt-in only. Inline cell formatting and conditional formatting remain authoritative. */
+.supsystic-tables-wrap.stb-classic-design {
+  color:var(--stb-labelColor);
+  line-height:var(--stb-lineHeight);
+  background:var(--stb-surfaceBg);
+  padding:var(--stb-surfacePadding);
+  border-radius:var(--stb-radius);
+  box-sizing:border-box;
+}
+
+.stb-classic-design table.supsystic-table,.stb-classic-table {
+  border-radius:var(--stb-radius);
+  border-color:var(--stb-borderColor);
+  border-collapse:separate;
+  border-spacing:0;
+}
+
+.stb-classic-design table.supsystic-table th,.stb-classic-design table.supsystic-table td,table.stb-classic-table th,table.stb-classic-table td {
+  padding:var(--stb-cellPadding);
+  line-height:var(--stb-lineHeight);
+  border-color:var(--stb-borderColor);
+}
+
+.stb-classic-design table.supsystic-table.compact th,.stb-classic-design table.supsystic-table.compact td {
+  padding:calc(var(--stb-cellPadding) * .65);
+}
+
+.stb-classic-design table.supsystic-table thead th,.stb-classic-design table.supsystic-table tfoot th,table.stb-classic-table th {
+  font-weight:var(--stb-headerWeight);
+}
+
+.stb-classic-design table.supsystic-table tbody td {
+  font-weight:var(--stb-bodyWeight);
+}
+
+.stb-classic-design table.stripe tbody tr.even {
+  background-color:var(--stb-stripeBg)!important;
+  color:var(--stb-stripeText);
+  --stb-rowText:var(--stb-stripeText);
+}
+
+.stb-classic-design table.stripe tbody tr.even>td {
+  color:var(--stb-stripeText);
+}
+
+.stb-classic-design table.order-column tbody tr>td.sorting_1:not([style*="background"]) {
+  background-color:var(--stb-orderBg)!important;
+}
+
+.stb-classic-design table.hover tbody tr:hover {
+  background-color:var(--stb-hoverBg)!important;
+  color:var(--stb-hoverText);
+  --stb-rowText:var(--stb-hoverText);
+}
+
+.stb-classic-design table.hover tbody tr:hover>td:not([style*="background"]) {
+  background-color:var(--stb-hoverBg)!important;
+}
+
+.stb-classic-design table.hover tbody tr:hover>td:not([style*="color"]) {
+  color:var(--stb-hoverText);
+}
+
+.stb-classic-design table.supsystic-table thead tr:first-child th:first-child {
+  border-start-start-radius:var(--stb-radius);
+}
+
+.stb-classic-design table.supsystic-table thead tr:first-child th:last-child {
+  border-start-end-radius:var(--stb-radius);
+}
+
+.stb-classic-design a:not(.paginate_button):not(.button):not([class^=export-]) {
+  color:var(--stb-linkColor);
+}
+
+.stb-classic-design a:not(.paginate_button):not(.button):hover {
+  color:var(--stb-linkHover);
+}
+
+.stb-classic-design input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]):not([type=hidden]),.stb-classic-design textarea,.stb-classic-global-search input,.stb-classic-calendar {
+  color:var(--stb-inputText)!important;
+  background:var(--stb-inputBg)!important;
+  border:1px solid var(--stb-inputBorder)!important;
+  border-radius:var(--stb-controlRadius);
+  font-size:var(--stb-controlSize);
+  line-height:1.5;
+  padding:var(--stb-controlPadding) 11px;
+  box-shadow:none;
+  box-sizing:border-box;
+  max-width:100%;
+}
+
+.stb-classic-design input::placeholder,.stb-classic-design textarea::placeholder,.stb-classic-global-search input::placeholder {
+  color:var(--stb-placeholder);
+  opacity:.7;
+}
+
+.stb-classic-design select,.stb-classic-design .selectArea,.stb-classic-design .chosen-container .chosen-single,.stb-classic-design .chosen-container .chosen-choices {
+  color:var(--stb-selectText)!important;
+  background-color:var(--stb-selectBg)!important;
+  border:1px solid var(--stb-selectBorder)!important;
+  border-radius:var(--stb-controlRadius);
+  font-size:var(--stb-controlSize);
+  padding:var(--stb-controlPadding) 9px;
+  line-height:1.5;
+  max-width:100%;
+  box-sizing:border-box;
+  box-shadow:none;
+}
+
+.stb-classic-design option,.stb-classic-design .selectArea li,.stb-classic-design .chosen-drop {
+  background:var(--stb-selectBg);
+  color:var(--stb-selectText);
+}
+
+.stb-classic-design :is(input,select,textarea,button,a):focus-visible,.stb-classic-global-search input:focus-visible {
+  outline:2px solid var(--stb-focusColor)!important;
+  outline-offset:3px;
+  box-shadow:none;
+}
+
+.stb-classic-design input[type=checkbox],.stb-classic-design input[type=radio],.stb-classic-design input[type=range] {
+  accent-color:var(--stb-focusColor);
+}
+
+.stb-classic-design .dataTables_filter label,.stb-classic-design .dataTables_length label,.stb-classic-design .stbColumnsSearchWrapper label,.stb-classic-design .supsystic-tables-features {
+  color:var(--stb-labelColor);
+  font-size:var(--stb-metaSize);
+}
+
+.stb-classic-design .dataTables_filter input {
+  margin-inline-start:8px;
+}
+
+.stb-classic-design .dataTables_length select {
+  margin:0 6px;
+  min-width:64px;
+}
+
+.stb-classic-design .dataTables_filter,.stb-classic-design .dataTables_length {
+  margin-bottom:14px;
+}
+
+.stb-classic-design .stbColumnsSearchWrapper input,.stb-classic-design .stbColumnsSearchWrapper select {
+  width:100%;
+  min-width:0;
+  margin:0;
+}
+
+.stb-classic-design button,.stb-classic-design .button,.stb-classic-design input[type=button],.stb-classic-design input[type=submit],.stb-classic-design .supsystic-tables-export a {
+  color:var(--stb-buttonText)!important;
+  background:var(--stb-buttonBg)!important;
+  border:1px solid var(--stb-buttonBorder)!important;
+  border-radius:var(--stb-controlRadius);
+  font-size:var(--stb-buttonSize);
+  font-weight:var(--stb-buttonWeight);
+  line-height:1.5;
+  padding:var(--stb-controlPadding) 13px;
+  text-decoration:none;
+  box-shadow:none;
+  display:inline-block;
+  cursor:pointer;
+}
+
+.stb-classic-design button:hover,.stb-classic-design .button:hover,.stb-classic-design input[type=button]:hover,.stb-classic-design input[type=submit]:hover,.stb-classic-design .supsystic-tables-export a:hover {
+  color:var(--stb-buttonHoverText)!important;
+  background:var(--stb-buttonHoverBg)!important;
+  border-color:var(--stb-buttonHoverBg)!important;
+}
+
+.stb-classic-design .supsystic-tables-export {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  align-items:center;
+  margin:12px 0;
+  color:var(--stb-labelColor);
+  font-size:var(--stb-metaSize);
+}
+
+.stb-classic-design .supsystic-tables-export a i {
+  background-image:none!important;
+  width:auto;
+  height:auto;
+  font-style:normal;
+}
+
+.stb-classic-design .supsystic-tables-export a i::before {
+  content:'↓';
+  color:currentColor;
+}
+
+.stb-classic-design .dataTables_paginate {
+  margin-top:14px;
+  display:flex;
+  gap:5px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.stb-classic-design .dataTables_paginate>span {
+  display:inline-flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+.supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background:var(--stb-pageBg)!important;
+  color:var(--stb-pageText)!important;
+  border:1px solid var(--stb-pageBorder)!important;
+  border-radius:var(--stb-controlRadius);
+  font-size:var(--stb-buttonSize);
+  line-height:1.5;
+  min-width:34px;
+  padding:var(--stb-controlPadding) 11px;
+  margin:0;
+  box-shadow:none;
+  cursor:pointer;
+  text-decoration:none;
+}
+
+.supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background:var(--stb-pageActiveBg)!important;
+  color:var(--stb-pageActiveText)!important;
+  border-color:var(--stb-pageActiveBg)!important;
+  font-weight:var(--stb-buttonWeight);
+}
+
+.supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):hover {
+  background:var(--stb-pageHoverBg)!important;
+  color:var(--stb-pageHoverText)!important;
+}
+
+.supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,.stb-classic-design button:disabled {
+  opacity:.45;
+  cursor:default;
+}
+
+.supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_info {
+  color:var(--stb-infoColor);
+  font-size:var(--stb-metaSize);
+  padding-top:20px;
+}
+
+.stb-classic-design .table-title {
+  color:var(--stb-captionColor);
+  font-size:1.35em;
+  font-weight:600;
+  margin:0 0 8px;
+}
+
+.stb-classic-design .table-desc {
+  color:var(--stb-descriptionColor);
+  line-height:var(--stb-lineHeight);
+  margin:0 0 16px;
+}
+
+.supsystic-tables-wrap.stb-classic-design .table-signature {
+  color:var(--stb-signatureColor);
+  font-size:var(--stb-metaSize);
+  padding-top:12px;
+}
+
+.stb-classic-import {
+  color:var(--stb-labelColor);
+  font-size:var(--stb-controlSize);
+  line-height:var(--stb-lineHeight);
+  background:var(--stb-surfaceBg);
+  padding:var(--stb-surfacePadding);
+  border-radius:var(--stb-radius);
+}
+
+.stb-classic-design td.dataTables_empty {
+  color:var(--stb-emptyColor);
+  --stb-rowText:var(--stb-emptyColor);
+  padding:24px!important;
+}
+
+.stb-classic-design .dataTables_processing {
+  background:var(--stb-processingBg)!important;
+  color:var(--stb-processingColor)!important;
+  border:1px solid var(--stb-borderColor);
+  border-radius:var(--stb-controlRadius);
+  box-shadow:0 4px 18px #00000012;
+}
+
+.stb-classic-design .justEdited::after {
+  color:var(--stb-editedColor);
+}
+
+.stb-classic-design .delete-upload-file,.stb-classic-design .removeRow,.stb-classic-design .remove-row {
+  color:var(--stb-dangerColor)!important;
+  background:var(--stb-inputBg)!important;
+}
+
+.stb-classic-design .collapsibleRowMain>td:first-child::after,.stb-classic-design .collapsibleRowMain>th:first-child::after,.stb-classic-design table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child::before {
+  color:var(--stb-linkColor);
+}
+
+.stb-classic-calendar .ui-datepicker-header,.stb-classic-calendar .ui-state-default {
+  background:var(--stb-selectBg);
+  color:var(--stb-selectText);
+  border-color:var(--stb-selectBorder);
+}
+
+.stb-classic-calendar .ui-state-active {
+  background:var(--stb-pageActiveBg);
+  color:var(--stb-pageActiveText);
+}
+
+.context-menu-list.stb-classic-context {
+  background:var(--stb-selectBg);
+  border-color:var(--stb-selectBorder);
+  border-radius:var(--stb-controlRadius);
+  padding:5px;
+}
+
+.context-menu-list.stb-classic-context .context-menu-item {
+  background:var(--stb-selectBg);
+  color:var(--stb-selectText);
+  font-size:var(--stb-controlSize);
+  padding:7px 12px;
+}
+
+.context-menu-list.stb-classic-context .context-menu-item.context-menu-hover {
+  background:var(--stb-pageActiveBg);
+  color:var(--stb-pageActiveText);
+}
+
+.stb-classic-context .context-menu-item.context-menu-disabled {
+  opacity:.5;
+}
+
+/* Dedicated CSS triangles avoid the pseudo-elements used by collapsible rows. */
+table.stb-classic-sortable :is(th.sorting,th.sorting_asc,th.sorting_desc) {
+  background-image:none!important;
+  position:relative;
+  padding-inline-end:30px!important;
+}
+
+.stb-classic-sort {
+  display:none;
+  position:absolute;
+  inset-inline-end:11px;
+  top:50%;
+  width:8px;
+  height:14px;
+  margin-top:-7px;
+  pointer-events:none;
+}
+
+table.stb-classic-sortable :is(th.sorting,th.sorting_asc,th.sorting_desc)>.stb-classic-sort {
+  display:block;
+}
+
+.stb-classic-sort::before,.stb-classic-sort::after {
+  content:'';
+  position:absolute;
+  left:0;
+  width:0;
+  height:0;
+  border-left:4px solid transparent;
+  border-right:4px solid transparent;
+  opacity:.35;
+}
+
+.stb-classic-sort::before {
+  top:0;
+  border-bottom:5px solid var(--stb-sortColor, currentColor);
+}
+
+.stb-classic-sort::after {
+  bottom:0;
+  border-top:5px solid var(--stb-sortColor, currentColor);
+}
+
+th.sorting_asc>.stb-classic-sort::before {
+  border-bottom-color:var(--stb-sortActive, currentColor);
+  opacity:1;
+}
+
+th.sorting_desc>.stb-classic-sort::after {
+  border-top-color:var(--stb-sortActive, currentColor);
+  opacity:1;
+}
+
+.supsystic-tables-wrap[data-stb-sort-hover=on] table.stb-classic-sortable th.sorting:not(:hover)>.stb-classic-sort {
+  visibility:hidden;
+}
+
+.stb-classic-design :is(th.sorting_asc_disabled,th.sorting_desc_disabled) {
+  background-image:none!important;
+}
+
+.supsystic-tables-wrap .dataTables_scrollBody thead .stb-classic-sort {
+  display:none!important;
+}
+
+@media(max-width:600px) {
+  .stb-classic-design .dataTables_filter,.stb-classic-design .dataTables_length {
+    float:none;
+    text-align:start;
+    margin:10px 0;
+  }
+
+  .stb-classic-design .dataTables_filter input {
+    max-width:70%;
+  }
+
+  .stb-classic-design .dataTables_paginate {
+    justify-content:center;
+  }
+
+  .supsystic-tables-wrap.stb-classic-design .dataTables_wrapper .dataTables_info {
+    text-align:center;
+  }
+
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .stb-classic-design * {
+    scroll-behavior:auto!important;
+  }
+
+}
+
+.stb-classic-design .supsystic-tables-export ul {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  align-items:center;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.stb-classic-design .supsystic-tables-export li {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.stb-classic-global-search input {
+  width:100%;
+}
+
+.stb-classic-design table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child::before {
+  background-color:var(--stb-buttonBg);
+  color:var(--stb-buttonText);
+  border-color:var(--stb-borderColor);
+  box-shadow:none;
+}
+
+.stb-classic-design table.dataTable>tbody>tr.child ul.dtr-details>li {
+  border-color:var(--stb-borderColor);
+}
+
+
+.stb-classic-design select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--stb-selectText) 50%), linear-gradient(135deg, var(--stb-selectText) 50%, transparent 50%) !important;
+  background-position: calc(100% - 14px) center, calc(100% - 10px) center !important;
+  background-size: 4px 4px !important;
+  background-repeat: no-repeat !important;
+  padding-inline-end: 28px;
+}
+.stb-classic-design .inputArea,
+.stb-classic-design .selectArea,
+.stb-classic-design .datetimeArea {
+  font-size: var(--stb-controlSize) !important;
+}
+
+/* Export glyphs follow the button's actual normal/hover foreground. */
+.stb-classic-design .supsystic-tables-export a i,
+.stb-classic-design .supsystic-tables-export a i::before {
+  color: inherit !important;
+  opacity: 1 !important;
+  filter: none !important;
+}

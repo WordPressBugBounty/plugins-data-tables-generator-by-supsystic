@@ -26,33 +26,310 @@
 {% if isWooProductTable or table.woo_settings.woocommerce.enable == 'on' %}
     {% set wooHiddenClass = '' %}
 {% endif %}
-<div class="supRow row-tab" id="row-tab-woocommerce">
+{% set wooProUrl = build_pro_url({ 'utm_medium': 'woo_options' }) %}
+<div class="supRow row-tab stb-settings-ui stb-woo-ui" id="row-tab-woocommerce" data-pro="{{ wooAdvancedAllowed ? '1' : '0' }}" data-label-pro="{{ environment.translate('Available in PRO') }}" data-label-unlock="{{ environment.translate('Unlock') }}" data-label-found="{{ environment.translate('Settings found:') }}" data-pro-url="{{ wooProUrl }}" data-storage-key="stbWooSection" data-default-section="stb-anl-products" data-unlock-once="1">
 <section class="supRow-settings-block">
-    <form id="woocommerce-settings" class="supRow woo-settings-form">
+    <form id="woocommerce-settings" class="woo-settings-form">
         <input type="hidden" name="woocommerce[enable]" value="on" />
         <input type="hidden" name="headerRowsCount" value="{{ table.settings.headerRowsCount|default(1) }}" />
         <input type="hidden" name="tableLoader[iconName]" value="{{ table.settings.tableLoader.iconName|default('default') }}" />
         <input type="hidden" name="tableLoader[iconItems]" value="{{ table.settings.tableLoader.iconItems|default('0') }}" />
-        <div class="woo-settings-layout">
-            <div class="settings-section woo-settings-sidebar">
-                <div class="woo-settings-sidebar-inner">
-                    <div class="stb-wraper-anchor-nav-links">
-                        <a href="#stb-anl-main" class="stb-anchor-nav-links active">{{ environment.translate('Main') }}</a>
-                        <a href="#stb-anl-features" class="stb-anchor-nav-links">{{ environment.translate('Features') }}</a>
-                        <a href="#stb-anl-appearance" class="stb-anchor-nav-links">{{ environment.translate('Appearance') }}</a>
-                        <a href="#stb-anl-text" class="stb-anchor-nav-links">{{ environment.translate('Catalog') }}</a>
-                        <a href="#stb-anl-design" class="stb-anchor-nav-links">{{ environment.translate('Design') }}</a>
-                        <a href="#stb-anl-export" class="stb-anchor-nav-links">{{ environment.translate('Export') }}</a>
-                        <a href="#stb-anl-translate" class="stb-anchor-nav-links">{{ environment.translate('Translate') }}</a>
-                    </div>
-                    <input type="hidden" id="slimScrollStartPos" value="0" />
-                    <div class="settings-wrap woo-settings-scroll">
-                        <section class="settings-blocks">
-                        <section class="supRow-settings-block" id="stb-anl-main">
+        <input type="hidden" name="woocommerce[productids]" value="{{ table.woo_settings.woocommerce.productids | default('') }}" />
+        <input type="hidden" name="woocommerce[order]" value="{{ table.woo_settings.woocommerce.order | default('') }}" />
+        <div class="stb-settings-nav">
+            <nav class="stb-wraper-anchor-nav-links stb-settings-tabs" role="tablist" aria-label="{{ environment.translate('Table settings') }}">
+                <a href="#stb-anl-products" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-cubes" aria-hidden="true"></i><span>{{ environment.translate('Products') }}</span></a>
+                <a href="#stb-anl-columns" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-th-list" aria-hidden="true"></i><span>{{ environment.translate('Table Columns') }}</span></a>
+                <a href="#stb-anl-main" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-sliders" aria-hidden="true"></i><span>{{ environment.translate('Main') }}</span></a>
+                <a href="#stb-anl-features" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-magic" aria-hidden="true"></i><span>{{ environment.translate('Features') }}</span></a>
+                <a href="#stb-anl-appearance" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-columns" aria-hidden="true"></i><span>{{ environment.translate('Appearance') }}</span></a>
+                <a href="#stb-anl-text" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-shopping-cart" aria-hidden="true"></i><span>{{ environment.translate('Catalog') }}</span></a>
+                <a href="#stb-anl-design" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-paint-brush" aria-hidden="true"></i><span>{{ environment.translate('Design') }}</span>{% if not wooAdvancedAllowed %}<i class="fa fa-diamond stb-tab-pro" aria-hidden="true"></i>{% endif %}</a>
+                <a href="#stb-anl-export" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-download" aria-hidden="true"></i><span>{{ environment.translate('Export') }}</span>{% if not wooAdvancedAllowed %}<i class="fa fa-diamond stb-tab-pro" aria-hidden="true"></i>{% endif %}</a>
+                <a href="#stb-anl-translate" class="stb-anchor-nav-links" role="tab"><i class="fa fa-fw fa-language" aria-hidden="true"></i><span>{{ environment.translate('Translate') }}</span></a>
+                {% if not wooAdvancedAllowed %}
+                <a href="#stb-anl-pro" class="stb-anchor-nav-links stb-settings-tab-pro" role="tab"><i class="fa fa-fw fa-diamond" aria-hidden="true"></i><span>{{ environment.translate('PRO features') }}</span></a>
+                {% endif %}
+            </nav>
+            <div class="stb-settings-tools">
+                <label class="stb-settings-search" for="stb-settings-search">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input type="search" id="stb-settings-search" placeholder="{{ environment.translate('Search settings') }}" aria-label="{{ environment.translate('Search settings') }}" autocomplete="off" />
+                    <kbd aria-hidden="true">/</kbd>
+                </label>
+                <a href="#stb-preview-card" class="stb-settings-jump"><i class="fa fa-eye" aria-hidden="true"></i><span>{{ environment.translate('Preview') }}</span></a>
+            </div>
+        </div>
+        <div class="stb-settings-search-status" role="status" aria-live="polite" hidden></div>
+        <div class="stb-settings-search-empty" hidden>
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <strong>{{ environment.translate('No settings found') }}</strong>
+            <span>{{ environment.translate('Try another word, for example: sorting, filter, price or button.') }}</span>
+        </div>
+        <div class="settings-wrap">
+        <section class="settings-blocks">
+                        <section class="supRow-settings-block stb-settings-panel stb-panel-custom is-active woo-wrapper" id="stb-anl-products">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-cubes"></i> {{ environment.translate('Products') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Choose which products the table shows.') }}</p>
+                            </div>
+                            <div class="stb-card">
+                                <div class="setting-title">
+                                    <span class="stb-card-icon" aria-hidden="true"><i class="fa fa-fw fa-magic"></i></span>
+                                    <h3>{{ environment.translate('Catalog Rules') }}</h3>
+                                    {% if not wooAdvancedAllowed %}<span class="stb-pro-badge">PRO</span>{% endif %}
+                                </div>
+                                <div class="stb-card-body">
+                                    <div class="woo-products-pro-grid">
+                                        <div class="woo-products-pro-item" id="stbAutoAddProductsWrapper">
+                                            <div class="woo-products-pro-item-label">
+                                                <label for="woocommerce-auto-categories-enable">
+                                                    {{ environment.translate('Add products automatically') }}
+                                                    {{ tooltip.icon(environment.translate('Use selected WooCommerce categories as a dynamic catalog source. Matching products will be loaded automatically on the frontend, while excluded product IDs will still be respected. The Table Content list below continues to show only products that were added manually.')) }}
+                                                </label>
+                                                {% if not wooAdvancedAllowed %}
+                                                    <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="woo-products-pro-item-controls">
+                                                <input type="checkbox" name="woocommerce[auto_categories_enable]"
+                                                    {{ table.woo_settings.woocommerce.auto_categories_enable == 'on' ? 'checked' : '' }}
+                                                    id="woocommerce-auto-categories-enable"
+                                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}
+                                                />
+                                                <input type="hidden" name="woocommerce[auto_categories_list]" value="{{ table.woo_settings.woocommerce.auto_categories_list | default() }}" />
+                                                <select id="stbAutoCategoriesList"
+                                                    data-placeholder="{{ environment.translate('Select category') }}..."
+                                                    data-all-selected="{{ environment.translate('All selected') }}"
+                                                    data-select-all-text="{{ environment.translate('Select all') }}"
+                                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                                                    {% for name, category in wooCategories %}
+                                                        <option data-parent="{{ category.parent }}" value="{{ category.value }}">{{ category.title | raw }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="woo-products-pro-item woo-products-pro-item-exclude">
+                                            <div class="woo-products-pro-item-label">
+                                                <label for="woocommerce-exclude-product-search">
+                                                    {{ environment.translate('Exclude Product ID(s)') }}
+                                                    {{ tooltip.icon(environment.translate('Exclude products or individual product variations from the frontend catalog. Search by product title, SKU, or exact product ID. This is especially useful when Show variations is used and you want to hide only one specific variation instead of the whole product family.')) }}
+                                                </label>
+                                                {% if not wooAdvancedAllowed %}
+                                                    <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
+                                                {% endif %}
+                                            </div>
+                                            <input type="hidden" name="woocommerce[exclude_productids]" id="woocommerce-exclude-productids" value="{{ table.woo_settings.woocommerce.exclude_productids|default('') }}" />
+                                            <div class="woo-exclude-search-wrap{% if not wooAdvancedAllowed %} is-disabled{% endif %}">
+                                                <input type="text" id="woocommerce-exclude-product-search" class="regular-text" placeholder="{{ environment.translate('Search by title, SKU, or product ID') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                                                <div class="woo-exclude-search-results stHidden"></div>
+                                            </div>
+                                            <div class="woo-excluded-products-list{% if excludedProducts is empty %} is-empty{% endif %}" data-empty-text="{{ environment.translate('No excluded products selected yet.') }}">
+                                                {% for excludedProduct in excludedProducts %}
+                                                    <div class="woo-excluded-product-card" data-product-id="{{ excludedProduct.id }}"
+                                                         data-title="{{ excludedProduct.title|e('html_attr') }}"
+                                                         data-variation="{{ excludedProduct.variation|default('')|e('html_attr') }}"
+                                                         data-meta="{{ excludedProduct.meta|default('')|e('html_attr') }}"
+                                                         data-thumbnail="{{ excludedProduct.thumbnail|default('')|e('html_attr') }}">
+                                                        <div class="woo-excluded-product-body">
+                                                            <div class="woo-excluded-product-summary">
+                                                                <span class="woo-excluded-product-title">{{ excludedProduct.title }}</span>
+                                                                {% if excludedProduct.variation is not empty %}
+                                                                    <span class="woo-excluded-product-variation">{{ excludedProduct.variation }}</span>
+                                                                {% endif %}
+                                                            </div>
+                                                            {% if excludedProduct.meta is not empty %}
+                                                                <div class="woo-excluded-product-meta">{{ excludedProduct.meta }}</div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <button type="button" class="button-link-delete woo-excluded-product-remove" aria-label="{{ environment.translate('Remove excluded product') }}">&times;</button>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if not wooAdvancedAllowed %}
+                                    <a class="stb-card-unlock" target="_blank" rel="noopener" href="{{ build_pro_url({ 'utm_medium': 'woo_catalog_rules' }) }}"><span>{{ environment.translate('Fill the table by categories and leave out single products') }}</span><strong>{{ environment.translate('Unlock') }} <i class="fa fa-arrow-right" aria-hidden="true"></i></strong></a>
+                                {% endif %}
+                            </div>
+                            <div class="stb-card">
+                                <button type="button" class="woo-manual-products-toggle is-expanded" aria-expanded="true" aria-controls="woo-manual-products-content">
+                                    <span class="stb-card-icon" aria-hidden="true"><i class="fa fa-fw fa-hand-pointer-o"></i></span>
+                                    <span class="woo-manual-products-toggle-title">{{ environment.translate('Manual Added Products') }}</span>
+                                    <span class="woo-manual-products-toggle-icon"><i class="fa fa-chevron-up" aria-hidden="true"></i></span>
+                                </button>
+                                <div id="woo-manual-products-content" class="woo-manual-products-content">
+                                <table id="stSearchTable" class="stSearchTable">
+                                    <thead>
+                                    <tr>
+                                       <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                       <th>{{ environment.translate('Title') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                       <th>{{ environment.translate('Price') }}</th>
+                                       <th>{{ environment.translate('Date') }}</th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                       <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                       <th>{{ environment.translate('Title') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                       <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                       <th>{{ environment.translate('Price') }}</th>
+                                       <th>{{ environment.translate('Date') }}</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                                <div id="stSortTableContent">
+                                    <h3 class="stHeaders">{{ environment.translate('Table Content') }}</h3>
+                                    <table id="stContentTable" class="stContentAdmTable" style="width:100%;">
+                                        <thead>
+                                        <tr>
+                                            <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                            <th>{{ environment.translate('Title') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                            <th>{{ environment.translate('Price') }}</th>
+                                            <th>{{ environment.translate('Date') }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tfoot>
+                                        <tr>
+                                            <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
+                                            <th>{{ environment.translate('Title') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Variation') }}</th>
+                                            <th class="no-sort">{{ environment.translate('Categories') }}</th>
+                                            <th>{{ environment.translate('Price') }}</th>
+                                            <th>{{ environment.translate('Date') }}</th>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block stb-settings-panel stb-panel-custom woo-wrapper" id="stb-anl-columns">
+                            <div class="settings-block-title">
+                                <h3><i class="fa fa-fw fa-th-list"></i> {{ environment.translate('Table Columns') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Choose the columns, their order and how each one looks.') }}</p>
+                            </div>
+                            <div class="stb-card">
+                                <div class="setting-title">
+                                    <span class="stb-card-icon" aria-hidden="true"><i class="fa fa-fw fa-plus"></i></span>
+                                    <h3>{{ environment.translate('Add a column') }}</h3>
+                                </div>
+                                <div class="stb-card-body woo-add-column">
+                                    <label>{{ environment.translate('Select properties to add to the table') }}
+                                        <select id="chooseColumns">
+                                            {% set defaultOrder = ['2','4','5','6','11'] %}
+                                            {% if colNumbOrder is defined and colNumbOrder is not empty %}
+                                                {% set defaultOrder = colNumbOrder %}
+                                            {% endif %}
+                                            {% for col in woocolumns %}
+                                                <option{% if col.id in defaultOrder %} style="display:none;"{% endif %} value="{{ col.id }}" data-name="{{ col.name }}" data-slug="{{ col.slug }}">
+                                                    {% if col.sub %} &nbsp;-&nbsp; {% endif %} {{ col.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                    <button id="stAddButton" class="button active"><span>{{ environment.translate('Add') }}</span></button>
+                                </div>
+                            </div>
+                            <div class="stb-card">
+                                <div class="setting-title">
+                                    <span class="stb-card-icon" aria-hidden="true"><i class="fa fa-fw fa-columns"></i></span>
+                                    <h3>{{ environment.translate('Columns in the table') }}</h3>
+                                    <span class="woo-card-hint"><i class="fa fa-arrows-h" aria-hidden="true"></i> {{ environment.translate('Drag to change the order') }} &nbsp; <i class="fa fa-pencil" aria-hidden="true"></i> {{ environment.translate('Column options') }}</span>
+                                </div>
+                                <div class="stb-card-body">
+                                    <div class="stPropertiesWrapp">
+                                        {% set columns = woocolumns %}
+                                        {% if orders is defined  %}
+                                            {% set columns = orders %}
+                                        {% endif %}
+
+                                        {% for col in columns %}
+                                            {% if col.id in defaultOrder %}
+                                                {% if( orders is defined ) %}
+                                                    {% set dataName = col.original_name|default(col.name)|default('') %}
+
+                                                    {% set dataNNDisplay = col.show_display_name|default(0) %}
+
+                                                    {% set dataNN = col.display_name|default('') %}
+                                                    {% set dataMaxWidth = col.max_width|default('') %}
+                                                    {% set dataSlug = col.slug|default('') %}
+                                                    {% set dataHideColumn = col.hide_column|default(0) %}
+                                                    {% set dataHideResponsiveColumn = col.hide_responsive|default(0) %}
+                                                    {% set dataHideSearchInput = col.hide_search_input|default(0) %}
+                                                    {% set dataDisableSorting = col.disable_sorting|default(0) %}
+                                                    {% set dataTextAlign = col.text_align|default('') %}
+                                                    {% set dataVerticalAlign = col.vertical_align|default('') %}
+                                                    {% set dataShowPriceSearchInputs = col.show_price_search_inputs|default('') %}
+
+                                                    {% if dataNNDisplay in [1, '1'] and dataNN is not empty %}
+                                                        {% set contentName = dataNN %}
+                                                    {% else %}
+                                                        {% set contentName = dataName %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% set dataName = col.name %}
+                                                    {% set dataNNDisplay = '' %}
+                                                    {% set dataNN = '' %}
+                                                    {% set dataMaxWidth = '' %}
+                                                    {% set dataSlug = col.slug %}
+                                                    {% set dataHideColumn = '' %}
+                                                    {% set dataHideResponsiveColumn = '' %}
+                                                    {% set dataHideSearchInput = '' %}
+                                                    {% set dataDisableSorting = '' %}
+                                                    {% set dataTextAlign = '' %}
+                                                    {% set dataVerticalAlign = '' %}
+                                                    {% set dataShowPriceSearchInputs = '' %}
+                                                    {% set contentName = col.name %}
+                                                {% endif %}
+
+
+                                                <div class="stOptions"
+                                                     data-id="{{ col.id }}"
+                                                     data-name="{{ dataName }}"
+                                                     data-nice-name-display="{{ dataNNDisplay }}"
+                                                     data-nice-name="{{ dataNN }}"
+                                                     data-max-width="{{ dataMaxWidth }}"
+                                                     data-hide-column="{{ dataHideColumn }}"
+                                                     data-hide-responsive-column="{{ dataHideResponsiveColumn }}"
+                                                     data-hide-search-input="{{ dataHideSearchInput }}"
+                                                     data-disable-sorting="{{ dataDisableSorting }}"
+                                                     data-text-align="{{ dataTextAlign }}"
+                                                     data-vertical-align="{{ dataVerticalAlign }}"
+                                                     data-show-price-search-inputs="{{ dataShowPriceSearchInputs }}"
+                                                     data-slug="{{ dataSlug }}"
+                                                >
+                                                    <div class="content">{{ contentName }}</div>
+                                                    <div class="stOptionHandlers">
+                                                        <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
+                                                        <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
+                                                        <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-main">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-tachometer"></i> {{ environment.translate('Main Settings') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Text around the table and how it behaves on small screens.') }}</p>
                             </div>
-                            <div class="setting-title">
+                            <div class="setting-title" data-icon="fa-table">
                                 <h3>{{ environment.translate('Table Elements') }}</h3>
                             </div>
                             <div class="setting-wrapper">
@@ -70,6 +347,9 @@
                                 <div class="setting-input">
                                     <textarea id="woo-signature-text" name="elements[signatureText]">{{ table.settings.elements.signatureText|default('') }}</textarea>
                                 </div>
+                            </div>
+                            <div class="setting-title" data-icon="fa-mobile">
+                                <h3>{{ environment.translate('Responsive') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -94,9 +374,13 @@
                             </div>
                         </section>
 
-                        <section class="supRow-settings-block" id="stb-anl-features">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-features">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-cogs"></i> {{ environment.translate('Features') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Header, sorting, search and pagination of the catalog.') }}</p>
+                            </div>
+                            <div class="setting-title" data-icon="fa-sort-amount-asc">
+                                <h3>{{ environment.translate('Header and Sorting') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -145,12 +429,15 @@
                                     <input name="sortingOrderColumn" id="woo-sorting-order-column" type="text" value="{{ table.settings.sortingOrderColumn|default(1) }}">
                                 </div>
                             </div>
+                            <div class="setting-title" data-icon="fa-search">
+                                <h3>{{ environment.translate('Search') }}</h3>
+                            </div>
                             <div class="setting-wrapper woo-header-dependent-main">
                                 <div class="setting-label">
                                     <label for="woo-features-searching">
                                         {{ environment.translate('Searching') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('<b>Search field:</b> enables the main table search input for Woo product tables.<br /><br /><b>Search by Columns:</b> adds separate search inputs for each column. You can use a semicolon to match any of several values.<br /><br /><b>Column Search Position:</b> places those column filters above or below the table.<br /><br /><b>Show Labels:</b> shows the column title near each column search field to make filters easier to understand.<br /><br /><b>Search by Hidden Fields:</b> lets the search include columns hidden on the frontend, including Woo columns marked as hidden.<br /><br /><b>Result Only:</b> hides the table by default and shows it only when the search returns matching products.<br /><br /><b>Show Table:</b> keeps the table visible when Result Only mode is enabled, but leaves it empty until the visitor enters a search query.<br /><br /><b>Strict Matching:</b> matches only values that begin with the typed characters at the start of words.<br /><br /><b>Min Chars:</b> sets the minimum number of typed characters required before search starts. Use 0 to search immediately.'), 'top', true) }}
                                     </label>
@@ -178,9 +465,11 @@
                                     </label>
                                 </div>
                                 <div class="setting-input">
+                                    {# A table with column search already on keeps its place. Otherwise the fields start at the top. #}
+                                    {% set wooColumnSearchPosition = table.settings.searching.columnSearch is defined ? table.settings.searching.columnSearchPosition|default('bottom') : 'top' %}
                                     <select name="searching[columnSearchPosition]" id="woo-features-search-by-column-position" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
-                                        <option value="bottom" {% if table.settings.searching.columnSearchPosition|default('bottom') == 'bottom' %}selected="selected"{% endif %}>{{ environment.translate('Bottom') }}</option>
-                                        <option value="top" {% if table.settings.searching.columnSearchPosition|default('bottom') == 'top' %}selected="selected"{% endif %}>{{ environment.translate('Top') }}</option>
+                                        <option value="bottom" {% if wooColumnSearchPosition == 'bottom' %}selected="selected"{% endif %}>{{ environment.translate('Bottom') }}</option>
+                                        <option value="top" {% if wooColumnSearchPosition == 'top' %}selected="selected"{% endif %}>{{ environment.translate('Top') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -200,7 +489,7 @@
                                     <label for="woo-search-by-hidden-fields">
                                         {{ environment.translate('Search by Hidden Fields') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Lets make search by fields, marked as hidden (see appropriate button on editor toolbar)')) }}
                                     </label>
@@ -253,6 +542,9 @@
                                     <input type="text" name="searching[minChars]" id="woo-searching-min-chars" value="{{ table.settings.searching.minChars|default('') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
                                 </div>
                             </div>
+                            <div class="setting-title" data-icon="fa-list-ol">
+                                <h3>{{ environment.translate('Pagination') }}</h3>
+                            </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
                                     <label for="woo-features-pagination">
@@ -303,7 +595,7 @@
                                     <label for="woo-server-side-processing">
                                         {{ environment.translate('Server-side Processing') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('This option is recommended for a large tables that cannot be processed in conventional way. The table will be sequentially loaded by ajax on a per page basis, all filtering, ordering and search clauses is server-side implemented too.')) }}
                                     </label>
@@ -314,9 +606,13 @@
                             </div>
                         </section>
 
-                        <section class="supRow-settings-block" id="stb-anl-appearance">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-appearance">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-desktop"></i> {{ environment.translate('Appearance') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Width, layout, cells, borders and the loader of the table.') }}</p>
+                            </div>
+                            <div class="setting-title" data-icon="fa-arrows-h">
+                                <h3>{{ environment.translate('Table Width') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -396,6 +692,9 @@
                                     <input type="checkbox" name="alignByFirstTable" id="woo-align-by-first-table" {{ checkbox.checked(table.settings.alignByFirstTable) }} />
                                 </div>
                             </div>
+                            <div class="setting-title" data-icon="fa-th-large">
+                                <h3>{{ environment.translate('Layout and Cells') }}</h3>
+                            </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
                                     <label for="woo-styling-lfixed">
@@ -439,6 +738,9 @@
                                 <div class="setting-check">
                                     <input type="checkbox" name="styling[paragraphMode]" id="woo-paragraph-mode" {{ checkbox.checked(attribute(table.settings.styling, 'paragraphMode')) }} />
                                 </div>
+                            </div>
+                            <div class="setting-title" data-icon="fa-square-o">
+                                <h3>{{ environment.translate('Borders and Rows') }}</h3>
                             </div>
                             <div class="setting-wrapper setting-wrapper-inline">
                                 <div class="setting-label">
@@ -487,6 +789,9 @@
                                 <div class="setting-check">
                                     <input type="checkbox" name="styling[order-column]" id="woo-styling-order-column" {{ checkbox.checked(attribute(table.settings.styling, 'order-column')) }} />
                                 </div>
+                            </div>
+                            <div class="setting-title" data-icon="fa-spinner">
+                                <h3>{{ environment.translate('Loader') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -538,11 +843,15 @@
                             </div>
                         </section>
 
-                        <section class="supRow-settings-block" id="stb-anl-text">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-text">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-shopping-cart"></i> {{ environment.translate('Catalog Settings') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('What shoppers see in the table and which filters they get.') }}</p>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-shopping-cart">
+                                <h3>{{ environment.translate('Products and Cart') }}</h3>
+                            </div>
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-thumbnail-size">
                                         {{ environment.translate('Thumbnail size') }}
@@ -564,7 +873,7 @@
                             {% if table.woo_settings.woocommerce.thumbnail_size != 'set_size' %}
                                 {% set wooThumbSizeHidden = 'stHidden' %}
                             {% endif %}
-                            <div class="setting-wrapper woo-thumb-size setting-suboption{% if wooThumbSizeHidden %} {{ wooThumbSizeHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-thumb-size setting-suboption{{ wooThumbSizeHidden ? ' ' ~ wooThumbSizeHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-thumbnail-width">
                                         {{ environment.translate('Custom image size') }}
@@ -577,7 +886,7 @@
                                     <input class="sub-input" id="woocommerce-thumbnail-height" name="woocommerce[thumbnail_height]" type="text" value="{{ table.woo_settings.woocommerce.thumbnail_height | default() }}">
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-multiple-add-cart">
                                         {{ environment.translate('Multiple add to cart') }}
@@ -590,7 +899,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-view-checkout-show">
                                         {{ environment.translate('View Checkout button') }}
@@ -604,7 +913,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-features-info">
                                         {{ environment.translate('Table Information') }}
@@ -615,7 +924,7 @@
                                     <input type="checkbox" name="features[info]" id="woo-features-info" {{ checkbox.checked(table.settings.features.info) }} />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-hide-card-link">
                                         {{ environment.translate('Hide view cart link') }}
@@ -628,7 +937,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-show-private">
                                         {{ environment.translate('Show private products') }}
@@ -641,7 +950,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-hide-out-of-stock">
                                         {{ environment.translate('Hide out of stock items') }}
@@ -654,12 +963,15 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-filter">
+                                <h3>{{ environment.translate('Filters') }}</h3>
+                            </div>
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-category-list">
                                         {{ environment.translate('Category List Filter') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Adds a frontend category dropdown filter built only from the categories used by products in this Woo product table. Visitors can choose multiple categories to limit the visible products.')) }}
                                     </label>
@@ -672,12 +984,12 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-expand-filter-row">
                                         {{ environment.translate('Expand filter row by default') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Shows the frontend Woo filters row expanded on initial load instead of keeping it collapsed behind the Filters button.')) }}
                                     </label>
@@ -691,12 +1003,12 @@
                                 </div>
                             </div>
                             
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-features-show-hide-columns-list">
                                         {{ environment.translate('Columns List Filter') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Shows a frontend dropdown above the Woo product table where visitors can quickly hide or show visible columns one by one. Hidden admin columns are not included in this list.')) }}
                                     </label>
@@ -705,12 +1017,12 @@
                                     <input type="checkbox" name="features[showHideColumnsList]" id="woo-features-show-hide-columns-list" {{ checkbox.checked(table.settings.features.showHideColumnsList) }} {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-stock-status">
                                         {{ environment.translate('Stock Status Filter') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Adds a frontend availability filter with In stock, Out of stock, and Preorder options. This filter is disabled automatically when Hide out of stock items is enabled.')) }}
                                     </label>
@@ -723,12 +1035,12 @@
                                     />
                                 </div>
                             </div>
-                             <div class="setting-wrapper woo-filter-price-options {% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                             <div class="setting-wrapper woo-filter-price-options {{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-price-show-inputs">
                                         {{ environment.translate('Price Filter (From - To)') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Shows the minimum and maximum price fields in the frontend Woo price filter above the table.')) }}
                                     </label>
@@ -742,12 +1054,12 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-filter-price-options {% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper woo-filter-price-options {{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-price-show-slider">
                                         {{ environment.translate('Price Filter (Slider)') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Shows the range slider in the frontend Woo price filter above the table.')) }}
                                     </label>
@@ -761,12 +1073,12 @@
                                     />
                                 </div>
                             </div>
-                            <div class="setting-wrapper{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
+                            <div class="setting-wrapper{{ wooHiddenClass ? ' ' ~ wooHiddenClass : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-attribute">
                                         {{ environment.translate('Attribute filter') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Adds frontend attribute filters for the selected WooCommerce attributes and works independently from the visible table columns.')) }}
                                     </label>
@@ -783,12 +1095,12 @@
                             {% if table.woo_settings.woocommerce.filter_attribute != 'on' and wooAdvancedAllowed %}
                                 {% set wooFilterAttrHidden = 'stHidden' %}
                             {% endif %}
-                            <div class="setting-wrapper woo-filter-attributes setting-suboption{% if wooFilterAttrHidden %} {{ wooFilterAttrHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-filter-attributes setting-suboption{{ wooFilterAttrHidden ? ' ' ~ wooFilterAttrHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woocommerce-filter-attribute-selected">
                                         {{ environment.translate('Select attributes') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Select attributes to filtering.')) }}
                                     </label>
@@ -806,16 +1118,21 @@
                             </div>
                         </section>
 
-                        <section class="supRow-settings-block" id="stb-anl-design">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-design">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-paint-brush"></i> {{ environment.translate('Design') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Colors and typography of the table on your site.') }}</p>
+                            </div>
+                            {% include '@woocommerce/partials/designPalettes.twig' %}
+                            <div class="setting-title" data-icon="fa-paint-brush">
+                                <h3>{{ environment.translate('Custom Design') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
                                     <label for="woo-design-enabled">
                                         {{ environment.translate('Enable custom design') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Apply custom WooCommerce product table colors without affecting standard data tables. Works on the frontend only.')) }}
                                     </label>
@@ -824,8 +1141,8 @@
                                     <input type="checkbox" name="woocommerce[design][enabled]" id="woo-design-enabled" {{ checkbox.checked(wooDesign.enabled|default('')) }} />
                                 </div>
                             </div>
-                            {% set wooDesignHidden = wooDesign.enabled|default('') == 'on' and wooAdvancedAllowed ? '' : 'stHidden' %}
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            {% set wooDesignHidden = wooAdvancedAllowed ? (wooDesign.enabled|default('') == 'on' ? '' : 'stHidden') : 'stb-row-locked' %}
+                            <div class="setting-wrapper woo-design-preset-row woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-preset">
                                         {{ environment.translate('Style Preset') }}
@@ -848,7 +1165,10 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-table">
+                                <h3>{{ environment.translate('Table') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-header-text">
                                         {{ environment.translate('Header') }}
@@ -860,7 +1180,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="header_bg" name="woocommerce[design][header_bg]" value="{{ wooDesign.header_bg|default('#f8fafc') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-header-font-size">
                                         {{ environment.translate('Header Typography') }}
@@ -872,7 +1192,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="header_font_weight" name="woocommerce[design][header_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.header_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.header_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.header_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.header_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.header_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.header_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-body-text">
                                         {{ environment.translate('Body') }}
@@ -884,7 +1204,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="body_bg" name="woocommerce[design][body_bg]" value="{{ wooDesign.body_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-body-font-size">
                                         {{ environment.translate('Body Typography') }}
@@ -896,7 +1216,10 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="body_font_weight" name="woocommerce[design][body_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.body_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.body_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.body_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.body_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.body_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.body_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-i-cursor">
+                                <h3>{{ environment.translate('Inputs and Selects') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-input-text">
                                         {{ environment.translate('Inputs') }}
@@ -908,7 +1231,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="input_bg" name="woocommerce[design][input_bg]" value="{{ wooDesign.input_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-select-text">
                                         {{ environment.translate('Selects') }}
@@ -920,7 +1243,10 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="select_bg" name="woocommerce[design][select_bg]" value="{{ wooDesign.select_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-font">
+                                <h3>{{ environment.translate('Texts') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-length-color">
                                         {{ environment.translate('Length Menu Text') }}
@@ -933,7 +1259,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="length_font_weight" name="woocommerce[design][length_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.length_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.length_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.length_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.length_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.length_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.length_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-info-color">
                                         {{ environment.translate('Info Text') }}
@@ -946,7 +1272,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="info_font_weight" name="woocommerce[design][info_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.info_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.info_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.info_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.info_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.info_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.info_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-description-color">
                                         {{ environment.translate('Description Text') }}
@@ -959,7 +1285,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="description_font_weight" name="woocommerce[design][description_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.description_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.description_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.description_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.description_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.description_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.description_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-signature-color">
                                         {{ environment.translate('Signature Text') }}
@@ -972,7 +1298,10 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="signature_font_weight" name="woocommerce[design][signature_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.signature_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.signature_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.signature_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.signature_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.signature_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.signature_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-spinner">
+                                <h3>{{ environment.translate('Loader') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-processing-bg">
                                         {{ environment.translate('Processing Loader') }}
@@ -984,7 +1313,10 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" id="woo-design-processing-bg" data-design-key="processing_bg" name="woocommerce[design][processing_bg]" value="{{ wooDesign.processing_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-cart-plus">
+                                <h3>{{ environment.translate('Add to Cart Buttons') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-button-text">
                                         {{ environment.translate('Add to Cart Buttons') }}
@@ -996,7 +1328,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="button_bg" name="woocommerce[design][button_bg]" value="{{ wooDesign.button_bg|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-button-font-size">
                                         {{ environment.translate('Button Typography') }}
@@ -1008,7 +1340,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="button_font_weight" name="woocommerce[design][button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-button-hover-text">
                                         {{ environment.translate('Button Hover') }}
@@ -1020,12 +1352,15 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="button_hover_bg" name="woocommerce[design][button_hover_bg]" value="{{ wooDesign.button_hover_bg|default('#135e96') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-credit-card">
+                                <h3>{{ environment.translate('Checkout Button') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-checkout-button-text">
                                         {{ environment.translate('Checkout Button') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Styles the View Checkout button shown next to the multi-add action above Woo product tables.')) }}
                                     </label>
@@ -1035,12 +1370,12 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="checkout_button_bg" name="woocommerce[design][checkout_button_bg]" value="{{ wooDesign.checkout_button_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-checkout-button-font-size">
                                         {{ environment.translate('Checkout Button Typography') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Font size and font weight for the View Checkout button.')) }}
                                     </label>
@@ -1050,12 +1385,12 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="checkout_button_font_weight" name="woocommerce[design][checkout_button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.checkout_button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.checkout_button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.checkout_button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.checkout_button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.checkout_button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.checkout_button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-checkout-button-hover-text">
                                         {{ environment.translate('Checkout Button Hover') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Hover and focus colors for the View Checkout button.')) }}
                                     </label>
@@ -1065,12 +1400,15 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="checkout_button_hover_bg" name="woocommerce[design][checkout_button_hover_bg]" value="{{ wooDesign.checkout_button_hover_bg|default('#135e96') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-undo">
+                                <h3>{{ environment.translate('Reset Filters Button') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-reset-button-text">
                                         {{ environment.translate('Reset Filters Button') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Styles the Reset Filter(s) button shown near Woo filters above the table.')) }}
                                     </label>
@@ -1080,12 +1418,12 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="reset_button_bg" name="woocommerce[design][reset_button_bg]" value="{{ wooDesign.reset_button_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-reset-button-font-size">
                                         {{ environment.translate('Reset Filters Typography') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Font size and font weight for the Reset Filter(s) button.')) }}
                                     </label>
@@ -1095,12 +1433,12 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="reset_button_font_weight" name="woocommerce[design][reset_button_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.reset_button_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.reset_button_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.reset_button_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.reset_button_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.reset_button_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.reset_button_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-reset-button-hover-text">
                                         {{ environment.translate('Reset Filters Hover') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Hover and focus colors for the Reset Filter(s) button.')) }}
                                     </label>
@@ -1110,7 +1448,10 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="reset_button_hover_bg" name="woocommerce[design][reset_button_hover_bg]" value="{{ wooDesign.reset_button_hover_bg|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-tag">
+                                <h3>{{ environment.translate('Price') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-text">
                                         {{ environment.translate('Price') }}
@@ -1121,7 +1462,7 @@
                                     <label class="woo-design-color-field woo-design-color-field-single"><span>{{ environment.translate('Text') }}</span><input type="color" id="woo-design-price-text" data-design-key="price_text" name="woocommerce[design][price_text]" value="{{ wooDesign.price_text|default('#111827') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-font-size">
                                         {{ environment.translate('Price Typography') }}
@@ -1133,7 +1474,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="price_font_weight" name="woocommerce[design][price_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.price_font_weight|default(600) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.price_font_weight|default(600) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.price_font_weight|default(600) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.price_font_weight|default(600) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.price_font_weight|default(600) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.price_font_weight|default(600) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-filter-input-text">
                                         {{ environment.translate('Price Filter Inputs') }}
@@ -1145,7 +1486,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="price_filter_input_bg" name="woocommerce[design][price_filter_input_bg]" value="{{ wooDesign.price_filter_input_bg|default('#ffffff') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-filter-input-font-size">
                                         {{ environment.translate('Price Filter Input Typography') }}
@@ -1157,7 +1498,7 @@
                                     <label class="woo-design-control-field"><span>{{ environment.translate('Weight') }}</span><select data-design-key="price_filter_input_font_weight" name="woocommerce[design][price_filter_input_font_weight]" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><option value="300" {% if wooDesign.price_filter_input_font_weight|default(400) == 300 %}selected="selected"{% endif %}>300</option><option value="400" {% if wooDesign.price_filter_input_font_weight|default(400) == 400 %}selected="selected"{% endif %}>400</option><option value="500" {% if wooDesign.price_filter_input_font_weight|default(400) == 500 %}selected="selected"{% endif %}>500</option><option value="600" {% if wooDesign.price_filter_input_font_weight|default(400) == 600 %}selected="selected"{% endif %}>600</option><option value="700" {% if wooDesign.price_filter_input_font_weight|default(400) == 700 %}selected="selected"{% endif %}>700</option><option value="800" {% if wooDesign.price_filter_input_font_weight|default(400) == 800 %}selected="selected"{% endif %}>800</option></select></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-filter-track">
                                         {{ environment.translate('Price Filter Slider') }}
@@ -1170,7 +1511,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Thumb') }}</span><input type="color" data-design-key="price_filter_thumb" name="woocommerce[design][price_filter_thumb]" value="{{ wooDesign.price_filter_thumb|default('#2271b1') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-price-filter-thumb-style">
                                         {{ environment.translate('Price Filter Thumb Style') }}
@@ -1185,7 +1526,10 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-title" data-icon="fa-square-o">
+                                <h3>{{ environment.translate('Rows and Borders') }}</h3>
+                            </div>
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-stripe-text">
                                         {{ environment.translate('Striping') }}
@@ -1197,7 +1541,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="stripe_bg" name="woocommerce[design][stripe_bg]" value="{{ wooDesign.stripe_bg|default('#f8fafc') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-hover-text">
                                         {{ environment.translate('Hover') }}
@@ -1209,7 +1553,7 @@
                                     <label class="woo-design-color-field"><span>{{ environment.translate('Bg') }}</span><input type="color" data-design-key="hover_bg" name="woocommerce[design][hover_bg]" value="{{ wooDesign.hover_bg|default('#eef2f7') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}></label>
                                 </div>
                             </div>
-                            <div class="setting-wrapper woo-design-options setting-suboption{% if wooDesignHidden %} {{ wooDesignHidden }}{% endif %}">
+                            <div class="setting-wrapper woo-design-options setting-suboption{{ wooDesignHidden ? ' ' ~ wooDesignHidden : '' }}">
                                 <div class="setting-label">
                                     <label for="woo-design-border-color">
                                         {{ environment.translate('Borders') }}
@@ -1228,16 +1572,20 @@
                                 </div>
                             {% endif %}
                         </section>
-                        <section class="supRow-settings-block" id="stb-anl-export">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-export">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-download"></i> {{ environment.translate('Export') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Export buttons for visitors and the layout of the PDF.') }}</p>
+                            </div>
+                            <div class="setting-title" data-icon="fa-download">
+                                <h3>{{ environment.translate('Frontend Export') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
                                     <label for="woo-features-export">
                                         {{ environment.translate('Frontend Export') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Show export links above or below the WooCommerce product table on the frontend. Visitors can export the current table as CSV, Excel, PDF, or Print depending on the formats you enable.')) }}
                                     </label>
@@ -1250,12 +1598,15 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="setting-title" data-icon="fa-file-pdf-o">
+                                <h3>{{ environment.translate('PDF') }}</h3>
+                            </div>
                             <div class="setting-wrapper setting-wrapper-inline{% if not wooAdvancedAllowed %} setting-suboption{% endif %}">
                                 <div class="setting-label">
                                     <label for="woo-export-pdf-paper-size">
                                         {{ environment.translate('PDF Paper Size') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Choose the paper size used for PDF export of the WooCommerce product table.')) }}
                                     </label>
@@ -1275,7 +1626,7 @@
                                     <label for="woo-export-pdf-orientation">
                                         {{ environment.translate('PDF Page Orientation') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Choose portrait or landscape orientation for PDF exports of the WooCommerce product table.')) }}
                                     </label>
@@ -1292,7 +1643,7 @@
                                     <label for="woo-export-pdf-full-width">
                                         {{ environment.translate('PDF Table Full Width') }}
                                         {% if not wooAdvancedAllowed %}
-                                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                                            <a target="_blank" rel="noopener" class="supsystic-pro-feature woo-pro-tag" href="{{ wooProUrl }}">PRO</a>
                                         {% endif %}
                                         {{ tooltip.icon(environment.translate('Stretch the WooCommerce product table to use the full PDF page width while keeping the relative column proportions.')) }}
                                     </label>
@@ -1309,9 +1660,13 @@
                                 </div>
                             {% endif %}
                         </section>
-                        <section class="supRow-settings-block" id="stb-anl-translate">
+                        <section class="supRow-settings-block stb-settings-panel" id="stb-anl-translate">
                             <div class="settings-block-title">
                                 <h3><i class="fa fa-fw fa-language"></i> {{ environment.translate('Translate / Placeholders') }}</h3>
+                                <p class="stb-section-lead">{{ environment.translate('Your own words for the texts of the table and its filters.') }}</p>
+                            </div>
+                            <div class="setting-title" data-icon="fa-language">
+                                <h3>{{ environment.translate('Table Texts') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -1367,6 +1722,9 @@
                                 <div class="setting-input">
                                     <input type="text" id="woo-translate-next" name="woocommerce[translations][next]" value="{{ wooTranslations.next|default('') }}" placeholder="Next" />
                                 </div>
+                            </div>
+                            <div class="setting-title" data-icon="fa-filter">
+                                <h3>{{ environment.translate('Filters') }}</h3>
                             </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
@@ -1456,6 +1814,9 @@
                                     <input type="text" id="woo-translate-price-to" name="woocommerce[translations][price_to]" value="{{ wooTranslations.price_to|default('') }}" placeholder="To" />
                                 </div>
                             </div>
+                            <div class="setting-title" data-icon="fa-hand-pointer-o">
+                                <h3>{{ environment.translate('Buttons') }}</h3>
+                            </div>
                             <div class="setting-wrapper">
                                 <div class="setting-label">
                                     <label for="woo-translate-view-checkout">
@@ -1490,406 +1851,145 @@
                                 </div>
                             </div>
                         </section>
-                    </section>
-                </div>
-            </div>
-        </div>
-        <div class="woo-settings-panel">
-            <div class="woo-catalog-workspace woo-wrapper supLg12 supMd12 supSm12 supXs12{% if wooHiddenClass %} {{ wooHiddenClass }}{% endif %}">
-            <div class="supLg12 supMd12 supSm12 supXs12">
-                <!-- Save post id's -->
-                <input type="hidden" name="woocommerce[productids]" value="{{ table.woo_settings.woocommerce.productids | default('') }}" />
-
-                <!-- Save show elements name like columns order in content table -->
-                <input type="hidden" name="woocommerce[order]" value="{{ table.woo_settings.woocommerce.order | default('') }}" />
-
-                <h3 class="stHeaders">{{ environment.translate('Table Columns') }}</h3>
-                <label style="padding-bottom: 25px; font-weight: 500;">{{ environment.translate('Select properties to add to the table') }}
-                    <select id="chooseColumns">
-                        {% set defaultOrder = ['2','4','5','6','11'] %}
-                        {% if colNumbOrder is defined and colNumbOrder is not empty %}
-                            {% set defaultOrder = colNumbOrder %}
-                        {% endif %}
-                        {% for col in woocolumns %}
-                            <option{% if col.id in defaultOrder %} style="display:none;"{% endif %} value="{{ col.id }}" data-name="{{ col.name }}" data-slug="{{ col.slug }}">
-                                {% if col.sub %} &nbsp;-&nbsp; {% endif %} {{ col.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </label>
-
-                <button id="stAddButton" class="button active" style="height: 28px; line-height: 26px;"><span>{{ environment.translate('Add') }}</span></button>
-
-                <div class="stPropertiesWrapp">
-                    {% set columns = woocolumns %}
-                    {% if orders is defined  %}
-                        {% set columns = orders %}
-                    {% endif %}
-
-                    {% for col in columns %}
-                        {% if col.id in defaultOrder %}
-                            {% if( orders is defined ) %}
-                                {% set dataName = col.original_name|default(col.name)|default('') %}
-
-                                {% set dataNNDisplay = col.show_display_name|default(0) %}
-
-                                {% set dataNN = col.display_name|default('') %}
-                                {% set dataMaxWidth = col.max_width|default('') %}
-                                {% set dataSlug = col.slug|default('') %}
-                                {% set dataHideColumn = col.hide_column|default(0) %}
-                                {% set dataHideResponsiveColumn = col.hide_responsive|default(0) %}
-                                {% set dataHideSearchInput = col.hide_search_input|default(0) %}
-                                {% set dataDisableSorting = col.disable_sorting|default(0) %}
-                                {% set dataTextAlign = col.text_align|default('') %}
-                                {% set dataVerticalAlign = col.vertical_align|default('') %}
-                                {% set dataShowPriceSearchInputs = col.show_price_search_inputs|default('') %}
-
-                                {% if dataNNDisplay in [1, '1'] and dataNN is not empty %}
-                                    {% set contentName = dataNN %}
-                                {% else %}
-                                    {% set contentName = dataName %}
-                                {% endif %}
-                            {% else %}
-                                {% set dataName = col.name %}
-                                {% set dataNNDisplay = '' %}
-                                {% set dataNN = '' %}
-                                {% set dataMaxWidth = '' %}
-                                {% set dataSlug = col.slug %}
-                                {% set dataHideColumn = '' %}
-                                {% set dataHideResponsiveColumn = '' %}
-                                {% set dataHideSearchInput = '' %}
-                                {% set dataDisableSorting = '' %}
-                                {% set dataTextAlign = '' %}
-                                {% set dataVerticalAlign = '' %}
-                                {% set dataShowPriceSearchInputs = '' %}
-                                {% set contentName = col.name %}
-                            {% endif %}
-
-
-                            <div class="stOptions"
-                                 data-id="{{ col.id }}"
-                                 data-name="{{ dataName }}"
-                                 data-nice-name-display="{{ dataNNDisplay }}"
-                                 data-nice-name="{{ dataNN }}"
-                                 data-max-width="{{ dataMaxWidth }}"
-                                 data-hide-column="{{ dataHideColumn }}"
-                                 data-hide-responsive-column="{{ dataHideResponsiveColumn }}"
-                                 data-hide-search-input="{{ dataHideSearchInput }}"
-                                 data-disable-sorting="{{ dataDisableSorting }}"
-                                 data-text-align="{{ dataTextAlign }}"
-                                 data-vertical-align="{{ dataVerticalAlign }}"
-                                 data-show-price-search-inputs="{{ dataShowPriceSearchInputs }}"
-                                 data-slug="{{ dataSlug }}"
-                            >
-                                <div class="content">{{ contentName }}</div>
-                                <div class="stOptionHandlers">
-                                    <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
-                                    <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
-                                    <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <h3 class="stHeaders">{{ environment.translate('Products') }}</h3>
-                <div class="woo-products-pro-panel">
-                    <div class="woo-products-pro-panel-header">
-                        <span class="woo-products-pro-panel-title">{{ environment.translate('Catalog Rules') }}</span>
                         {% if not wooAdvancedAllowed %}
-                            <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
+                            {% include '@woocommerce/partials/proPanel.twig' %}
                         {% endif %}
-                    </div>
-                    <div class="woo-products-pro-grid">
-                        <div class="woo-products-pro-item" id="stbAutoAddProductsWrapper">
-                            <div class="woo-products-pro-item-label">
-                                <label for="woocommerce-auto-categories-enable">
-                                    {{ environment.translate('Add products automatically') }}
-                                    {{ tooltip.icon(environment.translate('Use selected WooCommerce categories as a dynamic catalog source. Matching products will be loaded automatically on the frontend, while excluded product IDs will still be respected. The Table Content list below continues to show only products that were added manually.')) }}
-                                </label>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </div>
-                            <div class="woo-products-pro-item-controls">
-                                <input type="checkbox" name="woocommerce[auto_categories_enable]"
-                                    {{ table.woo_settings.woocommerce.auto_categories_enable == 'on' ? 'checked' : '' }}
-                                    id="woocommerce-auto-categories-enable"
-                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}
-                                />
-                                <input type="hidden" name="woocommerce[auto_categories_list]" value="{{ table.woo_settings.woocommerce.auto_categories_list | default() }}" />
-                                <select id="stbAutoCategoriesList"
-                                    data-placeholder="{{ environment.translate('Select category') }}..."
-                                    data-all-selected="{{ environment.translate('All selected') }}"
-                                    data-select-all-text="{{ environment.translate('Select all') }}"
-                                    {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
-                                    {% for name, category in wooCategories %}
-                                        <option data-parent="{{ category.parent }}" value="{{ category.value }}">{{ category.title | raw }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="woo-products-pro-item woo-products-pro-item-exclude">
-                            <div class="woo-products-pro-item-label">
-                                <label for="woocommerce-exclude-product-search">
-                                    {{ environment.translate('Exclude Product ID(s)') }}
-                                    {{ tooltip.icon(environment.translate('Exclude products or individual product variations from the frontend catalog. Search by product title, SKU, or exact product ID. This is especially useful when Show variations is used and you want to hide only one specific variation instead of the whole product family.')) }}
-                                </label>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="woo-pro-tag">{{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </div>
-                            <input type="hidden" name="woocommerce[exclude_productids]" id="woocommerce-exclude-productids" value="{{ table.woo_settings.woocommerce.exclude_productids|default('') }}" />
-                            <div class="woo-exclude-search-wrap{% if not wooAdvancedAllowed %} is-disabled{% endif %}">
-                                <input type="text" id="woocommerce-exclude-product-search" class="regular-text" placeholder="{{ environment.translate('Search by title, SKU, or product ID') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                                <div class="woo-exclude-search-results stHidden"></div>
-                            </div>
-                            <div class="woo-excluded-products-list{% if excludedProducts is empty %} is-empty{% endif %}" data-empty-text="{{ environment.translate('No excluded products selected yet.') }}">
-                                {% for excludedProduct in excludedProducts %}
-                                    <div class="woo-excluded-product-card" data-product-id="{{ excludedProduct.id }}"
-                                         data-title="{{ excludedProduct.title|e('html_attr') }}"
-                                         data-variation="{{ excludedProduct.variation|default('')|e('html_attr') }}"
-                                         data-meta="{{ excludedProduct.meta|default('')|e('html_attr') }}"
-                                         data-thumbnail="{{ excludedProduct.thumbnail|default('')|e('html_attr') }}">
-                                        <div class="woo-excluded-product-body">
-                                            <div class="woo-excluded-product-summary">
-                                                <span class="woo-excluded-product-title">{{ excludedProduct.title }}</span>
-                                                {% if excludedProduct.variation is not empty %}
-                                                    <span class="woo-excluded-product-variation">{{ excludedProduct.variation }}</span>
-                                                {% endif %}
-                                            </div>
-                                            {% if excludedProduct.meta is not empty %}
-                                                <div class="woo-excluded-product-meta">{{ excludedProduct.meta }}</div>
-                                            {% endif %}
-                                        </div>
-                                        <button type="button" class="button-link-delete woo-excluded-product-remove" aria-label="{{ environment.translate('Remove excluded product') }}">&times;</button>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="button" class="woo-manual-products-toggle is-expanded" aria-expanded="true" aria-controls="woo-manual-products-content">
-                    <span class="woo-manual-products-toggle-title">{{ environment.translate('Manual Added Products') }}</span>
-                    <span class="woo-manual-products-toggle-icon"><i class="fa fa-chevron-up" aria-hidden="true"></i></span>
-                </button>
-                <div id="woo-manual-products-content" class="woo-manual-products-content">
-                    <table id="stSearchTable" class="stSearchTable">
-                        <thead>
-                        <tr>
-                           <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
-                           <th>{{ environment.translate('Title') }}</th>
-                           <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
-                           <th class="no-sort">{{ environment.translate('Variation') }}</th>
-                           <th class="no-sort">{{ environment.translate('Categories') }}</th>
-                           <th>{{ environment.translate('Price') }}</th>
-                           <th>{{ environment.translate('Date') }}</th>
-                        </tr>
-                        </thead>
-                        <tfoot>
-                        <tr>
-                           <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
-                           <th>{{ environment.translate('Title') }}</th>
-                           <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
-                           <th class="no-sort">{{ environment.translate('Variation') }}</th>
-                           <th class="no-sort">{{ environment.translate('Categories') }}</th>
-                           <th>{{ environment.translate('Price') }}</th>
-                           <th>{{ environment.translate('Date') }}</th>
-                        </tr>
-                        </tfoot>
-                    </table>
-
-                    <div class="stPropertiesChangeNameWrapp stHidden">
-                        <style>
-                            .stPropertiesChangeNameWrapp .stPropertiesLabelRow {
-                                display: inline-flex;
-                            }
-                            .stPropertiesChangeNameWrapp .stPropertiesPriceSearchInputsLabel {
-                                display:block;
-                                margin-top: 10px;
-                            }
-                            .stPropertiesChangeNameWrapp .stPropertiesDisableSortingLabel {
-                                display:block;
-                                margin-top: 10px;
-                            }
-                            .stPropertiesChangeNameWrapp .stPropertiesPriceSearchInputsLabel .stPropertiesLabelText {
-                                font-weight: 600;
-                            }
-                            .stPropertiesChangeNameWrapp .stPropertiesHideSearchInputLabel .stPropertiesLabelText {
-                                font-weight: 600;
-                            }
-                            .stPropertiesChangeNameWrapp .stPropertiesDisableSortingLabel .stPropertiesLabelText {
-                                font-weight: 600;
-                            }
-                        </style>
-                        <label class="stPropertiesToggleLabel"><input type="checkbox"/>{{ environment.translate('Show text') }} {{ tooltip.icon(environment.translate('Shows the custom column title in the frontend table. This works only when the Header option is enabled for the Woo product table.')) }}</label>
-                        <input type="text" class="stColumnTitleInput" />
-                        <label class="stPropertiesHideColumnLabel" for="st-column-hide-column">
-                            <input type="checkbox" id="st-column-hide-column" class="stColumnHideColumnInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Hide column') }}
-                                    {{ tooltip.icon(environment.translate('Hide this column on the frontend while optionally keeping it searchable through the global search when Search by Hidden Fields is enabled.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <label class="stPropertiesHideColumnLabel stPropertiesHideResponsiveLabel">
-                            <input type="checkbox" class="stColumnHideResponsiveInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Hide this column (responsive)') }}
-                                    {{ tooltip.icon(environment.translate('When Automatic column hiding is enabled, columns with this option checked will be hidden first. If several columns are marked, responsive mode will still collapse them from right to left.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <label class="stPropertiesHideSearchInputLabel" for="st-column-hide-search-input">
-                            <input type="checkbox" id="st-column-hide-search-input" class="stColumnHideSearchInputInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Hide search input') }}
-                                    {{ tooltip.icon(environment.translate('Hides this column search field on the frontend. For the Price column, if the From/To price fields option is disabled, the column search is hidden automatically.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <label class="stPropertiesDisableSortingLabel" for="st-column-disable-sorting">
-                            <input type="checkbox" id="st-column-disable-sorting" class="stColumnDisableSortingInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Disable sorting') }}
-                                    {{ tooltip.icon(environment.translate('Disables manual sorting for this column on the frontend table.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <label class="stPropertiesFieldLabel" for="st-column-max-width">
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Max width (px)') }}
-                                    {{ tooltip.icon(environment.translate('Limit the maximum visual width of this column on the frontend. Leave empty to let the column size automatically.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <input type="number" min="1" step="1" id="st-column-max-width" class="stColumnMaxWidthInput" placeholder="{{ environment.translate('Leave empty for automatic width') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                        <label class="stPropertiesFieldLabel" for="st-column-text-align">
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Column text align') }}
-                                    {{ tooltip.icon(environment.translate('Align text for this whole column on the frontend table header, body and footer.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <select id="st-column-text-align" class="stColumnTextAlignInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
-                            <option value="">{{ environment.translate('Default') }}</option>
-                            <option value="left">{{ environment.translate('Left') }}</option>
-                            <option value="center">{{ environment.translate('Center') }}</option>
-                            <option value="right">{{ environment.translate('Right') }}</option>
-                        </select>
-                        <label class="stPropertiesFieldLabel" for="st-column-vertical-align">
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Column vertical align') }}
-                                    {{ tooltip.icon(environment.translate('Align content vertically for body cells in this column on the frontend table.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                        <select id="st-column-vertical-align" class="stColumnVerticalAlignInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
-                            <option value="">{{ environment.translate('Default') }}</option>
-                            <option value="top">{{ environment.translate('Top') }}</option>
-                            <option value="middle">{{ environment.translate('Middle') }}</option>
-                            <option value="bottom">{{ environment.translate('Bottom') }}</option>
-                        </select>
-                        <label class="stPropertiesPriceSearchInputsLabel stHidden">
-                            <input type="checkbox" class="stColumnShowPriceSearchInputsInput stHidden" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
-                            <span class="stPropertiesLabelRow">
-                                <span class="stPropertiesLabelText">
-                                    {{ environment.translate('Show from - to filter input fields') }}
-                                    {{ tooltip.icon(environment.translate('Replaces the standard search input with From and To price fields in the column search row for the Price column.')) }}
-                                </span>
-                                {% if not wooAdvancedAllowed %}
-                                    <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
-                                {% endif %}
-                            </span>
-                        </label>
-                    </div>
-
-                    <div class="stOptions stOptionsEmpty stHidden">
-                        <div class="content"></div>
-                        <div class="stOptionHandlers">
-                            <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
-                            <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
-                            <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
-                        </div>
-                    </div>
-
-                    <div class="dt-buttons dt-buttons-add-template stHidden">
-                        <button class="dt-button button stAddProducts" tabindex="0" aria-controls="stSearchTable">
-                           <span><i class="fa fa-plus"></i>{{ environment.translate('Add selected products to the table') }}</span>
-                        </button>
-                        <div class="stSearchParams">
-                            <input type="checkbox" name="show_variations" value="1"><label>{{ tooltip.icon(environment.translate('Displays all variations as separate items, which can then be added to the table.')) }} show variations</label>
-                        </div>
-                        <div class="stSearchParams">
-                            <input type="checkbox" name="show_private" value="1" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><label>show private{% if not wooAdvancedAllowed %} (PRO){% endif %}</label>
-                        </div>
-                    </div>
-                    <div class="dt-buttons dt-buttons-remove-template stHidden">
-                        <button class="dt-button button stRemoveProducts" tabindex="0" aria-controls="stContentTable">
-                            <span><i class="fa fa-minus"></i>{{ environment.translate('Remove Selected Products') }}</span>
-                        </button>
-                    </div>
-
-                    <div id="stSortTableContent">
-                        <h3 class="stHeaders">{{ environment.translate('Table Content') }}</h3>
-                        <table id="stContentTable" class="stContentAdmTable" style="width:100%;">
-                            <thead>
-                            <tr>
-                                <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
-                                <th>{{ environment.translate('Title') }}</th>
-                                <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
-                                <th class="no-sort">{{ environment.translate('Variation') }}</th>
-                                <th class="no-sort">{{ environment.translate('Categories') }}</th>
-                                <th>{{ environment.translate('Price') }}</th>
-                                <th>{{ environment.translate('Date') }}</th>
-                            </tr>
-                            </thead>
-                            <tfoot>
-                            <tr>
-                                <th class="no-sort"><input class="stCheckAll" type="checkbox"/></th>
-                                <th>{{ environment.translate('Title') }}</th>
-                                <th class="no-sort">{{ environment.translate('Thumbnail') }}</th>
-                                <th class="no-sort">{{ environment.translate('Variation') }}</th>
-                                <th class="no-sort">{{ environment.translate('Categories') }}</th>
-                                <th>{{ environment.translate('Price') }}</th>
-                                <th>{{ environment.translate('Date') }}</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+        </section>
+        </div>
+            <div class="stPropertiesChangeNameWrapp stHidden">
+                <label class="stPropertiesToggleLabel"><input type="checkbox"/><span class="stPropertiesLabelRow"><span class="stPropertiesLabelText">{{ environment.translate('Show text') }} {{ tooltip.icon(environment.translate('Shows the custom column title in the frontend table. This works only when the Header option is enabled for the Woo product table.')) }}</span></span></label>
+                <input type="text" class="stColumnTitleInput" />
+                <label class="stPropertiesHideColumnLabel" for="st-column-hide-column">
+                    <input type="checkbox" id="st-column-hide-column" class="stColumnHideColumnInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Hide column') }}
+                            {{ tooltip.icon(environment.translate('Hide this column on the frontend while optionally keeping it searchable through the global search when Search by Hidden Fields is enabled.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <label class="stPropertiesHideColumnLabel stPropertiesHideResponsiveLabel">
+                    <input type="checkbox" class="stColumnHideResponsiveInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Hide this column (responsive)') }}
+                            {{ tooltip.icon(environment.translate('When Automatic column hiding is enabled, columns with this option checked will be hidden first. If several columns are marked, responsive mode will still collapse them from right to left.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <label class="stPropertiesHideSearchInputLabel" for="st-column-hide-search-input">
+                    <input type="checkbox" id="st-column-hide-search-input" class="stColumnHideSearchInputInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Hide search input') }}
+                            {{ tooltip.icon(environment.translate('Hides this column search field on the frontend. For the Price column, if the From/To price fields option is disabled, the column search is hidden automatically.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <label class="stPropertiesDisableSortingLabel" for="st-column-disable-sorting">
+                    <input type="checkbox" id="st-column-disable-sorting" class="stColumnDisableSortingInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Disable sorting') }}
+                            {{ tooltip.icon(environment.translate('Disables manual sorting for this column on the frontend table.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <label class="stPropertiesFieldLabel" for="st-column-max-width">
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Max width (px)') }}
+                            {{ tooltip.icon(environment.translate('Limit the maximum visual width of this column on the frontend. Leave empty to let the column size automatically.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <input type="number" min="1" step="1" id="st-column-max-width" class="stColumnMaxWidthInput" placeholder="{{ environment.translate('Leave empty for automatic width') }}" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                <label class="stPropertiesFieldLabel" for="st-column-text-align">
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Column text align') }}
+                            {{ tooltip.icon(environment.translate('Align text for this whole column on the frontend table header, body and footer.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <select id="st-column-text-align" class="stColumnTextAlignInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                    <option value="">{{ environment.translate('Default') }}</option>
+                    <option value="left">{{ environment.translate('Left') }}</option>
+                    <option value="center">{{ environment.translate('Center') }}</option>
+                    <option value="right">{{ environment.translate('Right') }}</option>
+                </select>
+                <label class="stPropertiesFieldLabel" for="st-column-vertical-align">
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Column vertical align') }}
+                            {{ tooltip.icon(environment.translate('Align content vertically for body cells in this column on the frontend table.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+                <select id="st-column-vertical-align" class="stColumnVerticalAlignInput" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}>
+                    <option value="">{{ environment.translate('Default') }}</option>
+                    <option value="top">{{ environment.translate('Top') }}</option>
+                    <option value="middle">{{ environment.translate('Middle') }}</option>
+                    <option value="bottom">{{ environment.translate('Bottom') }}</option>
+                </select>
+                <label class="stPropertiesPriceSearchInputsLabel stHidden">
+                    <input type="checkbox" class="stColumnShowPriceSearchInputsInput stHidden" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %} />
+                    <span class="stPropertiesLabelRow">
+                        <span class="stPropertiesLabelText">
+                            {{ environment.translate('Show from - to filter input fields') }}
+                            {{ tooltip.icon(environment.translate('Replaces the standard search input with From and To price fields in the column search row for the Price column.')) }}
+                        </span>
+                        {% if not wooAdvancedAllowed %}
+                            <span class="stPropertiesProTag"><i class="fa fa-lock" aria-hidden="true"></i> {{ environment.translate('PRO') }}</span>
+                        {% endif %}
+                    </span>
+                </label>
+            </div>
+            <div class="stOptions stOptionsEmpty stHidden">
+                <div class="content"></div>
+                <div class="stOptionHandlers">
+                    <div class="stOptionDragHandler"><i class="fa fa-arrows-h"></i></div>
+                    <div class="stOptionEditHandler"><i class="fa fa-fw fa-pencil"></i></div>
+                    <div class="stOptionRemoveHandler"><i class="fa fa-fw fa-trash-o"></i></div>
                 </div>
             </div>
-        </div>
-    </div>
+            <div class="dt-buttons dt-buttons-add-template stHidden">
+                <button class="dt-button button stAddProducts" tabindex="0" aria-controls="stSearchTable">
+                   <span><i class="fa fa-plus"></i>{{ environment.translate('Add selected products to the table') }}</span>
+                </button>
+                <div class="stSearchParams">
+                    <input type="checkbox" name="show_variations" id="st-show-variations" value="1"><label for="st-show-variations">{{ tooltip.icon(environment.translate('Displays all variations as separate items, which can then be added to the table.')) }} show variations</label>
+                </div>
+                <div class="stSearchParams">
+                    <input type="checkbox" name="show_private" id="st-show-private" value="1" {% if not wooAdvancedAllowed %}disabled="disabled"{% endif %}><label for="st-show-private">show private{% if not wooAdvancedAllowed %} (PRO){% endif %}</label>
+                </div>
+            </div>
+            <div class="dt-buttons dt-buttons-remove-template stHidden">
+                <button class="dt-button button stRemoveProducts" tabindex="0" aria-controls="stContentTable">
+                    <span><i class="fa fa-minus"></i>{{ environment.translate('Remove Selected Products') }}</span>
+                </button>
+            </div>
         <div id="tableLoaderIconDialog" title="{{ environment.translate('Choose icon') }}" style="display: none;">
             {% set loaderClass = 'supsystic-table-loader' %}
             {% set preIcons = {
@@ -1936,7 +2036,29 @@
                 <div style="clear: both;"></div>
             </div>
         </div>
-        </div>
     </form>
+    <section class="preview-section" id="stb-preview-card">
+        <div class="stb-preview-head">
+            <div class="stb-preview-title">
+                <span class="stb-preview-dot" aria-hidden="true"></span>
+                <h3>{{ environment.translate('Preview') }}</h3>
+                <span class="stb-preview-note">{{ environment.translate('Note that the table may look a little different depending on your theme style.') }}</span>
+            </div>
+            <div class="preview-styling">
+                <div class="stb-wraper-anchor-nav-links stb-device-switch" role="group" aria-label="{{ environment.translate('Preview size') }}">
+                    <a href="#stb-style-desktop" class="stb-anchor-nav-links active"><i class="fa fa-desktop" aria-hidden="true"></i><span>{{ environment.translate('Desktop') }}</span></a>
+                    <a href="#stb-style-tablet" class="stb-anchor-nav-links"><i class="fa fa-tablet" aria-hidden="true"></i><span>{{ environment.translate('Tablet') }}</span></a>
+                    <a href="#stb-style-mobile" class="stb-anchor-nav-links"><i class="fa fa-mobile" aria-hidden="true"></i><span>{{ environment.translate('Mobile') }}</span></a>
+                </div>
+            </div>
+        </div>
+        <div class="stb-preview-stage">
+            <div id="preview-container">
+                <div id="loadPreviewBtn" role="button" tabindex="0"><i class="fa fa-eye" aria-hidden="true"></i><span>{{ environment.translate('Load Preview') }}</span></div>
+                <div id="loadPreviewAutoBtn" role="button" tabindex="0"><i class="fa fa-refresh" aria-hidden="true"></i><span>{{ environment.translate('Enable Preview Autoloading') }}</span></div>
+                <div id="table-preview"></div>
+            </div>
+        </div>
+    </section>
 </section>
 </div>

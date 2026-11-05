@@ -1,0 +1,480 @@
+/* Header of the table page: title, shortcode, action buttons and main tabs (see tables.header-ui.js). */
+
+.tables-view {
+  --stb-accent: #377dff;
+  --stb-accent-hover: #2366e8;
+  --stb-accent-soft: #eaf2ff;
+  --stb-ink: #0f172a;
+  --stb-text: #334155;
+  --stb-muted: #64748b;
+  --stb-line: #e2e8f0;
+  --stb-line-soft: #f1f5f9;
+  --stb-surface: #f8fafc;
+  --stb-pro: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --stb-pro-ink: #26384c;
+  --stb-pro-soft: #e6fbfb;
+  --stb-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --stb-cyan: #4ae8ea;
+  --stb-cyan-ink: #7ff8ef;
+  --stb-brand: linear-gradient(135deg, #4ae8ea 0%, #377dff 100%);
+  --stb-icon-bg: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(55, 125, 255, 0.16));
+  --stb-icon-ink: #1f5fd6;
+  --stb-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+
+/* ---------- Layout: title and shortcode on the left, actions on the right ---------- */
+.tables-view .stb-table-header {
+  overflow: visible; /* .supRow scrolls by default */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin: 4px 0 0;
+}
+.tables-view .stb-table-header:before,
+.tables-view .stb-table-header:after {
+  content: none;
+  display: none;
+}
+.tables-view .stb-table-header > .stbCopyTextCodeSelectionShell {
+  flex: 1 1 460px;
+  float: none;
+  width: auto;
+  min-width: 0;
+  max-width: 720px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+.tables-view .stb-table-header > .stbMainBtnsShell {
+  flex: 0 1 auto;
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Title ---------- */
+.tables-view .stb-table-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 35px;
+}
+.tables-view #stbTableTitleShell {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+}
+.tables-view #stbTableTitleLabel {
+  overflow: hidden;
+  color: var(--stb-ink);
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tables-view #stbTableTitleShell .fa {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+  vertical-align: middle;
+  transition: color 0.15s;
+}
+.tables-view #stbTableTitleShell:hover .fa {
+  color: var(--stb-accent);
+}
+.tables-view #stbTableTitleTxt {
+  width: 360px;
+  max-width: 100%;
+  height: 35px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid var(--stb-accent);
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px rgba(55, 125, 255, 0.15);
+  color: var(--stb-ink);
+  font-size: 17px;
+  font-weight: 600;
+}
+.tables-view .stb-table-id {
+  flex: none;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--stb-icon-bg);
+  color: var(--stb-icon-ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+}
+.tables-view #stbTableTitleEditMsg {
+  flex: 1 1 100%;
+  float: none;
+  padding: 0;
+  color: #b91c1c;
+  font-size: 12.5px;
+}
+.tables-view #stbTableTitleEditMsg:empty {
+  display: none;
+}
+
+/* ---------- Shortcode: type, code and copy button in one control ---------- */
+.tables-view .stb-shortcode-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 8px 0 0;
+}
+.tables-view .stb-shortcode {
+  overflow: visible; /* .supRow scrolls by default */
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  min-width: 0;
+  margin: 0;
+  min-height: 38px;
+  border: 1px solid #d5dde8;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tables-view .stb-shortcode:before,
+.tables-view .stb-shortcode:after,
+.tables-view .stb-shortcode > .clear {
+  content: none;
+  display: none;
+}
+.tables-view .stb-shortcode:focus-within {
+  border-color: var(--stb-accent);
+  box-shadow: 0 0 0 3px rgba(55, 125, 255, 0.15);
+}
+.tables-view .stb-shortcode > div {
+  float: none;
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+}
+.tables-view .stb-shortcode > .stb-shortcode-type {
+  position: relative;
+  flex: none;
+  border-right: 1px solid var(--stb-line);
+  border-radius: 9px 0 0 9px;
+  background: var(--stb-surface);
+}
+.tables-view .stb-shortcode > .stb-shortcode-type:before {
+  content: '\f121';
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  z-index: 1;
+  color: var(--stb-accent);
+  font: normal normal normal 13px/1 FontAwesome;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.tables-view .stb-shortcode #stbCopyTextCodeExamples {
+  width: 100%;
+  height: 36px !important;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 26px 0 32px !important;
+  border: 0 !important;
+  border-radius: 9px 0 0 9px;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: #26384c !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 34px !important;
+  cursor: pointer;
+}
+.tables-view .stb-shortcode > .stbCopyTextCodeShowBlock {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tables-view .stb-shortcode .stbCopyTextCode {
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--stb-icon-ink);
+  font-family: Consolas, Monaco, monospace;
+  font-size: 13px;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+.tables-view .stb-shortcode .stbCopyTextCode:focus {
+  outline: none;
+  box-shadow: none;
+}
+.tables-view .stb-shortcode-copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+  height: 28px;
+  margin: 0 4px 0 0;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--stb-navy);
+  box-shadow: none;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tables-view .stb-shortcode-copy .fa {
+  color: var(--stb-cyan-ink);
+}
+.tables-view .stb-shortcode-copy:hover,
+.tables-view .stb-shortcode-copy:focus {
+  background: #2f4560;
+  color: #fff;
+  outline: none;
+}
+.tables-view .stb-shortcode-copy:focus-visible {
+  box-shadow: 0 0 0 3px rgba(55, 125, 255, 0.3);
+}
+.tables-view .stb-shortcode-copy.is-done,
+.tables-view .stb-shortcode-copy.is-done:hover {
+  background: #e6fbfb;
+  color: #0b7f84;
+}
+.tables-view .stb-shortcode-copy.is-done .fa {
+  color: #0b7f84;
+}
+.tables-view .stb-shortcode-row > .stbTooltipInfo {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.tables-view .stb-shortcode-row > .stbTooltipInfo .supsystic-tooltip {
+  color: #94a3b8;
+  font-size: 15px;
+  transition: color 0.15s;
+}
+.tables-view .stb-shortcode-row > .stbTooltipInfo .supsystic-tooltip:hover {
+  color: var(--stb-accent);
+}
+
+/* ---------- Action buttons ---------- */
+.tables-view .subsubsub.control-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+  float: none;
+  width: auto;
+  margin: 0;
+}
+.tables-view .subsubsub.control-buttons li {
+  margin: 0;
+}
+.supsystic-plugin .tables-view .control-buttons .button {
+  border: 1px solid #d5dde8 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  color: #26384c !important;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.supsystic-plugin .tables-view .control-buttons .button .fa {
+  color: var(--stb-accent);
+  transition: color 0.15s;
+}
+.supsystic-plugin .tables-view .control-buttons .button:hover,
+.supsystic-plugin .tables-view .control-buttons .button:focus {
+  border-color: var(--stb-accent) !important;
+  background: #fff !important;
+  color: var(--stb-accent) !important;
+}
+.supsystic-plugin .tables-view .control-buttons #buttonSave {
+  border-color: transparent !important;
+  background: var(--stb-navy) !important;
+  color: #fff !important;
+}
+.supsystic-plugin .tables-view .control-buttons #buttonSave .fa {
+  color: var(--stb-cyan-ink);
+}
+.supsystic-plugin .tables-view .control-buttons #buttonSave:hover,
+.supsystic-plugin .tables-view .control-buttons #buttonSave:focus {
+  background: #2f4560 !important;
+  color: #fff !important;
+}
+.supsystic-plugin .tables-view .control-buttons #buttonClearData:hover,
+.supsystic-plugin .tables-view .control-buttons #buttonClearData:focus,
+.supsystic-plugin .tables-view .control-buttons #buttonDelete:hover,
+.supsystic-plugin .tables-view .control-buttons #buttonDelete:focus {
+  border-color: #fca5a5 !important;
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+.supsystic-plugin .tables-view .control-buttons #buttonClearData:hover .fa,
+.supsystic-plugin .tables-view .control-buttons #buttonClearData:focus .fa,
+.supsystic-plugin .tables-view .control-buttons #buttonDelete:hover .fa,
+.supsystic-plugin .tables-view .control-buttons #buttonDelete:focus .fa {
+  color: #b91c1c;
+}
+.supsystic-plugin .tables-view .control-buttons .button[disabled],
+.supsystic-plugin .tables-view .control-buttons #buttonSave[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+/* Free version: the actions of PRO are marked before they are clicked */
+.supsystic-plugin .tables-view .control-buttons .button.pro-notify span:after {
+  content: '\f219';
+  margin-left: 6px;
+  color: #0e8a93;
+  font: normal normal normal 10px/1 FontAwesome;
+}
+
+/* ---------- Main tabs ---------- */
+.tables-view .subsubsub.tabs-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 2px;
+  float: none;
+  width: 100%;
+  margin: 12px 0 18px;
+  padding: 0;
+  border-bottom: 1px solid var(--stb-line) !important;
+}
+.tables-view .subsubsub.tabs-wrapper li {
+  width: auto;
+  margin: 0;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto;
+  height: 40px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--stb-muted) !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  line-height: 40px !important;
+  transition: background-color 0.15s, color 0.15s;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button .fa {
+  color: #94a3b8;
+  transition: color 0.15s;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button:hover,
+.tables-view .subsubsub.tabs-wrapper li a.button:focus {
+  background: var(--stb-line-soft) !important;
+  color: var(--stb-ink) !important;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button:hover .fa,
+.tables-view .subsubsub.tabs-wrapper li a.button:focus .fa {
+  color: var(--stb-accent);
+}
+.tables-view .subsubsub.tabs-wrapper li a.button:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(55, 125, 255, 0.45) !important;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button.current,
+.tables-view .subsubsub.tabs-wrapper li a.button.current:hover,
+.tables-view .subsubsub.tabs-wrapper li a.button.current:active,
+.tables-view .subsubsub.tabs-wrapper li a.button.current:focus {
+  background: transparent !important;
+  color: var(--stb-ink) !important;
+}
+.tables-view .subsubsub.tabs-wrapper li a.button.current .fa {
+  color: var(--stb-accent);
+}
+.tables-view .subsubsub.tabs-wrapper li a.button.current:after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: -1px;
+  left: 8px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--stb-brand);
+}
+/* Free version: the tabs of PRO are marked */
+.tables-view .subsubsub.tabs-wrapper li a.button .fa.stb-tab-pro {
+  margin-left: 1px;
+  color: #0e8a93;
+  font-size: 10px;
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 782px) {
+  .tables-view .subsubsub.tabs-wrapper {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tables-view .subsubsub.tabs-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .tables-view .subsubsub.tabs-wrapper li {
+    flex: none;
+    width: auto;
+  }
+  .tables-view .subsubsub.tabs-wrapper li a.button {
+    width: auto;
+  }
+  .tables-view .subsubsub.tabs-wrapper li a.button.current:after {
+    bottom: 0;
+  }
+  .tables-view #stbTableTitleShell {
+    padding-bottom: 0;
+  }
+  .tables-view .stb-table-header > .stbMainBtnsShell {
+    flex: 1 1 100%;
+  }
+  .tables-view .subsubsub.control-buttons {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 600px) {
+  .tables-view .stb-shortcode {
+    flex-wrap: wrap;
+  }
+  .tables-view .stb-shortcode > .stb-shortcode-type {
+    flex: 1 1 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--stb-line);
+    border-radius: 9px 9px 0 0;
+  }
+  .tables-view .stb-shortcode > .stbCopyTextCodeShowBlock {
+    flex: 1 1 60%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tables-view .stb-table-header *,
+  .tables-view .subsubsub.tabs-wrapper * {
+    transition: none !important;
+  }
+}

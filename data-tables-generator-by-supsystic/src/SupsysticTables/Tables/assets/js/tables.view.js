@@ -111,78 +111,38 @@ var g_stbCopyPasteColsCount = [];
       });
     });
 
-    // Initialize Sub Tabs
-    var linksOyPositions = [],
-      settingsSection = $('.settings-section'),
-      $anchorLinks = settingsSection.find('.stb-anchor-nav-links'),
-      $topAnchor = $('#stb-anl-main');
-    if ($topAnchor.length) {
-      var offsetTop2 = Math.floor($topAnchor.offset().top);
-      $anchorLinks.each(function (index) {
-        var id = $(this).attr('href'),
-          $target = $(id);
-
-        if (!$target.length) {
-          return;
-        }
-
-        linksOyPositions.push({
-          id: id,
-          offset: index === 0 ? 0 : Math.abs(Math.floor($target.offset().top) - offsetTop2 - 40),
-        });
-      });
-    }
-
-    $('.settings-wrap')
-      .slimScroll({ height: g_stbWindowHeight + 'px' })
-      .off('slimscrolling')
-      .on('slimscrolling', null, { oy: linksOyPositions }, function (e, pos) {
-        if (e && e.data && e.data.oy) {
-          var ind1 = 0,
-            $activeItem = settingsSection.find('.stb-anchor-nav-links.active'),
-            isFind = false;
-          while (ind1 < e.data.oy.length - 1 && !isFind) {
-            if (e.data.oy[ind1].offset <= pos && e.data.oy[ind1 + 1].offset > pos) {
-              isFind = ind1;
-              ind1 = e.data.oy.length;
-            }
-            ind1++;
-          }
-          // if current position at last anchor
-          if (isFind == false && e.data.oy.length) {
-            isFind = ind1;
-          }
-          //check curr active item
-          var activeId = $activeItem.attr('href');
-          if (e.data.oy[isFind] && activeId != e.data.oy[isFind].id) {
-            if ($activeItem.length) {
-              // remove active class
-              $activeItem.removeClass('active');
-            }
-            // add active class
-            settingsSection.find('.stb-anchor-nav-links[href="' + e.data.oy[isFind].id + '"]').addClass('active');
-          }
-        }
-      });
-    settingsSection.find('.stb-anchor-nav-links').on('click', function (e, funcParams) {
-      e.preventDefault();
-      var $settingsWrap = $('.settings-wrap'),
-        urlLink = $(this).attr('href'),
-        $linkItem = $(urlLink),
-        $topItem = $('#stb-anl-main');
-      if ($linkItem.length) {
-        var offsetLink = $linkItem.offset().top,
-          offsetTop = $topItem.offset().top,
-          offsetAbs = Math.abs(offsetLink - offsetTop);
-        // if need to set start position
-        if (funcParams && funcParams.offsetScTop) {
-          offsetAbs = funcParams.offsetScTop;
-        }
-        if (!isNaN(offsetAbs)) {
-          $settingsWrap.slimScroll({ scrollTo: offsetAbs + 'px' });
-        }
+    // A small filter button on each column of the editor
+    editor.addHook('afterGetColHeader', function (col, th) {
+      if (col < 0 || !th) {
+        return;
       }
+      var holder = th.querySelector('.relative') || th,
+        button = holder.querySelector('.stbcf-col-btn');
+      if (!button) {
+        button = document.createElement('span');
+        button.className = 'stbcf-col-btn';
+        button.innerHTML = '<i class="fa fa-filter" aria-hidden="true"></i>';
+        button.addEventListener('mousedown', function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        });
+        button.addEventListener('click', function (event) {
+          var column = parseInt(this.getAttribute('data-col'), 10);
+          event.stopPropagation();
+          event.preventDefault();
+          if (window.stbColumnFilters) {
+            window.stbColumnFilters.open(column);
+          } else {
+            $('#column_filtersProFeatureDialog').dialog('open');
+          }
+        });
+        holder.appendChild(button);
+      }
+      button.setAttribute('data-col', col);
+      $(button).toggleClass('is-set', !!(window.stbColumnFilters && window.stbColumnFilters.isSet(col)));
     });
+
+    // The settings sections (Styling, Main, Features...) are tabs: see tables.settings-ui.js
     $('.preview-section .stb-anchor-nav-links').on('click', function (e, funcParams) {
       e.preventDefault();
       var href = $(this).attr('href'),
@@ -213,12 +173,6 @@ var g_stbCopyPasteColsCount = [];
       tablesModel.reinitPreview(previewContainer);
       setTimeout(refreshPreviewResponsiveColumnState, 350);
     });
-
-    // init anchor link
-    setTimeout(function () {
-      var slScrollTopPos = parseInt($('#slimScrollStartPos').val());
-      $('.settings-section .stb-anchor-nav-links[href="#stb-anl-main"]').trigger('click', { offsetScTop: slScrollTopPos });
-    }, 200);
 
     // Fix of conflict with handsontable library - it triggers error if user makes click on link without href attribute
     $('select[multiple="multiple"]').on('change', function () {
@@ -281,6 +235,18 @@ var g_stbCopyPasteColsCount = [];
         return defaultSource || 'default';
       }
 
+      // A database, Google Sheet or FTP file feeds the table, so there is nothing to edit by hand
+      function toggleEditorTab(source) {
+        var $editorTab = $mainTabs.filter('[href="#row-tab-editor"]'),
+          isDefault = source === 'default';
+
+        $editorTab.closest('li').toggle(isDefault);
+        hub.find('.stbSourceEditorNote').prop('hidden', isDefault);
+        if (!isDefault && $editorTab.hasClass('current')) {
+          $mainTabs.filter('[href="#row-tab-source"]').trigger('click');
+        }
+      }
+
       function activateSource(source) {
         if (!source) {
           return;
@@ -291,6 +257,7 @@ var g_stbCopyPasteColsCount = [];
 
         tiles.filter('[data-source-target="' + source + '"]').addClass('is-active').attr('aria-selected', 'true');
         panels.filter('[data-source-panel="' + source + '"]').addClass('is-active');
+        toggleEditorTab(source);
       }
 
       function syncSourceSelection(source) {
@@ -550,6 +517,7 @@ var g_stbCopyPasteColsCount = [];
       autoOpen: false,
       width: 480,
       modal: true,
+      dialogClass: 'stb-modal stb-modal-clone',
       open: function () {
         var dialog = $(this);
         dialog.find('.message').remove();
@@ -578,6 +546,10 @@ var g_stbCopyPasteColsCount = [];
                 $dialog.find('.input-group').hide();
                 $dialog.find('.input-group').after($('<div>', { class: 'message', html: html }));
               }
+            })
+            .fail(function (message) {
+              $button.removeAttr('disabled').html('Clone');
+              alert(message);
             });
         },
         Cancel: function () {
@@ -991,9 +963,11 @@ var g_stbCopyPasteColsCount = [];
       if ($(this).is(':checked') && isParentEnabled) {
         $('select[name="searching[columnSearchPosition]"]').parents('.setting-wrapper:first').fadeIn(300);
         $('input[name="searching[columnSearchShowLabel]"]').parents('.setting-wrapper:first').fadeIn(300);
+        $('.stbcf-setting-row').fadeIn(300);
       } else {
         $('select[name="searching[columnSearchPosition]"]').parents('.setting-wrapper:first').fadeOut(300);
         $('input[name="searching[columnSearchShowLabel]"]').parents('.setting-wrapper:first').fadeOut(300);
+        $('.stbcf-setting-row').fadeOut(300);
       }
     });
 
@@ -1099,8 +1073,11 @@ var g_stbCopyPasteColsCount = [];
           }
         },
         onSubmit: function (hsb, hex, rgb, el) {
-          colorArea.css('backgroundColor', '#' + curColor);
-          colorInput.val('#' + curColor).trigger('change');
+          var selectedColor = '#' + hex;
+          colorArea.css('backgroundColor', selectedColor);
+          if (String(colorInput.val()).toLowerCase() !== selectedColor) {
+            colorInput.val(selectedColor).trigger('change');
+          }
         },
       });
     });
@@ -1221,7 +1198,7 @@ var g_stbCopyPasteColsCount = [];
     });
     formSettings.find('input[name="styles[cellFontColor]"]').on('change', function () {
       var color = $(this).val();
-      tablesModel.updatePreviewCss([{ selector: wrapperSelector + ' td', param: 'color', value: color }]);
+      tablesModel.updatePreviewCss([{ selector: wrapperSelector + ' td', param: 'color', value: color.length ? 'var(--stb-rowText, ' + color + ')' : '' }]);
       $(this).parent().find('.color-picker-preview').css('backgroundColor', color);
     });
     formSettings.find('input[name="styles[cellFontSize]"]').on('change', function () {
@@ -1358,6 +1335,7 @@ var g_stbCopyPasteColsCount = [];
         title: $this.data('dtitle'),
         width: $this.data('dwidth'),
         modal: true,
+        dialogClass: $this.data('dclass') || '',
         buttons: {
           Close: function () {
             $(this).dialog('close');
@@ -1369,16 +1347,12 @@ var g_stbCopyPasteColsCount = [];
       e.preventDefault();
       $($(this).data('dialog')).dialog('open');
     });
-    $('#previewDiagramProFeature [data-tabs] a').on('click', function (e) {
+    // The windows of the PRO features lead to each other
+    $(document).on('click', '[data-stb-upsell-go]', function (e) {
       e.preventDefault();
-
-      var dialog = $('#previewDiagramProFeature');
-
-      dialog.find('[data-tabs] a').removeClass('active');
-      dialog.find('[data-tab]').removeClass('active');
-
-      $(this).addClass('active');
-      dialog.find('[data-tab="' + $(this).attr('href') + '"]').addClass('active');
+      var target = $(this).attr('data-stb-upsell-go');
+      $(this).closest('.ui-dialog-content').dialog('close');
+      $(target).dialog('open');
     });
   });
 })(window.jQuery, window.supsystic.Tables);

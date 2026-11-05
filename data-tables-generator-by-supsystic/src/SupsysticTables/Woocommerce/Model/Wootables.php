@@ -1713,7 +1713,7 @@ class SupsysticTables_Woocommerce_Model_Wootables extends SupsysticTables_Core_B
     $data = [];
     foreach ($terms as $term) {
       if (!empty($term->term_id)) {
-        $data[] = ['parent' => $parent, 'value' => $term->term_id, 'title' => $pre . $term->name];
+        $data[] = ['parent' => $parent, 'value' => $term->term_id, 'title' => $pre . esc_html($term->name)];
         $data = array_merge($data, $this->getCategoryHierarchy($term->term_id, $pre . '&nbsp;&nbsp;&nbsp;'));
       }
     }

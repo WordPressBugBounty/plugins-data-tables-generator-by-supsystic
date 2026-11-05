@@ -1,0 +1,40 @@
+<div class="dtgs-overview-browser dtgs-classic-demo" data-demo-theme="ocean">
+    <div class="dtgs-overview-browser-bar"><span></span><span></span><span></span><b>Classic Data Tables <em>+ PRO</em></b></div>
+    <div class="dtgs-demo-heading"><div><small>INTERACTIVE PREVIEW</small><h2>Every cell. A possibility.</h2></div><div class="dtgs-demo-swatches" role="group" aria-label="Preview table palette"><button type="button" data-demo-palette="ocean" aria-label="Ocean palette" aria-pressed="true"></button><button type="button" data-demo-palette="midnight" aria-label="Midnight palette" aria-pressed="false"></button><button type="button" data-demo-palette="paper" aria-label="Paper palette" aria-pressed="false"></button></div></div>
+    <label class="dtgs-demo-page-search"><i class="fa fa-search" aria-hidden="true"></i><span>Global page search</span><input type="search" data-demo-filter="page" placeholder="Find across this page’s tables…" aria-label="Global page search in the demo" /></label>
+    <div class="dtgs-demo-sheet">
+        <div class="dtgs-demo-title"><div><strong>Project performance</strong><small><i class="fa fa-refresh" aria-hidden="true"></i> Live data · Google Sheets / SQL</small></div><span class="dtgs-demo-live">Synced</span></div>
+        <div class="dtgs-demo-toolbar">
+            <button type="button" data-demo-action="import"><i class="fa fa-upload" aria-hidden="true"></i> Import <small>CSV · Excel · JSON</small></button>
+            <details class="dtgs-demo-export"><summary><i class="fa fa-download" aria-hidden="true"></i> Export <span>▾</span></summary><div>{% for format in ['CSV', 'XLS', 'XLSX', 'PDF', 'Print'] %}<button type="button" data-demo-export="{{ format }}">{{ format }}</button>{% endfor %}</div></details>
+            <button type="button" data-demo-action="add" aria-label="Add a sample row"><i class="fa fa-plus" aria-hidden="true"></i> Row</button>
+            <label class="dtgs-demo-table-search"><i class="fa fa-search" aria-hidden="true"></i><input type="search" data-demo-filter="table" placeholder="Search table…" aria-label="Search the demo table" /></label>
+        </div>
+        <div class="dtgs-demo-table-scroll" tabindex="0" role="region" aria-label="Interactive Classic table, scroll for more columns">
+            <table class="dtgs-demo-table">
+                <caption class="screen-reader-text">Classic table demo. Sort columns, filter records, edit project names and statuses.</caption>
+                <thead>
+                    <tr>{% for key, title in {'name':'Project', 'team':'Team', 'status':'Status', 'revenue':'Revenue', 'growth':'Growth', 'date':'Updated'} %}<th scope="col" data-demo-column="{{ key }}" aria-sort="{{ key == 'revenue' ? 'descending' : 'none' }}"><button type="button" data-demo-sort="{{ key }}">{{ title }}<span class="dtgs-demo-sort" aria-hidden="true"></span></button></th>{% endfor %}</tr>
+                    <tr class="dtgs-demo-column-filters">
+                        <th><input type="search" data-demo-filter="name" placeholder="Search project" aria-label="Search by Project column" /></th>
+                        <th><select data-demo-filter="team" aria-label="Filter Team column"><option value="">All teams</option><option>Design</option><option>Product</option><option>Growth</option></select></th>
+                        <th><select data-demo-filter="status" aria-label="Filter Status column"><option value="">All statuses</option><option>Active</option><option>Review</option><option>Planned</option></select></th>
+                        <th><input type="number" min="0" data-demo-filter="revenue" placeholder="Min. $" aria-label="Minimum revenue" /></th>
+                        <th><input type="number" data-demo-filter="growth" placeholder="Min. %" aria-label="Minimum growth" /></th>
+                        <th><input type="date" data-demo-filter="date" aria-label="Updated on or after date" /></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot><tr><th colspan="3"><span class="dtgs-demo-formula">ƒx</span> <span>SUM · filtered revenue</span></th><td data-demo-total></td><td colspan="2"><i class="fa fa-pencil" aria-hidden="true"></i> Edit names &amp; statuses</td></tr></tfoot>
+            </table>
+        </div>
+        <div class="dtgs-demo-pagination"><label>Show <select data-demo-length aria-label="Demo rows per page"><option value="5">5</option><option value="10">10</option><option value="-1">All</option></select></label><span data-demo-info role="status" aria-live="polite"></span><nav data-demo-pages aria-label="Demo pagination"></nav></div>
+    </div>
+    <div class="dtgs-demo-charts">
+        <figure><figcaption><span><i class="fa fa-bar-chart" aria-hidden="true"></i> Revenue by team</span><small>FROM THE TABLE</small></figcaption><div class="dtgs-demo-bars" role="img" aria-label="Revenue by team chart"></div></figure>
+        <figure><figcaption><span><i class="fa fa-pie-chart" aria-hidden="true"></i> Project mix</span><small>LIVE CHART</small></figcaption><div class="dtgs-demo-mix"><div class="dtgs-demo-donut" role="img" aria-label="Project status distribution"><strong></strong><small>projects</small></div><div class="dtgs-demo-legend"></div></div></figure>
+    </div>
+    <div class="dtgs-demo-footnote"><span><i class="fa fa-check-circle" aria-hidden="true"></i> Formulas &amp; conditional formatting</span><button type="button" data-demo-action="reset">Reset preview <i class="fa fa-undo" aria-hidden="true"></i></button></div>
+    <div class="dtgs-demo-notice" role="status" aria-live="polite" hidden></div>
+    <noscript><p>Classic Data Tables: import, export, search, column filters, sorting, editable fields, formulas, pagination and live charts.</p></noscript>
+</div>

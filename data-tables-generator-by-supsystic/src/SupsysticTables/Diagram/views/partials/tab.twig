@@ -1,6 +1,6 @@
 <li>
     <a href="#row-tab-diagrams" class="button">
         <i class="fa fa-fw fa-bar-chart"></i>
-        {{ environment.translate('Diagrams') }}
+        {{ environment.translate('Diagrams') }}{% if environment.isPro() == false %}<i class="fa fa-diamond stb-tab-pro" title="PRO" aria-hidden="true"></i>{% endif %}
     </a>
 </li>

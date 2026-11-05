@@ -1,0 +1,43 @@
+{% set legacyGroups = {
+    'Header': {
+        'headerBackgroundColor': ['Header background', 'color'], 'headerFontColor': ['Header text color', 'color'], 'headerFontFamily': ['Header font family', 'font'], 'headerFontSize': ['Header font size', 'number']
+    },
+    'Cells': {
+        'cellBackgroundColor': ['Cell background', 'color'], 'cellFontColor': ['Cell text color', 'color'], 'cellFontFamily': ['Cell font family', 'font'], 'cellFontSize': ['Cell font size', 'number']
+    },
+    'Borders and layout': {
+        'externalBorderColor': ['Outer border color', 'color'], 'externalBorderWidth': ['Outer border width', 'number'],
+        'headerBorderColor': ['Header border color', 'color'], 'headerBorderWidth': ['Header border width', 'number'],
+        'rowBorderColor': ['Row border color', 'color'], 'rowBorderWidth': ['Row border width', 'number'],
+        'columnBorderColor': ['Column border color', 'color'], 'columnBorderWidth': ['Column border width', 'number'],
+        'fixedLayout': ['Fixed table layout', 'checkbox'], 'verticalAlignment': ['Vertical alignment', 'vertical'], 'horizontalAlignment': ['Horizontal alignment', 'horizontal'], 'paginationPosition': ['Pagination alignment', 'horizontal'], 'showSortHover': ['Sorting arrows on hover', 'checkbox']
+    },
+    'Basic search colors': {
+        'searchBackgroundColor': ['Search background', 'color'], 'searchFontColor': ['Search text color', 'color'], 'searchBorderColor': ['Search border color', 'color']
+    }
+} %}
+<label class="stb-design-enable" for="use-custom-styles"><input type="checkbox" data-preview-not-redraw="1" name="styles[useCustomStyles]" id="use-custom-styles" {% if table.settings.styles.useCustomStyles|default('') == 'on' %}checked{% endif %} />{{ environment.translate('Use custom styles') }}</label>
+<input type="hidden" name="styles[customCss]" value="{{ table.settings.styles.customCss|default('') }}" />
+<div class="table-styles-options stb-design-legacy" {% if table.settings.styles.useCustomStyles|default('') != 'on' %}style="display:none"{% endif %}>
+    {% for group, fields in legacyGroups %}
+        <details class="stb-design-group"><summary>{{ environment.translate(group) }}</summary><div class="stb-design-field-grid">
+            {% for key, spec in fields %}
+                {% set value = attribute(table.settings.styles, key)|default('') %}
+                <div class="stb-design-field"><label for="stb-legacy-{{ key }}">{{ environment.translate(spec[0]) }}</label>
+                    {% if spec[1] == 'color' %}
+                        <div class="color-settings-wrapper"><div class="color-picker-wrapper"><div class="color-picker-preview" style="background-color:{{ value }}"></div></div><input id="stb-legacy-{{ key }}" type="text" class="color-input" name="styles[{{ key }}]" value="{{ value }}" data-preview-not-redraw="1" /></div>
+                    {% elseif spec[1] == 'font' %}
+                        <select id="stb-legacy-{{ key }}" name="styles[{{ key }}]" data-value="{{ value|default('default') }}" data-preview-not-redraw="1"></select>
+                    {% elseif spec[1] == 'number' %}
+                        <div><input id="stb-legacy-{{ key }}" type="number" min="0" step="any" name="styles[{{ key }}]" value="{{ value }}" data-preview-not-redraw="1" /><span class="stb-design-unit">px</span></div>
+                    {% elseif spec[1] == 'checkbox' %}
+                        <input id="stb-legacy-{{ key }}" type="checkbox" name="styles[{{ key }}]" data-preview-not-redraw="1" {% if value == 'on' %}checked{% endif %} />
+                    {% else %}
+                        {% set choices = spec[1] == 'vertical' ? {'': 'Default', 'top': 'Top', 'middle': 'Middle', 'bottom': 'Bottom'} : {'': 'Default', 'left': 'Left', 'center': 'Center', 'right': 'Right'} %}
+                        <select id="stb-legacy-{{ key }}" name="styles[{{ key }}]" data-preview-not-redraw="1">{% for option, label in choices %}<option value="{{ option }}" {% if value == option %}selected{% endif %}>{{ environment.translate(label) }}</option>{% endfor %}</select>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div></details>
+    {% endfor %}
+</div>

@@ -18,7 +18,8 @@
                             <button class="button pro-notify dtgs-toolbar-button" id="export-group" type="button" disabled
                                     {% if environment.isPro() == false %}
                                         data-dtitle="{{ environment.translate('Import / Export') }}"
-                                        data-dwidth="480"
+                                        data-dwidth="780"
+                                        data-dclass="stb-modal stb-modal-upsell"
                                         data-dialog="#import_exportProFeatureDialog"
                                     {% endif %}>
                                 <i class="fa fa-fw fa-upload" aria-hidden="true"></i>
@@ -27,7 +28,8 @@
                             <button class="button pro-notify dtgs-toolbar-button" id="import-group" type="button"
                                     {% if environment.isPro() == false %}
                                         data-dtitle="{{ environment.translate('Import / Export') }}"
-                                        data-dwidth="480"
+                                        data-dwidth="780"
+                                        data-dclass="stb-modal stb-modal-upsell"
                                         data-dialog="#import_exportProFeatureDialog"
                                     {% endif %}>
                                 <i class="fa fa-fw fa-download" aria-hidden="true"></i>
@@ -99,11 +101,8 @@
             </section>
         </div>
 
-        <div id="import_exportProFeatureDialog" class="supsystic-plugin" style="display: none;">
-            {% set url = '<a target="_blank" href="' ~ build_pro_url({ 'utm_medium': notify }) ~ '" style="color: #000;">' ~ environment.translate('PRO version') ~ '</a>' %}
-            {% set url2 = '<a target="_blank" href="' ~ build_pro_url({ 'utm_medium': notify }) ~ '" style="color: #000;" class="button"><span class="ui-button-text">' ~ environment.translate('Get PRO') ~ '</span></a>' %}
-            <p>{{ environment.translate('Please be advised that this feature available only in %s.')|format(url)|raw }}</p>
-            <p>{{ environment.translate('You can %s today and have all PRO features of data tables!')|format(url2)|raw }}</p>
-        </div>
+        {% if environment.isPro() == false %}
+            {% include '@tables/partials/importExportUpsell.twig' %}
+        {% endif %}
         {{ environment.getDispatcher().dispatch('tables-index-footer') }}
 {% endblock %}

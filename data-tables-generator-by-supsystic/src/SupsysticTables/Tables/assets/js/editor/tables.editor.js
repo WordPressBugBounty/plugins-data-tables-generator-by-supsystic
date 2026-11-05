@@ -896,10 +896,15 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
           fromY = toY;
           toY = buffer;
         }
-        for (var x = fromX; x <= toX; x++) {
-          var cells = [];
+        // Before the rows are loaded, or for a range past the last row, there is nothing to return for those rows
+        if (!data) {
+          return rangeData;
+        }
+        for (var x = fromX; x <= toX && x < data.length; x++) {
+          var cells = [],
+            row = data[x] || [];
           for (var y = fromY; y <= toY; y++) {
-            cells.push(data[x][y]);
+            cells.push(row[y]);
           }
           rangeData.push(cells);
         }

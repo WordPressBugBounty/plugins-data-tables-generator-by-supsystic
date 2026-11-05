@@ -1,0 +1,190 @@
+<div class="supRow row-tab" id="row-tab-ai">
+    {% block content %}
+        {% set url = build_pro_url({ 'utm_medium': 'table_ai' }) %}
+        {% set assistants = ['ChatGPT', 'Claude', 'Gemini', 'Copilot', 'Cursor'] %}
+        {% set freeItems = [
+            environment.translate('List your tables and read their data'),
+            environment.translate('Ask questions about the numbers'),
+            environment.translate('Find patterns and anomalies'),
+            environment.translate('Get a short summary of any table')
+        ] %}
+        {% set proItems = [
+            environment.translate('Create tables from a plain description'),
+            environment.translate('Edit rows, columns and single cells'),
+            environment.translate('Change the settings of a table'),
+            environment.translate('Import and export data'),
+            environment.translate('Duplicate or delete tables')
+        ] %}
+        {% set prompts = [
+            {'pro': false, 'text': environment.translate('List all my tables.')},
+            {'pro': false, 'text': environment.translate('Which product in the Price list has the highest price?')},
+            {'pro': false, 'text': environment.translate('Summarise the Sales table in three sentences.')},
+            {'pro': false, 'text': environment.translate('Are there any anomalies in the Orders table?')},
+            {'pro': true, 'text': environment.translate('Create an Inventory table with Item, Quantity and Price, and add ten sample rows.')},
+            {'pro': true, 'text': environment.translate('Add a Total Value column to the Inventory table and fill it in.')},
+            {'pro': true, 'text': environment.translate('Raise all prices in the Price list by 5 percent.')},
+            {'pro': true, 'text': environment.translate('Import this CSV into a new table and name it Partners.')}
+        ] %}
+
+        <div class="supXs12">
+        <div class="stb-showcase stb-showcase-ai stb-sc-brand" data-showcase>
+            <section class="stb-sc-hero">
+                <div class="stb-sc-hero-text">
+                    <span class="stb-sc-eyebrow"><i class="fa fa-magic" aria-hidden="true"></i>{{ environment.translate('AI for your tables') }}</span>
+                    <h2>{{ environment.translate('Talk to your tables in plain language') }}</h2>
+                    <p>{{ environment.translate('Connect your AI assistant to this site. Asking about your tables is free. With PRO the assistant also creates, edits and imports tables for you.') }}</p>
+                    <div class="stb-sc-actions">
+                        <a class="stb-sc-cta" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                        <a class="stb-sc-link" href="{{ ai.guideUrl }}" target="_blank" rel="noopener">{{ environment.translate('Connect for free') }}<i class="fa fa-external-link" aria-hidden="true"></i></a>
+                    </div>
+                    <ul class="stb-sc-stats">
+                        <li><strong>{{ assistants|length }}+</strong><span>{{ environment.translate('AI assistants') }}</span></li>
+                        <li><strong>MCP</strong><span>{{ environment.translate('open standard') }}</span></li>
+                        <li><strong>0</strong><span>{{ environment.translate('lines of code') }}</span></li>
+                    </ul>
+                </div>
+                <div class="stb-sc-chat" aria-hidden="true">
+                    <div class="stb-sc-chat-head">
+                        <span class="stb-sc-chat-icon"><i class="fa fa-magic"></i></span>
+                        <strong>{{ environment.translate('AI assistant') }}</strong>
+                        <span class="stb-sc-live"><i></i>MCP</span>
+                    </div>
+                    <div class="stb-sc-bubble is-user">{{ environment.translate('Create an Inventory table and add a Total Value column.') }}</div>
+                    <div class="stb-sc-bubble is-ai">
+                        <span>{{ environment.translate('Done. The Inventory table is ready:') }}</span>
+                        <table>
+                            <thead><tr><th>{{ environment.translate('Item') }}</th><th>{{ environment.translate('Qty') }}</th><th>{{ environment.translate('Price') }}</th><th>{{ environment.translate('Total Value') }}</th></tr></thead>
+                            <tbody>
+                                <tr><td>Wireless mouse</td><td>128</td><td>$24.90</td><td>$3,187.20</td></tr>
+                                <tr><td>USB-C hub</td><td>64</td><td>$39.00</td><td>$2,496.00</td></tr>
+                                <tr><td>Laptop stand</td><td>31</td><td>$45.50</td><td>$1,410.50</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="stb-sc-bubble is-user">{{ environment.translate('Which item is worth the most?') }}</div>
+                    <div class="stb-sc-bubble is-ai">{{ environment.translate('Wireless mouse: $3,187.20 in stock.') }}</div>
+                </div>
+            </section>
+
+            <section class="stb-sc-assistants" aria-label="{{ environment.translate('AI assistants') }}">
+                <span>{{ environment.translate('Works with') }}</span>
+                {% for assistant in assistants %}
+                    <em>{{ assistant }}</em>
+                {% endfor %}
+                <em>{{ environment.translate('any MCP assistant') }}</em>
+            </section>
+
+            <section class="stb-sc-plans">
+                <div class="stb-sc-plan">
+                    <div class="stb-sc-plan-head">
+                        <span class="stb-sc-source-icon"><i class="fa fa-comments-o" aria-hidden="true"></i></span>
+                        <div>
+                            <h3>{{ environment.translate('Ask') }}</h3>
+                            <em class="stb-sc-source-badge">{{ environment.translate('Free, included') }}</em>
+                        </div>
+                    </div>
+                    <p>{{ environment.translate('Your assistant reads the tables and answers questions about them.') }}</p>
+                    <ul class="stb-sc-checks">
+                        {% for item in freeItems %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="stb-sc-plan-link" href="{{ ai.guideUrl }}" target="_blank" rel="noopener">{{ environment.translate('Open the setup guide') }}<i class="fa fa-external-link" aria-hidden="true"></i></a>
+                </div>
+                <div class="stb-sc-plan is-pro">
+                    <div class="stb-sc-plan-head">
+                        <span class="stb-sc-source-icon"><i class="fa fa-magic" aria-hidden="true"></i></span>
+                        <div>
+                            <h3>{{ environment.translate('Ask and let AI do the work') }}</h3>
+                            <em class="stb-sc-source-badge is-pro">PRO</em>
+                        </div>
+                    </div>
+                    <p>{{ environment.translate('Everything in Free, and the assistant changes your tables when you ask it to.') }}</p>
+                    <ul class="stb-sc-checks">
+                        {% for item in proItems %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="stb-sc-cta" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <span class="stb-sc-kicker">{{ environment.translate('Just ask') }}</span>
+                        <h3>{{ environment.translate('What you can say to your assistant') }}</h3>
+                        <p>{{ environment.translate('No menus and no formulas: write what you need, the way you would ask a colleague.') }}</p>
+                    </div>
+                </header>
+                <div class="stb-sc-prompts">
+                    {% for prompt in prompts %}
+                        <div class="stb-sc-prompt{{ prompt.pro ? ' is-pro' : '' }}">
+                            <i class="fa fa-quote-left" aria-hidden="true"></i>
+                            <span>{{ prompt.text }}</span>
+                            <em class="stb-sc-source-badge{{ prompt.pro ? ' is-pro' : '' }}">{{ prompt.pro ? 'PRO' : environment.translate('Free') }}</em>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <span class="stb-sc-kicker">{{ environment.translate('How it works') }}</span>
+                        <h3>{{ environment.translate('Connect once, then just talk') }}</h3>
+                    </div>
+                </header>
+                <div class="stb-sc-steps">
+                    <div class="stb-sc-step">
+                        <span class="stb-sc-step-num">1</span>
+                        <div><strong>{{ environment.translate('Create an Application Password') }}</strong><span>{{ environment.translate('WordPress makes it in your user profile, in a few clicks.') }}</span></div>
+                    </div>
+                    <div class="stb-sc-step">
+                        <span class="stb-sc-step-num">2</span>
+                        <div><strong>{{ environment.translate('Add the connector') }}</strong><code>{{ ai.mcpUrl }}</code></div>
+                    </div>
+                    <div class="stb-sc-step">
+                        <span class="stb-sc-step-num">3</span>
+                        <div><strong>{{ environment.translate('Start asking') }}</strong><span>{{ environment.translate('Try this first: List all my tables.') }}</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-section">
+                <header class="stb-sc-section-head">
+                    <div>
+                        <span class="stb-sc-kicker">{{ environment.translate('You stay in control') }}</span>
+                        <h3>{{ environment.translate('Safe by design') }}</h3>
+                    </div>
+                </header>
+                <div class="stb-sc-uses stb-sc-uses-3">
+                    <div class="stb-sc-use">
+                        <span class="stb-sc-use-icon"><i class="fa fa-key fa-fw" aria-hidden="true"></i></span>
+                        <strong>{{ environment.translate('Your own password') }}</strong>
+                        <span>{{ environment.translate('A separate WordPress Application Password that you can revoke at any time.') }}</span>
+                    </div>
+                    <div class="stb-sc-use">
+                        <span class="stb-sc-use-icon"><i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i></span>
+                        <strong>{{ environment.translate('Your permissions') }}</strong>
+                        <span>{{ environment.translate('The assistant acts as your WordPress user and needs the rights to manage tables.') }}</span>
+                    </div>
+                    <div class="stb-sc-use">
+                        <span class="stb-sc-use-icon"><i class="fa fa-comments-o fa-fw" aria-hidden="true"></i></span>
+                        <strong>{{ environment.translate('Your assistant') }}</strong>
+                        <span>{{ environment.translate('Use your own AI account and the assistant you already like.') }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stb-sc-final">
+                <div>
+                    <h3>{{ environment.translate('Let AI do the table work') }}</h3>
+                    <p>{{ environment.translate('Your tables and their settings stay as they are. PRO lets your assistant change them when you ask.') }}</p>
+                </div>
+                <a class="stb-sc-cta stb-sc-cta-light" href="{{ url }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </section>
+        </div>
+        </div>
+    {% endblock %}
+</div>
