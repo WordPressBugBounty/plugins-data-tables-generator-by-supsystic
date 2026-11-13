@@ -822,7 +822,7 @@
     keys(cfg.goals).forEach(function (key) {
       var goal = cfg.goals[key],
         off = goal.kind === 'woo' && !cfg.woo.active;
-      html += card({ act: 'goal', key: key, icon: goal.icon, title: goal.name, text: off ? t('Needs the WooCommerce plugin') : goal.text, tags: off ? null : goal.tags, selected: state.goal === key, off: off, hover: 'goal' });
+      html += card({ act: 'goal', key: key, icon: goal.icon, title: goal.name, text: off ? t('Needs the WooCommerce plugin') : goal.text, tags: off ? null : goal.tags, selected: state.goal === key, off: off, hover: 'goal', locked: isLocked(goal) });
     });
     html += '</div>';
     if (state.needWoo) {

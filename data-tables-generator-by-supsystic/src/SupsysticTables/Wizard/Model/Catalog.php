@@ -44,6 +44,8 @@ class SupsysticTables_Wizard_Model_Catalog extends SupsysticTables_Core_BaseMode
         'name' => $this->t('Report with charts'),
         'text' => $this->t('Sales, budgets and numbers people read at a glance.'),
         'tags' => [$this->t('Charts'), $this->t('Export')],
+        // Charts come with PRO; the table itself can be built in the free version too
+        'pro' => true,
         'datasets' => ['sales', 'budget', 'traffic'],
         'defaults' => ['interaction' => 'explore', 'size' => 'few', 'palette' => 'ocean', 'chart' => true],
       ],

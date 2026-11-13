@@ -948,6 +948,13 @@ var g_stbIsDataEdited = window.g_stbIsDataEdited;
                 });
               }
               cellData.meta = classes;
+              // The editor shows file cells decoded (see checkEditfileCells). They are saved encoded, as the front-end
+              // saves them: the filter of saved cells would drop the attributes of the file markup. The editor keeps
+              // a backslash (of a Windows file path) as "&#92;", which the server would decode into a raw backslash
+              // that the row's SQL drops, so it is encoded as "%5C".
+              if (toeInArray('editfile', classes) != -1 && typeof cellData.data == 'string' && cellData.data.indexOf('<') !== -1) {
+                cellData.data = encodeURI(cellData.data.replace(/&#92;/g, '\\'));
+              }
 
               // Set comments for cell
               if (typeof meta.comment != 'undefined') {

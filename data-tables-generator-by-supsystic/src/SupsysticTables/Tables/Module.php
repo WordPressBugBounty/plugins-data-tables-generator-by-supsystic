@@ -499,12 +499,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
               $table->rows[$key]['cells'][$index]['calculatedValue'] = $this->isFromHistory[$key]['cells'][$index]['calculatedValue'];
             }
           }
-          if (strpos($table->rows[$key]['cells'][$index]['data'], '%3C') !== false) {
-            // Decoding makes new markup, so it passes the same filter as a cell that is saved
-            $table->rows[$key]['cells'][$index]['data'] = do_shortcode($tables->sanitizeString(urldecode($table->rows[$key]['cells'][$index]['data'])));
-          } else {
-            $table->rows[$key]['cells'][$index]['data'] = do_shortcode($table->rows[$key]['cells'][$index]['data']);
-          }
+          $table->rows[$key]['cells'][$index]['data'] = $this->getCellOutput($table, $table->rows[$key]['cells'][$index]);
         }
       }
     }
@@ -553,6 +548,23 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $this->checkSpreadsheet = false;
 
     return $renderData;
+  }
+
+  /**
+   * The cell value as it is printed. A value with "%3C" holds URL-encoded markup (the file fields of PRO store it so):
+   * decoding makes new markup, so it passes the same filter as a cell that is saved.
+   * @param object $table
+   * @param array $cell
+   * @return string
+   */
+  protected function getCellOutput($table, array $cell)
+  {
+    $data = isset($cell['data']) ? (string) $cell['data'] : '';
+    if (strpos($data, '%3C') !== false) {
+      $data = $this->getEnvironment()->getModule('core')->getModelsFactory()->get('tables')->sanitizeString(urldecode($data));
+    }
+
+    return do_shortcode($data);
   }
 
   /**

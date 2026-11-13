@@ -3,7 +3,7 @@ Contributors: supsysticcom
 Tags: table, datatable, table builder, spreadsheet, product table
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.16.01
+Stable tag: 1.16.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -244,7 +244,11 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 
 = 2026 =
 
-= 1.16.01 — November 6, 2026 =
+= 1.16.2 — November 10, 2026 =
+
+* General code improvements and bug fixes.
+
+= 1.16.1 — November 6, 2026 =
 
 * New Table Wizard: answer a few simple questions and get a finished table with sample data, a design and the right settings in about a minute.
 * A completely new look: every tab, setting and dialog is cleaner, faster and easier to use.

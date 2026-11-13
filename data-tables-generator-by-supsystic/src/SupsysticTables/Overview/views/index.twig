@@ -55,58 +55,61 @@
             </section>
         {% endif %}
 
+        {# The sidebar starts after the plans: what comes before it uses the whole width #}
+        <section class="dtgs-overview-wide">
+            <div class="dtgs-overview-section-heading">
+                <div><span class="dtgs-overview-pill">Three builders. One plugin.</span><h2>Choose the right table for every job.</h2></div>
+                <p>From a small comparison to a live catalog with thousands of products.</p>
+            </div>
+
+            <div class="dtgs-overview-product-grid">
+                <article class="dtgs-overview-product-card is-data">
+                    <div class="dtgs-overview-product-icon"><i class="fa fa-table"></i></div>
+                    <div class="dtgs-overview-product-title"><span>Data Tables</span><small>Structured data, reports and directories</small></div>
+                    <div class="dtgs-overview-product-preview is-table"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                    <ul>
+                        <li><i class="fa fa-check"></i> Spreadsheet-style visual editor</li>
+                        <li><i class="fa fa-check"></i> Search, sorting, pagination and filters</li>
+                        <li><i class="fa fa-check"></i> Formulas, charts and conditional formatting</li>
+                        <li><i class="fa fa-check"></i> Excel, CSV, Google Sheets, SQL and database sources</li>
+                    </ul>
+                    <a href="#dtgs-data-suite">Explore Data Tables <i class="fa fa-arrow-down"></i></a>
+                </article>
+
+                <article class="dtgs-overview-product-card is-pricing">
+                    <div class="dtgs-overview-product-icon"><i class="fa fa-columns"></i></div>
+                    <div class="dtgs-overview-product-title"><span>Pricing Tables</span><small>Plans, packages and conversion-focused offers</small></div>
+                    <div class="dtgs-overview-product-preview is-pricing"><span><b>$19</b></span><span class="is-featured"><b>$49</b></span><span><b>$99</b></span></div>
+                    <ul>
+                        <li><i class="fa fa-check"></i> Visual drag-and-drop builder</li>
+                        <li><i class="fa fa-check"></i> 100+ polished responsive templates</li>
+                        <li><i class="fa fa-check"></i> Monthly, annual and custom switchers</li>
+                        <li><i class="fa fa-check"></i> AJAX loading and WooCommerce cart actions</li>
+                    </ul>
+                    <a href="#dtgs-pricing-suite">Explore Pricing Tables <i class="fa fa-arrow-down"></i></a>
+                </article>
+
+                <article class="dtgs-overview-product-card is-woo">
+                    <div class="dtgs-overview-product-icon"><i class="fa fa-shopping-cart"></i></div>
+                    <div class="dtgs-overview-product-title"><span>WooCommerce Tables</span><small>Fast, searchable product catalogs</small></div>
+                    <div class="dtgs-overview-product-preview is-products"><span><i></i><b>Classic Tee</b><em>$24</em></span><span><i></i><b>Runner Pro</b><em>$89</em></span></div>
+                    <ul>
+                        <li><i class="fa fa-check"></i> Live WooCommerce product data</li>
+                        <li><i class="fa fa-check"></i> Images, descriptions, prices and stock</li>
+                        <li><i class="fa fa-check"></i> Categories, attributes, filters and search</li>
+                        <li><i class="fa fa-check"></i> Variations, quantities and add to cart</li>
+                    </ul>
+                    <a href="#dtgs-woo-suite">Explore WooCommerce <i class="fa fa-arrow-down"></i></a>
+                </article>
+            </div>
+
+            {% if showProOffer %}
+                {% include '@overview/partials/pro-offer.twig' %}
+            {% endif %}
+        </section>
+
         <section class="dtgs-overview-layout">
             <div class="dtgs-overview-main">
-                <div class="dtgs-overview-section-heading">
-                    <div><span class="dtgs-overview-pill">Three builders. One plugin.</span><h2>Choose the right table for every job.</h2></div>
-                    <p>From a small comparison to a live catalog with thousands of products.</p>
-                </div>
-
-                <div class="dtgs-overview-product-grid">
-                    <article class="dtgs-overview-product-card is-data">
-                        <div class="dtgs-overview-product-icon"><i class="fa fa-table"></i></div>
-                        <div class="dtgs-overview-product-title"><span>Data Tables</span><small>Structured data, reports and directories</small></div>
-                        <div class="dtgs-overview-product-preview is-table"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-                        <ul>
-                            <li><i class="fa fa-check"></i> Spreadsheet-style visual editor</li>
-                            <li><i class="fa fa-check"></i> Search, sorting, pagination and filters</li>
-                            <li><i class="fa fa-check"></i> Formulas, charts and conditional formatting</li>
-                            <li><i class="fa fa-check"></i> Excel, CSV, Google Sheets, SQL and database sources</li>
-                        </ul>
-                        <a href="#dtgs-data-suite">Explore Data Tables <i class="fa fa-arrow-down"></i></a>
-                    </article>
-
-                    <article class="dtgs-overview-product-card is-pricing">
-                        <div class="dtgs-overview-product-icon"><i class="fa fa-columns"></i></div>
-                        <div class="dtgs-overview-product-title"><span>Pricing Tables</span><small>Plans, packages and conversion-focused offers</small></div>
-                        <div class="dtgs-overview-product-preview is-pricing"><span><b>$19</b></span><span class="is-featured"><b>$49</b></span><span><b>$99</b></span></div>
-                        <ul>
-                            <li><i class="fa fa-check"></i> Visual drag-and-drop builder</li>
-                            <li><i class="fa fa-check"></i> 100+ polished responsive templates</li>
-                            <li><i class="fa fa-check"></i> Monthly, annual and custom switchers</li>
-                            <li><i class="fa fa-check"></i> AJAX loading and WooCommerce cart actions</li>
-                        </ul>
-                        <a href="#dtgs-pricing-suite">Explore Pricing Tables <i class="fa fa-arrow-down"></i></a>
-                    </article>
-
-                    <article class="dtgs-overview-product-card is-woo">
-                        <div class="dtgs-overview-product-icon"><i class="fa fa-shopping-cart"></i></div>
-                        <div class="dtgs-overview-product-title"><span>WooCommerce Tables</span><small>Fast, searchable product catalogs</small></div>
-                        <div class="dtgs-overview-product-preview is-products"><span><i></i><b>Classic Tee</b><em>$24</em></span><span><i></i><b>Runner Pro</b><em>$89</em></span></div>
-                        <ul>
-                            <li><i class="fa fa-check"></i> Live WooCommerce product data</li>
-                            <li><i class="fa fa-check"></i> Images, descriptions, prices and stock</li>
-                            <li><i class="fa fa-check"></i> Categories, attributes, filters and search</li>
-                            <li><i class="fa fa-check"></i> Variations, quantities and add to cart</li>
-                        </ul>
-                        <a href="#dtgs-woo-suite">Explore WooCommerce <i class="fa fa-arrow-down"></i></a>
-                    </article>
-                </div>
-
-                {% if showProOffer %}
-                    {% include '@overview/partials/pro-offer.twig' %}
-                {% endif %}
-
                 <section id="dtgs-data-suite" class="dtgs-overview-suite is-data-suite">
                     <div class="dtgs-overview-suite-head">
                         <div class="dtgs-overview-suite-icon"><i class="fa fa-database"></i></div>

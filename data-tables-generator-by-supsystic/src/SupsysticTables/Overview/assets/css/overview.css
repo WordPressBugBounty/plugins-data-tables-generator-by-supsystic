@@ -201,6 +201,16 @@
   min-width: 0;
 }
 
+/* The products and the plans, before the columns: the whole width */
+.dtgs-overview-wide {
+  margin-top: 24px;
+}
+
+/* The main column starts level with the sidebar */
+.dtgs-overview-main > :first-child {
+  margin-top: 0;
+}
+
 .dtgs-overview-sidebar {
   display: flex;
   flex-direction: column;
@@ -1307,25 +1317,6 @@
 .dtgs-overview-ai-message small { display: block; margin-bottom: 4px; color: #8ba4b2; font-size: 9px; font-weight: 900; text-transform: uppercase; }
 .dtgs-overview-ai-message p { margin: 0; color: #e8f3f6; font-size: 11px; line-height: 1.45; }
 .dtgs-overview-ai-message em { display: block; margin-top: 7px; color: #83ffed; font-size: 9px; font-style: normal; font-weight: 750; }
-
-@media (max-width: 1500px) {
-  .dtgs-overview-product-grid { grid-template-columns: minmax(0, 1fr); }
-  .dtgs-overview-product-card { display: grid; grid-template-columns: 54px minmax(180px, .75fr) minmax(180px, .75fr) minmax(260px, 1.2fr); min-height: 0; gap: 0 14px; align-items: center; }
-  .dtgs-overview-product-title { margin-top: 0; }
-  .dtgs-overview-product-title small { min-height: 0; }
-  .dtgs-overview-product-preview { margin: 0; }
-  .dtgs-overview-product-card ul { margin: 0; }
-  .dtgs-overview-product-card > a { grid-column: 2 / -1; margin-top: 14px; }
-}
-
-@media (max-width: 1280px) {
-  .dtgs-overview-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .dtgs-overview-product-card { display: flex; min-height: 470px; }
-  .dtgs-overview-product-title { margin-top: 16px; }
-  .dtgs-overview-product-preview { margin: 16px 0; }
-  .dtgs-overview-product-card ul { margin: 0 0 18px; }
-  .dtgs-overview-product-card > a { margin-top: auto; }
-}
 
 @media (max-width: 1050px) {
   .dtgs-overview-product-grid { grid-template-columns: minmax(0, 1fr); }

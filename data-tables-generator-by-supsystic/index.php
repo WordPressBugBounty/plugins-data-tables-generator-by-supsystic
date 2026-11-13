@@ -4,7 +4,7 @@
  * Plugin Name: Data Tables Generator by Supsystic
  * Plugin URI: http://supsystic.com
  * Description: Three table types in one plugin: Excel-like data tables with formulas, WooCommerce product tables and pricing tables. Responsive and searchable.
- * Version: 1.16.01
+ * Version: 1.16.2
  * Author: supsystic.com
  * Author URI: http://supsystic.com
  * Text Domain: supsystic_tables
