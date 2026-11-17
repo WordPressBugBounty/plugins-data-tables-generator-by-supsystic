@@ -1,0 +1,32 @@
+/* The card of Pricing Table on the Settings page */
+.supsystic-plugin .stb-gs-card-pricing-import .stb-gs-row {
+  align-items: center;
+}
+.supsystic-plugin .stb-gs-card-pricing-import .button.stb-pti-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  margin: 0;
+  padding: 0 14px !important;
+  border: 1px solid #0e8a93 !important;
+  border-radius: 9px !important;
+  background: #0e8a93 !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  line-height: 1 !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.supsystic-plugin .stb-gs-card-pricing-import .button.stb-pti-open:hover,
+.supsystic-plugin .stb-gs-card-pricing-import .button.stb-pti-open:focus {
+  border-color: #0b747c !important;
+  background: #0b747c !important;
+  color: #fff !important;
+}
+.supsystic-plugin .stb-gs-card-pricing-import .stb-gs-card-icon {
+  background: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(14, 138, 147, 0.16));
+  color: #0e8a93;
+}

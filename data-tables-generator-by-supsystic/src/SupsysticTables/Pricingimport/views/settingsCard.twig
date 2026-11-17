@@ -1,0 +1,28 @@
+<section class="stb-gs-card stb-gs-card-pricing-import">
+	<div class="stb-gs-card-head">
+		<span class="stb-gs-card-icon"><i class="fa fa-exchange" aria-hidden="true"></i></span>
+		<div>
+			<h3>{{ environment.translate('Pricing Table by Supsystic') }}</h3>
+			<p>{{ environment.translate('Move its tables here in one click.') }}</p>
+		</div>
+	</div>
+	<div class="stb-gs-card-body">
+		<div class="stb-gs-row">
+			<div class="setting-description">
+				<label>
+					{% if status.imported >= status.total %}
+						{{ environment.translate('All %d tables are moved')|format(status.total) }}
+					{% else %}
+						{{ environment.translate('%d of %d tables are moved')|format(status.imported, status.total) }}
+					{% endif %}
+				</label>
+			</div>
+			<div class="setting-control">
+				<a class="button stb-pti-open" href="{{ url }}">
+					<i class="fa fa-fw fa-arrow-right" aria-hidden="true"></i>
+					{{ environment.translate('Open') }}
+				</a>
+			</div>
+		</div>
+	</div>
+</section>

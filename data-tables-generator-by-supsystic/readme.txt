@@ -1,9 +1,10 @@
 === Data Tables Generator by Supsystic – Excel-like, WooCommerce & Pricing Tables ===
 Contributors: supsysticcom
 Tags: table, datatable, table builder, spreadsheet, product table
+Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.16.2
+Stable tag: 1.17.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -243,6 +244,11 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.17.0 — November 16, 2026 =
+
+* Import support: move your pricing tables from Pricing Table by Supsystic in one click.
+* Your existing tables and settings stay exactly as they were, so updating is safe.
 
 = 1.16.2 — November 10, 2026 =
 

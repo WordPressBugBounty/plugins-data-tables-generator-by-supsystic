@@ -1,0 +1,163 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+	<div class="supsystic-item stb-pti" id="stb-pti">
+		<header class="stb-pti-head">
+			<div class="stb-pti-title">
+				<span class="stb-pti-title-icon"><i class="fa fa-exchange" aria-hidden="true"></i></span>
+				<div>
+					<h2>{{ environment.translate('Move from Pricing Table') }}</h2>
+					<p>{{ environment.translate('Your tables from Pricing Table by Supsystic become pricing tables of Data Tables with all their plans, prices, rows and buttons. The old tables stay as they are.') }}</p>
+				</div>
+			</div>
+			<div class="stb-pti-actions">
+				<button type="button" class="button stb-pti-primary" data-pti-move-all hidden>
+					<i class="fa fa-fw fa-arrow-right" aria-hidden="true"></i>
+					<span data-pti-move-all-label>{{ environment.translate('Move all tables') }}</span>
+				</button>
+			</div>
+		</header>
+
+		<div class="stb-pti-main">
+		{% if fromPricingTable %}
+			<section class="stb-pti-welcome">
+				<span class="stb-pti-welcome-icon"><i class="fa fa-table" aria-hidden="true"></i></span>
+				<div>
+					<h3>{{ environment.translate('Pricing Table is now part of Data Tables') }}</h3>
+					<p>{{ environment.translate('Pricing tables, data tables and charts in one plugin. Move your tables in one click, pick a theme for them in the editor, and put the old shortcodes back at any time if you need.') }}</p>
+				</div>
+			</section>
+		{% endif %}
+
+		<ol class="stb-pti-steps" data-pti-steps>
+			<li data-pti-step="move">
+				<span class="stb-pti-step-num">1</span>
+				<span class="stb-pti-step-text">
+					<strong>{{ environment.translate('Move the tables') }}</strong>
+					<small>{{ environment.translate('Copies are made in Data Tables') }}</small>
+				</span>
+			</li>
+			<li data-pti-step="pages">
+				<span class="stb-pti-step-num">2</span>
+				<span class="stb-pti-step-text">
+					<strong>{{ environment.translate('Replace the shortcodes') }}</strong>
+					<small>{{ environment.translate('Pages show the new tables') }}</small>
+				</span>
+			</li>
+			<li data-pti-step="check">
+				<span class="stb-pti-step-num">3</span>
+				<span class="stb-pti-step-text">
+					<strong>{{ environment.translate('Check your pages') }}</strong>
+					<small>{{ environment.translate('Undo is one click away') }}</small>
+				</span>
+			</li>
+		</ol>
+
+		<div class="stb-pti-cards">
+			<section class="stb-pti-card" data-pti-tables>
+				<div class="stb-pti-card-head">
+					<span class="stb-pti-card-icon"><i class="fa fa-th-large" aria-hidden="true"></i></span>
+					<div class="stb-pti-card-title">
+						<h3>{{ environment.translate('Tables of Pricing Table') }}</h3>
+						<p data-pti-tables-summary></p>
+					</div>
+					<div class="stb-pti-card-tools" data-pti-table-tools hidden>
+						<label class="stb-pti-check stb-pti-check-all">
+							<input type="checkbox" class="stb-pti-checkbox" data-pti-select-all>
+							<span>{{ environment.translate('Select all') }}</span>
+						</label>
+						<button type="button" class="button stb-pti-secondary" data-pti-move-selected disabled>
+							<span data-pti-move-selected-label>{{ environment.translate('Move selected') }}</span>
+						</button>
+					</div>
+				</div>
+				<div class="stb-pti-progress" data-pti-progress hidden>
+					<div class="stb-pti-progress-bar"><span data-pti-progress-bar></span></div>
+					<span class="stb-pti-progress-text" data-pti-progress-text></span>
+				</div>
+				<ul class="stb-pti-list stb-pti-list-tables" data-pti-table-list></ul>
+				<div class="stb-pti-empty" data-pti-tables-empty hidden>
+					<span class="stb-pti-empty-icon"><i class="fa fa-inbox" aria-hidden="true"></i></span>
+					<strong>{{ environment.translate('No tables of Pricing Table were found') }}</strong>
+					<p>{{ environment.translate('Tables are found right in your database, even when Pricing Table is switched off or removed.') }}</p>
+				</div>
+			</section>
+
+			<section class="stb-pti-card stb-pti-result" data-pti-result hidden>
+				<div class="stb-pti-card-head">
+					<span class="stb-pti-card-icon stb-pti-card-icon-done"><i class="fa fa-check" aria-hidden="true"></i></span>
+					<div class="stb-pti-card-title">
+						<h3 data-pti-result-title></h3>
+						<p>{{ environment.translate('They have the standard theme of Data Tables: choose a theme in the table editor. Then replace the old shortcodes below.') }}</p>
+					</div>
+				</div>
+				<div class="stb-pti-card-body">
+					<div class="stb-pti-kinds" data-pti-kinds></div>
+					{% if data.coupon %}
+					<div class="stb-pti-coupon" data-pti-coupon hidden>
+						<span class="stb-pti-coupon-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span>
+						<div class="stb-pti-coupon-text">
+							<strong>{{ environment.translate('Coupon %s: −%d%% on Data Tables Pro')|format('<b class="stb-pti-coupon-code">' ~ data.coupon|e ~ '</b>', data.couponDiscount)|raw }}</strong>
+							<span data-pti-coupon-left hidden>{{ environment.translate('Upgrade, move these tables again, and their PRO options come along.') }}</span>
+							<span data-pti-coupon-more hidden>{{ environment.translate('Price switchers, plan schedules and more themes for your pricing tables.') }}</span>
+						</div>
+						<a class="stb-pti-coupon-button" href="#" target="_blank" rel="noopener" data-pti-coupon-link>{{ environment.translate('Get PRO') }} <span aria-hidden="true">&rarr;</span></a>
+					</div>
+					{% endif %}
+					<p class="stb-pti-note" data-pti-pro-active hidden></p>
+				</div>
+			</section>
+
+			<section class="stb-pti-card" data-pti-pages>
+				<div class="stb-pti-card-head">
+					<span class="stb-pti-card-icon"><i class="fa fa-code" aria-hidden="true"></i></span>
+					<div class="stb-pti-card-title">
+						<h3>{{ environment.translate('Shortcodes on your pages') }}</h3>
+						<p>{{ environment.translate('Pages, posts, Elementor and widgets with the shortcodes of Pricing Table.') }}</p>
+					</div>
+					<div class="stb-pti-card-tools" data-pti-page-tools hidden>
+						<label class="stb-pti-check stb-pti-check-all">
+							<input type="checkbox" class="stb-pti-checkbox" data-pti-select-pages>
+							<span>{{ environment.translate('Select all') }}</span>
+						</label>
+						<button type="button" class="button stb-pti-secondary" data-pti-replace disabled>
+							<span data-pti-replace-label>{{ environment.translate('Replace shortcodes') }}</span>
+						</button>
+					</div>
+				</div>
+				<ul class="stb-pti-list" data-pti-page-list></ul>
+				<div class="stb-pti-empty" data-pti-pages-empty hidden>
+					<span class="stb-pti-empty-icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+					<strong>{{ environment.translate('No pages use the shortcodes of Pricing Table') }}</strong>
+					<p>{{ environment.translate('Put the shortcode of a moved table on any page: you find it next to the table above.') }}</p>
+				</div>
+				<div class="stb-pti-replaced" data-pti-replaced hidden>
+					<div class="stb-pti-replaced-head">
+						<h4>{{ environment.translate('Replaced') }}</h4>
+						<button type="button" class="button-link stb-pti-link" data-pti-undo-all>{{ environment.translate('Undo all') }}</button>
+					</div>
+					<ul class="stb-pti-list stb-pti-list-compact" data-pti-replaced-list></ul>
+				</div>
+				<p class="stb-pti-foot">
+					<i class="fa fa-info-circle" aria-hidden="true"></i>
+					<span>{{ environment.translate('Shortcodes written in theme files are not found here: replace them by hand.') }}</span>
+				</p>
+			</section>
+		</div>
+		</div>
+
+		<dialog class="stb-pti-dialog" data-pti-dialog aria-labelledby="stb-pti-dialog-title">
+			<form method="dialog" class="stb-pti-dialog-box">
+				<h3 id="stb-pti-dialog-title" data-pti-dialog-title></h3>
+				<p data-pti-dialog-text></p>
+				<div class="stb-pti-dialog-actions">
+					<button type="submit" value="cancel" class="button stb-pti-secondary" data-pti-dialog-cancel></button>
+					<button type="submit" value="ok" class="button stb-pti-primary" data-pti-dialog-ok></button>
+				</div>
+			</form>
+		</dialog>
+
+		<div class="stb-pti-toast" data-pti-toast role="status" aria-live="polite" hidden></div>
+		<script type="application/json" id="stb-pti-data">{{ json|raw }}</script>
+	</div>
+{% endblock %}
