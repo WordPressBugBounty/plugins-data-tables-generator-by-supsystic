@@ -2,6 +2,12 @@
   'use strict';
 
   function HandsontableFormula() {
+    // Handsontable 7 returns every selected range from getSelected() ([[row1, col1, row2, col2], ...]).
+    // The insert/remove hooks below need one flat range, as getSelected() returned before Handsontable 0.36.
+    var getFlatSelection = function (instance) {
+      return typeof instance.getSelectedLast === 'function' ? instance.getSelectedLast() : instance.getSelected();
+    };
+
     var isFormula = function (value) {
       if (value) {
         if (value[0] === '=') {
@@ -346,7 +352,8 @@
 
       var instance = this;
 
-      var selectedRow = instance.plugin.utils.isArray(instance.getSelected()) ? instance.getSelected()[0] : undefined;
+      var selected = getFlatSelection(instance),
+        selectedRow = instance.plugin.utils.isArray(selected) ? selected[0] : undefined;
 
       if (instance.plugin.utils.isUndefined(selectedRow)) {
         return;
@@ -395,7 +402,8 @@
       //console.log(col, amount);
       var instance = this;
 
-      var selectedCol = instance.plugin.utils.isArray(instance.getSelected()) ? instance.getSelected()[1] : undefined;
+      var selected = getFlatSelection(instance),
+        selectedCol = instance.plugin.utils.isArray(selected) ? selected[1] : undefined;
 
       if (instance.plugin.utils.isUndefined(selectedCol)) {
         return;
@@ -446,7 +454,8 @@
       //console.log(row, amount, auto);
       var instance = this;
 
-      var selectedRow = instance.plugin.utils.isArray(instance.getSelected()) ? instance.getSelected()[0] : undefined;
+      var selected = getFlatSelection(instance),
+        selectedRow = instance.plugin.utils.isArray(selected) ? selected[0] : undefined;
 
       if (instance.plugin.utils.isUndefined(selectedRow)) {
         return;
@@ -495,7 +504,8 @@
       //console.log(col, amount);
       var instance = this;
 
-      var selectedCol = instance.plugin.utils.isArray(instance.getSelected()) ? instance.getSelected()[1] : undefined;
+      var selected = getFlatSelection(instance),
+        selectedCol = instance.plugin.utils.isArray(selected) ? selected[1] : undefined;
 
       if (instance.plugin.utils.isUndefined(selectedCol)) {
         return;

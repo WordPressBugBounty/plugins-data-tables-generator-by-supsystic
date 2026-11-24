@@ -1891,7 +1891,7 @@
     }
     $root.removeClass('is-open');
     $('html').removeClass('stbw-lock-page');
-    if (window.location.hash === '#add' && window.history && window.history.replaceState) {
+    if (/^#add(-[a-z]+)?$/.test(window.location.hash) && window.history && window.history.replaceState) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
     // After a created table the next opening starts fresh
@@ -1904,7 +1904,14 @@
     }
   }
 
-  function open() {
+  // #add-<goal> (the admin bar's "+ New > WooCommerce Product Table" uses #add-woo): a fresh wizard starts with that goal
+  function chooseRequestedGoal(goalKey) {
+    if (typeof goalKey === 'string' && cfg && cfg.goals && cfg.goals[goalKey] && state && state.step === 'goal') {
+      actions.goal(goalKey);
+    }
+  }
+
+  function open(goalKey) {
     if (typeof window.editor !== 'undefined' && window.editor && window.editor.deselectCell) {
       window.editor.deselectCell();
     }
@@ -1913,6 +1920,7 @@
     if ($root) {
       $root.addClass('is-open');
       render();
+      chooseRequestedGoal(goalKey);
       return;
     }
     if (loading) {
@@ -1928,6 +1936,7 @@
         buildRoot();
         $root.addClass('is-open');
         render();
+        chooseRequestedGoal(goalKey);
       })
       .fail(function (message) {
         $('html').removeClass('stbw-lock-page');
@@ -1962,14 +1971,15 @@
     });
     $(window)
       .on('hashchange', function () {
-        if (window.location.hash === '#add') {
-          open();
+        var requested = /^#add(?:-([a-z]+))?$/.exec(window.location.hash);
+        if (requested) {
+          open(requested[1]);
         }
       })
       .trigger('hashchange');
 
     // The first visit to the welcome page opens the wizard by itself
-    if (isWelcome && window.location.hash !== '#add') {
+    if (isWelcome && !/^#add(-[a-z]+)?$/.test(window.location.hash)) {
       open();
     }
     openRequestedTab();

@@ -8,6 +8,8 @@ class SupsysticTables
   const TABLES_SCHEMA_VERSION = 3;
   private $environment;
   private $bootstrap;
+  /** @var string|null JSON for the classic editor button (built once per request) */
+  private $editorButtonData = null;
 
   public function __construct()
   {
@@ -20,10 +22,12 @@ class SupsysticTables
     // Update only the current site's schema, once per schema version. This
     // also handles plugin updates, which do not fire the activation hook.
     add_action('plugins_loaded', [$this, 'maybeUpgradeSchema'], 0);
+    add_action('admin_head', [$this, 'printMenuIconStyle']);
+    add_action('admin_menu', [$this, 'markMenuGroup'], 999);
 
     $menuSlug = 'supsystic-tables';
     $pluginPath = dirname(dirname(__FILE__));
-    $environment = new RscDtgs_Environment('st', '1.17.0', $pluginPath);
+    $environment = new RscDtgs_Environment('st', '1.18.0', $pluginPath);
 
     /* Configure */
     $environment->configure([
@@ -37,11 +41,13 @@ class SupsysticTables
       'plugin_title_name' => 'Data Tables',
       'plugin_menu' => [
         'page_title' => __('Data Tables by Supsystic', $menuSlug),
-        'menu_title' => __('Data Tables by Supsystic', $menuSlug),
+        // Sidebar label without "by Supsystic", right under Dashboard like CES (plugins/.claude/fix/shared/adminbar-new-items.md)
+        'menu_title' => __('Data Tables', $menuSlug),
         'capability' => 'manage_options',
         'menu_slug' => $menuSlug,
-        'icon_url' => 'dashicons-editor-table',
-        'position' => '102.2',
+        // The Supsystic icon, the same as CES and the admin bar "+ New" items (sized by printMenuIconStyle())
+        'icon_url' => plugins_url('app/assets/img/supsystic-adminbar.png', $pluginPath . '/index.php'),
+        'position' => '2.2',
       ],
       'shortcode_prefix' => $menuSlug,
       'shortcode_name' => defined('SUPSYSTIC_TABLES_SHORTCODE_NAME') ? SUPSYSTIC_TABLES_SHORTCODE_NAME : $menuSlug,
@@ -517,29 +523,140 @@ class SupsysticTables
     return $dir;
   }
 
+  /**
+   * The Supsystic menu icon, monochrome like the WordPress menu icons: the PNG (icon_url, kept as the fallback <img>)
+   * is a mask painted with currentColor, so the admin colour scheme colours it (normal, hover, current).
+   * See plugins/.claude/fix/shared/adminbar-new-items.md, "Sidebar icon colour".
+   */
+  public function printMenuIconStyle()
+  {
+    $icon = esc_url(plugins_url('app/assets/img/supsystic-adminbar.png', dirname(dirname(__FILE__)) . '/index.php'));
+    echo '<style id="supsystic-tables-menu-icon">'
+      . '#adminmenu #toplevel_page_supsystic-tables .wp-menu-image img { display: none; }'
+      . '#adminmenu #toplevel_page_supsystic-tables .wp-menu-image::before { content: ""; display: block; box-sizing: content-box; width: 20px; height: 20px; padding: 7px 0 0; margin: 0 auto; background-color: currentColor;'
+      . ' -webkit-mask: url("' . $icon . '") center / 20px 20px no-repeat content-box; mask: url("' . $icon . '") center / 20px 20px no-repeat content-box; transform-origin: 50% calc(100% - 10px); transition: transform .6s cubic-bezier(.4, 0, .2, 1), background-color .2s ease, color .1s ease-in; }'
+      // The gear turns once around its own axis on hover and back on leave, like the supsystic.com logo, and turns Supsystic cyan while hovered
+      . '#adminmenu #toplevel_page_supsystic-tables:hover .wp-menu-image::before, #adminmenu #toplevel_page_supsystic-tables > a:focus .wp-menu-image::before { transform: rotate(360deg); background-color: #4ae8ea; }'
+      . '@media (prefers-reduced-motion: reduce) { #adminmenu #toplevel_page_supsystic-tables .wp-menu-image::before { transition: background-color .2s ease, color .1s ease-in; } #adminmenu #toplevel_page_supsystic-tables:hover .wp-menu-image::before, #adminmenu #toplevel_page_supsystic-tables > a:focus .wp-menu-image::before { transform: none; } }'
+      // Space around the group of Supsystic items (plugins/.claude/fix/shared/sidebar-group-spacing.md): every plugin
+      // prints the same rules, the adjacency decides which item is first and last
+      . '#adminmenu li:not(.supsystic-menu-group) + li.supsystic-menu-group { margin-top: 8px; }'
+      . '#adminmenu li.supsystic-menu-group + li:not(.supsystic-menu-group) { margin-top: 8px; }'
+      . '</style>' . "\n";
+  }
+
+  /**
+   * Marks this plugin's top-level menu item as one of the Supsystic group (see printMenuIconStyle()).
+   */
+  public function markMenuGroup()
+  {
+    global $menu;
+    foreach ((array) $menu as $key => $item) {
+      if (isset($item[2], $item[4]) && $item[2] === 'supsystic-tables' && strpos((string) $item[4], 'supsystic-menu-group') === false) {
+        $menu[$key][4] = trim($item[4] . ' supsystic-menu-group');
+      }
+    }
+  }
+
+  /**
+   * Classic editor (wp_editor / TinyMCE, also the Gutenberg Classic block and the Elementor Text Editor) toolbar button
+   * "Insert a Data Table", one of the shared Supsystic group (plugins/.claude/fix/shared/classic-editor-buttons.md).
+   * Only in the admin for users who can edit posts: the TinyMCE filters run only where an editor is built, and the
+   * table list travels in the TinyMCE settings, so nothing more is loaded.
+   */
   public function addShortcodeButton()
   {
-    add_filter('mce_external_plugins', [$this, 'addButton']);
-    add_filter('mce_buttons', [$this, 'registerButton']);
     wp_enqueue_script('jquery');
-    if (is_admin()) {
-      wp_enqueue_script('stb-bpopup-js', $this->environment->getConfig()->get('plugin_url') . '/app/assets/js/plugins/jquery.bpopup.min.js', ['jquery'], false, true);
-      wp_enqueue_style('stb-bpopup', $this->environment->getConfig()->get('plugin_url') . '/app/assets/css/editor-dialog.css');
+    if (!is_admin() || !current_user_can('edit_posts')) {
+      return;
     }
+    // Priority 20: the Elementor editor removes every priority-10 mce_external_plugins / mce_buttons filter
+    add_filter('mce_external_plugins', [$this, 'addButton'], 20);
+    add_filter('mce_buttons', [$this, 'registerButton'], 20);
+    add_filter('tiny_mce_before_init', [$this, 'addButtonData']);
   }
 
   public function addButton($plugin_array)
   {
-    $plugin_array['addShortcodeDataTable'] = $this->environment->getConfig()->get('plugin_url') . '/app/assets/js/buttons.js';
+    if (!is_array($plugin_array)) {
+      return $plugin_array;
+    }
+    $config = $this->environment->getConfig();
+    $plugin_array['supsysticDataTable'] = add_query_arg('ver', $config->get('plugin_version') . '-mce-1', $config->get('plugin_url') . '/app/assets/js/editor-button.js');
 
     return $plugin_array;
   }
 
+  /**
+   * Puts the button with the other Supsystic buttons, before the toolbar toggle (wp_adv), after a separator when it is
+   * the first of the group. The old ids (addShortcodeDataTable, and selectShortcode, which belongs to Photo Gallery) are
+   * no longer added; a toolbar set up by hand that still has addShortcodeDataTable gets the same button.
+   */
   public function registerButton($buttons)
   {
-    array_push($buttons, 'addShortcodeDataTable', 'selectShortcode');
+    if (!is_array($buttons) || in_array('supsysticDataTable', $buttons, true) || in_array('addShortcodeDataTable', $buttons, true)) {
+      return $buttons;
+    }
+    $mine = ['supsysticDataTable'];
+    $hasGroup = false;
+    foreach ($buttons as $button) {
+      if (is_string($button) && strpos($button, 'supsystic') === 0) {
+        $hasGroup = true;
+        break;
+      }
+    }
+    if (!$hasGroup) {
+      array_unshift($mine, '|');
+    }
+    $position = array_search('wp_adv', $buttons, true);
+    if ($position === false) {
+      return array_merge($buttons, $mine);
+    }
+    array_splice($buttons, $position, 0, $mine);
 
     return $buttons;
+  }
+
+  /**
+   * The tables (newest first), the shortcode name, the Create link and the texts of the button and its dialog.
+   */
+  public function addButtonData($init)
+  {
+    if (!is_array($init)) {
+      return $init;
+    }
+    if ($this->editorButtonData === null) {
+      global $wpdb;
+      $config = $this->environment->getConfig();
+      $items = [];
+      $rows = $wpdb->get_results("SELECT id, title FROM {$wpdb->prefix}supsystic_tbl_tables ORDER BY id DESC", ARRAY_A);
+      foreach ((array) $rows as $row) {
+        $title = trim(wp_strip_all_tags(html_entity_decode((string) $row['title'], ENT_QUOTES, 'UTF-8')));
+        $items[] = ['id' => (int) $row['id'], 'title' => $title !== '' ? $title : sprintf(__('Table #%d', 'supsystic_tables'), (int) $row['id'])];
+      }
+      $menu = $config->get('plugin_menu');
+      $capability = is_array($menu) && !empty($menu['capability']) ? $menu['capability'] : 'manage_options';
+      $this->editorButtonData = wp_json_encode([
+        'items' => $items,
+        'shortcode' => $config->get('shortcode_name'),
+        'createUrl' => current_user_can($capability) ? admin_url('admin.php?page=supsystic-tables#add') : '',
+        'i18n' => [
+          'title' => __('Insert a Data Table', 'supsystic_tables'),
+          'label' => __('Table', 'supsystic_tables'),
+          'search' => __('Search tables', 'supsystic_tables'),
+          'empty' => __('No tables yet.', 'supsystic_tables'),
+          'create' => __('Create a table in Data Tables', 'supsystic_tables'),
+          'insert' => __('Insert', 'supsystic_tables'),
+          'cancel' => __('Cancel', 'supsystic_tables'),
+          'close' => __('Close', 'supsystic_tables'),
+        ],
+      ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    }
+    if ($this->editorButtonData) {
+      $init['supsystic_data_table'] = $this->editorButtonData;
+    }
+
+    return $init;
   }
 }
 

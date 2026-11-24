@@ -19,17 +19,19 @@ class Widget_Supsystic_Data_Tables extends Widget_Base
 
   public function get_title()
   {
-    return esc_html__('Data Tables by Supsystic', 'supsystic_tables');
+    // In the shared "Supsystic" panel category, so no "by Supsystic" (plugins/.claude/fix/shared/gutenberg-supsystic-category.md)
+    return esc_html__('Data Tables', 'supsystic_tables');
   }
 
   public function get_icon()
   {
-    return 'eicon-table';
+    // The Supsystic icon, drawn by the CSS the module prints in the Elementor editor (plugins/.claude/fix/shared/builder-blocks-branding.md)
+    return 'supsystic-el-icon';
   }
 
   public function get_categories()
   {
-    return ['general', 'basic'];
+    return ['supsystic'];
   }
 
   public function get_keywords()
@@ -63,6 +65,23 @@ class Widget_Supsystic_Data_Tables extends Widget_Base
       'options' => $options ?: ['' => esc_html__('No tables yet - create one first', 'supsystic_tables')],
       'default' => $options ? (string) array_key_first($options) : '',
     ]);
+
+    // Edit / Create links like CES (plugins/.claude/fix/shared/builder-blocks-branding.md). The Edit link takes the
+    // table picked above when it is clicked (script added by the module to the Elementor editor).
+    if (current_user_can('manage_options')) {
+      $base = admin_url('admin.php?page=supsystic-tables');
+      $links = [
+        '<a class="supsystic-tables-el-edit" href="' . esc_url($base) . '" data-base="' . esc_url($base . '&module=tables&action=view&id=') . '" target="_blank">' . esc_html__('Edit this table in Data Tables', 'supsystic_tables') . '</a>',
+        '<a href="' . esc_url($base . '#add') . '" target="_blank">' . esc_html__('Create a table in Data Tables', 'supsystic_tables') . '</a>',
+        '<a href="' . esc_url($base . '#add-woo') . '" target="_blank">' . esc_html__('Create a WooCommerce product table in Data Tables', 'supsystic_tables') . '</a>',
+        '<a href="' . esc_url($base . '#add-pricing') . '" target="_blank">' . esc_html__('Create a pricing table in Data Tables', 'supsystic_tables') . '</a>',
+      ];
+      $this->add_control('supsystic_tables_links', [
+        'type' => Controls_Manager::RAW_HTML,
+        'raw' => implode('<br>', $links),
+        'content_classes' => 'elementor-descriptor',
+      ]);
+    }
 
     $this->end_controls_section();
   }

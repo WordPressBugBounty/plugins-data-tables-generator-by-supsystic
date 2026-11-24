@@ -10,7 +10,10 @@ class SupsysticTables_Widget extends WP_Widget
   function __construct()
   {
     $this->tables = new SupsysticTables_Tables_Model_Tables();
-    parent::__construct('tables_widget', 'Tables Widget', ['description' => 'Tables Widget']);
+    // id_base stays "tables_widget", so widgets already placed keep working (plugins/.claude/fix/shared/wp-widgets-check.md)
+    parent::__construct('tables_widget', __('Data Tables by Supsystic', 'supsystic_tables'), [
+      'description' => __('Shows one of your tables: a data table, a WooCommerce product table or a pricing table.', 'supsystic_tables'),
+    ]);
   }
 
   /**
@@ -31,12 +34,17 @@ class SupsysticTables_Widget extends WP_Widget
    */
   public function widget($args, $instance)
   {
+    // No table picked: nothing at all (before, an empty box with the title)
+    $tableId = isset($instance['id']) ? (int) $instance['id'] : 0;
+    if ($tableId < 1) {
+      return;
+    }
     $title = apply_filters('widget_title', isset($instance['title']) ? $instance['title'] : '');
     echo wp_kses_post($args['before_widget']);
     if (!empty($title)) {
       echo wp_kses_post($args['before_title'] . $title . $args['after_title']);
     }
-    echo do_shortcode('[supsystic-tables id=' . esc_html(isset($instance['id']) ? $instance['id'] : '') . ' position="center"]');
+    echo do_shortcode('[supsystic-tables id=' . $tableId . ' position="center"]');
     echo wp_kses_post($args['after_widget']);
   }
 
@@ -48,25 +56,24 @@ class SupsysticTables_Widget extends WP_Widget
    */
   public function form($instance)
   {
-    if (isset($instance['title'])) {
-      $title = $instance['title'];
-    } else {
-      $title = 'Title';
-    }
+    // A new widget starts without a title (before: "Title", which then showed on the site); saved widgets keep theirs
+    $title = isset($instance['title']) ? $instance['title'] : '';
 
     $options = $this->getTableOptions();
 
     if (!$options) {
-      echo "<h4 style='color:red;text-align: center;'>No tables</h4>";
-      echo wp_kses_post("<a href='" . DTGS_PLUGIN_ADMIN_URL . "?page=supsystic-tables'>Create table</a>");
+      echo '<p>' . esc_html__('No tables yet.', 'supsystic_tables') . ' <a href="' . esc_url(admin_url('admin.php?page=supsystic-tables#add')) . '" target="_blank">' . esc_html__('Create a table in Data Tables', 'supsystic_tables') . '</a></p>';
     }
     ?>
 
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>"><?php esc_html_e('Title:'); ?></label>
             <input class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>" name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text" value="<?php echo esc_attr($title); ?>">
-            <label for="<?php echo esc_attr($this->get_field_id('id')); ?>"><?php esc_html_e('Select table: '); ?></label>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('id')); ?>"><?php esc_html_e('Select table:', 'supsystic_tables'); ?></label>
             <select id="<?php echo esc_attr($this->get_field_id('id')); ?>" class="widefat" name="<?php echo esc_attr($this->get_field_name('id')); ?>">
+                <option value=""><?php esc_html_e('— Select a table —', 'supsystic_tables'); ?></option>
                 <?php foreach ($options as $id => $label) { ?>
                     <option value="<?php echo esc_attr($id); ?>" <?php selected(!empty($instance['id']) ? (int) $instance['id'] : 0, $id); ?>><?php echo esc_html($label); ?></option>
                 <?php } ?>

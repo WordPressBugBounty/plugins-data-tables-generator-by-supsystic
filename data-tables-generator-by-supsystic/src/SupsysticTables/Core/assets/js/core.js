@@ -1419,8 +1419,32 @@ var g_stbServerSideProcessingIsActive = false;
           }
         }
         if (multipleSorting && multipleSorting.length) {
-          aaSorting = $.grep(multipleSorting, function (sortItem) {
-            return sortItem && sortItem.length && !isSortingDisabledForColumn(sortItem[0], sortingDisable);
+          // The same editor numbers as for the disabled columns above: map them to the printed columns, which include the
+          // Auto Index "new" column and leave hidden columns out. A merged header can't be mapped, so only the index column is added.
+          var sortHeadCells = $table.find('thead tr:first th'),
+            canMapSortColumns = sortHeadCells.filter('[data-x]').length && !sortHeadCells.filter('[colspan]:not([colspan="1"])').length,
+            sortIndexShift = $table.data('auto-index') === 'new' ? 1 : 0;
+
+          aaSorting = $.map(multipleSorting, function (sortItem) {
+            if (!sortItem || !sortItem.length) {
+              return null;
+            }
+            var editorIndex = parseInt(sortItem[0], 10),
+              printedIndex = editorIndex + sortIndexShift;
+
+            if (canMapSortColumns) {
+              var sortCell = sortHeadCells.filter('[data-x="' + editorIndex + '"]');
+
+              if (!sortCell.length) {
+                return null;
+              }
+              printedIndex = sortCell.index();
+            }
+            if (isNaN(printedIndex) || isSortingDisabledForColumn(canMapSortColumns ? printedIndex : editorIndex, sortingDisable)) {
+              return null;
+            }
+
+            return [[printedIndex, sortItem[1]]];
           });
         } else {
           var columnsCount = $table.find('tr:first th').length,

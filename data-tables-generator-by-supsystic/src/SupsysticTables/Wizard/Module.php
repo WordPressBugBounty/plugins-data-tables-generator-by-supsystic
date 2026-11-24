@@ -22,13 +22,51 @@ class SupsysticTables_Wizard_Module extends SupsysticTables_Core_BaseModule
         $this->addAssets($this->getEnvironment()->getModule('ui'));
       }
     }
+    // Before other plugins' "+ New" items (they use 300), e.g. "Pricing Table" of the Pricing Table plugin
+    add_action('admin_bar_menu', [$this, 'addAdminBarNewItems'], 290);
+  }
+
+  /**
+   * Admin bar "+ New", with the Supsystic icon like every Supsystic plugin (plugins/.claude/fix/shared/adminbar-new-items.md):
+   * "Data Table" opens the table wizard like the plugin's Create table buttons, "Woo Product Table" and
+   * "Pricing Table" open it with that goal already chosen (#add-woo, #add-pricing).
+   *
+   * @param WP_Admin_Bar $adminBar
+   */
+  public function addAdminBarNewItems($adminBar)
+  {
+    $config = $this->getEnvironment()->getConfig();
+    $menu = $config->get('plugin_menu');
+    if (!is_object($adminBar) || !is_array($menu) || empty($menu['menu_slug']) || !current_user_can(!empty($menu['capability']) ? $menu['capability'] : 'manage_options')) {
+      return;
+    }
+    $url = admin_url('admin.php?page=' . $menu['menu_slug']);
+    $icon = '<img src="' . esc_url($config->get('plugin_url') . '/app/assets/img/supsystic-adminbar.png') . '" alt="" width="16" height="16" style="width:16px;height:16px;vertical-align:middle;margin:-3px 6px 0 0;display:inline-block;">';
+    $adminBar->add_menu([
+      'parent' => 'new-content',
+      'id' => $menu['menu_slug'] . '-admin-bar-new-item',
+      'title' => $icon . esc_html__('Data Table', 'supsystic_tables'),
+      'href' => $url . '#add',
+    ]);
+    $adminBar->add_menu([
+      'parent' => 'new-content',
+      'id' => $menu['menu_slug'] . '-admin-bar-new-woo-item',
+      'title' => $icon . esc_html__('Woo Product Table', 'supsystic_tables'),
+      'href' => $url . '#add-woo',
+    ]);
+    $adminBar->add_menu([
+      'parent' => 'new-content',
+      'id' => $menu['menu_slug'] . '-admin-bar-new-pricing-item',
+      'title' => $icon . esc_html__('Pricing Table', 'supsystic_tables'),
+      'href' => $url . '#add-pricing',
+    ]);
   }
 
   private function addAssets(SupsysticTables_Ui_Module $ui)
   {
     $environment = $this->getEnvironment();
     $hook = 'admin_enqueue_scripts';
-    $version = $environment->getConfig()->get('plugin_version') . '-wizard-8';
+    $version = $environment->getConfig()->get('plugin_version') . '-wizard-9';
     $cachingAllowed = $environment->isProd();
 
     $ui->add($ui->createStyle('supsystic-tables-wizard-css')->setHookName($hook)->setModuleSource($this, 'css/tables.wizard.css')->setVersion($version)->setCachingAllowed($cachingAllowed));

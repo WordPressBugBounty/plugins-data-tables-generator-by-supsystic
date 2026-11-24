@@ -3,8 +3,8 @@ Contributors: supsysticcom
 Tags: table, datatable, table builder, spreadsheet, product table
 Requires at least: 5.9
 Tested up to: 7.1
-Requires PHP: 7.3
-Stable tag: 1.17.0
+Requires PHP: 7.4
+Stable tag: 1.18.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,14 @@ Data Tables Generator includes its own MCP server. Connect ChatGPT, Claude, Gemi
 * One table on many pages: edit it once and every copy updates
 * Custom CSS per table for advanced styling
 * REST API to read and write table data as JSON
+
+= Works with Gutenberg, Elementor and widgets =
+
+* **Gutenberg block "Data Tables"**: pick a table in the sidebar and see it live in the editor, with sorting and search. You'll find it in the "Supsystic" block category.
+* **Block widget editor**: add the same block to a sidebar or footer under Appearance → Widgets.
+* **Classic WordPress widget "Data Tables by Supsystic"** for themes and sites that use classic widgets.
+* **Elementor widget "Data Tables"**: live preview right in Elementor, with the table picker and Edit / Create links in the panel.
+* **Classic editor**: the "Insert a Data Table" toolbar button adds the shortcode for you, or paste `[supsystic-tables id=1]` anywhere.
 
 = Data Tables Generator Pro =
 
@@ -244,6 +252,17 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.18.0 — November 21, 2026 =
+
+* New: the "Data Tables" block shows your table live in the editor, with the table picker in the sidebar and links to edit it or create a new one. All Supsystic blocks now sit together in their own "Supsystic" category.
+* New: the Elementor widget shows the table live as you build the page, with Edit and Create links in the panel.
+* New: "Insert a Data Table" button in the classic editor toolbar: pick a table from a searchable list.
+* New: create a data table, a WooCommerce product table or a pricing table straight from "+ New" in the admin bar.
+* Improved: the "Data Tables by Supsystic" widget for sidebars and footers has a clear table picker, and the Data Tables menu has a fresh Supsystic icon.
+* Improved: pages with a pricing table load faster, and pricing styles load only where a pricing table is shown.
+* Fixed: formulas now follow their cells when you insert or delete rows and columns, and sorting by several columns always picks the right column.
+* Fixed: pricing tables keep accented letters and symbols (é, ×, →) on every site, keep their designed size on every theme and keep their checkmarks centred.
 
 = 1.17.0 — November 16, 2026 =
 

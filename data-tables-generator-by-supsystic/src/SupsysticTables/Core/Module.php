@@ -162,8 +162,8 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     /* iCheck */
     $ui->add($ui->createScript('tables-iCheck')->setHookName($hookName)->setLocalSource('js/plugins/icheck.min.js')->addDependency('jquery')->setCachingAllowed(true)->setVersion('1.0.2'));
 
-    /* Supsystic UI */
-    $ui->add($ui->createStyle('supTablesUI')->setHookName($hookName)->setLocalSource('css/libraries/supsystic/suptablesui.min.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
+    /* Supsystic UI (its global box-sizing rules are kept off the WP admin menu and admin bar: plugins/.claude/fix/shared/suptablesui-global-box-sizing.md) */
+    $ui->add($ui->createStyle('supTablesUI')->setHookName($hookName)->setLocalSource('css/libraries/supsystic/suptablesui.min.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-admin-chrome-1'));
 
     $ui->add($ui->createStyle('tables-ui-inputs')->setHookName($hookName)->setLocalSource('css/libraries/supsystic/inputs.css')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion));
 

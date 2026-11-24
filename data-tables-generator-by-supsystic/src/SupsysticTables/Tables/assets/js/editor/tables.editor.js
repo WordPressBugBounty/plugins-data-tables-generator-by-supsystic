@@ -271,7 +271,7 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
             meta = editor.bufferMeta,
             merge = editor.bufferMerge;
 
-          updateFormulas(editor.pageStop + 1, 0, 'down', amount);
+          updateFormulas({ row: rowForBuffer }, amount);
 
           for (var n = 0; n < amount; n++) {
             editor.bufferData.splice(rowForBuffer + n, 0, data[i]);
@@ -333,7 +333,7 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
             meta = editor.bufferMeta,
             merge = editor.bufferMerge;
 
-          updateFormulas(0, insertColumnIndex, 'right', amount);
+          updateFormulas({ col: insertColumnIndex }, amount);
 
           for (var i = data.length - 1; i >= 0; i--) {
             for (var n = 0; n < amount; n++) {
@@ -383,7 +383,7 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
           merge = editor.bufferMerge,
           mergeNew = [];
 
-        updateFormulas(editor.pageStop + 1, 0, 'up', amount);
+        updateFormulas({ row: rowForBuffer }, -amount);
 
         editor.bufferData.splice(rowForBuffer, amount);
         editor.bufferHeights.splice(rowForBuffer, amount);
@@ -464,7 +464,7 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
           mergeNew = [],
           mergeCur = [];
 
-        updateFormulas(0, colAfter, 'left', amount);
+        updateFormulas({ col: from }, -amount);
 
         for (var i = data.length - 1; i >= 0; i--) {
           data[i].splice(from, amount);
@@ -697,14 +697,20 @@ var g_stbIsDataEdited = { settings: false, source: false, history: false, woocom
       }
     }
 
-    function updateFormulas(row, col, direction, amount) {
-      var data = editor.bufferData,
-        countCols = editor.bufferCols;
+    // Paged editor: shift the formula references of the rows that are not on the current page after a row or column
+    // was inserted or removed (the page itself is handled by Handsontable and the formula plugin). Like there, only
+    // references at or after the changed row/column move. change = {row: buffer row index} or {col: column index},
+    // delta = +amount (insert) or -amount (remove).
+    function updateFormulas(change, delta) {
+      var data = editor.bufferData;
 
-      for (var i = row; i < data.length; i++) {
-        for (var j = col; j < countCols; j++) {
-          if (data[i][j] && data[i][j][0] === '=') {
-            data[i][j] = editor.plugin.utils.updateFormula(data[i][j], direction, amount);
+      for (var i = 0; i < data.length; i++) {
+        if (i >= editor.pageStart && i <= editor.pageStop) {
+          continue;
+        }
+        for (var j = 0; j < data[i].length; j++) {
+          if (typeof data[i][j] === 'string' && data[i][j][0] === '=') {
+            data[i][j] = '=' + editor.plugin.utils.changeFormula(data[i][j].substr(1), delta, change);
           }
         }
       }

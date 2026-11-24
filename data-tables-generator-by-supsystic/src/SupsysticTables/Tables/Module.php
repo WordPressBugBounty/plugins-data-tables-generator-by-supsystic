@@ -860,6 +860,27 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     return '@tables/shortcode.twig';
   }
 
+  /**
+   * Whether the table is a pricing table. Unknown (no such table, an old schema) counts as not pricing, so such a
+   * table keeps the assets it always had.
+   *
+   * @param int $tableId
+   * @return bool
+   */
+  protected function isPricingTable($tableId)
+  {
+    static $types = [];
+    $tableId = (int) $tableId;
+    if (!array_key_exists($tableId, $types)) {
+      global $wpdb;
+      $name = $wpdb->prefix . $this->getEnvironment()->getConfig()->get('db_prefix') . 'tables';
+      $suppress = $wpdb->suppress_errors(true);
+      $types[$tableId] = $wpdb->get_var($wpdb->prepare("SELECT table_type FROM {$name} WHERE id = %d", $tableId));
+      $wpdb->suppress_errors($suppress);
+    }
+    return $types[$tableId] === 'pricing_table';
+  }
+
   public function doShortcode($attributes)
   {
     $environment = $this->getEnvironment();
@@ -876,7 +897,8 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $this->tableSearch = $attributes['search'];
     }
     $ui = $environment->getModule('ui');
-    $assets = array_filter($ui->getAssets(), [$this, 'filterAssets']);
+    // A pricing table brings its own styles and script; the DataTables files (~1.5 MB) are only for the other tables (B069)
+    $assets = $this->isPricingTable($tableId) ? [] : array_filter($ui->getAssets(), [$this, 'filterAssets']);
 
     if (count($assets) > 0) {
       foreach ($assets as $asset) {
@@ -1021,6 +1043,22 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
   public function registerWidget()
   {
     register_widget('SupsysticTables_Widget');
+    // The block widget editor offers the plugin's block, so the same widget is not offered again through "Legacy
+    // Widget". Placed widgets keep working and stay editable; the classic widget screen still lists it.
+    add_filter('widget_types_to_hide_from_legacy_widget_block', [$this, 'hideLegacyWidget']);
+  }
+
+  /**
+   * @param string[] $types
+   * @return string[]
+   */
+  public function hideLegacyWidget($types)
+  {
+    $types = (array) $types;
+    if (!in_array('tables_widget', $types, true)) {
+      $types[] = 'tables_widget';
+    }
+    return $types;
   }
 
   private function registerTwigTableRender()
@@ -1436,7 +1474,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     // Scripts
     $ui->add($ui->createScript('supsystic-tables-handsontable-js')->setHookName($hookName)->setModuleSource($this, 'libraries/handsontable/handsontable.min.js')->setCachingAllowed(true)->setVersion('7.1.1'));
 
-    $ui->add($ui->createScript('supsystic-tables-rulejs-hot-js')->setHookName($hookName)->setModuleSource($this, 'libraries/ruleJS/handsontable.formula.js')->addDependency('supsystic-tables-handsontable-js'));
+    $ui->add($ui->createScript('supsystic-tables-rulejs-hot-js')->setHookName($hookName)->setModuleSource($this, 'libraries/ruleJS/handsontable.formula.js')->addDependency('supsystic-tables-handsontable-js')->setVersion($this->getEnvironment()->getConfig()->get('plugin_version') . '-formula-shift-1'));
   }
 
   private function loadEyeconColorpicker(SupsysticTables_Ui_Module $ui)

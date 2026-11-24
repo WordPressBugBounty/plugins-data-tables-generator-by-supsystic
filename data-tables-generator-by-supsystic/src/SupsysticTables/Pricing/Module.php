@@ -41,15 +41,89 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
     $url = plugin_dir_url(__FILE__) . 'assets/';
     wp_register_style('supsystic-pricing-fonts', $url . 'css/pricing.fonts.css', [], '1.0.0');
     wp_register_style('supsystic-pricing-icons', $url . 'css/font-awesome.min.css', [], '4.7.0');
-    wp_register_style('supsystic-pricing', $url . 'css/pricing.frontend.css', ['supsystic-pricing-fonts', 'supsystic-pricing-icons'], '1.6.4');
+    wp_register_style('supsystic-pricing', $url . 'css/pricing.frontend.css', ['supsystic-pricing-fonts', 'supsystic-pricing-icons'], '1.6.7');
     wp_register_script('supsystic-pricing-base', $url . 'js/pricing.frontend.js', [], '1.2.5', true);
+    // Since 1.15.0 every page of the site loaded these styles (with FontAwesome 4 and the builder's @font-face rules),
+    // also pages without a pricing table. Now the head gets them only when the page shows one; a table the scan
+    // below cannot see (widget, theme template) prints them right before itself in render().
+    if ($this->pageHasPricingTable()) {
+      $this->enqueueFrontendAssets();
+    }
+  }
+
+  /**
+   * Enqueues the styles a pricing table needs. PRO adds its theme styles.
+   */
+  public function enqueueFrontendAssets()
+  {
     wp_enqueue_style('supsystic-pricing');
+  }
+
+  /**
+   * Style handles enqueueFrontendAssets() adds (their dependencies come with them).
+   *
+   * @return string[]
+   */
+  public function getFrontendStyleHandles()
+  {
+    return ['supsystic-pricing'];
+  }
+
+  /**
+   * Whether the posts of this request show a pricing table: the [supsystic-tables] shortcode, the block or the
+   * Elementor widget in their content. Checked once per request.
+   *
+   * @return bool
+   */
+  private function pageHasPricingTable()
+  {
+    static $has = null;
+    if ($has !== null) {
+      return $has;
+    }
+    $has = false;
+    global $wp_query, $wpdb;
+    if (is_admin() || !$wp_query || empty($wp_query->posts) || !is_array($wp_query->posts)) {
+      return $has;
+    }
+    $shortcode = preg_quote((string) $this->getConfig()->get('shortcode_name'), '/');
+    $ids = [];
+    foreach ($wp_query->posts as $post) {
+      if (!is_object($post) || !isset($post->ID)) {
+        continue;
+      }
+      $sources = [isset($post->post_content) ? (string) $post->post_content : ''];
+      $elementor = get_post_meta($post->ID, '_elementor_data', true);
+      if (is_string($elementor) && $elementor !== '') {
+        $sources[] = $elementor;
+      }
+      foreach ($sources as $text) {
+        if ($text === '' || (stripos($text, 'supsystic') === false)) {
+          continue;
+        }
+        if (preg_match_all('/\[\s*' . $shortcode . '\s[^\]]*?\bid\s*=\s*\\\\?["\']?(\d+)/i', $text, $m)) {
+          $ids = array_merge($ids, $m[1]);
+        }
+        if (preg_match_all('/wp:supsystic-tables\/data-table\s+\{[^}]*"tableId"\s*:\s*"?(\d+)/', $text, $m)) {
+          $ids = array_merge($ids, $m[1]);
+        }
+        if (preg_match_all('/"widgetType"\s*:\s*"supsystic_data_tables"/', $text) && preg_match_all('/"table_id"\s*:\s*"?(\d+)/', $text, $m)) {
+          $ids = array_merge($ids, $m[1]);
+        }
+      }
+    }
+    $ids = array_slice(array_values(array_unique(array_filter(array_map('intval', $ids)))), 0, 100);
+    if ($ids) {
+      $table = $wpdb->prefix . $this->getConfig()->get('db_prefix') . 'tables';
+      $has = (bool) $wpdb->get_var("SELECT id FROM {$table} WHERE table_type = 'pricing_table' AND id IN (" . implode(',', $ids) . ') LIMIT 1');
+    }
+    return $has;
   }
 
   public function getCanvasStyles()
   {
     $url = plugin_dir_url(__FILE__) . 'assets/';
-    return [add_query_arg('ver', '1.0.0', $url . 'css/pricing.fonts.css'), add_query_arg('ver', '4.7.0', $url . 'css/font-awesome.min.css'), add_query_arg('ver', '1.6.4', $url . 'css/pricing.frontend.css')];
+    return [add_query_arg('ver', '1.0.0', $url . 'css/pricing.fonts.css'), add_query_arg('ver', '4.7.0', $url . 'css/font-awesome.min.css'), add_query_arg('ver', '1.6.7', $url . 'css/pricing.frontend.css')];
   }
 
   public function getFontLibrary()
@@ -215,8 +289,16 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
       $data['template'] = 'classic';
     }
     $this->registerFrontendAssets();
-    wp_enqueue_style('supsystic-pricing');
+    $this->enqueueFrontendAssets();
     wp_enqueue_script('supsystic-pricing-base');
+    // The head is already out and did not have the styles (a table the page scan did not find): print them here,
+    // before the table, so it is never shown unstyled. They are then marked done and not printed again.
+    $styleLinks = '';
+    if (did_action('wp_head') && !doing_action('wp_head') && !is_admin() && !wp_doing_ajax() && !(defined('REST_REQUEST') && REST_REQUEST)) {
+      ob_start();
+      wp_print_styles($this->getFrontendStyleHandles());
+      $styleLinks = (string) ob_get_clean();
+    }
     foreach ((array) ($data['fonts'] ?? []) as $font) {
       if ($this->isGoogleFont($font)) {
         $handle = 'supsystic-pricing-font-' . sanitize_key($font);
@@ -226,7 +308,7 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
     if ((!empty($data['toggle']) && $this->getCapabilities()['toggle']) || (!empty($data['ajaxToggle']) && $this->getCapabilities()['ajaxToggle']) || ($this->getCapabilities()['schedule'] && strpos($data['html'], 'data-visible-') !== false)) {
       wp_enqueue_script('supsystic-pricing');
     }
-    return $this->getEnvironment()->getTwig()->render('@pricing/frontend.twig', [
+    return $styleLinks . $this->getEnvironment()->getTwig()->render('@pricing/frontend.twig', [
       'table' => $table,
       'builder' => $data,
       'scopedCss' => $builder->scopeCss($data['css'], $table->id),

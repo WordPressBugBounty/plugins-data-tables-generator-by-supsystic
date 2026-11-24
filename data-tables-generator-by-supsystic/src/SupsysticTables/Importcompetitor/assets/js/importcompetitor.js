@@ -506,7 +506,7 @@
   $(function () {
     var offer = boot.offer;
     // The wizard opens by this address: one window at a time
-    if (!offer || window.location.hash === '#add' || readClosed(offer.source)) {
+    if (!offer || /^#add(-[a-z]+)?$/.test(window.location.hash) || readClosed(offer.source)) {
       return;
     }
     window.setTimeout(function () {

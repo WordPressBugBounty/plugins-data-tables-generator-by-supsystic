@@ -30,7 +30,7 @@ class SupsysticTables_Importcompetitor_Module extends SupsysticTables_Core_BaseM
       return;
     }
     $url = untrailingslashit(plugin_dir_url(__FILE__)) . '/assets';
-    $version = $this->getEnvironment()->getConfig()->get('plugin_version') . '-import-2';
+    $version = $this->getEnvironment()->getConfig()->get('plugin_version') . '-import-3';
     wp_enqueue_style('supsystic-tables-import-competitor-css', $url . '/css/importcompetitor.css', [], $version);
     wp_enqueue_script('supsystic-tables-import-competitor-js', $url . '/js/importcompetitor.js', ['jquery', 'tables-core'], $version, true);
 
