@@ -119,6 +119,21 @@
     });
   }
 
+  // A table the plugin printed has the attribute "stb-rendered" (WordPress never keeps it in the content of users without
+  // unfiltered_html). Other markup can not send the request to another site.
+  function wooAddress(table) {
+    var value = table.getAttribute('data-woo-url') || '';
+    if (table.hasAttribute('stb-rendered')) { return value; }
+    try {
+      var address = new URL(value, window.location.href);
+      return address.origin === window.location.origin && /\/admin-ajax\.php$/.test(address.pathname) ? address.href : '';
+    } catch (ignore) { return ''; }
+  }
+
+  function pageAddress(value) {
+    try { return /^(?:javascript|data|vbscript|blob|filesystem):$/i.test(new URL(value, window.location.href).protocol) ? '' : value; } catch (ignore) { return ''; }
+  }
+
   document.addEventListener('click', function (event) {
     var button = event.target.closest('.st-pricing-woo-cart-button');
     if (!button) { return; }
@@ -135,11 +150,11 @@
         block.insertAdjacentElement('afterend', status);
       }
     }
-    if (!table || table.getAttribute('data-woo-active') !== '1') {
+    if (!table || table.getAttribute('data-woo-active') !== '1' || !wooAddress(table)) {
       if (status) { status.textContent = 'WooCommerce is unavailable.'; status.classList.add('is-error'); }
       return;
     }
-    var redirectUrl = block.getAttribute('data-st-redirect-url') || '';
+    var redirectUrl = pageAddress(block.getAttribute('data-st-redirect-url') || '');
     var redirectTarget = block.getAttribute('data-st-redirect-target') === '_blank' ? '_blank' : '_self';
     var redirectWindow = null;
     if (redirectUrl && redirectTarget === '_blank') {
@@ -152,7 +167,7 @@
       action: 'supsystic_pricing_woo_cart', nonce: table.getAttribute('data-woo-nonce') || '',
       products: block.getAttribute('data-st-products') || '', coupon: block.getAttribute('data-st-coupon') || ''
     });
-    fetch(table.getAttribute('data-woo-url'), { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: body.toString() })
+    fetch(wooAddress(table), { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: body.toString() })
       .then(function (response) { return response.json(); })
       .then(function (response) {
         if (!response.success) { throw new Error(response.data && response.data.message || 'Could not add products'); }

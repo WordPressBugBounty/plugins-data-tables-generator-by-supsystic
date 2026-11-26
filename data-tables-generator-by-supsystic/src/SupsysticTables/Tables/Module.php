@@ -10,6 +10,14 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
   protected $isTablePart = [];
   const MAX_PART_COLUMNS = 1024;
   /**
+   * Stands for the bracket of a shortcode shown as text until the table is printed
+   */
+  const TEXT_BRACKET = "stb-bracket";
+  /**
+   * Keys of the tables printed on this page, see addOriginKey()
+   */
+  protected static $originKeys = [];
+  /**
    * Data for loading tables' rows from history
    */
   public $isFromHistory = [];
@@ -351,10 +359,14 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     $this->checkSpreadsheet = $hasAutoImportSource || ($this->checkSpreadsheet && !$table->isPageRows);
 
     if (!$table->isWooProductTable && !$table->isSSP && !isset($table->settings['disableCache']) && empty($this->tableSearch) && !$this->isSingleCell && !$this->isTablePart && !$this->checkSpreadsheet && !$this->isFromHistory && file_exists($cachePath) && $this->getEnvironment()->isProd()) {
-      // Connect scripts and styles depending on table settings and table's cells settings for table cache
-      $dispatcher->apply('before_table_render', [$table]);
-      $dispatcher->apply('before_table_render_from_cache', [$table]);
-      return file_get_contents($cachePath);
+      $cached = (string) file_get_contents($cachePath);
+      // Markup cached by a version before 1.18.1 is rendered again, see addOriginKey()
+      if (strpos($cached, ' stb-rendered="1" ') !== false) {
+        // Connect scripts and styles depending on table settings and table's cells settings for table cache
+        $dispatcher->apply('before_table_render', [$table]);
+        $dispatcher->apply('before_table_render_from_cache', [$table]);
+        return $cached;
+      }
     }
     if ($this->checkSpreadsheet) {
       try {
@@ -500,6 +512,10 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
             }
           }
           $table->rows[$key]['cells'][$index]['data'] = $this->getCellOutput($table, $table->rows[$key]['cells'][$index]);
+          if (isset($table->rows[$key]['cells'][$index]['calculatedValue']) && is_string($table->rows[$key]['cells'][$index]['calculatedValue'])) {
+            $calculated = $table->rows[$key]['cells'][$index]['calculatedValue'];
+            $table->rows[$key]['cells'][$index]['calculatedValue'] = $this->keepShortcodeText($calculated, $calculated);
+          }
         }
       }
     }
@@ -531,6 +547,8 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
 
     $renderData = $twig->render($this->getShortcodeTemplate(), ['table' => $table, 'is_feed' => is_feed()]);
     $renderData = preg_replace('/\s+/iu', ' ', trim($renderData));
+    // Not "&#91;": do_shortcode() turns that into "[" again
+    $renderData = str_replace(self::TEXT_BRACKET, '&#x5B;', (string) $renderData);
 
     $tablesStyles = is_array($this->_tablesStyles) ? $this->_tablesStyles : [$this->_tablesStyles];
     if (!in_array($table->view_id, $tablesStyles)) {
@@ -564,7 +582,24 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       $data = $this->getEnvironment()->getModule('core')->getModelsFactory()->get('tables')->sanitizeString(urldecode($data));
     }
 
-    return do_shortcode($data);
+    return $this->keepShortcodeText($data, do_shortcode($data));
+  }
+
+  /**
+   * [[name]] is a shortcode shown as text (values typed by visitors are stored so). It must stay text also where the content
+   * gets one more round of shortcodes after the table: in a block, an Elementor widget or another shortcode.
+   * @param string $value Stored value
+   * @param string $output Its markup
+   * @return string
+   */
+  protected function keepShortcodeText($value, $output)
+  {
+    if (strpos($value, '[[') === false || strpos($output, '[') === false || empty($GLOBALS['shortcode_tags'])) {
+      return $output;
+    }
+    $tags = implode('|', array_map('preg_quote', array_keys($GLOBALS['shortcode_tags'])));
+
+    return (string) preg_replace('/\[(?=\[*\/?(?:' . str_replace('/', '\/', $tags) . ')(?![\w-]))/', self::TEXT_BRACKET, $output);
   }
 
   /**
@@ -931,7 +966,40 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     }
 
     $this->shortAttributes = $attributes;
-    return $this->render($tableId);
+    return $this->addOriginKey($this->render($tableId));
+  }
+
+  /**
+   * core.js starts only the tables the plugin printed, never a table written by hand in a post: that would let a user who can
+   * only write posts run the script over attributes of their choice. The template prints the attribute "stb-rendered", which
+   * WordPress never keeps in the content of users without unfiltered_html. The key is for themes that run wp_kses over the
+   * finished output: it is new on every request and listed in the page. The markup can come from the cache of the plugin, so
+   * the template holds a placeholder (the first one belongs to the table itself).
+   * @param mixed $html
+   * @return mixed
+   */
+  public function addOriginKey($html)
+  {
+    $placeholder = 'data-stb-key="SUPORIGINKEY"';
+    $position = is_string($html) ? strpos($html, $placeholder) : false;
+    if ($position === false) {
+      return $html;
+    }
+    $key = wp_generate_password(20, false);
+    self::$originKeys[$key] = 1;
+    if (!has_action('wp_footer', [__CLASS__, 'printOriginKeys'])) {
+      add_action('wp_footer', [__CLASS__, 'printOriginKeys'], 100);
+    }
+
+    return substr_replace($html, 'data-stb-key="' . $key . '"', $position, strlen($placeholder));
+  }
+
+  public static function printOriginKeys()
+  {
+    if (self::$originKeys) {
+      $script = '(function(w){var k=w.stbTableKeys;w.stbTableKeys=Object.assign(Object.prototype.toString.call(k)==="[object Object]"?k:{},' . wp_json_encode(self::$originKeys) . ')})(window);';
+      echo function_exists('wp_get_inline_script_tag') ? wp_get_inline_script_tag($script) : '<script>' . $script . "</script>\n";
+    }
   }
 
   public function doValueShortcode($attributes)
@@ -965,7 +1033,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
     }
     $this->isSingleCell = ['row' => (int) $attributes['row'], 'col' => (int) $this->_lettersToNumbers($attributes['col'])];
 
-    return $this->render((int) (int) $attributes['id']);
+    return $this->addOriginKey($this->render((int) (int) $attributes['id']));
   }
 
   public function doTablePartShortcode($attributes)
@@ -992,7 +1060,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       'col' => $this->getPartItems(isset($attributes['col']) ? $attributes['col'] : '', self::MAX_PART_COLUMNS, true),
     ];
 
-    return $this->render((int) $attributes['id']);
+    return $this->addOriginKey($this->render((int) $attributes['id']));
   }
 
   /**
@@ -1437,7 +1505,7 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       return;
     }
 
-    $ui->add($ui->createScript('supsystic-tables-featherlight-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/featherlight/featherlight.min.js')->setCachingAllowed(true)->addDependency('jquery')->setVersion('1.7.13'));
+    $ui->add($ui->createScript('supsystic-tables-featherlight-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/featherlight/featherlight.min.js')->setCachingAllowed(true)->addDependency('jquery')->setVersion('1.7.13-safe-1'));
 
     $ui->add($ui->createStyle('supsystic-tables-tables-featherlight-css')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/featherlight/featherlight.min.css')->setCachingAllowed(true)->setVersion('1.7.13'));
   }
@@ -1451,11 +1519,13 @@ class SupsysticTables_Tables_Module extends SupsysticTables_Core_BaseModule
       return;
     }
 
-    $ui->add($ui->createScript('supsystic-tables-rulejs-libs-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/ruleJS/ruleJS.lib.full.js'));
+    $version = $this->getEnvironment()->getConfig()->get('plugin_version') . '-safe-1';
+
+    $ui->add($ui->createScript('supsystic-tables-rulejs-libs-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/ruleJS/ruleJS.lib.full.js')->setVersion($version));
 
     $ui->add($ui->createScript('supsystic-tables-rulejs-parser-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/ruleJS/parser.js'));
 
-    $ui->add($ui->createScript('supsystic-tables-rulejs-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/ruleJS/ruleJS.js'));
+    $ui->add($ui->createScript('supsystic-tables-rulejs-js')->setHookName($dynamicHookName)->setModuleSource($this, 'libraries/ruleJS/ruleJS.js')->setVersion($version));
   }
 
   private function loadHandsontable(SupsysticTables_Ui_Module $ui)

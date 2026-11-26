@@ -75,6 +75,10 @@
       return;
     }
     doc.__stbPreviewReady = true;
+    // core.js starts only the tables the plugin printed, never markup of another block of the post
+    if (Object.prototype.toString.call(doc.defaultView.stbTableKeys) !== '[object Object]') {
+      doc.defaultView.stbTableKeys = {};
+    }
     var style = doc.createElement('style');
     style.id = 'supsystic-tables-block-preview-css';
     style.textContent = '.stb-block-preview .tblEditLink{display:none!important}';

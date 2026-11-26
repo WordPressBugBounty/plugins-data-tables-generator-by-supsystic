@@ -449,6 +449,9 @@ var ruleJS = function (root) {
           isHyperlinkFormula = formula && formula.toUpperCase().indexOf('HYPERLINK(') === 0;
 
         if (isHyperlinkFormula) {
+          if (window.supsystic && window.supsystic.Tables && typeof window.supsystic.Tables.safeHtml === 'function') {
+            renderedResult = window.supsystic.Tables.safeHtml(renderedResult, true);
+          }
           if (renderedResult != element.innerHTML) instance.isEdited = true;
           element.innerHTML = renderedResult;
         } else if (element.innerText) {
@@ -1728,6 +1731,13 @@ var ruleJS = function (root) {
             .replace(/&quot;/g, '"')
             .replace(/&amp;/g, '&');
 
+        // Nothing to decode: the cell stays as the page printed it
+        if (cellContent === cell.html()) {
+          return;
+        }
+        if (window.supsystic && window.supsystic.Tables && typeof window.supsystic.Tables.safeHtml === 'function') {
+          cellContent = window.supsystic.Tables.safeHtml(cellContent, true);
+        }
         cell.html(cellContent);
       });
     },

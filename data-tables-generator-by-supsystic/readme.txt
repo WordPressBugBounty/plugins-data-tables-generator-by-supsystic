@@ -4,7 +4,7 @@ Tags: table, datatable, table builder, spreadsheet, product table
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.18.0
+Stable tag: 1.18.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -252,6 +252,10 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.18.1 — November 25, 2026 =
+
+* General code improvements and security fixes.
 
 = 1.18.0 — November 21, 2026 =
 

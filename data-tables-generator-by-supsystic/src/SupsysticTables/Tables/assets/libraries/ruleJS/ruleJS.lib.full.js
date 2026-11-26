@@ -14455,6 +14455,308 @@ this.j$ = this.jStat = (function (Math, undefined) {
 (function () {
   var root = this;
 
+  /**
+   * The value of an expression made of cell values and a criterion, for example 5>3, "Kyiv"==="Lviv" or 0.05/12.
+   * Cells can be filled by visitors, so this reads literals and operators only (by the rules of JavaScript, which these
+   * functions always used) and never runs the text as code. Anything else is an error, as a broken expression was before.
+   */
+  function calculateExpression(source) {
+    if (typeof source !== 'string') {
+      return source;
+    }
+    var position = 0,
+      token = null,
+      BINARY = { '||': 1, '&&': 2, '|': 3, '^': 4, '&': 5, '==': 6, '!=': 6, '===': 6, '!==': 6, '<': 7, '>': 7, '<=': 7, '>=': 7, '<<': 8, '>>': 8, '>>>': 8, '+': 9, '-': 9, '*': 10, '/': 10, '%': 10, '**': 11 },
+      CONSTANTS = { true: true, false: false, null: null, undefined: undefined, NaN: NaN, Infinity: Infinity },
+      ESCAPES = { n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v' },
+      lastName = null,
+      statements = [],
+      result,
+      fail = function () {
+        throw new SyntaxError('Wrong expression');
+      };
+
+    function readString(quote) {
+      var value = '',
+        character,
+        match;
+      position++;
+      while (position < source.length) {
+        character = source.charAt(position++);
+        if (character === quote) {
+          return value;
+        }
+        if (character === '\n' || character === '\r') {
+          fail();
+        }
+        if (character !== '\\') {
+          value += character;
+          continue;
+        }
+        character = source.charAt(position++);
+        if (character === '') {
+          fail();
+        }
+        if (character === 'x' || character === 'u') {
+          match = (character === 'x' ? /^[0-9a-f]{2}/i : /^(?:[0-9a-f]{4}|\{0*(?:10|[0-9a-f])?[0-9a-f]{1,4}\})/i).exec(source.slice(position));
+          if (!match) {
+            fail();
+          }
+          position += match[0].length;
+          match = parseInt(match[0].replace(/[{}]/g, ''), 16);
+          value += match > 0xffff ? String.fromCharCode(0xd800 + ((match - 0x10000) >> 10), 0xdc00 + ((match - 0x10000) & 0x3ff)) : String.fromCharCode(match);
+        } else if (/[0-7]/.test(character)) {
+          match = /^(?:[0-3][0-7]{0,2}|[4-7][0-7]?)/.exec(source.slice(position - 1));
+          position += match[0].length - 1;
+          value += String.fromCharCode(parseInt(match[0], 8));
+        } else if (character === '\r' && source.charAt(position) === '\n') {
+          position++;
+        } else if (!/[\n\r\u2028\u2029]/.test(character)) {
+          value += ESCAPES.hasOwnProperty(character) ? ESCAPES[character] : character;
+        }
+      }
+      fail();
+    }
+
+    function readNumber() {
+      var rest = source.slice(position),
+        match,
+        value;
+      if ((match = /^0x([0-9a-f]+(?:_[0-9a-f]+)*)/i.exec(rest))) {
+        value = parseInt(match[1].replace(/_/g, ''), 16);
+      } else if ((match = /^0o([0-7]+(?:_[0-7]+)*)/i.exec(rest))) {
+        value = parseInt(match[1].replace(/_/g, ''), 8);
+      } else if ((match = /^0b([01]+(?:_[01]+)*)/i.exec(rest))) {
+        value = parseInt(match[1].replace(/_/g, ''), 2);
+      } else if ((match = /^0[0-7]+(?![0-9])/.exec(rest))) {
+        value = parseInt(match[0], 8);
+      } else if ((match = /^(?:0[0-9]+|0|[1-9][0-9]*(?:_[0-9]+)*)(?:\.(?:[0-9]+(?:_[0-9]+)*)?)?(?:e[+-]?[0-9]+(?:_[0-9]+)*)?/i.exec(rest)) || (match = /^\.[0-9]+(?:_[0-9]+)*(?:e[+-]?[0-9]+(?:_[0-9]+)*)?/i.exec(rest))) {
+        value = Number(match[0].replace(/_/g, ''));
+      } else {
+        fail();
+      }
+      position += match[0].length;
+      if (/[\w$.\\\u00aa-\uffff]/.test(source.charAt(position)) && !/[\s\ufeff\u2028\u2029]/.test(source.charAt(position))) {
+        fail();
+      }
+      return value;
+    }
+
+    function next() {
+      var character, match;
+      for (;;) {
+        match = /^(?:[\s\ufeff]+|\/\/[^\n\r\u2028\u2029]*|<!--[^\n\r\u2028\u2029]*|\/\*[\s\S]*?\*\/)/.exec(source.slice(position));
+        if (!match) {
+          break;
+        }
+        position += match[0].length;
+      }
+      character = source.charAt(position);
+      if (character === '') {
+        token = { type: 'end' };
+      } else if (character === '"' || character === "'") {
+        token = { type: 'value', value: readString(character) };
+      } else if (/[0-9]/.test(character) || (character === '.' && /[0-9]/.test(source.charAt(position + 1)))) {
+        token = { type: 'value', value: readNumber() };
+      } else if ((match = /^[A-Za-z_$\u00aa-\uffff][\w$\u00aa-\uffff]*/.exec(source.slice(position)))) {
+        position += match[0].length;
+        token = { type: 'name', value: match[0] };
+      } else if ((match = /^(?:>>>=?|===|!==|\*\*=?|\|\||&&|==|!=|<=|>=|<<=?|>>=?|\+\+|--|=>|[-+*\/%&|^]=|[-+*\/%&|^<>!~?:(),;=])/.exec(source.slice(position)))) {
+        position += match[0].length;
+        token = { type: 'sign', value: match[0] };
+      } else {
+        fail();
+      }
+    }
+
+    function isSign(sign) {
+      return token.type === 'sign' && token.value === sign;
+    }
+
+    // Each node is a function, so the parts that JavaScript skips (&&, ||, ?:) are read but not calculated
+    function primary() {
+      var current = token,
+        node;
+      lastName = null;
+      if (current.type === 'value') {
+        next();
+        return function () {
+          return current.value;
+        };
+      }
+      if (current.type === 'name') {
+        next();
+        node = function () {
+          if (!CONSTANTS.hasOwnProperty(current.value)) {
+            throw new ReferenceError(current.value + ' is not defined');
+          }
+          return CONSTANTS[current.value];
+        };
+        if (!/^(?:true|false|null)$/.test(current.value)) {
+          lastName = node;
+        }
+        return node;
+      }
+      if (isSign('(')) {
+        next();
+        node = sequence();
+        if (!isSign(')')) {
+          fail();
+        }
+        next();
+        lastName = null;
+        return node;
+      }
+      fail();
+    }
+
+    function unary() {
+      var sign = token.value,
+        node;
+      if (token.type === 'sign' && (sign === '+' || sign === '-' || sign === '!' || sign === '~')) {
+        next();
+        node = unary();
+        lastName = null;
+        if (isSign('**')) {
+          fail();
+        }
+        return function () {
+          var value = node();
+          return sign === '+' ? +value : sign === '-' ? -value : sign === '!' ? !value : ~value;
+        };
+      }
+      return primary();
+    }
+
+    function apply(sign, left, right) {
+      switch (sign) {
+        case '|':
+          return left | right;
+        case '^':
+          return left ^ right;
+        case '&':
+          return left & right;
+        case '==':
+          return left == right;
+        case '!=':
+          return left != right;
+        case '===':
+          return left === right;
+        case '!==':
+          return left !== right;
+        case '<':
+          return left < right;
+        case '>':
+          return left > right;
+        case '<=':
+          return left <= right;
+        case '>=':
+          return left >= right;
+        case '<<':
+          return left << right;
+        case '>>':
+          return left >> right;
+        case '>>>':
+          return left >>> right;
+        case '+':
+          return left + right;
+        case '-':
+          return left - right;
+        case '*':
+          return left * right;
+        case '/':
+          return left / right;
+        case '%':
+          return left % right;
+      }
+      return Math.pow(left, right);
+    }
+
+    function join(sign, left, right) {
+      return function () {
+        var value = left();
+        if (sign === '&&') {
+          return value && right();
+        }
+        if (sign === '||') {
+          return value || right();
+        }
+        return apply(sign, value, right());
+      };
+    }
+
+    function binary(level) {
+      var left = unary(),
+        sign;
+      while (token.type === 'sign' && BINARY.hasOwnProperty(token.value) && BINARY[token.value] >= level) {
+        sign = token.value;
+        next();
+        left = join(sign, left, binary(sign === '**' ? BINARY[sign] : BINARY[sign] + 1));
+        lastName = null;
+      }
+      return left;
+    }
+
+    function assignment() {
+      var condition = binary(1),
+        yes,
+        no;
+      if (isSign('=') && lastName === condition) {
+        // name=value has always given the value here; nothing is stored
+        next();
+        return assignment();
+      }
+      if (!isSign('?')) {
+        return condition;
+      }
+      next();
+      yes = assignment();
+      if (!isSign(':')) {
+        fail();
+      }
+      next();
+      no = assignment();
+      lastName = null;
+      return function () {
+        return condition() ? yes() : no();
+      };
+    }
+
+    function sequence() {
+      var list = [assignment()];
+      while (isSign(',')) {
+        next();
+        list.push(assignment());
+        lastName = null;
+      }
+      return list.length === 1
+        ? list[0]
+        : function () {
+            var value, i;
+            for (i = 0; i < list.length; i++) {
+              value = list[i]();
+            }
+            return value;
+          };
+    }
+
+    next();
+    while (token.type !== 'end') {
+      if (isSign(';')) {
+        next();
+        continue;
+      }
+      statements.push(sequence());
+      if (token.type !== 'end' && !isSign(';')) {
+        fail();
+      }
+    }
+    statements.forEach(function (statement) {
+      result = statement();
+    });
+    return result;
+  }
+
   var Formula = (root.Formula = {});
   var _ = root._;
   var numeral = root.numeral;
@@ -14677,7 +14979,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
           var count = 0;
           var singleResultIndexes = [];
           for (var k = 0; k < criteriaValues.length; k++) {
-            if (eval(criteriaValues[k] + criteria[j][i])) {
+            if (calculateExpression(criteriaValues[k] + criteria[j][i])) {
               singleResultIndexes[count++] = k;
             }
           }
@@ -17314,9 +17616,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Credits: Hannes Stiebitzhofer for the translations of function and variable names
       // Requires Formula.FV() and Formula.PMT() from Formula.js [http://stoic.com/formula/]
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
 
       // Return error if either rate, periods, or value are lower than or equal to zero
       if (rate <= 0 || periods <= 0 || value <= 0) {
@@ -17362,9 +17664,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Credits: Hannes Stiebitzhofer for the translations of function and variable names
       // Requires Formula.FV() and Formula.PMT() from Formula.js [http://stoic.com/formula/]
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
 
       // Return error if either rate, periods, or value are lower than or equal to zero
       if (rate <= 0 || periods <= 0 || value <= 0) {
@@ -17595,8 +17897,8 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Initialize type
       type = typeof type === 'undefined' ? 0 : type;
 
-      // Evaluate rate (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
+      // Evaluate rate (literals and operators only)
+      rate = calculateExpression(rate);
 
       // Return future value
       var result;
@@ -17642,9 +17944,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Initialize type
       type = typeof type === 'undefined' ? 0 : type;
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
 
       // Compute payment
       var payment = Formula.PMT(rate, periods, present, future, type);
@@ -17746,9 +18048,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
     };
 
     Formula.ISPMT = function (rate, period, periods, value) {
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
 
       // Return interest
       return value * rate * (period / periods - 1);
@@ -17804,8 +18106,8 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Initialize future value
       future = typeof future === 'undefined' ? 0 : future;
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
 
       // Return number of periods
       var num = payment * (1 + rate * type) - future * rate;
@@ -17873,9 +18175,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
       type = typeof type === 'undefined' ? 0 : type;
       future = future || 0;
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
       // Return payment
       var result;
       if (rate === 0) {
@@ -17911,9 +18213,9 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Initialize type
       type = typeof type === 'undefined' ? 0 : type;
 
-      // Evaluate rate and periods (TODO: replace with secure expression evaluator)
-      rate = eval(rate);
-      periods = eval(periods);
+      // Evaluate rate and periods (literals and operators only)
+      rate = calculateExpression(rate);
+      periods = calculateExpression(periods);
 
       // Return present value
       if (rate === 0) {
@@ -17935,8 +18237,8 @@ this.j$ = this.jStat = (function (Math, undefined) {
       // Initialize type
       type = typeof type === 'undefined' ? 0 : type;
 
-      // Evaluate periods (TODO: replace with secure expression evaluator)
-      periods = eval(periods);
+      // Evaluate periods (literals and operators only)
+      periods = calculateExpression(periods);
 
       // Set maximum epsilon for end of iteration
       var epsMax = 1e-10;
@@ -18927,7 +19229,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
         for (var i = 0; i < range.length; i++) {
           range[i] = range[i] === null ? '' : range[i];
           range[i] = typeof range[i] == 'string' ? '"' + range[i].replace(/\'/g, "\\'").replace(/\"/g, '\\"') + '"' : range[i];
-          result += eval(range[i] + criteria) ? sum_range[i] : 0;
+          result += calculateExpression(range[i] + criteria) ? sum_range[i] : 0;
         }
       } else {
         result = '#N/A';
@@ -19129,7 +19431,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
             if (!/[<>=!]/.test(newCriteria)) {
               newCriteria = '=="' + newCriteria + '"';
             }
-            if (eval(range[i] + newCriteria)) {
+            if (calculateExpression(range[i] + newCriteria)) {
               result += average_range[i];
               average_count++;
             }
@@ -19167,7 +19469,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
             condition += '&&';
           }
         }
-        if (eval(condition)) {
+        if (calculateExpression(condition)) {
           result += range[i];
           count++;
         }
@@ -19290,7 +19592,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
               newCriteria = newCriteria.replace('=', '');
               newCriteria = '=="' + newCriteria + '"';
             }
-            if (eval(range[i] + newCriteria)) {
+            if (calculateExpression(range[i] + newCriteria)) {
               matches++;
             }
           } else {
@@ -19326,7 +19628,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
       for (var i = 0; i < range.length; i++) {
         var fit = true;
         for (var j = 0; j < criteria; j++) {
-          if (!eval(arguments[2 * j + 1][i] + arguments[2 * j + 2])) {
+          if (!calculateExpression(arguments[2 * j + 1][i] + arguments[2 * j + 2])) {
             fit = false;
           }
         }
@@ -20479,6 +20781,10 @@ this.j$ = this.jStat = (function (Math, undefined) {
     Formula.HYPERLINK = function (url, linkLabel) {
       linkLabel = linkLabel ? linkLabel : url;
       window.supsystic.Tables._hyperlinkUrl = url; // to collect correct calculate value during table saving
+      // The result is used as HTML, and cells can be filled by visitors
+      if (typeof linkLabel === 'string' && linkLabel.indexOf('<') !== -1) {
+        linkLabel = typeof window.supsystic.Tables.safeHtml === 'function' ? window.supsystic.Tables.safeHtml(linkLabel, true) : linkLabel.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
 
       var res = linkLabel,
         protocols = ['http', 'https', 'mailto', 'aim:', 'ftp', 'gopher', 'telnet'],
@@ -20491,7 +20797,7 @@ this.j$ = this.jStat = (function (Math, undefined) {
           protocolChecked = true;
         }
         if (protocols.indexOf(linkArr[0]) !== -1 || protocolChecked) {
-          res = '<a href="' + url + '" target="_blank">' + linkLabel + '</a>';
+          res = '<a href="' + url.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '" target="_blank">' + linkLabel + '</a>';
         }
       }
       return res;

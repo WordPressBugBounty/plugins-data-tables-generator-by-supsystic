@@ -42,7 +42,7 @@ class SupsysticTables_Pricing_Module extends SupsysticTables_Core_BaseModule
     wp_register_style('supsystic-pricing-fonts', $url . 'css/pricing.fonts.css', [], '1.0.0');
     wp_register_style('supsystic-pricing-icons', $url . 'css/font-awesome.min.css', [], '4.7.0');
     wp_register_style('supsystic-pricing', $url . 'css/pricing.frontend.css', ['supsystic-pricing-fonts', 'supsystic-pricing-icons'], '1.6.7');
-    wp_register_script('supsystic-pricing-base', $url . 'js/pricing.frontend.js', [], '1.2.5', true);
+    wp_register_script('supsystic-pricing-base', $url . 'js/pricing.frontend.js', [], '1.2.6', true);
     // Since 1.15.0 every page of the site loaded these styles (with FontAwesome 4 and the builder's @font-face rules),
     // also pages without a pricing table. Now the head gets them only when the page shows one; a table the scan
     // below cannot see (widget, theme template) prints them right before itself in render().

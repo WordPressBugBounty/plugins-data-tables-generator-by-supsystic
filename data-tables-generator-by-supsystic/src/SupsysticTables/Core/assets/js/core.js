@@ -10,8 +10,254 @@ var g_stbServerSideProcessingIsActive = false;
   var ruleJSInstances = [];
   var extraConfig = {};
 
+  // HTML that comes from attributes, cell values or formulas: these tags and attributes stay, everything that can run is dropped
+  var SAFE_TAGS = /^(?:a|abbr|acronym|address|area|article|aside|audio|b|bdi|bdo|big|blockquote|br|button|canvas|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|fieldset|figcaption|figure|font|footer|form|h[1-6]|header|hgroup|hr|i|img|input|ins|kbd|label|legend|li|main|map|mark|menu|meter|nav|nobr|ol|optgroup|option|output|p|picture|pre|progress|q|rb|rp|rt|rtc|ruby|s|samp|search|section|select|small|source|span|strike|strong|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|tr|track|tt|u|ul|var|video|wbr)$/,
+    SAFE_SVG = /^(?:svg|a|circle|clippath|defs|desc|ellipse|fe(?:blend|colormatrix|componenttransfer|composite|convolvematrix|diffuselighting|displacementmap|distantlight|dropshadow|flood|func[abgr]|gaussianblur|merge|mergenode|morphology|offset|pointlight|specularlighting|spotlight|tile|turbulence)|filter|g|image|line|lineargradient|marker|mask|path|pattern|polygon|polyline|radialgradient|rect|stop|switch|symbol|text|textpath|title|tspan|use|animate|animatemotion|animatetransform|mpath|set)$/,
+    DROP_TAGS = /^(?:script|style|object|embed|applet|base|link|meta|noscript|template|xmp|noembed|noframes|plaintext|math|title|frame|frameset)$/,
+    SAFE_ATTRIBUTES = /^(?:abbr|accept|accept-charset|accesskey|action|add_to_cart_button|ajax_add_to_cart|align|alt|aria-[\w-]+|autocapitalize|autocomplete|autocorrect|autofocus|autoplay|axis|background|bgcolor|border|bordercolor|capture|cellpadding|cellspacing|char|charoff|charset|checked|cite|class|clear|color|cols|colspan|compact|content|contenteditable|controls|controlslist|coords|crossorigin|data-[\w-]+|datetime|decoding|default|dir|dirname|disabled|disablepictureinpicture|download|draggable|enctype|enterkeyhint|face|fetchpriority|for|form|formaction|formenctype|formmethod|formnovalidate|formtarget|frame|headers|height|hidden|high|href|hreflang|hspace|id|inert|inputmode|ismap|item(?:id|prop|ref|scope|type)|kind|label|lang|list|loading|longdesc|loop|low|max|maxlength|media|method|min|minlength|multiple|muted|name|nohref|noshade|novalidate|nowrap|open|optimum|pattern|placeholder|playsinline|popover|popovertarget|popovertargetaction|poster|preload|prefix|property|readonly|referrerpolicy|rel|required|rev|reversed|role|rows|rowspan|rules|scope|scrolling|selected|shape|size|sizes|span|spellcheck|src|srclang|srcset|start|step|style|summary|tabindex|target|title|translate|type|typeof|usemap|valign|value|vspace|width|wrap|xml:lang)$/,
+    // The names of other elements become properties of the window or of the document
+    NAMED_TAGS = /^(?:input|select|textarea|button|output|fieldset|a|map|details)$/,
+    SAFE_FRAME_ATTRIBUTES = /^(?:allow|allowfullscreen|allowpaymentrequest|allowtransparency|align|aria-[\w-]+|border|class|csp|data-[\w-]+|fetchpriority|frameborder|height|hspace|id|lang|loading|marginheight|marginwidth|(?:moz|webkit|o|ms)allowfullscreen|referrerpolicy|role|sandbox|scrolling|src|style|tabindex|title|vspace|width)$/,
+    SAFE_SVG_ATTRIBUTES = /^(?!on|xml:base$)[a-z][\w:.-]*$/,
+    URL_ATTRIBUTES = /^(?:href|xlink:href|src|poster|background|cite|longdesc|action|formaction)$/,
+    URL_SPACES = /[\u0000-\u0020\u007f-\u00a0\u1680\u180e\u2000-\u200f\u2028-\u202f\u205f-\u2064\u3000\ufeff]+/g,
+    // "javascript:" and the like; spaces and control characters are dropped from the value before
+    SCRIPT_URL = /^(?:javascript|vbscript|livescript|mocha|data|blob|filesystem|jar|about|view-source):/i,
+    WEB_URL = /^(?:https?:|[^:]*$|[^:\/?#]*[\/?#])/i,
+    MEDIA_TAGS = /^(?:img|image|input|source|video|audio|track)$/,
+    SAFE_MEDIA_DATA = /^data:(?:image|audio|video)\/[\w.+-]+[;,]/i;
+
+  /**
+   * The same HTML without scripts, event handlers and script URLs. The markup is parsed in a document of its own, so nothing
+   * loads or runs meanwhile, and node properties are read past form fields that carry their names (DOM clobbering).
+   * @param {*} html
+   * @param {boolean} frames Keep the players and maps (iframe) of other sites
+   * @return {string}
+   */
+  function safeHtml(html, frames) {
+    html = html === undefined || html === null ? '' : String(html);
+    if (html.indexOf('<') === -1) {
+      return html;
+    }
+    try {
+      var result = cleanHtml(html, frames),
+        // The first line break of these elements is dropped on every reading
+        flat = function (value) {
+          return value.replace(/(<(?:pre|textarea)\b[^>]*>)\n+/g, '$1');
+        },
+        next,
+        pass;
+
+      // Some markup changes when it is read again (nested forms, for example): what is used must be what was checked
+      for (pass = 0; pass < 4; pass++) {
+        next = cleanHtml(result, frames);
+        if (flat(next) === flat(result)) {
+          return result;
+        }
+        result = next;
+      }
+    } catch (e) {}
+
+    // Nothing that could not be checked is used as HTML
+    return escapeText(html);
+  }
+
+  function cleanHtml(html, frames) {
+    var getter = function (proto, name) {
+        return Object.getOwnPropertyDescriptor(proto, name).get;
+      },
+      parentOf = getter(Node.prototype, 'parentNode'),
+      firstOf = getter(Node.prototype, 'firstChild'),
+      nameOf = getter(Node.prototype, 'nodeName'),
+      textOf = getter(Node.prototype, 'textContent'),
+      namespaceOf = getter(Element.prototype, 'namespaceURI'),
+      attributesOf = getter(Element.prototype, 'attributes'),
+      getAttribute = Element.prototype.getAttribute,
+      querySelector = Element.prototype.querySelector,
+      removeChild = Node.prototype.removeChild,
+      insertBefore = Node.prototype.insertBefore,
+      body = new DOMParser().parseFromString('<!doctype html><body>' + html, 'text/html').body,
+      walker = body.ownerDocument.createTreeWalker(body, NodeFilter.SHOW_COMMENT, null, false),
+      comments = [];
+
+    function isSafeSvg(el, tag) {
+      if (tag === 'style') {
+        // The classes of an icon: no markup, no other files
+        return !querySelector.call(el, '*') && !/[<&\\]|@(?:import|charset|namespace|font-face|document)|(?:url|image|image-set|src|expression)\s*\(/i.test(textOf.call(el).replace(/url\(\s*["']?#[\w-]+["']?\s*\)/gi, ''));
+      }
+      if (tag === 'title' || tag === 'desc') {
+        return !querySelector.call(el, '*');
+      }
+      if (/^(?:animate|animatemotion|animatetransform|set)$/.test(tag)) {
+        // Never an animated address
+        return /^(?!on|href|style$)[a-z-]*$/i.test(getAttribute.call(el, 'attributeName') || '');
+      }
+      return SAFE_SVG.test(tag);
+    }
+
+    function isSafeUrl(el, tag, name, value, isHtml) {
+      if (name === 'action') {
+        return tag === 'form' && WEB_URL.test(value);
+      }
+      if (name === 'formaction') {
+        // Not for a form of the page
+        return (tag === 'button' || tag === 'input') && getAttribute.call(el, 'form') === null && WEB_URL.test(value);
+      }
+      if (!isHtml && tag !== 'a' && tag !== 'image') {
+        return value.charAt(0) === '#';
+      }
+      return !SCRIPT_URL.test(value) || ((name === 'src' || name === 'poster' || tag === 'image') && MEDIA_TAGS.test(tag) && SAFE_MEDIA_DATA.test(value));
+    }
+
+    while (walker.nextNode()) {
+      comments.push(walker.currentNode);
+    }
+    comments.forEach(function (comment) {
+      removeChild.call(parentOf.call(comment), comment);
+    });
+    Array.prototype.slice.call(Element.prototype.querySelectorAll.call(body, '*')).forEach(function (el) {
+      var tag = String(nameOf.call(el)).toLowerCase(),
+        namespace = namespaceOf.call(el),
+        isHtml = namespace === 'http://www.w3.org/1999/xhtml',
+        isFrame = isHtml && tag === 'iframe',
+        parent = parentOf.call(el);
+
+      if (!parent) {
+        return;
+      }
+      if (isHtml ? DROP_TAGS.test(tag) || (isFrame && !frames) : namespace !== 'http://www.w3.org/2000/svg' || !isSafeSvg(el, tag)) {
+        removeChild.call(parent, el);
+        return;
+      }
+      if (isHtml && !isFrame && !SAFE_TAGS.test(tag)) {
+        while (firstOf.call(el)) {
+          insertBefore.call(parent, firstOf.call(el), el);
+        }
+        removeChild.call(parent, el);
+        return;
+      }
+      Array.prototype.slice.call(attributesOf.call(el)).forEach(function (attribute) {
+        var name = attribute.name.toLowerCase(),
+          value = attribute.value.replace(URL_SPACES, ''),
+          safe = (isHtml ? (isFrame ? SAFE_FRAME_ATTRIBUTES : SAFE_ATTRIBUTES) : SAFE_SVG_ATTRIBUTES).test(name) && !/^data-featherlight/.test(name);
+
+        if (safe && isHtml && name === 'name') {
+          safe = NAMED_TAGS.test(tag);
+        } else if (safe && isHtml && name === 'form') {
+          safe = tag === 'button';
+        } else if (safe && isFrame && name === 'src') {
+          safe = WEB_URL.test(value) || /^about:blank$/i.test(value);
+        } else if (safe && URL_ATTRIBUTES.test(name)) {
+          safe = isSafeUrl(el, tag, name, value, isHtml);
+        }
+        if (!safe) {
+          Element.prototype.removeAttributeNode.call(el, attribute);
+        }
+      });
+    });
+
+    return getter(Element.prototype, 'innerHTML').call(body);
+  }
+
+  function escapeText(value) {
+    return String(value === undefined || value === null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // The texts of the table controls (DataTables prints them as HTML). A language file by address is never loaded.
+  function safeLanguage(language) {
+    var result = $.isArray(language) ? [] : {};
+
+    $.each(language || {}, function (key, value) {
+      if (/^s?url$/i.test(key)) {
+        return;
+      }
+      result[key] = typeof value === 'string' ? safeHtml(value) : value && typeof value === 'object' ? safeLanguage(value) : value;
+    });
+
+    return result;
+  }
+
+  // DataTables takes any data-* attribute named like one of its options over the options of the script (data-ajax, data-data,
+  // data-language and others; on the header cells data-title and others). The plugin prints none of these but data-cell-type.
+  // A table that surely comes from the plugin keeps everything: a script of the site may have set an option there.
+  function dropDataTablesOptions($table) {
+    if (!$table[0] || Element.prototype.hasAttribute.call($table[0], 'stb-rendered')) {
+      return;
+    }
+    var tableOptions = { responsive: 1, fixedHeader: 1, fixedColumns: 1, buttons: 1, select: 1, colReorder: 1, rowGroup: 1, rowReorder: 1, scroller: 1, keys: 1, autoFill: 1, searchPanes: 1, searchBuilder: 1 },
+      columnOptions = {},
+      collect = function (list, defaults) {
+        $.each(defaults || {}, function (name) {
+          list[name] = 1;
+          list[
+            name.replace(/^(?:ao|aa|ai|an|as|a|b|fn|i|j|m|o|s)([A-Z])/, function (match, letter) {
+              return letter.toLowerCase();
+            })
+          ] = 1;
+        });
+      },
+      drop = function ($element, list) {
+        $.each($element.data() || {}, function (name, value) {
+          if (list[name] === 1 && (name !== 'cellType' || !/^(?:text|numeric|number|date|time|dropdown|autocomplete|checkbox|td|th)$/.test(value))) {
+            $element.removeData(name).removeAttr(
+              'data-' +
+                name.replace(/[A-Z]/g, function (letter) {
+                  return '-' + letter.toLowerCase();
+                })
+            );
+          }
+        });
+      };
+
+    collect(tableOptions, $.fn.dataTable.defaults);
+    collect(columnOptions, $.fn.dataTable.defaults.column);
+    drop($table, tableOptions);
+    $table
+      .children('thead')
+      .find('th, td')
+      .each(function () {
+        drop($(this), columnOptions);
+      });
+  }
+
+  // An element with the id "ajaxurl" in the page content must not stand in for the address
+  function ajaxUrl() {
+    if (typeof window.ajaxurl === 'string') {
+      return window.ajaxurl;
+    }
+    return typeof ajax_obj !== 'undefined' && typeof ajax_obj.ajaxurl === 'string' ? ajax_obj.ajaxurl : '';
+  }
+
   if (!(appName in vendor)) {
     vendor[appName] = {};
+
+    vendor[appName].safeHtml = safeHtml;
+    vendor[appName].escapeHtml = escapeText;
+    vendor[appName].getAjaxUrl = ajaxUrl;
+
+    /**
+     * Only the tables the plugin printed are started, never markup written by hand in a post: that would let a user who can
+     * only write posts run this script over attributes of their choice. The table has the attribute "stb-rendered", which
+     * WordPress never keeps in the content of users without unfiltered_html, or a key of this request that the server listed
+     * in the page (for themes that run wp_kses over the finished output). A page cached before this version has no list and
+     * works as before.
+     * @param {Element} el
+     * @return {boolean}
+     */
+    vendor[appName].isPrinted = function (el) {
+      var keys = window.stbTableKeys;
+
+      if (!keys || Element.prototype.hasAttribute.call(el, 'stb-rendered')) {
+        return true;
+      }
+      // An element with the id "stbTableKeys" in the page content is not the list
+      return Object.prototype.toString.call(keys) === '[object Object]' && Object.prototype.hasOwnProperty.call(keys, Element.prototype.getAttribute.call(el, 'data-stb-key') || '') === true;
+    };
 
     vendor[appName].getAppName = function () {
       return appName;
@@ -120,7 +366,7 @@ var g_stbServerSideProcessingIsActive = false;
       }
       data.action = 'supsystic-tables';
 
-      var url = window.ajaxurl ? window.ajaxurl : ajax_obj.ajaxurl,
+      var url = ajaxUrl(),
         deferred = jQuery.Deferred();
 
       jQuery
@@ -210,11 +456,20 @@ var g_stbServerSideProcessingIsActive = false;
 
     vendor[appName]._initTablesOnPage = function (id) {
       var tables = jQuery(typeof id != 'undefined' ? '#supsystic-table-' + id + ':not(.dataTable)' : '.supsystic-table');
+      var self = this;
+
+      // A table that the plugin did not print stays the plain table it is
+      tables = tables.filter(function () {
+        if (self.isPrinted(this)) {
+          return true;
+        }
+        jQuery(this).closest('.supsystic-tables-wrap').css('visibility', 'visible').prev('.supsystic-table-loader').hide();
+        return false;
+      });
       if (tables.length == 0) return;
       if (typeof this._initTablesOnPageWoo === 'function') this._initTablesOnPageWoo(id);
 
-      var self = this,
-        firstTableId = '',
+      var firstTableId = '',
         firstTableViewId = '',
         firstTable = '',
         firstTableWrapper = '',
@@ -1047,7 +1302,10 @@ var g_stbServerSideProcessingIsActive = false;
             itemsHtml = '',
             i = 0;
 
-          iconItems = isNaN(iconItems) || iconItems < 0 ? 0 : iconItems;
+          iconItems = isNaN(iconItems) || iconItems < 0 ? 0 : Math.min(iconItems, 100);
+          iconName = escapeText(iconName);
+          processingColor = escapeText(processingColor);
+          processingBg = escapeText(processingBg);
           if (iconName === 'default') {
             return '<div class="stb-processing-loader-wrap" style="background-color:' + processingBg + ';"><div class="supsystic-table-loader spinner" style="background-color:' + processingColor + ';"></div></div>';
           }
@@ -1683,7 +1941,7 @@ var g_stbServerSideProcessingIsActive = false;
       //$table.find('.invisibleCell').siblings('td').addClass('invisibleCell');
 
       // Add translation
-      var langData = typeof g_stbTblLangData != 'undefined' ? JSON.parse(g_stbTblLangData) : $table.data('translation'),
+      var langData = typeof g_stbTblLangData == 'string' ? JSON.parse(g_stbTblLangData) : $table.data('translation'),
         translation = langData || {},
         override = $table.data('override');
 
@@ -1703,7 +1961,7 @@ var g_stbServerSideProcessingIsActive = false;
           translation['s' + key.charAt(0).toUpperCase() + key.substr(1)] = value;
         }
       });
-      config.language = translation;
+      config.language = safeLanguage(translation);
       config.language.processing = '';
       config.language.sProcessing = '';
 
@@ -1732,7 +1990,7 @@ var g_stbServerSideProcessingIsActive = false;
           processing: true,
           serverSide: true,
           ajax: {
-            url: window.ajaxurl ? window.ajaxurl : ajax_obj.ajaxurl,
+            url: ajaxUrl(),
             type: 'POST',
             beforeSend: function () {
               g_stbServerSideProcessingIsActive = true;
@@ -1879,6 +2137,7 @@ var g_stbServerSideProcessingIsActive = false;
       // if (typeof jQuery.fn.dataTable.ext.order.intl !== "undefined") {
       jQuery.fn.dataTable.ext.order.intl();
       // }
+      dropDataTablesOptions($table);
       tableInstance = $table.dataTable(jQuery.extend({}, defaultFeatures, config, extraConfig, ajaxSource, reinit));
       tableInstance.table_id = $table.data('id');
       tableInstance.table_view_id = $table.data('view-id');
@@ -2511,13 +2770,16 @@ var g_stbServerSideProcessingIsActive = false;
                 if (pair.length && pair[1].match(/[A-Za-z]/)) {
                   valueCell = cell.parents('tr:first').find('[data-cell-id="' + pair[1] + y + '"]');
                   if (valueCell.length) {
-                    pair[1] = jQuery.trim(valueCell.html());
+                    // The text goes into an attribute
+                    pair[1] = jQuery.trim(valueCell.html()).replace(/"/g, '&quot;');
                   }
                 }
                 newB[i] = pair.join('=');
               }
               newB = newB.join('&amp;');
-              a = a.replace(b, newB);
+              a = a.replace(b, function () {
+                return newB;
+              });
             }
             return a;
           }
@@ -2814,6 +3076,10 @@ var g_stbServerSideProcessingIsActive = false;
               value = numeral(value).format(preparedFormat);
             }
           }
+        }
+        // The text around a formatted value (currency sign, date format) comes from the attributes of the table and the cell
+        if (String(value) !== shownValue) {
+          value = safeHtml(value, true);
         }
         this.stbPrintedValue = String(value);
         // Writing the same text again would only rebuild the cell and drop what is inside it

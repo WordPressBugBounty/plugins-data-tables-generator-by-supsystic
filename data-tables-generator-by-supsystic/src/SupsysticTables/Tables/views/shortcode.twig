@@ -254,7 +254,7 @@
         {% endif %}
     {% endblock %}
     <table
-            id="supsystic-table-{{ table.id }}"
+            id="supsystic-table-{{ table.id }}" stb-rendered="1" data-stb-key="SUPORIGINKEY"
             class="{{'supsystic-table'}}{{ ' ' }}{% if classicVariables %}stb-classic-table{{ ' ' }}{% endif %}{% if table.table_type|default('default') not in ['woo_product_table', 'pricing_table'] %}stb-classic-sortable{{ ' ' }}{% endif %}{{ table.settings.styling | keys | join(' ') }}
             {{ ' ' }}
             {% if 'border' in table.settings.styling | keys %}

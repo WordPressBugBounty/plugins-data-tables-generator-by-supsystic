@@ -52,6 +52,8 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     wp_localize_script('tables-core', 'ajax_obj', [
       'ajaxurl' => admin_url('admin-ajax.php'),
     ]);
+    // The list of tables the plugin printed, see SupsysticTables_Tables_Module::addOriginKey()
+    wp_add_inline_script('tables-core', 'if(Object.prototype.toString.call(window.stbTableKeys)!=="[object Object]")window.stbTableKeys={};', 'before');
   }
 
   public function addCommonPluginData()
@@ -139,7 +141,7 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
     $ui->add($ui->createStyle('jquery-contextmenu')->setHookName($dynamicHookName)->setModuleSource($this, 'css/lib/jquery.contextMenu.min.css')->setVersion('2.6.4'));
 
     /* Core script with common functions in supsystic.Tables namespace */
-    $ui->add($ui->createScript('tables-core')->setHookName($dynamicHookName)->setModuleSource($this, 'js/core.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-layout-3-cf5'));
+    $ui->add($ui->createScript('tables-core')->setHookName($dynamicHookName)->setModuleSource($this, 'js/core.js')->addDependency('jquery')->setCachingAllowed($cachingAllowed)->setVersion($pluginVersion . '-layout-3-cf6'));
 
     add_action('wp_enqueue_scripts', [$this, 'enquieAjaxUrl'], 999);
     add_action($dynamicHookName, [$this, 'addCommonPluginData'], 999);
@@ -476,6 +478,9 @@ class SupsysticTables_Core_Module extends SupsysticTables_Core_BaseModule
       }
 
       $this->cleanTablesCache();
+      // Elementor keeps the markup of its accordion, tabs and some other widgets for a day, tables in them included: an old
+      // table has no mark of the printed tables (see SupsysticTables_Tables_Module::addOriginKey())
+      delete_post_meta_by_key('_elementor_element_cache');
       update_option($optionName, $currentVersion);
     }
 
